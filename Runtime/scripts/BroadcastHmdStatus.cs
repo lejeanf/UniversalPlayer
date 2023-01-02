@@ -3,27 +3,30 @@ using UnityEngine.XR;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
 
-public class BroadcastHmdStatus : MonoBehaviour
+namespace jeanf.vrplayer 
 {
-    public delegate void HmdStatus(bool status);
-    public static HmdStatus hmdStatus;
-
-    public static bool isHmdOn()
+    public class BroadcastHmdStatus : MonoBehaviour
     {
-        bool hmdState = false;
+        public delegate void HmdStatus(bool status);
+        public static HmdStatus hmdStatus;
 
-        var xrDisplaySubsystems = new List<XRDisplaySubsystem>();
-        SubsystemManager.GetInstances<XRDisplaySubsystem>(xrDisplaySubsystems);
-        
-        foreach (var xrDisplay in xrDisplaySubsystems)
+        public static bool isHmdOn()
         {
-            if (xrDisplay.running)
-            {
-                hmdState = true;
-            }
-        }
+            bool hmdState = false;
 
-        hmdStatus?.Invoke(hmdState);
-        return hmdState;
+            var xrDisplaySubsystems = new List<XRDisplaySubsystem>();
+            SubsystemManager.GetInstances<XRDisplaySubsystem>(xrDisplaySubsystems);
+
+            foreach (var xrDisplay in xrDisplaySubsystems)
+            {
+                if (xrDisplay.running)
+                {
+                    hmdState = true;
+                }
+            }
+
+            hmdStatus?.Invoke(hmdState);
+            return hmdState;
+        }
     }
 }
