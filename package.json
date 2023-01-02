@@ -18,7 +18,7 @@
     "com.unity.feature.vr": "1.0.0",
     "com.unity.xr.oculus": "3.0.2",
     "com.unity.xr.openxr": "1.4.2",
-    "com.unity.vectorgraphics": "2.0.0-preview.20",
+    "com.unity.vectorgraphics": "2.0.0",
     "com.unity.xr.interaction.toolkit": "2.2.0"
   },
   "samples": [
