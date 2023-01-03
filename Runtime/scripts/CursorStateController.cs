@@ -14,7 +14,7 @@ namespace jeanf.vrplayer
         enum CursorState
         {
             on_locked,
-            on_free,
+            on_constrained,
             off,
         }
         CursorState cursorState = CursorState.on_locked;
@@ -50,7 +50,7 @@ namespace jeanf.vrplayer
 
         void CheckIpadState(bool state)
         {
-            if (state) cursorState = CursorState.on_free;
+            if (state) cursorState = CursorState.on_constrained;
             else { cursorState = CursorState.on_locked; }
             SetCursor(cursorState);
         }
@@ -59,7 +59,7 @@ namespace jeanf.vrplayer
         {
             switch (cursorState)
             {
-                case CursorState.on_free:
+                case CursorState.on_constrained:
                     Cursor.visible = true;
                     Cursor.lockState = CursorLockMode.Confined;
                     cursor_outter.enabled = false;
