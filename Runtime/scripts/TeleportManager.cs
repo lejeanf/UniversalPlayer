@@ -42,7 +42,7 @@ namespace jeanf.vrplayer
 
         void Load(int floorNb)
         {
-            ResetCameraOffset.resetCameraOffset?.Invoke();
+            MouseLook.ResetCamera?.Invoke();
             loadFloor?.Invoke(floorNb);
             teleportPositions[floorNb - 1].GetComponent<SendTeleportTarget>().Teleport();
         }

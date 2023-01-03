@@ -18,7 +18,9 @@ namespace jeanf.vrplayer
         [SerializeField] private InputActionReference mouseXY;
         [SerializeField] float smoothing = .1f;
         [Space(10)]
-        [SerializeField] private Transform cameraOffset;
+        [SerializeField] Camera camera;
+        [SerializeField] Transform cameraOffset;
+        private Transform originalCameraOffset;
         [SerializeField] private bool _isHmdActive = false;
         [SerializeField] private float min = -60.0f;
         [SerializeField] private float max = 75.0f;
@@ -26,8 +28,13 @@ namespace jeanf.vrplayer
         private Vector2 rotation = Vector2.zero;
         private bool cameraOffsetReset = false;
 
+        //events
+        public delegate void ResetCameraOffset();
+        public static ResetCameraOffset ResetCamera;
+
         private void Awake()
         {
+            originalCameraOffset = cameraOffset;
             SetMouse(false);
         }
         private void Update()
@@ -38,20 +45,28 @@ namespace jeanf.vrplayer
 
         void OnEnable()
         {
-            //mouseXY.action.performed += ctx => LookAround(ctx.ReadValue<Vector2>());
             BroadcastHmdStatus.hmdStatus += SetHmd;
+            ResetCamera += Reset;
         }
         void OnDestroy() => Unsubscribe();
         void OnDisable() => Unsubscribe();
         void Unsubscribe()
         {
             BroadcastHmdStatus.hmdStatus -= SetHmd;
-            //mouseXY.action.performed -= ctx => LookAround(ctx.ReadValue<Vector2>());
+            ResetCamera -= Reset;
+        }
+
+        void Reset()
+        {
+            camera.fieldOfView = 60f;
+            rotation = Vector2.zero;
+            cameraOffset.localPosition = originalCameraOffset.localPosition;
+            cameraOffset.localRotation = originalCameraOffset.localRotation;
         }
 
         void SetHmd(bool state)
         {
-            ResetCameraOffset.resetCameraOffset?.Invoke();
+            Reset();
             SetMouse(state);
             _isHmdActive = state;
         }
