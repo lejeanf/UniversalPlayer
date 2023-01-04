@@ -18,9 +18,10 @@ namespace jeanf.vrplayer
         [Header("Manual Switch Input")]
         [Tooltip("Input to manually switch the fade state")]
         [SerializeField] private InputAction inputBinding = new InputAction();
+        [FormerlySerializedAs("fadeTime")]
         [Space(10)]
         [Header("Fade Settings")]
-        [SerializeField] private float fadeTime = .2f;
+        [SerializeField] private static float _fadeTime = .2f;
         [SerializeField] private Color color = new Color(0, 0, 0, 1f);
         [Tooltip("This value will be used onAwake, if you want to start the game with a black screen, set alpha to 1")]
         [Range(0,1)]
@@ -29,8 +30,8 @@ namespace jeanf.vrplayer
         private static readonly int FadeColor = Shader.PropertyToID("_Color");
         private static readonly int FadeAlpha = Shader.PropertyToID("_Alpha");
 
-        private Material _shaderMaterial;
-        private bool _isFaded = false;
+        private static Material _shaderMaterial;
+        private static bool _isFaded = false;
 
         public delegate void SetColor(Color color);
         public static SetColor SetFadeColor;
@@ -65,7 +66,7 @@ namespace jeanf.vrplayer
             inputBinding.Enable();
             inputBinding.performed += _ => SwitchFadeState();
 
-            SetFadeTime += ctx => fadeTime = ctx;
+            SetFadeTime += ctx => _fadeTime = ctx;
             SetFadeColor += ctx => color = ctx;
             SetFadeAlpha += ctx => alpha = ctx;
             FadeTo += FadeValue; // using bool
@@ -80,31 +81,31 @@ namespace jeanf.vrplayer
             inputBinding.performed -= null;
             inputBinding.Disable();
 
-            SetFadeTime -= ctx => fadeTime = ctx;
+            SetFadeTime -= ctx => _fadeTime = ctx;
             SetFadeColor -= ctx => color = ctx;
             SetFadeAlpha -= ctx => alpha = ctx;
             FadeTo -= FadeValue;
             FadeToInSpecificTime -= FadeValue;
         }
 
-        public void SwitchFadeState()
+        public static void SwitchFadeState()
         {
             _isFaded = !_isFaded;
             FadeValue(_isFaded);
         }
-        public void FadeValue(bool value)
+        public static void FadeValue(bool value)
         {
             float tmpAlpha = value ? 1 : 0;
             var forwardTween = DOTween.To(
                 () => _shaderMaterial.GetFloat(FadeAlpha),
                 (val) => _shaderMaterial.SetFloat(FadeAlpha, val),
                 tmpAlpha,
-                fadeTime);
+                _fadeTime);
         }
-        public void FadeValue(bool value, float fadeTime)
+        public static void FadeValue(bool value, float fadeTime)
         {
             float tmpAlpha = value ? 1 : 0;
-            var forwardTween = DOTween.To(
+            DOTween.To(
                 () => _shaderMaterial.GetFloat(FadeAlpha),
                 (val) => _shaderMaterial.SetFloat(FadeAlpha, val),
                 tmpAlpha,
