@@ -32,7 +32,6 @@ namespace jeanf.vrplayer
 
         private static Material _shaderMaterial;
         private static bool _isFaded = false;
-        [SerializeField] private static bool useDebug = false;
         private void Awake()
         {
             alpha = 1;
@@ -76,7 +75,7 @@ namespace jeanf.vrplayer
         }
         public static void FadeValue(bool value, float fadeTime)
         {
-            if(useDebug) Debug.Log($"Fading to: {value}, in {fadeTime}s");
+            Debug.Log($"Fading to: {value}, in {fadeTime}s");
             float tmpAlpha = value ? 1 : 0;
             DOTween.To(
                 () => _shaderMaterial.GetFloat(FadeAlpha),
