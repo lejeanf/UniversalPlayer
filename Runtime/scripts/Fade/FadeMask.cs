@@ -32,18 +32,7 @@ namespace jeanf.vrplayer
 
         private static Material _shaderMaterial;
         private static bool _isFaded = false;
-
-        public delegate void SetColor(Color color);
-        public static SetColor SetFadeColor;
-        public delegate void SetAlpha(float alpha);
-        public static SetAlpha SetFadeAlpha;
-        public delegate void FadeTime(float alpha);
-        public static FadeTime SetFadeTime;
-        public delegate void FadeToValue(bool value);
-        public static FadeToValue FadeTo;
-        public delegate void FadeToValueInTime(bool value, float fadeTime);
-        public static FadeToValueInTime FadeToInSpecificTime;
-
+        [SerializeField] private static bool useDebug = false;
         private void Awake()
         {
             alpha = 1;
@@ -65,12 +54,6 @@ namespace jeanf.vrplayer
         {   
             inputBinding.Enable();
             inputBinding.performed += _ => SwitchFadeState();
-
-            SetFadeTime += ctx => _fadeTime = ctx;
-            SetFadeColor += ctx => color = ctx;
-            SetFadeAlpha += ctx => alpha = ctx;
-            FadeTo += FadeValue; // using bool
-            FadeToInSpecificTime += FadeValue; // using bool + float
         }
 
         private void OnDisable() => Unsubscribe();
@@ -80,12 +63,6 @@ namespace jeanf.vrplayer
         {
             inputBinding.performed -= null;
             inputBinding.Disable();
-
-            SetFadeTime -= ctx => _fadeTime = ctx;
-            SetFadeColor -= ctx => color = ctx;
-            SetFadeAlpha -= ctx => alpha = ctx;
-            FadeTo -= FadeValue;
-            FadeToInSpecificTime -= FadeValue;
         }
 
         public static void SwitchFadeState()
@@ -95,15 +72,11 @@ namespace jeanf.vrplayer
         }
         public static void FadeValue(bool value)
         {
-            float tmpAlpha = value ? 1 : 0;
-            var forwardTween = DOTween.To(
-                () => _shaderMaterial.GetFloat(FadeAlpha),
-                (val) => _shaderMaterial.SetFloat(FadeAlpha, val),
-                tmpAlpha,
-                _fadeTime);
+            FadeValue(value, _fadeTime);
         }
         public static void FadeValue(bool value, float fadeTime)
         {
+            if(useDebug) Debug.Log($"Fading to: {value}, in {fadeTime}s");
             float tmpAlpha = value ? 1 : 0;
             DOTween.To(
                 () => _shaderMaterial.GetFloat(FadeAlpha),
