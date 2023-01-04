@@ -7,9 +7,11 @@ using UnityEngine.Rendering.HighDefinition;
 using DG.Tweening;
 using UnityEngine.Serialization;
 
-[ExecuteAlways]
-public class FadeMask : MonoBehaviour
+namespace jeanf.vrplayer
 {
+    [ExecuteAlways]
+    public class FadeMask : MonoBehaviour
+    {
     private CustomPassVolume _customPassVolume;
 
     [FormerlySerializedAs("_inputBinding")]
@@ -26,7 +28,7 @@ public class FadeMask : MonoBehaviour
 
     private static readonly int FadeColor = Shader.PropertyToID("_Color");
     private static readonly int FadeAlpha = Shader.PropertyToID("_Alpha");
-    
+
     private Material _shaderMaterial;
     private bool _isFaded = false;
 
@@ -43,16 +45,16 @@ public class FadeMask : MonoBehaviour
 
     private void Awake()
     {
-        if (!_customPassVolume) _customPassVolume = GetComponent<CustomPassVolume>();
-        foreach (var pass in _customPassVolume.customPasses)
+    if (!_customPassVolume) _customPassVolume = GetComponent<CustomPassVolume>();
+    foreach (var pass in _customPassVolume.customPasses)
+    {
+        if (pass is FullScreenCustomPass f) 
         {
-            if (pass is FullScreenCustomPass f) 
-            {
-                _shaderMaterial = f.fullscreenPassMaterial;
-                _shaderMaterial.SetColor(FadeColor, color);
-                _shaderMaterial.SetFloat(FadeAlpha, alpha);
-            }
+            _shaderMaterial = f.fullscreenPassMaterial;
+            _shaderMaterial.SetColor(FadeColor, color);
+            _shaderMaterial.SetFloat(FadeAlpha, alpha);
         }
+    }
     }
 
     private void OnEnable()
@@ -66,7 +68,7 @@ public class FadeMask : MonoBehaviour
         FadeTo += FadeValue; // using bool
         FadeToInSpecificTime += FadeValue; // using bool + float
     }
- 
+
     private void OnDisable() => Unsubscribe();
     private void OnDestroy() => Unsubscribe();
 
@@ -74,7 +76,7 @@ public class FadeMask : MonoBehaviour
     {
         inputBinding.performed -= null;
         inputBinding.Disable();
-        
+
         SetFadeTime -= ctx => fadeTime = ctx;
         SetFadeColor -= ctx => color = ctx;
         SetFadeAlpha -= ctx => alpha = ctx;
@@ -89,20 +91,21 @@ public class FadeMask : MonoBehaviour
     }
     public void FadeValue(bool value)
     {
-        float tmpAlpha = value ? 1 : 0;
-        var forwardTween = DOTween.To(
-            () => _shaderMaterial.GetFloat(FadeAlpha),
-            (val) => _shaderMaterial.SetFloat(FadeAlpha, val),
-            tmpAlpha,
-            fadeTime);
+    float tmpAlpha = value ? 1 : 0;
+    var forwardTween = DOTween.To(
+        () => _shaderMaterial.GetFloat(FadeAlpha),
+        (val) => _shaderMaterial.SetFloat(FadeAlpha, val),
+        tmpAlpha,
+        fadeTime);
     }
     public void FadeValue(bool value, float fadeTime)
     {
-        float tmpAlpha = value ? 1 : 0;
-        var forwardTween = DOTween.To(
-            () => _shaderMaterial.GetFloat(FadeAlpha),
-            (val) => _shaderMaterial.SetFloat(FadeAlpha, val),
-            tmpAlpha,
-            fadeTime);
+    float tmpAlpha = value ? 1 : 0;
+    var forwardTween = DOTween.To(
+        () => _shaderMaterial.GetFloat(FadeAlpha),
+        (val) => _shaderMaterial.SetFloat(FadeAlpha, val),
+        tmpAlpha,
+        fadeTime);
+    }
     }
 }
