@@ -13968,7 +13968,7 @@ PrefabInstance:
     - target: {fileID: 8296258844715058247, guid: cfaabc650a878bc498252afd48565fb9,
         type: 3}
       propertyPath: alpha
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8296258844715058247, guid: cfaabc650a878bc498252afd48565fb9,
         type: 3}
@@ -13978,7 +13978,7 @@ PrefabInstance:
     - target: {fileID: 8296258844715058247, guid: cfaabc650a878bc498252afd48565fb9,
         type: 3}
       propertyPath: forceValueUpdate
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8296258844715058360, guid: cfaabc650a878bc498252afd48565fb9,
         type: 3}

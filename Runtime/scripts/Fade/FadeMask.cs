@@ -43,9 +43,6 @@ namespace jeanf.vrplayer
         public delegate void FadeToValueInTime(bool value, float fadeTime);
         public static FadeToValueInTime FadeToInSpecificTime;
 
-        #if UNITY_EDITOR    
-            [SerializeField] private bool forceValueUpdate;
-        #endif
         private void Awake()
         {
             alpha = 1;
@@ -62,18 +59,7 @@ namespace jeanf.vrplayer
                 }
             }
         }
-
-        private void Update()
-        {
-            #if UNITY_EDITOR
-                if(!forceValueUpdate) return;
-                
-                _shaderMaterial.SetFloat(FadeAlpha, alpha);
-                _shaderMaterial.SetColor(FadeColor, color);
-                forceValueUpdate = false;
-            #endif
-        }
-
+        
         private void OnEnable()
         {   
             inputBinding.Enable();
