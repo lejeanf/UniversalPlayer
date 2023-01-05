@@ -44,14 +44,14 @@ namespace jeanf.vrplayer
 
         void OnEnable()
         {
-            BroadcastHmdStatus.hmdStatus += SetHmd;
+            BroadcastHmdStatus.hmdStatus += SetCursor;
             ResetCamera += Reset;
         }
         void OnDestroy() => Unsubscribe();
         void OnDisable() => Unsubscribe();
         void Unsubscribe()
         {
-            BroadcastHmdStatus.hmdStatus -= SetHmd;
+            BroadcastHmdStatus.hmdStatus -= SetCursor;
             ResetCamera -= Reset;
         }
 
@@ -63,9 +63,9 @@ namespace jeanf.vrplayer
             cameraOffset.localRotation = originalCameraOffset.localRotation;
         }
 
-        void SetHmd(bool state)
+        void SetCursor(bool state)
         {
-            Debug.Log($"SetHMD");
+            Debug.Log($"SetCursor");
             Debug.Log($"state: {state}");
             Reset();
             SetMouse(state);
