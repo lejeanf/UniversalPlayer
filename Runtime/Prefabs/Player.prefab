@@ -2826,6 +2826,7 @@ GameObject:
   - component: {fileID: 8033696688626841662}
   - component: {fileID: 8033696688626841639}
   - component: {fileID: 8033696688626841636}
+  - component: {fileID: 5591485643007898917}
   m_Layer: 2
   m_Name: Player
   m_TagString: Untagged
@@ -3096,8 +3097,8 @@ MonoBehaviour:
   mouseSensitivity: 70
   mouseXY: {fileID: 8003033603002298466, guid: c348712bda248c246b8c49b3db54643f, type: 3}
   smoothing: 0
-  cameraOffset: {fileID: 8033696686951879508}
   camera: {fileID: 8033696686893207408}
+  cameraOffset: {fileID: 8033696686951879508}
   _isHmdActive: 0
   min: -60
   max: 75
@@ -3129,3 +3130,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cursor_outter: {fileID: 4107921028150789610}
   cursor_center: {fileID: 4107921029403828240}
+--- !u!114 &5591485643007898917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8694773027870397994}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0f2f466563af4e4b875278e5274f3ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hmdCurrentState: 0
+  hmdState: 0
