@@ -13056,16 +13056,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerSystem
       objectReference: {fileID: 0}
-    - target: {fileID: 2374903125212545809, guid: a1b4911946b19b64180430ad27be5bfc,
-        type: 3}
-      propertyPath: m_Camera
-      value: 
-      objectReference: {fileID: 6232745471265545190}
-    - target: {fileID: 2374903125212545809, guid: a1b4911946b19b64180430ad27be5bfc,
-        type: 3}
-      propertyPath: m_RenderMode
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6636445403781989071, guid: a1b4911946b19b64180430ad27be5bfc,
         type: 3}
       propertyPath: m_RootOrder
