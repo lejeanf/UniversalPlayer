@@ -1,81 +1,99 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VectorGraphics;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 namespace jeanf.vrplayer
 {
+    [RequireComponent(typeof(SVGImage))]
     public class CursorStateController : MonoBehaviour
     {
-        bool isCursorOn = false;
-        bool isIpadOn = false;
-        [SerializeField] SVGImage cursor_outter;
-        [SerializeField] SVGImage cursor_center;
-        enum CursorState
+        private bool _isCursorOn = false;
+        private bool _isIpadOn = false;
+        [SerializeField] private SVGImage cursorOuter;
+        [SerializeField] private SVGImage cursorCenter;
+
+        public delegate void SetCurrentCursorState(CursorState cursorState);
+        public static SetCurrentCursorState CurrentCursorState;
+
+        public enum CursorState
         {
-            on_locked,
-            on_constrained,
-            off,
+            OnLocked,
+            OnConstrained,
+            Off,
         }
-        CursorState cursorState = CursorState.on_locked;
-
+        private CursorState _cursorState = CursorState.OnLocked;
         private void Awake() => Init();
-
-        void OnEnable()
+        private void OnEnable()
         {
             BroadcastHmdStatus.hmdStatus += SetCursorState;
+            CurrentCursorState += SetCursorState;
         }
-        void OnDestroy() => Unsubscribe();
-        void OnDisable() => Unsubscribe();
-        void Unsubscribe()
+
+        private void OnDestroy() => Unsubscribe();
+        private void OnDisable() => Unsubscribe();
+
+        private void Unsubscribe()
         {
             BroadcastHmdStatus.hmdStatus -= SetCursorState;
+            CurrentCursorState -= SetCursorState;
         }
 
-        void Init()
+        private void Init()
         {
-            cursorState = CursorState.on_locked;
-            isIpadOn = false;
-            isCursorOn = true;
+            _cursorState = CursorState.OnLocked;
+            _isIpadOn = false;
+            _isCursorOn = true;
 
-            SetCursor(cursorState);
+            SetCursor(_cursorState);
         }
 
-        void SetCursorState(bool state)
+        private void SetCursorState(bool state)
         {
-            isCursorOn = state;
-            if (!isCursorOn) cursorState = CursorState.off;
-            else { CheckIpadState(isIpadOn); }
+            _isCursorOn = state;
+            if (!_isCursorOn) _cursorState = CursorState.Off;
+            else { CheckIpadState(_isIpadOn); }
         }
-
-        void CheckIpadState(bool state)
+        private void SetCursorState(CursorState state)
         {
-            if (state) cursorState = CursorState.on_constrained;
-            else { cursorState = CursorState.on_locked; }
-            SetCursor(cursorState);
+            SetCursor(state);
         }
 
-        void SetCursor(CursorState cursorState)
+        private void CheckIpadState(bool state)
+        {
+            _cursorState = state ? CursorState.OnConstrained : CursorState.OnLocked;
+            SetCursor(_cursorState);
+        }
+
+        private void SetCursor(CursorState cursorState)
         {
             switch (cursorState)
             {
-                case CursorState.on_constrained:
+                case CursorState.OnConstrained:
                     Cursor.visible = true;
                     Cursor.lockState = CursorLockMode.Confined;
-                    cursor_outter.enabled = false;
-                    cursor_center.enabled = false;
+                    cursorOuter.enabled = false;
+                    cursorCenter.enabled = false;
                     break;
-                case CursorState.on_locked:
+                case CursorState.OnLocked:
                     Cursor.visible = false;
                     Cursor.lockState = CursorLockMode.Locked;
-                    cursor_outter.enabled = true;
-                    cursor_center.enabled = true;
+                    cursorOuter.enabled = true;
+                    cursorCenter.enabled = true;
                     break;
-                case CursorState.off:
+                case CursorState.Off:
                     Cursor.visible = false;
                     Cursor.lockState = CursorLockMode.Locked;
-                    cursor_outter.enabled = false;
-                    cursor_center.enabled = false;
+                    cursorOuter.enabled = false;
+                    cursorCenter.enabled = false;
+                    break;
+                default:
+                    Cursor.visible = false;
+                    Cursor.lockState = CursorLockMode.Locked;
+                    cursorOuter.enabled = true;
+                    cursorCenter.enabled = true;
                     break;
             }
         }
