@@ -14089,6 +14089,11 @@ PrefabInstance:
       propertyPath: m_TargetCamera
       value: 
       objectReference: {fileID: 6232745471265545190}
+    - target: {fileID: 8296258844715058361, guid: cfaabc650a878bc498252afd48565fb9,
+        type: 3}
+      propertyPath: managedReferences[3898403225698566144].fullscreenPassMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 6a9a0be2d7fa376459aff7d26011208c, type: 2}
     - target: {fileID: 8296258844715058362, guid: cfaabc650a878bc498252afd48565fb9,
         type: 3}
       propertyPath: m_Name

@@ -9,7 +9,6 @@ using UnityEngine.Serialization;
 
 namespace jeanf.vrplayer
 {
-    [ExecuteAlways]
     public class FadeMask : MonoBehaviour
     {
         private CustomPassVolume _customPassVolume;
