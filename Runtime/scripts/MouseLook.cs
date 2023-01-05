@@ -66,6 +66,8 @@ namespace jeanf.vrplayer
 
         void SetHmd(bool state)
         {
+            Debug.Log($"SetHMD");
+            Debug.Log($"state: {state}");
             Reset();
             SetMouse(state);
             _isHmdActive = state;

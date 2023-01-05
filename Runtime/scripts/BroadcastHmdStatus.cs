@@ -9,10 +9,24 @@ namespace jeanf.vrplayer
     {
         public delegate void HmdStatus(bool status);
         public static HmdStatus hmdStatus;
-
-        public static bool isHmdOn()
+        public bool hmdCurrentState = false;
+        public bool hmdState = false;
+        
+        private void Awake()
         {
-            bool hmdState = false;
+            isHmdOn();
+        }
+
+        private void FixedUpdate()
+        {
+            if (hmdState == hmdCurrentState) return;
+            Debug.Log($"hmdState: {hmdState}, hmdCurrentState: {hmdCurrentState}");
+            isHmdOn();
+        }
+
+        public bool isHmdOn()
+        {
+            hmdState = false;
 
             var xrDisplaySubsystems = new List<XRDisplaySubsystem>();
             SubsystemManager.GetInstances<XRDisplaySubsystem>(xrDisplaySubsystems);
@@ -26,6 +40,8 @@ namespace jeanf.vrplayer
             }
 
             hmdStatus?.Invoke(hmdState);
+            hmdCurrentState = hmdState;
+            Debug.Log($"hmdState: {hmdState}");
             return hmdState;
         }
     }
