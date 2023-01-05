@@ -13051,10 +13051,69 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 540759742, guid: a1b4911946b19b64180430ad27be5bfc, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 540759742, guid: a1b4911946b19b64180430ad27be5bfc, type: 3}
+      propertyPath: m_MoveAction
+      value: 
+      objectReference: {fileID: 6972639530819350904, guid: c348712bda248c246b8c49b3db54643f,
+        type: 3}
+    - target: {fileID: 540759742, guid: a1b4911946b19b64180430ad27be5bfc, type: 3}
+      propertyPath: m_PointAction
+      value: 
+      objectReference: {fileID: 1054132383583890850, guid: c348712bda248c246b8c49b3db54643f,
+        type: 3}
+    - target: {fileID: 540759742, guid: a1b4911946b19b64180430ad27be5bfc, type: 3}
+      propertyPath: m_CancelAction
+      value: 
+      objectReference: {fileID: -1967631576421560919, guid: c348712bda248c246b8c49b3db54643f,
+        type: 3}
+    - target: {fileID: 540759742, guid: a1b4911946b19b64180430ad27be5bfc, type: 3}
+      propertyPath: m_SubmitAction
+      value: 
+      objectReference: {fileID: 2064916234097673511, guid: c348712bda248c246b8c49b3db54643f,
+        type: 3}
+    - target: {fileID: 540759742, guid: a1b4911946b19b64180430ad27be5bfc, type: 3}
+      propertyPath: m_LeftClickAction
+      value: 
+      objectReference: {fileID: 8056856818456041789, guid: c348712bda248c246b8c49b3db54643f,
+        type: 3}
+    - target: {fileID: 540759742, guid: a1b4911946b19b64180430ad27be5bfc, type: 3}
+      propertyPath: m_RightClickAction
+      value: 
+      objectReference: {fileID: 3837173908680883260, guid: c348712bda248c246b8c49b3db54643f,
+        type: 3}
+    - target: {fileID: 540759742, guid: a1b4911946b19b64180430ad27be5bfc, type: 3}
+      propertyPath: m_MiddleClickAction
+      value: 
+      objectReference: {fileID: 3279352641294131588, guid: c348712bda248c246b8c49b3db54643f,
+        type: 3}
+    - target: {fileID: 540759742, guid: a1b4911946b19b64180430ad27be5bfc, type: 3}
+      propertyPath: m_ScrollWheelAction
+      value: 
+      objectReference: {fileID: 4502412055082496612, guid: c348712bda248c246b8c49b3db54643f,
+        type: 3}
+    - target: {fileID: 540759742, guid: a1b4911946b19b64180430ad27be5bfc, type: 3}
+      propertyPath: m_TrackedDevicePositionAction
+      value: 
+      objectReference: {fileID: -3326005586356538449, guid: c348712bda248c246b8c49b3db54643f,
+        type: 3}
+    - target: {fileID: 540759742, guid: a1b4911946b19b64180430ad27be5bfc, type: 3}
+      propertyPath: m_TrackedDeviceOrientationAction
+      value: 
+      objectReference: {fileID: 5101698808175986029, guid: c348712bda248c246b8c49b3db54643f,
+        type: 3}
     - target: {fileID: 2112090121722535768, guid: a1b4911946b19b64180430ad27be5bfc,
         type: 3}
       propertyPath: m_Name
       value: PlayerSystem
+      objectReference: {fileID: 0}
+    - target: {fileID: 2374903124720809125, guid: a1b4911946b19b64180430ad27be5bfc,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6636445403781989071, guid: a1b4911946b19b64180430ad27be5bfc,
         type: 3}
@@ -13110,6 +13169,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8541764114764828159, guid: a1b4911946b19b64180430ad27be5bfc,
+        type: 3}
+      propertyPath: mouseSensitivity
+      value: 1.2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a1b4911946b19b64180430ad27be5bfc, type: 3}
