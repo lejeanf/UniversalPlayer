@@ -7,7 +7,6 @@ using UnityEngine.Serialization;
 using UnityEngine.UI;
 namespace jeanf.vrplayer
 {
-    [RequireComponent(typeof(SVGImage))]
     public class CursorStateController : MonoBehaviour
     {
         private bool _isCursorOn = false;
