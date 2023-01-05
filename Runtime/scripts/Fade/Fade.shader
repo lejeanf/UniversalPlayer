@@ -1,8 +1,8 @@
 Shader "FullScreen/Fade"
 {
     Properties {
-        _Color("Color", Color) = (1,1,1,1)
-        _Alpha("Aplha", Range (0, 1)) = 0
+        _Color("Color", Color) = (0,0,0,0)
+        //_Alpha("Aplha", Range (0, 1)) = 0
     }
 
     HLSLINCLUDE
@@ -44,18 +44,19 @@ Shader "FullScreen/Fade"
         float depth = LoadCameraDepth(varyings.positionCS.xy);
         PositionInputs posInput = GetPositionInput(varyings.positionCS.xy, _ScreenSize.zw, depth, UNITY_MATRIX_I_VP, UNITY_MATRIX_V);
         float3 viewDirection = GetWorldSpaceNormalizeViewDir(posInput.positionWS);
-        float4 color = float4(0.0, 0.0, 0.0, 0.0);
+        float4 color = float4(_Color.r, _Color.g, _Color.b, _Color.a);
 
         // Load the camera color buffer at the mip 0 if we're not at the before rendering injection point
         if (_CustomPassInjectionPoint != CUSTOMPASSINJECTIONPOINT_BEFORE_RENDERING)
-            color = float4(CustomPassLoadCameraColor(varyings.positionCS.xy, 0), 1);
+            color = float4(CustomPassLoadCameraColor(varyings.positionCS.xy, 0), _Color.a);
 
         // Add your custom pass code here
 
         // Fade value allow you to increase the strength of the effect while the camera gets closer to the custom pass volume
-        float f = 1 - abs(_FadeValue * 2 - 1);
-        _Color.a = _Alpha;
-        return float4(_Color.rgb + f, _Color.a);
+        //float f = 1 - abs(_FadeValue * 2 - 1);
+        //_Color.a = _Alpha;
+        //return float4(_Color.rgb + f, _Color.a);
+        return float4(_Color);
     }
 
     ENDHLSL

@@ -22,30 +22,28 @@ namespace jeanf.vrplayer
         [Space(10)]
         [Header("Fade Settings")]
         [SerializeField] private static float _fadeTime = .2f;
-        [SerializeField] private Color color = new Color(0, 0, 0, 1f);
-        [Tooltip("This value will be used onAwake, if you want to start the game with a black screen, set alpha to 1")]
-        [Range(0,1)]
-        [SerializeField] private float alpha = 1f;
+        private static Color color = new Color(0, 0, 0, 0);
 
         private static readonly int FadeColor = Shader.PropertyToID("_Color");
-        private static readonly int FadeAlpha = Shader.PropertyToID("_Alpha");
 
         private static Material _shaderMaterial;
         private static bool _isFaded = false;
         private void Awake()
         {
-            alpha = 1;
-            FadeValue(false);
-            
             if (!_customPassVolume) _customPassVolume = GetComponent<CustomPassVolume>();
             foreach (var pass in _customPassVolume.customPasses)
             {
                 if (pass is FullScreenCustomPass f) 
                 {
                     _shaderMaterial = f.fullscreenPassMaterial;
-                    _shaderMaterial.SetColor(FadeColor, color);
-                    _shaderMaterial.SetFloat(FadeAlpha, alpha);
+                    color = _shaderMaterial.GetColor(FadeColor);
                 }
+            }
+
+            if (_shaderMaterial)
+            {
+                _shaderMaterial.SetColor(FadeColor, new Color(color.r, color.g, color.b, 1));
+                FadeValue(false, .5f);
             }
         }
         
@@ -60,6 +58,7 @@ namespace jeanf.vrplayer
 
         void Unsubscribe()
         {
+            if (_shaderMaterial)_shaderMaterial.SetColor(FadeColor, new Color(color.r, color.g, color.b, 0));
             inputBinding.performed -= null;
             inputBinding.Disable();
         }
@@ -76,12 +75,8 @@ namespace jeanf.vrplayer
         public static void FadeValue(bool value, float fadeTime)
         {
             Debug.Log($"Fading to: {value}, in {fadeTime}s");
-            float tmpAlpha = value ? 1 : 0;
-            DOTween.To(
-                () => _shaderMaterial.GetFloat(FadeAlpha),
-                (val) => _shaderMaterial.SetFloat(FadeAlpha, val),
-                tmpAlpha,
-                fadeTime);
+            float alpha = value ? 1 : 0;
+            _shaderMaterial.DOColor(new Color(color.r, color.g, color.b, alpha), fadeTime);
         }
     }
 }
