@@ -13123,6 +13123,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8541764114764828159, guid: a1b4911946b19b64180430ad27be5bfc,
         type: 3}
+      propertyPath: mouseXY
+      value: 
+      objectReference: {fileID: -2695286261773824057, guid: c348712bda248c246b8c49b3db54643f,
+        type: 3}
+    - target: {fileID: 8541764114764828159, guid: a1b4911946b19b64180430ad27be5bfc,
+        type: 3}
       propertyPath: mouseSensitivity
       value: 1.2
       objectReference: {fileID: 0}
