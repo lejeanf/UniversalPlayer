@@ -16,7 +16,6 @@ namespace jeanf.vrplayer
         [Range(0,2)]
         [SerializeField] private float mouseSensitivity = 1.2f;
         [SerializeField] private InputActionReference mouseXY;
-        [SerializeField] float smoothing = .1f;
         [Space(10)]
         [SerializeField] Camera camera;
         [SerializeField] Transform cameraOffset;
