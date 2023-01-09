@@ -22,6 +22,7 @@ namespace jeanf.vrplayer
             teleportPlayer?.Invoke(this.transform);
         }
 
+#if UnityEditor 
         [DrawGizmo(GizmoType.Pickable)]
         private void OnDrawGizmos()
         {
@@ -43,5 +44,6 @@ namespace jeanf.vrplayer
             Gizmos.DrawLine(c, a);
             Gizmos.DrawLine(b, a);
         }
+#endif
     }   
 }
