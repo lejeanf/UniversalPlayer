@@ -22,7 +22,7 @@ namespace jeanf.vrplayer
             teleportPlayer?.Invoke(this.transform);
         }
 
-#if UnityEditor 
+#if UNITY_EDITOR 
         [DrawGizmo(GizmoType.Pickable)]
         private void OnDrawGizmos()
         {
