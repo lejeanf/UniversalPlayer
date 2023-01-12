@@ -11,8 +11,7 @@ namespace jeanf.vrplayer
     {
         private bool _isCursorOn = false;
         private bool _isIpadOn = false;
-        [SerializeField] private SVGImage cursorOuter;
-        [SerializeField] private SVGImage cursorCenter;
+        [SerializeField] private SVGImage cursorImage;
 
         public delegate void SetCurrentCursorState(CursorState cursorState);
         public static SetCurrentCursorState CurrentCursorState;
@@ -73,26 +72,22 @@ namespace jeanf.vrplayer
                 case CursorState.OnConstrained:
                     Cursor.visible = true;
                     Cursor.lockState = CursorLockMode.Confined;
-                    cursorOuter.enabled = false;
-                    cursorCenter.enabled = false;
+                    cursorImage.enabled = false;
                     break;
                 case CursorState.OnLocked:
                     Cursor.visible = false;
                     Cursor.lockState = CursorLockMode.Locked;
-                    cursorOuter.enabled = true;
-                    cursorCenter.enabled = true;
+                    cursorImage.enabled = true;
                     break;
                 case CursorState.Off:
                     Cursor.visible = false;
                     Cursor.lockState = CursorLockMode.Locked;
-                    cursorOuter.enabled = false;
-                    cursorCenter.enabled = false;
+                    cursorImage.enabled = false;
                     break;
                 default:
                     Cursor.visible = false;
                     Cursor.lockState = CursorLockMode.Locked;
-                    cursorOuter.enabled = true;
-                    cursorCenter.enabled = true;
+                    cursorImage.enabled = true;
                     break;
             }
         }
