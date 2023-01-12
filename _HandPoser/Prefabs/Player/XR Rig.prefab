@@ -196,7 +196,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5138236889873776353}
-  - component: {fileID: 5138236889873776357}
   - component: {fileID: 5138236889873776358}
   - component: {fileID: 5138236889873776359}
   m_Layer: 0
@@ -222,37 +221,6 @@ Transform:
   m_Father: {fileID: 5138236888741859203}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5138236889873776357
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5138236889873776352}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ae26e19cd956134bbdf3c6f65bf393a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_UpdateTrackingType: 0
-  m_EnableInputTracking: 1
-  m_EnableInputActions: 1
-  m_ModelPrefab: {fileID: 0}
-  m_ModelParent: {fileID: 0}
-  m_Model: {fileID: 0}
-  m_AnimateModel: 0
-  m_ModelSelectTransition: 
-  m_ModelDeSelectTransition: 
-  m_ControllerNode: 4
-  m_SelectUsage: 3
-  m_ActivateUsage: 2
-  m_UIPressUsage: 2
-  m_AxisToPressThreshold: 0.1
-  m_RotateAnchorLeft: 16
-  m_RotateAnchorRight: 17
-  m_MoveObjectIn: 14
-  m_MoveObjectOut: 15
-  m_PoseProvider: {fileID: 0}
 --- !u!114 &5138236889873776358
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -353,7 +321,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5138236890435334122}
-  - component: {fileID: 5138236890435334126}
   - component: {fileID: 5138236890435334123}
   - component: {fileID: 5138236890435334120}
   m_Layer: 0
@@ -379,37 +346,6 @@ Transform:
   m_Father: {fileID: 5138236888741859203}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5138236890435334126
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5138236890435334133}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ae26e19cd956134bbdf3c6f65bf393a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_UpdateTrackingType: 0
-  m_EnableInputTracking: 1
-  m_EnableInputActions: 1
-  m_ModelPrefab: {fileID: 0}
-  m_ModelParent: {fileID: 0}
-  m_Model: {fileID: 0}
-  m_AnimateModel: 0
-  m_ModelSelectTransition: 
-  m_ModelDeSelectTransition: 
-  m_ControllerNode: 5
-  m_SelectUsage: 3
-  m_ActivateUsage: 2
-  m_UIPressUsage: 2
-  m_AxisToPressThreshold: 0.1
-  m_RotateAnchorLeft: 16
-  m_RotateAnchorRight: 17
-  m_MoveObjectIn: 14
-  m_MoveObjectOut: 15
-  m_PoseProvider: {fileID: 0}
 --- !u!114 &5138236890435334123
 MonoBehaviour:
   m_ObjectHideFlags: 0

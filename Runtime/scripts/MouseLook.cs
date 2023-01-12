@@ -34,7 +34,6 @@ namespace jeanf.vrplayer
         private void Awake()
         {
             originalCameraOffset = cameraOffset;
-            SetMouse(false);
         }
         private void Update()
         {
@@ -55,6 +54,11 @@ namespace jeanf.vrplayer
             ResetCamera -= Reset;
         }
 
+        public void InfosMouse()
+        {
+            //Debug.Log($"Left click !");
+        }
+
         void Reset()
         {
             camera.fieldOfView = 60f;
@@ -68,15 +72,7 @@ namespace jeanf.vrplayer
             Debug.Log($"SetCursor");
             Debug.Log($"state: {state}");
             Reset();
-            SetMouse(state);
             _isHmdActive = state;
-        }
-
-        void SetMouse(bool state)
-        {
-            Cursor.visible = !state;
-            if (!state) Cursor.lockState = CursorLockMode.Locked;
-            else { Cursor.lockState = CursorLockMode.Confined; }
         }
 
         private void LookAround(Vector2 inputView)

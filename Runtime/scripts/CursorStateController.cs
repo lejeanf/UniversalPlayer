@@ -5,6 +5,8 @@ using Unity.VectorGraphics;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+
 namespace jeanf.vrplayer
 {
     public class CursorStateController : MonoBehaviour
@@ -23,15 +25,15 @@ namespace jeanf.vrplayer
             Off,
         }
         private CursorState _cursorState = CursorState.OnLocked;
-        private void Awake() => Init();
-        private void OnEnable()
+        void Awake() => Init();
+        void OnEnable()
         {
             BroadcastHmdStatus.hmdStatus += SetCursorState;
             CurrentCursorState += SetCursorState;
         }
 
-        private void OnDestroy() => Unsubscribe();
-        private void OnDisable() => Unsubscribe();
+        void OnDestroy() => Unsubscribe();
+        void OnDisable() => Unsubscribe();
 
         private void Unsubscribe()
         {
@@ -50,6 +52,7 @@ namespace jeanf.vrplayer
 
         private void SetCursorState(bool state)
         {
+            Debug.Log($"SetCursorState : {state}");
             _isCursorOn = state;
             if (!_isCursorOn) _cursorState = CursorState.Off;
             else { CheckIpadState(_isIpadOn); }
@@ -73,21 +76,25 @@ namespace jeanf.vrplayer
                     Cursor.visible = true;
                     Cursor.lockState = CursorLockMode.Confined;
                     cursorImage.enabled = false;
+                    Debug.Log($"Cursor state : OnConstrained");
                     break;
                 case CursorState.OnLocked:
-                    Cursor.visible = false;
                     Cursor.lockState = CursorLockMode.Locked;
+                    //Cursor.visible = true;
                     cursorImage.enabled = true;
+                    Debug.Log($"Cursor state : OnLocked");
                     break;
                 case CursorState.Off:
                     Cursor.visible = false;
                     Cursor.lockState = CursorLockMode.Locked;
                     cursorImage.enabled = false;
+                    Debug.Log($"Cursor state : Off");
                     break;
                 default:
                     Cursor.visible = false;
                     Cursor.lockState = CursorLockMode.Locked;
                     cursorImage.enabled = true;
+                    Debug.Log($"Cursor state : Default");
                     break;
             }
         }

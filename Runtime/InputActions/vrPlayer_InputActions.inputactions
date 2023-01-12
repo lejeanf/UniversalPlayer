@@ -22,6 +22,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "UserPresence",
+                    "type": "Button",
+                    "id": "fd7f3057-53b8-4780-8cbf-9cab52f7e005",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -44,6 +53,17 @@
                     "processors": "",
                     "groups": "Generic XR Controller",
                     "action": "Rotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e7fea14c-8253-43b3-87fd-550e3a108f15",
+                    "path": "<XRHMD>/userPresence",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "UserPresence",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
