@@ -285,6 +285,11 @@ PrefabInstance:
       propertyPath: m_RootOrder
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 8144193324830954032, guid: 15d66d68a4116d243b7bb3b273842708,
+        type: 3}
+      propertyPath: m_InteractionManager
+      value: 
+      objectReference: {fileID: 2374903124185908779}
     - target: {fileID: 8694773027870397993, guid: 15d66d68a4116d243b7bb3b273842708,
         type: 3}
       propertyPath: m_RootOrder

@@ -10,23 +10,24 @@ namespace jeanf.vrplayer
         public delegate void HmdStatus(bool status);
         public static HmdStatus hmdStatus;
         public static bool hmdCurrentState = false;
-        public static bool hmdState = false;
         
         private void Awake()
         {
-            isHmdOn();
+            //isHmdOn();
+            SetHMD();
         }
 
         private void FixedUpdate()
         {
-            if (hmdCurrentState == hmdState) return;
-            Debug.Log($"hmdState: {hmdState}, hmdCurrentState: {hmdCurrentState}");
-            isHmdOn();
+            if (hmdCurrentState == IsHmdOn()) return;
+            Debug.Log($"hmdCurrentState: {hmdCurrentState}");
+            //isHmdOn();
+            SetHMD();
         }
 
-        public static bool isHmdOn()
+        public static bool IsHmdOn()
         {
-            hmdState = false;
+            bool hmdState = false;
 
             var xrDisplaySubsystems = new List<XRDisplaySubsystem>();
             SubsystemManager.GetInstances<XRDisplaySubsystem>(xrDisplaySubsystems);
@@ -41,11 +42,11 @@ namespace jeanf.vrplayer
 
             //hmdStatus?.Invoke(hmdState);
             hmdCurrentState = hmdState;
-            Debug.Log($"hmdState: {hmdState}");
+            
             return hmdState;
         }
 
-        void setHMD()
+        void SetHMD()
         {
             //Vector3 _playerPos = new Vector3(_playerPosition.transform.localPosition.x, _playerPosition.transform.localPosition.y, _playerPosition.transform.localPosition.z);
             /*Vector3 _playerPos = _playerPosition.transform.position;
@@ -92,7 +93,8 @@ namespace jeanf.vrplayer
 
             //pubSubPublisher.PublishBoolean(isHmdPresent);
             broadcastHMDstate?.Invoke(isHmdPresent);*/
-            hmdStatus?.Invoke(hmdState);
+            hmdStatus?.Invoke(hmdCurrentState);
+            Debug.Log($"hmdCurrentState: {hmdCurrentState}");
         }
     }
 }
