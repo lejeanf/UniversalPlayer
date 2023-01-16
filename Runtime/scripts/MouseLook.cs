@@ -69,8 +69,8 @@ namespace jeanf.vrplayer
 
         void SetCursor(bool state)
         {
-            Debug.Log($"SetCursor");
-            Debug.Log($"state: {state}");
+            //Debug.Log($"SetCursor");
+            //Debug.Log($"state: {state}");
             Reset();
             _isHmdActive = state;
         }

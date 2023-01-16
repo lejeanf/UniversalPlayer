@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.XR;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 
 namespace jeanf.vrplayer 
 {
@@ -11,35 +12,37 @@ namespace jeanf.vrplayer
         public static HmdStatus hmdStatus;
         [SerializeField] private bool hmdCurrentState = false;
         [SerializeField] private InputActionReference hmdPresenceInput;
+        [SerializeField] private InputSystemUIInputModule inputSystemUIInputModule;
 
         void OnEnable()
         {
-            hmdPresenceInput.action.performed += ctx => SetHMD(ctx.ReadValue<bool>());
+            //hmdPresenceInput.action.performed += ctx => SetHMD(ctx.ReadValue<bool>());
         }
         void OnDestroy() => Unsubscribe();
         void OnDisable() => Unsubscribe();
         void Unsubscribe()
         {
-            hmdPresenceInput.action.performed -= null;
+            //hmdPresenceInput.action.performed -= null;
         }
 
         private void Awake()
         {
-            //isHmdOn();
-            SetHMD(false);
+            IsHmdOn();
+            //SetHMD(false);
         }
 
         private void FixedUpdate()
         {
-            /*if (hmdCurrentState == IsHmdOn()) return;
-            Debug.Log($"hmdCurrentState: {hmdCurrentState}");
+            if (hmdCurrentState == IsHmdOn()) return;
+            //Debug.Log($"hmdCurrentState: {hmdCurrentState}");
             //isHmdOn();
-            SetHMD();*/
+            SetHMD();
         }
 
-        public bool IsHmdOn(bool state)
+        public bool IsHmdOn()
         {
             bool hmdState = false;
+            inputSystemUIInputModule.enabled = true;
 
             var xrDisplaySubsystems = new List<XRDisplaySubsystem>();
             SubsystemManager.GetInstances<XRDisplaySubsystem>(xrDisplaySubsystems);
@@ -49,6 +52,7 @@ namespace jeanf.vrplayer
                 if (xrDisplay.running)
                 {
                     hmdState = true;
+                    inputSystemUIInputModule.enabled = false;
                 }
             }
 
@@ -58,7 +62,7 @@ namespace jeanf.vrplayer
             return hmdState;
         }
 
-        void SetHMD(bool state)
+        void SetHMD() //bool state
         {
             //Vector3 _playerPos = new Vector3(_playerPosition.transform.localPosition.x, _playerPosition.transform.localPosition.y, _playerPosition.transform.localPosition.z);
             /*Vector3 _playerPos = _playerPosition.transform.position;
@@ -105,8 +109,8 @@ namespace jeanf.vrplayer
 
             //pubSubPublisher.PublishBoolean(isHmdPresent);
             broadcastHMDstate?.Invoke(isHmdPresent);*/
-            hmdStatus?.Invoke(state);
-            Debug.Log($"hmdCurrentState: {state}");
+            hmdStatus?.Invoke(hmdCurrentState);
+            //Debug.Log($"hmdCurrentState: {hmdCurrentState}");
         }
     }
 }

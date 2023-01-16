@@ -965,7 +965,7 @@
                 {
                     "name": "",
                     "id": "650185ec-7c0b-4cc5-963b-2687756f7a95",
-                    "path": "<XRController>{LeftHand}/primaryButton",
+                    "path": "<XRController>{RightHand}/primaryButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -1150,7 +1150,7 @@
                 {
                     "name": "",
                     "id": "66490a2f-6b43-47d9-ae3b-4d8de7b25405",
-                    "path": "<XRController>{LeftHand}/triggerPressed",
+                    "path": "<XRController>{RightHand}/triggerPressed",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -1172,7 +1172,7 @@
                 {
                     "name": "",
                     "id": "bc6fe8a4-274f-48ac-bde7-a6087d2c8934",
-                    "path": "<XRController>{LeftHand}/secondaryButton",
+                    "path": "<XRController>{RightHand}/primaryButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -1194,7 +1194,7 @@
                 {
                     "name": "",
                     "id": "b419edd2-3c51-4026-b6a0-b1a58d9b3734",
-                    "path": "<XRController>{LeftHand}/triggerPressed",
+                    "path": "<XRController>{RightHand}/triggerPressed",
                     "interactions": "Press(behavior=1)",
                     "processors": "",
                     "groups": "",
@@ -1755,17 +1755,6 @@
                 },
                 {
                     "name": "",
-                    "id": "6b76dc67-2908-430c-b5a4-95e96ee21665",
-                    "path": "<XRController>/trigger",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "XR",
-                    "action": "Click",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "995565e7-ac7e-427c-9426-94aeb4af4874",
                     "path": "<Mouse>/scroll",
                     "interactions": "",
@@ -1794,28 +1783,6 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "RightClick",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "97f144fb-2afd-476e-8871-e79903a45b36",
-                    "path": "<XRController>/devicePosition",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "XR",
-                    "action": "TrackedDevicePosition",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "7d9d377c-e5ef-4e70-898c-1fe7d6a882ea",
-                    "path": "<XRController>/deviceRotation",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "XR",
-                    "action": "TrackedDeviceOrientation",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

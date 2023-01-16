@@ -52,7 +52,7 @@ namespace jeanf.vrplayer
 
         private void SetCursorState(bool state)
         {
-            Debug.Log($"SetCursorState : {state}");
+            //Debug.Log($"SetCursorState : {state}");
             _isCursorOn = state;
             if (!_isCursorOn) _cursorState = CursorState.Off;
             else { CheckIpadState(_isIpadOn); }
@@ -76,25 +76,25 @@ namespace jeanf.vrplayer
                     Cursor.visible = true;
                     Cursor.lockState = CursorLockMode.Confined;
                     cursorImage.enabled = false;
-                    Debug.Log($"Cursor state : OnConstrained");
+                    //Debug.Log($"Cursor state : OnConstrained");
                     break;
                 case CursorState.OnLocked:
                     Cursor.lockState = CursorLockMode.Locked;
                     //Cursor.visible = true;
                     cursorImage.enabled = true;
-                    Debug.Log($"Cursor state : OnLocked");
+                    //Debug.Log($"Cursor state : OnLocked");
                     break;
                 case CursorState.Off:
                     Cursor.visible = false;
                     Cursor.lockState = CursorLockMode.Locked;
                     cursorImage.enabled = false;
-                    Debug.Log($"Cursor state : Off");
+                    //Debug.Log($"Cursor state : Off");
                     break;
                 default:
                     Cursor.visible = false;
                     Cursor.lockState = CursorLockMode.Locked;
                     cursorImage.enabled = true;
-                    Debug.Log($"Cursor state : Default");
+                    //Debug.Log($"Cursor state : Default");
                     break;
             }
         }
