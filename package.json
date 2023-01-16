@@ -1,6 +1,6 @@
 {
   "name":"fr.jeanf.vr.player",
-  "version":"0.0.28",
+  "version":"0.0.29",
   "displayName":"VR Player",
   "description":"This package contains a basic VR player",
   "unity": "2021.3",
@@ -25,7 +25,12 @@
         {
             "displayName": "VR Player",
             "description": "Prefab of the player",
-            "path": "Samples/"
+            "path": "Samples/VRPlayer"
+        },
+        {
+          "displayName": "Hand Poses",
+          "description": "A set of hand poses",
+          "path": "Samples/HandPoses"
         }
     ]
 }
