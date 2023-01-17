@@ -22,6 +22,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "UserPresence",
+                    "type": "Button",
+                    "id": "fd7f3057-53b8-4780-8cbf-9cab52f7e005",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -44,6 +53,17 @@
                     "processors": "",
                     "groups": "Generic XR Controller",
                     "action": "Rotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e7fea14c-8253-43b3-87fd-550e3a108f15",
+                    "path": "<XRHMD>/userPresence",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "UserPresence",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -349,8 +369,8 @@
                 },
                 {
                     "name": "",
-                    "id": "b34c79c1-ab5e-4851-87ac-abc43705eae0",
-                    "path": "<XRController>{LeftHand}/triggerPressed",
+                    "id": "fb3bc571-b827-4be3-8abc-ba77a46a35f8",
+                    "path": "<XRController>{LeftHand}/primaryButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "Generic XR Controller",
@@ -487,21 +507,21 @@
             "actions": [
                 {
                     "name": "Teleport Select",
-                    "type": "Value",
+                    "type": "Button",
                     "id": "cbeaf823-3b69-4004-8ec8-13ea2ca3fc31",
-                    "expectedControlType": "Vector2",
+                    "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": true
+                    "initialStateCheck": false
                 },
                 {
                     "name": "Teleport Mode Activate",
-                    "type": "Value",
+                    "type": "Button",
                     "id": "a21db72c-4843-4839-b4d0-3ce8d287cb86",
-                    "expectedControlType": "Vector2",
+                    "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": true
+                    "initialStateCheck": false
                 },
                 {
                     "name": "Teleport Mode Cancel",
@@ -534,23 +554,12 @@
             "bindings": [
                 {
                     "name": "",
-                    "id": "95fa1419-ca7b-4c8a-8d15-7d46e58d82e3",
-                    "path": "<XRController>{LeftHand}/Primary2DAxis",
-                    "interactions": "Sector(directions=-1,sweepBehavior=3)",
+                    "id": "2bb0785f-4dc3-4c2e-9a4d-fb65c8b0da15",
+                    "path": "<XRController>{LeftHand}/triggerPressed",
+                    "interactions": "",
                     "processors": "",
-                    "groups": "Noncontinuous Move",
+                    "groups": "",
                     "action": "Teleport Select",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "8da6ed3a-f621-49fe-8c76-1f6b7d7754d6",
-                    "path": "<XRController>{LeftHand}/Primary2DAxis",
-                    "interactions": "Sector(directions=1)",
-                    "processors": "",
-                    "groups": "Noncontinuous Move",
-                    "action": "Teleport Mode Activate",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -561,6 +570,17 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Generic XR Controller",
+                    "action": "Teleport Mode Cancel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "10e9a11c-16ec-45a2-8258-008d2a85bd03",
+                    "path": "<XRController>{LeftHand}/secondaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
                     "action": "Teleport Mode Cancel",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -650,6 +670,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c2f3845e-d5b5-4ff1-a312-ef464d4ee9ab",
+                    "path": "<XRController>{LeftHand}/triggerPressed",
+                    "interactions": "Press(behavior=1)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Teleport Mode Activate",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -933,11 +964,11 @@
                 },
                 {
                     "name": "",
-                    "id": "92bb5b8f-bf48-4dab-af05-50a865773895",
-                    "path": "<XRController>{RightHand}/triggerPressed",
+                    "id": "650185ec-7c0b-4cc5-963b-2687756f7a95",
+                    "path": "<XRController>{RightHand}/primaryButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Generic XR Controller",
+                    "groups": "",
                     "action": "UI Press",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -1071,18 +1102,18 @@
             "actions": [
                 {
                     "name": "Teleport Select",
-                    "type": "Value",
+                    "type": "Button",
                     "id": "02e43582-8973-4940-af06-dff6158e3df2",
-                    "expectedControlType": "Vector2",
+                    "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
                 },
                 {
                     "name": "Teleport Mode Activate",
-                    "type": "Value",
+                    "type": "Button",
                     "id": "a6c7231d-c55d-4dd4-9e87-877bb5522ef5",
-                    "expectedControlType": "Vector2",
+                    "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -1118,23 +1149,12 @@
             "bindings": [
                 {
                     "name": "",
-                    "id": "919c4a6c-22ed-4083-8e14-f30e91ff59fe",
-                    "path": "<XRController>{RightHand}/Primary2DAxis",
-                    "interactions": "Sector(directions=-1,sweepBehavior=3)",
+                    "id": "66490a2f-6b43-47d9-ae3b-4d8de7b25405",
+                    "path": "<XRController>{RightHand}/triggerPressed",
+                    "interactions": "",
                     "processors": "",
-                    "groups": "Generic XR Controller",
+                    "groups": "",
                     "action": "Teleport Select",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "62690862-4688-4010-975b-b3d9c6062157",
-                    "path": "<XRController>{RightHand}/Primary2DAxis",
-                    "interactions": "Sector(directions=1)",
-                    "processors": "",
-                    "groups": "Generic XR Controller",
-                    "action": "Teleport Mode Activate",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -1151,12 +1171,34 @@
                 },
                 {
                     "name": "",
+                    "id": "bc6fe8a4-274f-48ac-bde7-a6087d2c8934",
+                    "path": "<XRController>{RightHand}/primaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Teleport Mode Cancel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "d6c08c3d-3d41-4695-994d-1ac9016a5a9e",
                     "path": "<XRController>{RightHand}/Primary2DAxis",
                     "interactions": "Sector(directions=12,sweepBehavior=1),Sector(directions=2,sweepBehavior=2)",
                     "processors": "",
                     "groups": "Generic XR Controller",
                     "action": "Turn",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b419edd2-3c51-4026-b6a0-b1a58d9b3734",
+                    "path": "<XRController>{RightHand}/triggerPressed",
+                    "interactions": "Press(behavior=1)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Teleport Mode Activate",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -1713,17 +1755,6 @@
                 },
                 {
                     "name": "",
-                    "id": "6b76dc67-2908-430c-b5a4-95e96ee21665",
-                    "path": "<XRController>/trigger",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "XR",
-                    "action": "Click",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "995565e7-ac7e-427c-9426-94aeb4af4874",
                     "path": "<Mouse>/scroll",
                     "interactions": "",
@@ -1752,28 +1783,6 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "RightClick",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "97f144fb-2afd-476e-8871-e79903a45b36",
-                    "path": "<XRController>/devicePosition",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "XR",
-                    "action": "TrackedDevicePosition",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "7d9d377c-e5ef-4e70-898c-1fe7d6a882ea",
-                    "path": "<XRController>/deviceRotation",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "XR",
-                    "action": "TrackedDeviceOrientation",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
