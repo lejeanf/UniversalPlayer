@@ -14,7 +14,7 @@ namespace jeanf.vrplayer
         private Vector2 inputView;
 
         [Range(0,2)]
-        [SerializeField] private float mouseSensitivity = 1.2f;
+        public float mouseSensitivity = 1.2f;
         [SerializeField] private InputActionReference mouseXY;
         [Space(10)]
         [SerializeField] Camera camera;
