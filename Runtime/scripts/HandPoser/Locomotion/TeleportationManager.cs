@@ -63,6 +63,8 @@ public class TeleportationManager : MonoBehaviour
         };
 
         provider.QueueTeleportRequest(request);
+        rightRayInteractor.enabled = false;
+        _isActive = false;
 
         //Debug.Log($"RequestTeleportation");
     }

@@ -62,7 +62,7 @@ MonoBehaviour:
       m_Name: Position
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: 6b5a79ff-6eb9-4fbd-a8dd-06c2b88772ca
+      m_Id: a270ba21-09e2-4df7-8276-000a4a69e605
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -74,7 +74,7 @@ MonoBehaviour:
       m_Name: Rotation
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: 597c5009-fa24-44f7-b3c1-181fbce318b6
+      m_Id: c2fa2cee-652f-46c6-be22-38981645c317
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -86,7 +86,7 @@ MonoBehaviour:
       m_Name: Tracking State
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: a5391597-ba35-41f4-832f-a4074371efb3
+      m_Id: 194da36c-6526-406c-9292-b52e71f76f4f
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -98,7 +98,7 @@ MonoBehaviour:
       m_Name: Select
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: dc7c3fc9-6b63-4375-a539-52a3e58462d9
+      m_Id: 993715ed-1a9b-42c9-aef0-126c2a2808c9
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -110,7 +110,7 @@ MonoBehaviour:
       m_Name: Select Action Value
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: 0fbcb58a-104d-4dc8-997d-d357d7f1821e
+      m_Id: e89070cb-8662-429f-a3bd-4858e4b0bb08
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -122,7 +122,7 @@ MonoBehaviour:
       m_Name: Activate
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: d4a87431-b000-434b-8fba-015372056ff3
+      m_Id: 402a6b25-c6ca-4ab4-8ba4-cf4825143124
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -134,7 +134,7 @@ MonoBehaviour:
       m_Name: Activate Action Value
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: 24ecafc8-2d26-41c1-a8e3-1f0a540874d2
+      m_Id: 61b693a1-0e25-4f60-89ff-93c554a2f800
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -146,7 +146,7 @@ MonoBehaviour:
       m_Name: UI Press
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: 7af26355-818c-49e6-82d0-7899c4951f2d
+      m_Id: a4b9ebd2-4318-4209-8e8d-9fed643112e0
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -158,7 +158,7 @@ MonoBehaviour:
       m_Name: UI Press Action Value
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: 1d2f8308-beb5-4310-946b-82dfe5436180
+      m_Id: 3f8af455-1a52-4c00-bff1-07f1e574e04c
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -170,7 +170,7 @@ MonoBehaviour:
       m_Name: Haptic Device
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: 2454c1ed-05f9-458e-ba40-d5ce52c4a225
+      m_Id: 628abaf3-6366-4b40-97b9-2168ee957bd8
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -182,7 +182,7 @@ MonoBehaviour:
       m_Name: Rotate Anchor
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: f455a11c-a9ec-44d4-8cd5-037b9efc32fb
+      m_Id: 919ad8cd-5a5f-4664-be83-de22cf6ef290
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -194,7 +194,7 @@ MonoBehaviour:
       m_Name: Translate Anchor
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: 83ae4a20-353a-4a08-8abd-e9e4126d20f0
+      m_Id: 8a368c1c-3805-4b33-a0d4-a2c2f567a436
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -284,7 +284,7 @@ MonoBehaviour:
   m_MaxRaycastDistance: 30
   m_RayOriginTransform: {fileID: 0}
   m_ReferenceFrame: {fileID: 0}
-  m_Velocity: 5
+  m_Velocity: 10
   m_Acceleration: 9.8
   m_AdditionalGroundHeight: 0.1
   m_AdditionalFlightTime: 0.5
@@ -421,7 +421,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_LineWidth: 0.01
   m_OverrideInteractorLineLength: 1
-  m_LineLength: 5
+  m_LineLength: 10
   m_WidthCurve:
     serializedVersion: 2
     m_Curve:
@@ -2087,7 +2087,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   m_InteractionLayers:
-    m_Bits: 0
+    m_Bits: 4294967295
   m_AttachTransform: {fileID: 0}
   m_KeepSelectedTargetValid: 1
   m_StartingSelectedInteractable: {fileID: 0}
@@ -2150,7 +2150,7 @@ MonoBehaviour:
   m_HapticHoverCancelDuration: 0
   m_LineType: 0
   m_BlendVisualLinePoints: 1
-  m_MaxRaycastDistance: 3
+  m_MaxRaycastDistance: 4
   m_RayOriginTransform: {fileID: 0}
   m_ReferenceFrame: {fileID: 0}
   m_Velocity: 16
@@ -2290,7 +2290,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_LineWidth: 0.01
   m_OverrideInteractorLineLength: 1
-  m_LineLength: 5
+  m_LineLength: 4
   m_WidthCurve:
     serializedVersion: 2
     m_Curve:
@@ -2346,8 +2346,8 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   m_InvalidColorGradient:
     serializedVersion: 2
-    key0: {r: 1, g: 0, b: 0, a: 1}
-    key1: {r: 1, g: 0, b: 0, a: 1}
+    key0: {r: 1, g: 0, b: 0, a: 0}
+    key1: {r: 1, g: 0, b: 0, a: 0}
     key2: {r: 0, g: 0, b: 0, a: 0}
     key3: {r: 0, g: 0, b: 0, a: 0}
     key4: {r: 0, g: 0, b: 0, a: 0}
@@ -2919,7 +2919,7 @@ MonoBehaviour:
   m_HapticHoverCancelDuration: 0
   m_LineType: 0
   m_BlendVisualLinePoints: 1
-  m_MaxRaycastDistance: 3
+  m_MaxRaycastDistance: 4
   m_RayOriginTransform: {fileID: 0}
   m_ReferenceFrame: {fileID: 0}
   m_Velocity: 16
@@ -2935,7 +2935,7 @@ MonoBehaviour:
   m_SphereCastRadius: 0.1
   m_RaycastMask:
     serializedVersion: 2
-    m_Bits: 2147483647
+    m_Bits: 32
   m_RaycastTriggerInteraction: 1
   m_HitClosestOnly: 0
   m_HoverToSelect: 0
@@ -3059,7 +3059,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_LineWidth: 0.01
   m_OverrideInteractorLineLength: 1
-  m_LineLength: 5
+  m_LineLength: 4
   m_WidthCurve:
     serializedVersion: 2
     m_Curve:
@@ -3115,8 +3115,8 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   m_InvalidColorGradient:
     serializedVersion: 2
-    key0: {r: 1, g: 0, b: 0, a: 1}
-    key1: {r: 1, g: 0, b: 0, a: 1}
+    key0: {r: 1, g: 0, b: 0, a: 0}
+    key1: {r: 1, g: 0, b: 0, a: 0}
     key2: {r: 0, g: 0, b: 0, a: 0}
     key3: {r: 0, g: 0, b: 0, a: 0}
     key4: {r: 0, g: 0, b: 0, a: 0}
