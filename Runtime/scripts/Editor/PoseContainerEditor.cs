@@ -1,6 +1,7 @@
-﻿using UnityEngine;
-using UnityEditor;
+﻿#if UNITY_EDITOR
 
+using UnityEngine;
+using UnityEditor;
 [CustomEditor(typeof(PoseContainer))]
 public class PoseContainerEditor : Editor
 {
@@ -10,7 +11,6 @@ public class PoseContainerEditor : Editor
     {
         poseContainer = (PoseContainer)target;
     }
-
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
@@ -19,3 +19,4 @@ public class PoseContainerEditor : Editor
             PoseWindow.Open(poseContainer.pose);
     }
 }
+#endif

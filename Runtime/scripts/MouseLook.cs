@@ -11,21 +11,25 @@ namespace jeanf.vrplayer
 {
     public class MouseLook : MonoBehaviour
     {
-        private Vector2 inputView;
+        private Vector2 _inputView;
 
         [Range(0,2)]
         public float mouseSensitivity = 1.2f;
         [SerializeField] private InputActionReference mouseXY;
+        [SerializeField] private bool disableMouseLookWhenPrimaryItemDrawn = true; 
+        [SerializeField] private InputActionReference drawPrimaryItem;
+        private bool _canLook = true;
+        private bool _isPrimaryItemInUse = false;
         [Space(10)]
         [SerializeField] Camera camera;
         [SerializeField] Transform cameraOffset;
-        private Transform originalCameraOffset;
+        private Transform _originalCameraOffset;
         [SerializeField] private bool _isHmdActive = false;
         [SerializeField] private float min = -60.0f;
         [SerializeField] private float max = 75.0f;
 
-        private Vector2 rotation = Vector2.zero;
-        private bool cameraOffsetReset = false;
+        private Vector2 _rotation = Vector2.zero;
+        private bool _cameraOffsetReset = false;
 
         //events
         public delegate void ResetCameraOffset();
@@ -33,25 +37,44 @@ namespace jeanf.vrplayer
 
         private void Awake()
         {
-            originalCameraOffset = cameraOffset;
+            _originalCameraOffset = cameraOffset;
         }
         private void Update()
         {
-            Vector2 targetMouseDelta = Mouse.current.delta.ReadValue() * Time.smoothDeltaTime;
+            var targetMouseDelta = Mouse.current.delta.ReadValue() * Time.smoothDeltaTime;
             LookAround(targetMouseDelta);
         }
 
-        void OnEnable()
+        private void OnEnable()
         {
             BroadcastHmdStatus.hmdStatus += SetCursor;
+            drawPrimaryItem.action.performed += ctx=> DisableMouseLook();
             ResetCamera += Reset;
         }
-        void OnDestroy() => Unsubscribe();
-        void OnDisable() => Unsubscribe();
-        void Unsubscribe()
+
+        private void OnDestroy() => Unsubscribe();
+        private void OnDisable() => Unsubscribe();
+
+        private void Unsubscribe()
         {
             BroadcastHmdStatus.hmdStatus -= SetCursor;
+            drawPrimaryItem.action.performed -= null;
             ResetCamera -= Reset;
+        }
+
+        private void DisableMouseLook()
+        {
+            if (disableMouseLookWhenPrimaryItemDrawn && !_isPrimaryItemInUse && _canLook)
+            {
+                _canLook = false;
+                _isPrimaryItemInUse = true;
+            }
+
+            else
+            {
+                _canLook = true;
+                _isPrimaryItemInUse = false;
+            }
         }
 
         public void InfosMouse()
@@ -59,15 +82,15 @@ namespace jeanf.vrplayer
             //Debug.Log($"Left click !");
         }
 
-        void Reset()
+        private void Reset()
         {
             camera.fieldOfView = 60f;
-            rotation = Vector2.zero;
-            cameraOffset.localPosition = originalCameraOffset.localPosition;
-            cameraOffset.localRotation = originalCameraOffset.localRotation;
+            _rotation = Vector2.zero;
+            cameraOffset.localPosition = _originalCameraOffset.localPosition;
+            cameraOffset.localRotation = _originalCameraOffset.localRotation;
         }
 
-        void SetCursor(bool state)
+        private void SetCursor(bool state)
         {
             //Debug.Log($"SetCursor");
             //Debug.Log($"state: {state}");
@@ -77,11 +100,12 @@ namespace jeanf.vrplayer
 
         private void LookAround(Vector2 inputView)
         {
-            rotation.y += inputView.x * mouseSensitivity;
-            rotation.x += -inputView.y * mouseSensitivity;
-            rotation.x = Mathf.Clamp(rotation.x, min, max);
+            if (!_canLook) return;
+            _rotation.y += inputView.x * mouseSensitivity;
+            _rotation.x += -inputView.y * mouseSensitivity;
+            _rotation.x = Mathf.Clamp(_rotation.x, min, max);
 
-            cameraOffset.transform.localRotation = Quaternion.Euler(rotation.x, rotation.y, 0);
+            cameraOffset.transform.localRotation = Quaternion.Euler(_rotation.x, _rotation.y, 0);
         }
     }
 }

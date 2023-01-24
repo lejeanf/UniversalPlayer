@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿#if UNITY_EDITOR
+
+using UnityEngine;
 using UnityEditor;
 
 [CustomEditor(typeof(PreviewHand))]
@@ -65,3 +67,4 @@ public class HandPreviewEditor : Editor
         return currentRotation != newRotation;
     }
 }
+#endif
