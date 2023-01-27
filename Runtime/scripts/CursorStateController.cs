@@ -53,8 +53,13 @@ namespace jeanf.vrplayer
         private void SetCursorState(bool state)
         {
             //Debug.Log($"SetCursorState : {state}");
-            _isCursorOn = state;
-            if (!_isCursorOn) _cursorState = CursorState.Off;
+            _isCursorOn = !state;
+            if (!_isCursorOn)
+            {
+                _cursorState = CursorState.Off;
+                cursorImage.enabled = false;
+                //Debug.Log($"cursorImage.enabled : {cursorImage.enabled}");
+            }
             else { CheckIpadState(_isIpadOn); }
         }
         private void SetCursorState(CursorState state)
@@ -70,6 +75,7 @@ namespace jeanf.vrplayer
 
         private void SetCursor(CursorState cursorState)
         {
+            //Debug.Log($"SetCursor");
             switch (cursorState)
             {
                 case CursorState.OnConstrained:
