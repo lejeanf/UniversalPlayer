@@ -13,6 +13,10 @@ public class TeleportationManager : MonoBehaviour
     private InputAction _thumbstick;
     private bool _isActive;
 
+    Vector3 m_ReticlePos;
+    Vector3 m_ReticleNormal;
+    int m_EndPositionInLine;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -49,7 +53,14 @@ public class TeleportationManager : MonoBehaviour
     {
         if (!_isActive) return;
 
-        if(!rightRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit hit))
+        /*if(!rightRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit hit))
+        {
+            rightRayInteractor.enabled = false;
+            _isActive = false;
+            return;
+        }*/
+
+        if (!rightRayInteractor.TryGetHitInfo(out m_ReticlePos, out m_ReticleNormal, out m_EndPositionInLine, out var isValidTarget))
         {
             rightRayInteractor.enabled = false;
             _isActive = false;
@@ -58,34 +69,37 @@ public class TeleportationManager : MonoBehaviour
 
         TeleportRequest request = new TeleportRequest()
         {
-            destinationPosition = hit.point,
+            destinationPosition = m_ReticlePos,
+            //destinationPosition = hit.point,
             //destinationRotation = ?,
         };
+        
+        if (isValidTarget)
+        {
+            provider.QueueTeleportRequest(request);
+        }
+        
+        DisableTeleportation();
+    }
 
-        provider.QueueTeleportRequest(request);
+    public void DisableTeleportation()
+    {
         rightRayInteractor.enabled = false;
         _isActive = false;
-
-        //Debug.Log($"RequestTeleportation");
     }
 
     private void OnTeleportSelect(InputAction.CallbackContext context)
     {
-        //Debug.Log($"OnTeleportSelect");
         rightRayInteractor.enabled = true;
     }
 
     private void OnTeleportActivate(InputAction.CallbackContext context)
     {
-        //Debug.Log($"OnTeleportActivate");
-        //rightRayInteractor.enabled = true;
         _isActive = true;
     }
 
     private void OnTeleportCancel(InputAction.CallbackContext context)
     {
-        //Debug.Log($"OnTeleportCancel");
-        rightRayInteractor.enabled = false;
-        _isActive = false;
+        DisableTeleportation();
     }
 }
