@@ -2605,6 +2605,9 @@ MonoBehaviour:
   mouseSensitivity: 1.2
   mouseXY: {fileID: -2695286261773824057, guid: c348712bda248c246b8c49b3db54643f,
     type: 3}
+  disableMouseLookWhenPrimaryItemDrawn: 1
+  drawPrimaryItem: {fileID: -6467106708271402158, guid: c348712bda248c246b8c49b3db54643f,
+    type: 3}
   camera: {fileID: 8033696686893207408}
   cameraOffset: {fileID: 3636835666227447874}
   _isHmdActive: 0

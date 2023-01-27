@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿#if UNITY_EDITOR
+using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -244,3 +245,4 @@ public class PoseWindow : EditorWindow
         window.activePose = pose;
     }
 }
+#endif
