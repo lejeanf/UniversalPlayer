@@ -37,11 +37,11 @@ public class RayInteractorManager : MonoBehaviour
 
     public void LeftPreviewRayEnable(InputAction.CallbackContext context)
     {
-        rightInteractorLineVisual.invalidColorGradient = _white;
+        leftInteractorLineVisual.invalidColorGradient = _white;
     }
 
     public void LeftPreviewRayDisable(InputAction.CallbackContext context)
     {
-        rightInteractorLineVisual.invalidColorGradient = _transparent;
+        leftInteractorLineVisual.invalidColorGradient = _transparent;
     }
 }
