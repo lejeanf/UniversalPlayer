@@ -1429,7 +1429,7 @@ public partial class @VrPlayer_InputActions : IInputActionCollection2, IDisposab
                 },
                 {
                     ""name"": ""Click"",
-                    ""type"": ""PassThrough"",
+                    ""type"": ""Button"",
                     ""id"": ""d7f010e9-f4bd-4d89-889f-a4dbd9a8104a"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
