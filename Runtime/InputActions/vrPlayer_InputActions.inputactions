@@ -298,6 +298,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Preview Raycast",
+                    "type": "Button",
+                    "id": "2d7fe0be-9c60-410f-adf4-575346293801",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -327,6 +336,17 @@
                     "name": "",
                     "id": "925d7c4c-36b8-4286-83ae-8c21c058038b",
                     "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Select",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "229ade27-17ac-41b8-9dae-532dbda96d09",
+                    "path": "<XRController>{LeftHand}/triggerPressed",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -370,7 +390,7 @@
                 {
                     "name": "",
                     "id": "fb3bc571-b827-4be3-8abc-ba77a46a35f8",
-                    "path": "<XRController>{LeftHand}/primaryButton",
+                    "path": "<XRController>{LeftHand}/triggerPressed",
                     "interactions": "",
                     "processors": "",
                     "groups": "Generic XR Controller",
@@ -498,6 +518,17 @@
                     "action": "Translate Anchor",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "791edce6-0a9d-46c8-87dc-c0b891260699",
+                    "path": "<XRController>{LeftHand}/secondaryButton",
+                    "interactions": "Press",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Preview Raycast",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -555,8 +586,8 @@
                 {
                     "name": "",
                     "id": "2bb0785f-4dc3-4c2e-9a4d-fb65c8b0da15",
-                    "path": "<XRController>{LeftHand}/triggerPressed",
-                    "interactions": "",
+                    "path": "<XRController>{LeftHand}/primaryButton",
+                    "interactions": "Press",
                     "processors": "",
                     "groups": "",
                     "action": "Teleport Select",
@@ -570,17 +601,6 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Generic XR Controller",
-                    "action": "Teleport Mode Cancel",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "10e9a11c-16ec-45a2-8258-008d2a85bd03",
-                    "path": "<XRController>{LeftHand}/secondaryButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
                     "action": "Teleport Mode Cancel",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -676,7 +696,7 @@
                 {
                     "name": "",
                     "id": "c2f3845e-d5b5-4ff1-a312-ef464d4ee9ab",
-                    "path": "<XRController>{LeftHand}/triggerPressed",
+                    "path": "<XRController>{LeftHand}/primaryButton",
                     "interactions": "Press(behavior=1)",
                     "processors": "",
                     "groups": "",
@@ -915,16 +935,36 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Preview Raycast",
+                    "type": "Button",
+                    "id": "dbe9cc31-4233-47f2-bc1b-e8aa4107bfde",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
                 {
                     "name": "",
                     "id": "1ce80054-410d-4112-a332-50faa7fb4f23",
-                    "path": "<XRController>{RightHand}/gripPressed",
+                    "path": "<XRController>{RightHand}/triggerPressed",
                     "interactions": "",
                     "processors": "",
                     "groups": "Generic XR Controller",
+                    "action": "Select",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b0e0a79b-ca15-4117-a89a-14ed0a901c2a",
+                    "path": "<XRController>{RightHand}/gripPressed",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
                     "action": "Select",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -964,8 +1004,8 @@
                 },
                 {
                     "name": "",
-                    "id": "650185ec-7c0b-4cc5-963b-2687756f7a95",
-                    "path": "<XRController>{RightHand}/primaryButton",
+                    "id": "c63585f1-be5e-4b62-b67c-f19bbd7d18cb",
+                    "path": "<XRController>{RightHand}/triggerPressed",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -1093,6 +1133,17 @@
                     "action": "Translate Anchor",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "4d8ae0ea-f9af-43d5-b80a-a5f85d489fca",
+                    "path": "<XRController>{RightHand}/secondaryButton",
+                    "interactions": "Press",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Preview Raycast",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -1150,8 +1201,8 @@
                 {
                     "name": "",
                     "id": "66490a2f-6b43-47d9-ae3b-4d8de7b25405",
-                    "path": "<XRController>{RightHand}/triggerPressed",
-                    "interactions": "",
+                    "path": "<XRController>{RightHand}/primaryButton",
+                    "interactions": "Press",
                     "processors": "",
                     "groups": "",
                     "action": "Teleport Select",
@@ -1171,17 +1222,6 @@
                 },
                 {
                     "name": "",
-                    "id": "bc6fe8a4-274f-48ac-bde7-a6087d2c8934",
-                    "path": "<XRController>{RightHand}/primaryButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Teleport Mode Cancel",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "d6c08c3d-3d41-4695-994d-1ac9016a5a9e",
                     "path": "<XRController>{RightHand}/Primary2DAxis",
                     "interactions": "Sector(directions=12,sweepBehavior=1),Sector(directions=2,sweepBehavior=2)",
@@ -1194,7 +1234,7 @@
                 {
                     "name": "",
                     "id": "b419edd2-3c51-4026-b6a0-b1a58d9b3734",
-                    "path": "<XRController>{RightHand}/triggerPressed",
+                    "path": "<XRController>{RightHand}/primaryButton",
                     "interactions": "Press(behavior=1)",
                     "processors": "",
                     "groups": "",
@@ -1367,7 +1407,7 @@
                 },
                 {
                     "name": "Click",
-                    "type": "PassThrough",
+                    "type": "Button",
                     "id": "d7f010e9-f4bd-4d89-889f-a4dbd9a8104a",
                     "expectedControlType": "Button",
                     "processors": "",
