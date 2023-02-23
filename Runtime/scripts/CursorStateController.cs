@@ -25,15 +25,15 @@ namespace jeanf.vrplayer
             Off,
         }
         private CursorState _cursorState = CursorState.OnLocked;
-        void Awake() => Init();
-        void OnEnable()
+        private  void Awake() => Init();
+        private  void OnEnable()
         {
             BroadcastHmdStatus.hmdStatus += SetCursorState;
             CurrentCursorState += SetCursorState;
         }
 
-        void OnDestroy() => Unsubscribe();
-        void OnDisable() => Unsubscribe();
+        private  void OnDestroy() => Unsubscribe();
+        private  void OnDisable() => Unsubscribe();
 
         private void Unsubscribe()
         {
@@ -50,7 +50,7 @@ namespace jeanf.vrplayer
             SetCursor(_cursorState);
         }
 
-        private void SetCursorState(bool state)
+        public void SetCursorState(bool state)
         {
             //Debug.Log($"SetCursorState : {state}");
             _isCursorOn = !state;
