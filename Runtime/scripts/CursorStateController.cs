@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VectorGraphics;
+using UnityEditor.Build;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -14,6 +15,7 @@ namespace jeanf.vrplayer
         private bool _isCursorOn = false;
         private bool _isIpadOn = false;
         [SerializeField] private SVGImage cursorImage;
+        [SerializeField] private static SVGImage _cursorImage;
 
         public delegate void SetCurrentCursorState(CursorState cursorState);
         public static SetCurrentCursorState CurrentCursorState;
@@ -28,7 +30,7 @@ namespace jeanf.vrplayer
         private  void Awake() => Init();
         private  void OnEnable()
         {
-            BroadcastHmdStatus.hmdStatus += SetCursorState;
+            BroadcastHmdStatus.hmdStatus += SetCursorAccordingToHmdState;
             CurrentCursorState += SetCursorState;
         }
 
@@ -37,19 +39,25 @@ namespace jeanf.vrplayer
 
         private void Unsubscribe()
         {
-            BroadcastHmdStatus.hmdStatus -= SetCursorState;
+            BroadcastHmdStatus.hmdStatus -= SetCursorAccordingToHmdState;
             CurrentCursorState -= SetCursorState;
         }
 
         private void Init()
         {
+            _cursorImage = cursorImage;
             _cursorState = CursorState.OnLocked;
             _isIpadOn = false;
             _isCursorOn = true;
 
-            SetCursor(_cursorState);
+            SetCursorState(_cursorState);
         }
 
+        private static void SetCursorAccordingToHmdState(bool state)
+        {
+            SetCursorState(state ? CursorState.Off : CursorState.OnLocked);
+        }
+        /*
         public void SetCursorState(bool state)
         {
             //Debug.Log($"SetCursorState : {state}");
@@ -62,44 +70,40 @@ namespace jeanf.vrplayer
             }
             else { CheckIpadState(_isIpadOn); }
         }
-        private void SetCursorState(CursorState state)
-        {
-            SetCursor(state);
-        }
-
-        private void CheckIpadState(bool state)
+        
+        private void CheckIpadState()
         {
             _cursorState = state ? CursorState.OnConstrained : CursorState.OnLocked;
             SetCursor(_cursorState);
         }
-
-        private void SetCursor(CursorState cursorState)
+        */
+        public static void SetCursorState(CursorState state)
         {
             //Debug.Log($"SetCursor");
-            switch (cursorState)
+            switch (state)
             {
                 case CursorState.OnConstrained:
                     Cursor.visible = true;
                     Cursor.lockState = CursorLockMode.Confined;
-                    cursorImage.enabled = false;
+                    _cursorImage.enabled = false;
                     //Debug.Log($"Cursor state : OnConstrained");
                     break;
                 case CursorState.OnLocked:
                     Cursor.lockState = CursorLockMode.Locked;
                     //Cursor.visible = true;
-                    cursorImage.enabled = true;
+                    _cursorImage.enabled = true;
                     //Debug.Log($"Cursor state : OnLocked");
                     break;
                 case CursorState.Off:
                     Cursor.visible = false;
                     Cursor.lockState = CursorLockMode.Locked;
-                    cursorImage.enabled = false;
+                    _cursorImage.enabled = false;
                     //Debug.Log($"Cursor state : Off");
                     break;
                 default:
                     Cursor.visible = false;
                     Cursor.lockState = CursorLockMode.Locked;
-                    cursorImage.enabled = true;
+                    _cursorImage.enabled = true;
                     //Debug.Log($"Cursor state : Default");
                     break;
             }
