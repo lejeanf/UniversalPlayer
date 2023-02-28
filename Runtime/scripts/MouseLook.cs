@@ -6,6 +6,7 @@ using UnityEngine.XR;
 using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.Serialization;
 
 namespace jeanf.vrplayer
 {
@@ -16,8 +17,8 @@ namespace jeanf.vrplayer
         [Range(0,2)]
         public float mouseSensitivity = 1.2f;
         [SerializeField] private InputActionReference mouseXY;
-        private static bool _disableMouseLookWhenPrimaryItemDrawn = true; 
-        [SerializeField] private bool disableMouseLookWhenPrimaryItemDrawn = true; 
+        private static bool _useInputAction = true; 
+        [FormerlySerializedAs("disableMouseLookWhenPrimaryItemDrawn")] [SerializeField] private bool useInputAction = true; 
         [SerializeField] private InputActionReference drawPrimaryItem;
         private static bool _canLook = true;
         private static bool _isPrimaryItemInUse = false;
@@ -39,7 +40,7 @@ namespace jeanf.vrplayer
         private void Awake()
         {
             _originalCameraOffset = cameraOffset;
-            _disableMouseLookWhenPrimaryItemDrawn = disableMouseLookWhenPrimaryItemDrawn;
+            _useInputAction = useInputAction;
             Init();
         }
         private void Update()
@@ -51,7 +52,7 @@ namespace jeanf.vrplayer
         private void OnEnable()
         {
             BroadcastHmdStatus.hmdStatus += SetCursor;
-            //drawPrimaryItem.action.performed += ctx=> InvertMouseLookState();
+            if(useInputAction) drawPrimaryItem.action.performed += ctx=> InvertMouseLookState();
             ResetCamera += Init;
         }
 
@@ -61,7 +62,7 @@ namespace jeanf.vrplayer
         private void Unsubscribe()
         {
             BroadcastHmdStatus.hmdStatus -= SetCursor;
-            //drawPrimaryItem.action.performed -= null;
+            if(useInputAction) drawPrimaryItem.action.performed -= null;
             ResetCamera -= Init;
         }
 
@@ -94,21 +95,13 @@ namespace jeanf.vrplayer
         {
             Debug.Log($"CanLook: {state}");
             _canLook = state;
+            _isPrimaryItemInUse = !state;
         }
 
         public static void InvertMouseLookState()
         {
-            if (_disableMouseLookWhenPrimaryItemDrawn && !_isPrimaryItemInUse && _canLook)
-            {
-                _canLook = false;
-                _isPrimaryItemInUse = true;
-            }
-
-            else
-            {
-                _canLook = true;
-                _isPrimaryItemInUse = false;
-            }
+            _canLook = !_canLook;
+            _isPrimaryItemInUse = !_isPrimaryItemInUse;
         }
     }
 }
