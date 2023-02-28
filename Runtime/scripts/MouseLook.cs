@@ -16,10 +16,11 @@ namespace jeanf.vrplayer
         [Range(0,2)]
         public float mouseSensitivity = 1.2f;
         [SerializeField] private InputActionReference mouseXY;
+        private static bool _disableMouseLookWhenPrimaryItemDrawn = true; 
         [SerializeField] private bool disableMouseLookWhenPrimaryItemDrawn = true; 
         [SerializeField] private InputActionReference drawPrimaryItem;
         private static bool _canLook = true;
-        private bool _isPrimaryItemInUse = false;
+        private static bool _isPrimaryItemInUse = false;
         [Space(10)]
         [SerializeField] Camera camera;
         [SerializeField] Transform cameraOffset;
@@ -38,6 +39,8 @@ namespace jeanf.vrplayer
         private void Awake()
         {
             _originalCameraOffset = cameraOffset;
+            _disableMouseLookWhenPrimaryItemDrawn = disableMouseLookWhenPrimaryItemDrawn;
+            Init();
         }
         private void Update()
         {
@@ -48,8 +51,8 @@ namespace jeanf.vrplayer
         private void OnEnable()
         {
             BroadcastHmdStatus.hmdStatus += SetCursor;
-            drawPrimaryItem.action.performed += ctx=> DisableMouseLook();
-            ResetCamera += Reset;
+            //drawPrimaryItem.action.performed += ctx=> InvertMouseLookState();
+            ResetCamera += Init;
         }
 
         private void OnDestroy() => Unsubscribe();
@@ -58,32 +61,13 @@ namespace jeanf.vrplayer
         private void Unsubscribe()
         {
             BroadcastHmdStatus.hmdStatus -= SetCursor;
-            drawPrimaryItem.action.performed -= null;
-            ResetCamera -= Reset;
+            //drawPrimaryItem.action.performed -= null;
+            ResetCamera -= Init;
         }
 
-        private void DisableMouseLook()
+        private void Init()
         {
-            if (disableMouseLookWhenPrimaryItemDrawn && !_isPrimaryItemInUse && _canLook)
-            {
-                _canLook = false;
-                _isPrimaryItemInUse = true;
-            }
-
-            else
-            {
-                _canLook = true;
-                _isPrimaryItemInUse = false;
-            }
-        }
-
-        public void InfosMouse()
-        {
-            //Debug.Log($"Left click !");
-        }
-
-        private void Reset()
-        {
+            _canLook = !_isHmdActive;
             camera.fieldOfView = 60f;
             _rotation = Vector2.zero;
             cameraOffset.localPosition = _originalCameraOffset.localPosition;
@@ -92,9 +76,7 @@ namespace jeanf.vrplayer
 
         private void SetCursor(bool state)
         {
-            //Debug.Log($"SetCursor");
-            //Debug.Log($"state: {state}");
-            Reset();
+            Init();
             _isHmdActive = state;
         }
 
@@ -108,10 +90,25 @@ namespace jeanf.vrplayer
             cameraOffset.transform.localRotation = Quaternion.Euler(_rotation.x, _rotation.y, 0);
         }
         
-        public static void CanLook(bool state)
+        public static void SetMouseState(bool state)
         {
             Debug.Log($"CanLook: {state}");
             _canLook = state;
+        }
+
+        public static void InvertMouseLookState()
+        {
+            if (_disableMouseLookWhenPrimaryItemDrawn && !_isPrimaryItemInUse && _canLook)
+            {
+                _canLook = false;
+                _isPrimaryItemInUse = true;
+            }
+
+            else
+            {
+                _canLook = true;
+                _isPrimaryItemInUse = false;
+            }
         }
     }
 }

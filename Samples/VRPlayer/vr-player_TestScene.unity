@@ -509,6 +509,11 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7581257494131221823, guid: 15d66d68a4116d243b7bb3b273842708,
+        type: 3}
+      propertyPath: disableMouseLookWhenPrimaryItemDrawn
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8694773027870397994, guid: 15d66d68a4116d243b7bb3b273842708,
         type: 3}
       propertyPath: m_Name
