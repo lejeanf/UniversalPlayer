@@ -18,7 +18,7 @@ namespace jeanf.vrplayer
         [SerializeField] private InputActionReference mouseXY;
         [SerializeField] private bool disableMouseLookWhenPrimaryItemDrawn = true; 
         [SerializeField] private InputActionReference drawPrimaryItem;
-        private bool _canLook = true;
+        private static bool _canLook = true;
         private bool _isPrimaryItemInUse = false;
         [Space(10)]
         [SerializeField] Camera camera;
@@ -106,6 +106,12 @@ namespace jeanf.vrplayer
             _rotation.x = Mathf.Clamp(_rotation.x, min, max);
 
             cameraOffset.transform.localRotation = Quaternion.Euler(_rotation.x, _rotation.y, 0);
+        }
+        
+        public static void CanLook(bool state)
+        {
+            Debug.Log($"CanLook: {state}");
+            _canLook = state;
         }
     }
 }
