@@ -1,12 +1,5 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using Unity.VectorGraphics;
-using UnityEditor.Build;
 using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
 
 namespace jeanf.vrplayer
 {
