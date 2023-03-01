@@ -10,7 +10,7 @@ namespace jeanf.vrplayer
     {
         public delegate void HmdStatus(bool status);
         public static HmdStatus hmdStatus;
-        [SerializeField] private bool hmdCurrentState = false;
+        public static bool hmdCurrentState = false;
         [SerializeField] private InputActionReference hmdPresenceInput;
         [SerializeField] private InputSystemUIInputModule inputSystemUIInputModule;
 
