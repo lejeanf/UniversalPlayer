@@ -83,7 +83,7 @@ namespace jeanf.vrplayer
 
         private void LookAround(Vector2 inputView)
         {
-            if(!BroadcastHmdStatus.hmdCurrentState) return;
+            if(BroadcastHmdStatus.hmdCurrentState) return;
             if (!_canLook) return;
             _rotation.y += inputView.x * mouseSensitivity;
             _rotation.x += -inputView.y * mouseSensitivity;

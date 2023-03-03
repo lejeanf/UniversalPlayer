@@ -53,7 +53,7 @@ namespace jeanf.vrplayer
         
         public static void SetCursorState(CursorState state)
         {
-            if (!BroadcastHmdStatus.hmdCurrentState) return;
+            if (BroadcastHmdStatus.hmdCurrentState) return;
             switch (state)
             {
                 case CursorState.OnConstrained:
