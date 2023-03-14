@@ -2053,6 +2053,11 @@ PrefabInstance:
       propertyPath: _hand
       value: 
       objectReference: {fileID: 1193159231}
+    - target: {fileID: 1654176947864710523, guid: 15d66d68a4116d243b7bb3b273842708,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: -1
+      objectReference: {fileID: 0}
     - target: {fileID: 2423214379621556911, guid: 15d66d68a4116d243b7bb3b273842708,
         type: 3}
       propertyPath: m_RootOrder
