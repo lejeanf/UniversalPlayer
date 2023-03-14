@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SwapHands : MonoBehaviour
 {
-    [SerializeField] public HandType handType = HandType.WhiteSkin_Female;
+    [SerializeField] public HandType handType;
     [Space(20)]
     [SerializeField] private List<SkinnedMeshRenderer> hands;
     [SerializeField] private List<Hand> handTypes;
@@ -36,7 +36,7 @@ public class SwapHands : MonoBehaviour
         set
         {
             handType = value;
-            SetHands(handType); 
+            SetHands(value); 
         }
     }
     public delegate void SwapHandEvent(HandType handType);
@@ -61,7 +61,6 @@ public class SwapHands : MonoBehaviour
     
     private void SetHands(HandType handType)
     {
-        Debug.Log($"Setting hands to {handType}");
         foreach (var h in handTypes)
         {
             if (h.handType != handType) continue;
