@@ -1,12 +1,13 @@
 {
   "name":"fr.jeanf.vr.player",
-  "version":"0.0.55",
+  "version":"0.0.56",
   "displayName":"VR Player",
   "description":"This package contains a basic VR player",
   "unity": "2021.3",
   "keywords": [
     "jeanf",
-    "vr"
+    "vr",
+    "player"
   ],
   "author":{
     "name":"Jean-François Robin",
@@ -14,12 +15,15 @@
     "url":"https://jeanfrancoisrobin.art"
   },
   "dependencies": {
+    "com.unity.modules.vr": "1.0.0",
+    "com.unity.modules.xr": "1.0.0",
     "com.unity.inputsystem": "1.4.4",
-    "com.unity.feature.vr": "1.0.0",
-    "com.unity.xr.oculus": "3.2.2",
-    "com.unity.xr.openxr": "1.6.0",
     "com.unity.vectorgraphics": "2.0.0-preview.20",
-    "com.unity.xr.interaction.toolkit": "2.2.0"
+    "com.unity.xr.openxr": "1.6.0",
+    "com.unity.xr.interaction.toolkit": "2.3.0",
+    "com.unity.xr.hands": "1.1.0-pre.3",
+    "com.unity.xr.management": "4.3.3",
+    "com.unity.xr.oculus": "3.2.3",
   },
   "samples": [
         {
