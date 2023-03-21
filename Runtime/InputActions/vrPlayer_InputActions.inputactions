@@ -1283,6 +1283,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "TakeObject",
+                    "type": "Button",
+                    "id": "ff2e279b-531d-473c-bb69-4a49b565e21c",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -1371,6 +1380,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "PauseGame",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "238f9f83-b0fb-49a4-a716-4c48a18525dc",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "TakeObject",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
