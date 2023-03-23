@@ -17,6 +17,8 @@ namespace jeanf.vrplayer
         private bool _gravityBeforeGrab;
         private float _dragBeforeGrab;
         private float _angularDragBeforeGrab;
+
+        [SerializeField] private bool isDebug = false;
         
         private void OnEnable()
         {
@@ -51,7 +53,10 @@ namespace jeanf.vrplayer
             var ray = new Ray(cameraTransform.position, cameraTransform.forward);
 
             if (!Physics.Raycast(ray, out var hit, maxDistanceCheck)) return;
+            if(isDebug) Debug.Log($"ray hit with: {hit.transform.gameObject.name}");
             if (!hit.collider.GetComponent<XRGrabInteractable>()) return;
+            if(isDebug) Debug.Log($"{hit.transform.gameObject.name} is grabbable");
+            
             
             var rb = hit.transform.GetComponent<Rigidbody>();
             _gravityBeforeGrab = rb.useGravity;
@@ -73,6 +78,7 @@ namespace jeanf.vrplayer
             _currentObjectHeldRb.useGravity = _gravityBeforeGrab;
             _currentObjectHeldRb.drag = _dragBeforeGrab;
             _currentObjectHeldRb.angularDrag = _angularDragBeforeGrab;
+            if(isDebug) Debug.Log($"releasing {_currentObjectHeld.name}");
                 
             _currentObjectHeld = null;
             _currentObjectHeldRb = null;
