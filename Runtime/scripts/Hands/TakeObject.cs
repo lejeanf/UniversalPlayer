@@ -1,16 +1,21 @@
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
 using DG.Tweening;
+using UnityEditor;
+using Debug = UnityEngine.Debug;
 
 namespace jeanf.vrplayer
 {
     public class TakeObject : MonoBehaviour
     {
         // Start is called before the first frame update
+        [SerializeField] private LayerMask layerMask;
         [SerializeField] private Transform cameraTransform;
-        [SerializeField] private float maxDistanceCheck = 1.5f;
+        [Space(20)]
         [SerializeField] private InputActionReference takeAction;
+        [SerializeField] private float maxDistanceCheck = 1.5f;
         private Transform _currentObjectHeld;
         private Rigidbody _currentObjectHeldRb;
 
@@ -18,13 +23,19 @@ namespace jeanf.vrplayer
         private float _dragBeforeGrab;
         private float _angularDragBeforeGrab;
 
+
+
+        public enum TakeStyle { hold, toggle}
+        [SerializeField] private TakeStyle _takeStyle = TakeStyle.toggle;
+        [Space(20)]
         [SerializeField] private bool isDebug = false;
-        
+        private bool holdState = false;
+
         private void OnEnable()
         {
             takeAction.action.Enable();
-            takeAction.action.started += _ => Take();
-            takeAction.action.canceled += _ => Release();
+            takeAction.action.performed += _ => DecideAction();
+            takeAction.action.canceled += _ => ReleaseHold();
         }
 
 
@@ -33,8 +44,9 @@ namespace jeanf.vrplayer
 
         private void Unsubscribe()
         {
-            takeAction.action.started -= null;
+            //takeAction.action.started -= null;
             takeAction.action.canceled -= null;
+            takeAction.action.performed -= null;
             takeAction.action.Disable();
             DOTween.KillAll();
         }
@@ -45,14 +57,38 @@ namespace jeanf.vrplayer
             if (_currentObjectHeld) _currentObjectHeld.transform.DOMove(cameraTransform.position + cameraTransform.forward * 0.5f, .05f, false);
         }
 
+        private void ToggleTake()
+        {
+            if(isDebug) Debug.Log("toggle take");
+            
+            if (!holdState) Take();
+            else Release();
+            
+            holdState = !holdState;
+        }
+        
+        private void DecideAction()
+        {
+            switch (_takeStyle)
+            {
+                case TakeStyle.toggle:
+                    ToggleTake();
+                    break;
+                default:
+                    Take();
+                    break;
+            }
+        }
+
         private void Take()
         {
+            if(isDebug) Debug.Log("take");
             if(_currentObjectHeld) return;
             if(BroadcastHmdStatus.hmdCurrentState) return;
             
             var ray = new Ray(cameraTransform.position, cameraTransform.forward);
 
-            if (!Physics.Raycast(ray, out var hit, maxDistanceCheck)) return;
+            if (!Physics.Raycast(ray, out var hit, maxDistanceCheck, layerMask)) return;
             if(isDebug) Debug.Log($"ray hit with: {hit.transform.gameObject.name}");
             if (!hit.collider.GetComponent<XRGrabInteractable>()) return;
             if(isDebug) Debug.Log($"{hit.transform.gameObject.name} is grabbable");
@@ -72,6 +108,7 @@ namespace jeanf.vrplayer
 
         private void Release()
         {
+            if(isDebug) Debug.Log("release");
             if(BroadcastHmdStatus.hmdCurrentState) return;
             if (!_currentObjectHeld) return;
             
@@ -82,6 +119,13 @@ namespace jeanf.vrplayer
                 
             _currentObjectHeld = null;
             _currentObjectHeldRb = null;
+        }
+
+        private void ReleaseHold()
+        {
+            if(_takeStyle != TakeStyle.hold) return;
+            if(isDebug) Debug.Log("release hold");
+            Release();
         }
     }
 }

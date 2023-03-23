@@ -135,10 +135,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a85ac7aafd8c6ca42b1d7389a069a1e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 64
   cameraTransform: {fileID: 7264267533721849609}
-  maxDistanceCheck: 1.5
-  takeAction: {fileID: -6467106708271402158, guid: 6b37155ce41f9ff4ba9b7497353fa47f,
+  takeAction: {fileID: -6949841555368932126, guid: 6b37155ce41f9ff4ba9b7497353fa47f,
     type: 3}
+  maxDistanceCheck: 1.5
+  _takeStyle: 1
+  isDebug: 0
 --- !u!1 &3652687777935159402
 GameObject:
   m_ObjectHideFlags: 0
@@ -1105,6 +1110,7 @@ GameObject:
   - component: {fileID: 5675690729542936121}
   - component: {fileID: 7675815025062699422}
   - component: {fileID: 7581257494131221823}
+  - component: {fileID: 1488451183}
   m_Layer: 0
   m_Name: Locomotion
   m_TagString: Untagged
@@ -1281,6 +1287,21 @@ MonoBehaviour:
   _isHmdActive: 0
   min: -60
   max: 75
+--- !u!114 &1488451183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7562776278014782965}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20a4927225c6fe94bb1c6970cfea25e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actionAsset: {fileID: 0}
+  rightRayInteractor: {fileID: 0}
+  provider: {fileID: 0}
 --- !u!1 &8012963779719317172
 GameObject:
   m_ObjectHideFlags: 0
@@ -1477,7 +1498,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 0.6666667, b: 0, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
