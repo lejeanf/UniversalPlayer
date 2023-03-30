@@ -23,8 +23,6 @@ namespace jeanf.vrplayer
         private float _dragBeforeGrab;
         private float _angularDragBeforeGrab;
 
-
-
         public enum TakeStyle { hold, toggle}
         [SerializeField] private TakeStyle _takeStyle = TakeStyle.toggle;
         [Space(20)]

@@ -1,15 +1,17 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
 
+[RequireComponent(typeof(LocomotionSystem))]
 public class TeleportationManager : MonoBehaviour
 {
     [SerializeField] private InputActionAsset actionAsset;
     [SerializeField] private XRRayInteractor rightRayInteractor;
-    //[SerializeField] private XRRayInteractor leftRayInteractor;
-    [SerializeField] private TeleportationProvider provider;
+    
+    private TeleportationProvider provider;
     private InputAction _thumbstick;
     private bool _isActive;
 
@@ -17,8 +19,12 @@ public class TeleportationManager : MonoBehaviour
     Vector3 m_ReticleNormal;
     int m_EndPositionInLine;
 
-    // Start is called before the first frame update
-    void Start()
+    private void Awake()
+    {
+        provider = this.GetComponent<TeleportationProvider>();
+    }
+
+    private void Start()
     {
         rightRayInteractor.enabled = false;
 
@@ -31,9 +37,8 @@ public class TeleportationManager : MonoBehaviour
         cancelRight.Enable();
         cancelRight.performed += OnTeleportCancel;
     }
-
-    // Update is called once per frame
-    void Update()
+    
+    private void Update()
     {
         if (!_isActive) return;
         
@@ -44,7 +49,7 @@ public class TeleportationManager : MonoBehaviour
             return;
         }
 
-        TeleportRequest request = new TeleportRequest()
+        var request = new TeleportRequest()
         {
             destinationPosition = m_ReticlePos,
         };
