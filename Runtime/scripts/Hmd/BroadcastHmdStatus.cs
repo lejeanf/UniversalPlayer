@@ -17,6 +17,8 @@ namespace jeanf.vrplayer
         [SerializeField] private InputSystemUIInputModule inputSystemUIInputModule;
         [SerializeField] private bool userPresence = false;
 
+        [SerializeField] private bool isDebug = false;
+
         private void Awake()
         {
             IsHmdOn();
@@ -25,6 +27,7 @@ namespace jeanf.vrplayer
         private void FixedUpdate()
         {
             if (hmdCurrentState == IsHmdOn()) return;
+            hmdCurrentState = userPresence;
             SetHMD();
         }
 
@@ -41,8 +44,8 @@ namespace jeanf.vrplayer
                 hmdState = true;
                 inputSystemUIInputModule.enabled = false;
             }
-            hmdCurrentState = hmdState;
-            userPresence = hmdCurrentState;
+            
+            userPresence = hmdState;
             
             return hmdState;
         }
@@ -50,6 +53,7 @@ namespace jeanf.vrplayer
         void SetHMD() //bool state
         {
             hmdStatus?.Invoke(hmdCurrentState);
+            if (isDebug) Debug.Log($"HMD status: {hmdCurrentState}");
         }
     }
 }
