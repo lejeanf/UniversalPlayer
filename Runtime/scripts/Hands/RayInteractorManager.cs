@@ -10,8 +10,8 @@ public class RayInteractorManager : MonoBehaviour
     [SerializeField] private Gradient _white;
     [SerializeField] private Gradient _transparent;
 
-    [SerializeField] private InputActionReference selectRight;
     [SerializeField] private InputActionReference selectLeft;
+    [SerializeField] private InputActionReference selectRight;
 
     private void Start()
     {
