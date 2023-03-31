@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -11,18 +10,25 @@ public class RayInteractorManager : MonoBehaviour
     [SerializeField] private Gradient _white;
     [SerializeField] private Gradient _transparent;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        var selectRight = actionAsset.FindActionMap("XRI RightHand Interaction").FindAction("Preview Raycast");
-        selectRight.Enable();
-        selectRight.performed += RightPreviewRayEnable;
-        selectRight.canceled += RightPreviewRayDisable;
+    [SerializeField] private InputActionReference selectRight;
+    [SerializeField] private InputActionReference selectLeft;
 
-        var selectLeft = actionAsset.FindActionMap("XRI LeftHand Interaction").FindAction("Preview Raycast");
-        selectLeft.Enable();
-        selectLeft.performed += LeftPreviewRayEnable;
-        selectLeft.canceled += LeftPreviewRayDisable;
+    private void Start()
+    {
+        actionAsset.Enable();
+        selectRight.action.performed += RightPreviewRayEnable;
+        selectRight.action.canceled += RightPreviewRayDisable;
+        selectLeft.action.performed += LeftPreviewRayEnable;
+        selectLeft.action.canceled += LeftPreviewRayDisable;
+    }
+
+    private void OnDestroy()
+    {
+        selectRight.action.performed -= null;
+        selectRight.action.canceled -= null;
+        selectLeft.action.performed -= null;
+        selectLeft.action.canceled -= null;
+        actionAsset.Disable();
     }
 
     public void RightPreviewRayEnable(InputAction.CallbackContext context)
