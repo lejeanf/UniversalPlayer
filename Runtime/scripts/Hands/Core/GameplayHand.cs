@@ -17,13 +17,15 @@ namespace  jeanf.vrplayer
         {
             // Subscribe to selected events
             getDirectInteractor?.Invoke(handType,ref targetInteractor);
+            
+            if (!targetInteractor) return;
             targetInteractor.onSelectEntered.AddListener(TryApplyObjectPose);
             targetInteractor.onSelectExited.AddListener(TryApplyDefaultPose);
         }
 
         private void OnDisable()
         {
-            // Unsubscribe to selected events
+            if (!targetInteractor) return;
             targetInteractor.onSelectEntered.RemoveListener(TryApplyObjectPose);
             targetInteractor.onSelectExited.RemoveListener(TryApplyDefaultPose);
         }
