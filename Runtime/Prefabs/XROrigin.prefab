@@ -1134,7 +1134,7 @@ GameObject:
   - component: {fileID: 6601360082587388206}
   - component: {fileID: 6601360082587388207}
   m_Layer: 2
-  m_Name: XR Origin Hands
+  m_Name: XROrigin
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
