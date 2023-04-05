@@ -811,7 +811,7 @@
                     "path": "<XRController>{LeftHand}/secondaryButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Generic XR Controller",
                     "action": "Preview Raycast",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -1012,7 +1012,7 @@
                     "path": "<Gamepad>/leftStick",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Generic XR Controller",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -1573,7 +1573,7 @@
                     "path": "<XRController>{RightHand}/secondaryButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Generic XR Controller",
                     "action": "Preview Raycast",
                     "isComposite": false,
                     "isPartOfComposite": false

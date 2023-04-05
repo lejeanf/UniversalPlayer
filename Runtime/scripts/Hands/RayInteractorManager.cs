@@ -3,51 +3,39 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
 
+[RequireComponent(typeof(XRInteractorLineVisual))]
 public class RayInteractorManager : MonoBehaviour
 {
-    [SerializeField] private InputActionAsset actionAsset;
-    [SerializeField] private XRInteractorLineVisual rightInteractorLineVisual, leftInteractorLineVisual;
+    [Space(10)]
+    private XRInteractorLineVisual rayInteractor;
+    [SerializeField] private InputActionReference selectAction;
+    [Space(10)]
     [SerializeField] private Gradient _white;
     [SerializeField] private Gradient _transparent;
 
-    [SerializeField] private InputActionReference selectLeft;
-    [SerializeField] private InputActionReference selectRight;
-
-    private void Start()
+    private void Awake()
     {
-        actionAsset.Enable();
-        selectRight.action.performed += RightPreviewRayEnable;
-        selectRight.action.canceled += RightPreviewRayDisable;
-        selectLeft.action.performed += LeftPreviewRayEnable;
-        selectLeft.action.canceled += LeftPreviewRayDisable;
+        rayInteractor = GetComponent<XRInteractorLineVisual>();
     }
 
-    private void OnDestroy()
+    private void OnEnable()
     {
-        selectRight.action.performed -= null;
-        selectRight.action.canceled -= null;
-        selectLeft.action.performed -= null;
-        selectLeft.action.canceled -= null;
-        actionAsset.Disable();
+        selectAction.action.Enable();
+        selectAction.action.performed += ctx => SetPreviewRay(rayInteractor, true);
+        selectAction.action.canceled += ctx => SetPreviewRay(rayInteractor, false);
+    }
+    private void OnDisable() => Unsubscribe();
+    private void OnDestroy() => Unsubscribe();
+    private void Unsubscribe()
+    {
+        selectAction.action.performed -= null;
+        selectAction.action.canceled -= null;
+        selectAction.action.Disable();
     }
 
-    public void RightPreviewRayEnable(InputAction.CallbackContext context)
+    public void SetPreviewRay(XRInteractorLineVisual interactorLineVisual, bool state)
     {
-        rightInteractorLineVisual.invalidColorGradient = _white;
+        interactorLineVisual.invalidColorGradient = state ? _white : _transparent;
     }
 
-    public void RightPreviewRayDisable(InputAction.CallbackContext context)
-    {
-        rightInteractorLineVisual.invalidColorGradient = _transparent;
-    }
-
-    public void LeftPreviewRayEnable(InputAction.CallbackContext context)
-    {
-        leftInteractorLineVisual.invalidColorGradient = _white;
-    }
-
-    public void LeftPreviewRayDisable(InputAction.CallbackContext context)
-    {
-        leftInteractorLineVisual.invalidColorGradient = _transparent;
-    }
 }

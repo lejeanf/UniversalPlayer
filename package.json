@@ -1,6 +1,6 @@
 {
   "name":"fr.jeanf.vr.player",
-  "version":"0.0.70",
+  "version":"0.0.71",
   "displayName":"VR Player",
   "description":"This package contains a basic VR player",
   "unity": "2021.3",

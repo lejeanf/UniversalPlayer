@@ -18,15 +18,17 @@ namespace jeanf.vrplayer
         [SerializeField] private bool userPresence = false;
 
         [SerializeField] private bool isDebug = false;
+        
 
         private void Awake()
         {
-            IsHmdOn();
+            userPresence = hmdCurrentState = IsHmdOn();
         }
 
         private void FixedUpdate()
         {
             if (hmdCurrentState == IsHmdOn()) return;
+            
             hmdCurrentState = userPresence;
             SetHMD();
         }

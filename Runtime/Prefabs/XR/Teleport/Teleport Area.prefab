@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4266640295717640281}
   - component: {fileID: 4266640295717640280}
-  m_Layer: 0
+  m_Layer: 31
   m_Name: Teleport Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -144,7 +144,7 @@ GameObject:
   - component: {fileID: 3111928413503404876}
   - component: {fileID: 306423734865422085}
   - component: {fileID: 4489918388059320994}
-  m_Layer: 0
+  m_Layer: 31
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -159,8 +159,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8708985967341403627}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 10, y: 0.25, z: 5}
+  m_LocalPosition: {x: 0, y: -0.05, z: 0}
+  m_LocalScale: {x: 10, y: 0.1, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4266640295717640281}
@@ -194,7 +194,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 670224309865224971, guid: 11cd62256b1d470f922b2c8e6446cc77, type: 3}
+  - {fileID: 2100000, guid: 9e61b04bcca72f1419dc72a2d801a51d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
