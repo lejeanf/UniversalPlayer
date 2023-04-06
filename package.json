@@ -35,6 +35,11 @@
           "displayName": "Hand Poses",
           "description": "A set of hand poses",
           "path": "Samples/HandPoses"
+        },
+        {
+          "displayName": "Hand meshes",
+          "description": "A set of hands",
+          "path": "Samples/Hands"
         }
     ]
 }
