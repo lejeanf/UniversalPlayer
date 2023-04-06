@@ -616,8 +616,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_RightHand
       value: 
-      objectReference: {fileID: 6220309639114616388, guid: 25c12a2ffa97abf44b6a152453309f95,
-        type: 3}
+      objectReference: {fileID: 6601360083180395373}
     - target: {fileID: 5078155073572372738, guid: de839e9ba8a2982459c6aee6f0d4ccc4,
         type: 3}
       propertyPath: m_Enabled
@@ -1026,6 +1025,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef8b96895a0ec4ba685178a052544251, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &6601360083180395373 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8438646577476631500, guid: de839e9ba8a2982459c6aee6f0d4ccc4,
+    type: 3}
+  m_PrefabInstance: {fileID: 3350861050183835809}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7264267533532500776 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5354633217682830217, guid: de839e9ba8a2982459c6aee6f0d4ccc4,
