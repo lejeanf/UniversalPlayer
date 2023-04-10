@@ -265,28 +265,6 @@
                     "action": "UserPresence",
                     "isComposite": false,
                     "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "3e480a24-bae7-40da-958c-e4c77177f4c5",
-                    "path": "<XRInputV1::OpenXR::HeadTrackingOpenXR>/userpresence",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "UserPresence",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "bca932f0-295e-4c17-b96a-a2998770e7ea",
-                    "path": "<OculusHMD>/userPresence",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "UserPresence",
-                    "isComposite": false,
-                    "isPartOfComposite": false
                 }
             ]
         },

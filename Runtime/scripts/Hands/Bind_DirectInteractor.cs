@@ -10,7 +10,7 @@ namespace  jeanf.vrplayer
    
         private void OnEnable()
         {
-            GameplayHand.getDirectInteractor += SetDirectInteractor;
+            HandPoseManager.getDirectInteractor += SetDirectInteractor;
         }
 
         private void OnDisable() => Unsubscribe();
@@ -18,7 +18,7 @@ namespace  jeanf.vrplayer
 
         private void Unsubscribe()
         {
-            GameplayHand.getDirectInteractor -= null;
+            HandPoseManager.getDirectInteractor -= null;
         }
 
         private void SetDirectInteractor(HandType handType, ref XRBaseInteractor directInteractor)

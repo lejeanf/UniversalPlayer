@@ -1,4 +1,4 @@
-using UnityEngine;
+    using UnityEngine;
 using UnityEngine.XR;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +14,7 @@ namespace jeanf.vrplayer
         public static HmdStatus hmdStatus;
         public static bool hmdCurrentState = false;
         [SerializeField] private InputActionReference hmdPresenceInput;
-        [SerializeField] private InputSystemUIInputModule inputSystemUIInputModule;
+        //[SerializeField] private InputSystemUIInputModule inputSystemUIInputModule;
         [SerializeField] private bool userPresence = false;
 
         [SerializeField] private bool isDebug = false;
@@ -36,7 +36,7 @@ namespace jeanf.vrplayer
         public bool IsHmdOn()
         {
             var hmdState = false;
-            inputSystemUIInputModule.enabled = true;
+            //inputSystemUIInputModule.enabled = true;
 
             var xrDisplaySubsystems = new List<XRDisplaySubsystem>();
             SubsystemManager.GetInstances<XRDisplaySubsystem>(xrDisplaySubsystems);
@@ -44,7 +44,7 @@ namespace jeanf.vrplayer
             foreach (var xrDisplay in xrDisplaySubsystems.Where(xrDisplay => xrDisplay.running))
             {
                 hmdState = true;
-                inputSystemUIInputModule.enabled = false;
+                //inputSystemUIInputModule.enabled = false;
             }
             
             userPresence = hmdState;
