@@ -1,10 +1,5 @@
-    using UnityEngine;
-using UnityEngine.XR;
-using System.Collections.Generic;
-using System.Linq;
+using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.UI;
-using UnityEngine.Serialization;
 
 namespace jeanf.vrplayer 
 {
@@ -12,50 +7,35 @@ namespace jeanf.vrplayer
     {
         public delegate void HmdStatus(bool status);
         public static HmdStatus hmdStatus;
+        
+        [SerializeField] private InputActionReference userPresenceInput;
         public static bool hmdCurrentState = false;
-        [SerializeField] private InputActionReference hmdPresenceInput;
-        //[SerializeField] private InputSystemUIInputModule inputSystemUIInputModule;
-        [SerializeField] private bool userPresence = false;
-
+        [SerializeField] private bool userPresence = false; // just used as visual feedback in unity Editor
         [SerializeField] private bool isDebug = false;
         
-
-        private void Awake()
+        private void OnEnable()
         {
-            userPresence = hmdCurrentState = IsHmdOn();
+            userPresenceInput.action.Enable();
+            userPresenceInput.action.started += (ctx) => UpdateHmdState(true);
+            userPresenceInput.action.canceled += (ctx) => UpdateHmdState(false);
         }
 
-        private void FixedUpdate()
+        private void OnDisable() => Unsubscribe();
+        private void OnDestroy() => Unsubscribe();
+
+        private void Unsubscribe()
         {
-            if (hmdCurrentState == IsHmdOn()) return;
-            
-            hmdCurrentState = userPresence;
-            SetHMD();
+            userPresenceInput.action.started -= null;
+            userPresenceInput.action.canceled -= null;
+            userPresenceInput.action.Disable();
         }
 
-        public bool IsHmdOn()
+        private void UpdateHmdState(bool state)
         {
-            var hmdState = false;
-            //inputSystemUIInputModule.enabled = true;
-
-            var xrDisplaySubsystems = new List<XRDisplaySubsystem>();
-            SubsystemManager.GetInstances<XRDisplaySubsystem>(xrDisplaySubsystems);
-
-            foreach (var xrDisplay in xrDisplaySubsystems.Where(xrDisplay => xrDisplay.running))
-            {
-                hmdState = true;
-                //inputSystemUIInputModule.enabled = false;
-            }
-            
-            userPresence = hmdState;
-            
-            return hmdState;
-        }
-
-        void SetHMD() //bool state
-        {
-            hmdStatus?.Invoke(hmdCurrentState);
-            if (isDebug) Debug.Log($"HMD status: {hmdCurrentState}");
+            if(isDebug) Debug.Log($"UserPresence: {state}");
+            hmdCurrentState = state;
+            userPresence = state;
+            hmdStatus?.Invoke(state);
         }
     }
 }

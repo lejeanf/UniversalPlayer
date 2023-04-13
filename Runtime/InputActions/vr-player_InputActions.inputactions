@@ -261,7 +261,7 @@
                     "path": "<XRHMD>/userPresence",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Generic XR Controller",
                     "action": "UserPresence",
                     "isComposite": false,
                     "isPartOfComposite": false
