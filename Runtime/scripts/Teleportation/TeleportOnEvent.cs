@@ -30,11 +30,11 @@ namespace jeanf.vrplayer
 
             objectToTeleport.transform.position = chosenTarget.position;
             objectToTeleport.transform.rotation = chosenTarget.rotation;
-            if(isDebug) Debug.Log($"teleported {chosenTarget.gameObject.name} to {chosenTarget.transform.position} with rotation: {chosenTarget.transform.rotation}");
+            if(isDebug) Debug.Log($"teleported {chosenTarget.gameObject.name} to {chosenTarget.transform.position} with rotation: {chosenTarget.transform.rotation.eulerAngles}");
             
             if (!isRotateCamera) return;
             cameraOffset.localRotation = Quaternion.Euler(chosenTarget.rotation.x, chosenTarget.rotation.y, 0);
-            if(isDebug) Debug.Log($"cameraOffset rotation: {chosenTarget.transform.rotation}");
+            if(isDebug) Debug.Log($"cameraOffset rotation: {chosenTarget.transform.rotation.eulerAngles}");
         }
     }
 }
