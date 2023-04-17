@@ -20,7 +20,11 @@ namespace jeanf.vrplayer
 
         public void Teleport() 
         {
-            if (isRotateCamera) MouseLook.ResetCamera?.Invoke();
+            if (isRotateCamera)
+            {
+                MouseLook.ResetCamera?.Invoke();
+                CursorStateController.SetCursorState(CursorStateController.CursorState.OnLocked);
+            }
             teleportPlayer?.Invoke(this.transform, isRotateCamera);
         }
 
