@@ -7,10 +7,13 @@ namespace jeanf.vrplayer
 {
     public class SendTeleportTarget : MonoBehaviour
     {
-        public delegate void TeleportPlayer(Transform teleportTarget);
+        public delegate void TeleportPlayer(Transform teleportTarget, bool isRotateCamera);
         public static event TeleportPlayer teleportPlayer;
 
-        [SerializeField] bool sendEventOnEnable = false;
+        [SerializeField] private bool sendEventOnEnable = false;
+        [SerializeField] private bool isRotateCamera = false;
+        
+        
 
         private void OnEnable()
         {
@@ -19,7 +22,7 @@ namespace jeanf.vrplayer
 
         public void Teleport() 
         {
-            teleportPlayer?.Invoke(this.transform);
+            teleportPlayer?.Invoke(this.transform, isRotateCamera);
         }
 
 #if UNITY_EDITOR 
