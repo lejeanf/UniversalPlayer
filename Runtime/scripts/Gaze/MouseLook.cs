@@ -53,7 +53,7 @@ namespace jeanf.vrplayer
         {
             BroadcastHmdStatus.hmdStatus += SetCursor;
             if(useInputAction) drawPrimaryItem.action.performed += ctx=> InvertMouseLookState();
-            ResetCamera += Init;
+            ResetCamera += ResetCameraSettings;
         }
 
         private void OnDestroy() => Unsubscribe();
@@ -63,12 +63,17 @@ namespace jeanf.vrplayer
         {
             BroadcastHmdStatus.hmdStatus -= SetCursor;
             if(useInputAction) drawPrimaryItem.action.performed -= null;
-            ResetCamera -= Init;
+            ResetCamera -= null;
         }
 
         private void Init()
         {
             _canLook = !_isHmdActive;
+            ResetCameraSettings();
+        }
+
+        private void ResetCameraSettings()
+        {
             camera.fieldOfView = 60f;
             _rotation = Vector2.zero;
             cameraOffset.localPosition = _originalCameraOffset.localPosition;

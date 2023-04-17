@@ -12,8 +12,6 @@ namespace jeanf.vrplayer
 
         [SerializeField] private bool sendEventOnEnable = false;
         [SerializeField] private bool isRotateCamera = false;
-        
-        
 
         private void OnEnable()
         {
