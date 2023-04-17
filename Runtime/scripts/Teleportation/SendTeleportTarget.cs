@@ -22,6 +22,7 @@ namespace jeanf.vrplayer
 
         public void Teleport() 
         {
+            if (isRotateCamera) MouseLook.ResetCamera?.Invoke();
             teleportPlayer?.Invoke(this.transform, isRotateCamera);
         }
 
