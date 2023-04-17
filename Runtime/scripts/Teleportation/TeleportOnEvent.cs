@@ -9,7 +9,8 @@ namespace jeanf.vrplayer
 {
     public class TeleportOnEvent : MonoBehaviour
     {
-        [SerializeField] GameObject objectToTeleport;
+        [SerializeField] private GameObject objectToTeleport;
+        [SerializeField] private Transform cameraOffset;
 
         private void OnEnable()
         {
@@ -22,15 +23,13 @@ namespace jeanf.vrplayer
             SendTeleportTarget.teleportPlayer -= null;
         }
 
-        public void Teleport(Transform teleportTarget, bool isRotateCamera)
+        public void Teleport(Transform chosenTarget, bool isRotateCamera)
         {
-            if (!teleportTarget) return;
-            var chosenTarget = teleportTarget;
             if (!objectToTeleport) return;
 
             objectToTeleport.transform.position = chosenTarget.position;
             objectToTeleport.transform.rotation = chosenTarget.rotation;
-            if(isRotateCamera && Camera.main != null) Camera.main.transform.localRotation = Quaternion.Euler(chosenTarget.rotation.x, chosenTarget.rotation.y, 0);
+            if(isRotateCamera) cameraOffset.localRotation = Quaternion.Euler(chosenTarget.rotation.x, chosenTarget.rotation.y, 0);
         }
     }
 }
