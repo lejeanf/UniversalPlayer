@@ -18,9 +18,9 @@ namespace jeanf.vrplayer
             for (int i = 0; i < teleportPositions.Count; i++)
             {
                 if (i >= 10) return;
+                int floorNb = i;
 
                 InputAction inputAction = new InputAction();
-                int floorNb = i + 1;
                 inputAction.AddBinding($"<Keyboard>/{floorNb}");
                 inputAction.AddBinding($"<Keyboard>/numpad{floorNb}");
                 if (!inputActions.Contains(inputAction)) inputActions.Add(inputAction);
@@ -31,20 +31,22 @@ namespace jeanf.vrplayer
         }
         private void OnDestroy() => Unsubscribe();
         private void OnDisable() => Unsubscribe();
-        void Unsubscribe()
+
+        private void Unsubscribe()
         {
-            for (int i = 0; i < inputActions.Count; i++)
+            foreach (var t in inputActions)
             {
-                inputActions[i].performed -= ctx => Load(i + 1);
-                inputActions[i].Disable();
+                t.performed -= null;
+                t.Disable();
             }
         }
 
-        void Load(int floorNb)
+        private void Load(int floorNb)
         {
+            Debug.Log($"loading: {floorNb}");
             MouseLook.ResetCamera?.Invoke();
             loadFloor?.Invoke(floorNb);
-            teleportPositions[floorNb - 1].GetComponent<SendTeleportTarget>().Teleport();
+            teleportPositions[floorNb].GetComponent<SendTeleportTarget>().Teleport();
         }
     }
 }
