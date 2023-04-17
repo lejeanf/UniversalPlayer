@@ -36,6 +36,8 @@ namespace jeanf.vrplayer
         //events
         public delegate void ResetCameraOffset();
         public static ResetCameraOffset ResetCamera;
+        public delegate void SetPrimaryItemState(bool state);
+        public static SetPrimaryItemState setPrimaryItemState;
 
         private void Awake()
         {
@@ -103,12 +105,14 @@ namespace jeanf.vrplayer
             Debug.Log($"CanLook: {state}");
             _canLook = state;
             _isPrimaryItemInUse = !state;
+            setPrimaryItemState?.Invoke(_isPrimaryItemInUse);
         }
 
         public static void InvertMouseLookState()
         {
             _canLook = !_canLook;
             _isPrimaryItemInUse = !_isPrimaryItemInUse;
+            setPrimaryItemState?.Invoke(_isPrimaryItemInUse);
         }
     }
 }
