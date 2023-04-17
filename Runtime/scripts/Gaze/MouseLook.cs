@@ -74,6 +74,7 @@ namespace jeanf.vrplayer
 
         private void ResetCameraSettings()
         {
+            if(!_isHmdActive) SetMouseState(false);
             camera.fieldOfView = 60f;
             _rotation = Vector2.zero;
             cameraOffset.localPosition = _originalCameraOffset.localPosition;
