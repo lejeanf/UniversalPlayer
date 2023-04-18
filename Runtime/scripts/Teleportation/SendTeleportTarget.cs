@@ -6,37 +6,40 @@ using UnityEditor;
 
 namespace jeanf.vrplayer
 {
-    public class SendTeleportTarget : MonoBehaviour
+    public class SendTeleportTarget : MonoBehaviour, IDebugBehaviour
     {
+        public bool isDebug
+        { 
+            get => _isDebug;
+            set => _isDebug = value; 
+        }
+        [SerializeField] private bool _isDebug = false;
+
         [SerializeField] private bool sendEventOnEnable = false;
         [SerializeField] private bool alignWithRotation = false;
-        [Header("Broadcasting on:")]
         public bool isTeleportPlayer = false;
-
-        [HideInInspector] public TeleportEventChannelSO _teleportObjectEventChannel;
-        [HideInInspector] public TeleportEventChannelSO _teleportPLayerEventChannel;
-        [HideInInspector] public Transform objectToTeleport;
         
+        [Header("Broadcasting on (player):")] 
+        [SerializeField] private TeleportEventChannelSO _teleportPLayerEventChannel;
+        [Header("Broadcasting on (object):")] 
+        [SerializeField] private TeleportEventChannelSO _teleportObjectEventChannel;
+        [SerializeField] private Transform objectToTeleport;
+
         private void OnEnable()
         {
             if (sendEventOnEnable) Teleport();
         }
 
-        public void Teleport() 
+        public void Teleport()
         {
-            if (isTeleportPlayer)
-            {
-                var teleportInformation = new TeleportInformation(objectToTeleport, this.transform, alignWithRotation, isTeleportPlayer);
-                _teleportObjectEventChannel.RaiseEvent(teleportInformation);
-            }
-            else
-            {
-                var teleportInformation = new TeleportInformation(null, this.transform, alignWithRotation, isTeleportPlayer);
-                _teleportPLayerEventChannel.RaiseEvent(teleportInformation);
-            }
+            var teleportInformation = new TeleportInformation(objectToTeleport, this.transform, alignWithRotation, isTeleportPlayer);
+            if (isTeleportPlayer) _teleportPLayerEventChannel.RaiseEvent(teleportInformation);
+            else  _teleportObjectEventChannel.RaiseEvent(teleportInformation);
+            
+            if(_isDebug) Debug.Log($"sending teleport information");
         }
 
-#if UNITY_EDITOR 
+#if UNITY_EDITOR
         [DrawGizmo(GizmoType.Pickable)]
         private void OnDrawGizmos()
         {
@@ -59,28 +62,31 @@ namespace jeanf.vrplayer
             Gizmos.DrawLine(b, a);
         }
 #endif
-    }   
+    }
+}
+/*
 #if UNITY_EDITOR
-    [CustomEditor(typeof(SendTeleportTarget))]
-    public class RandomScript_Editor : Editor
+[CustomEditor(typeof(SendTeleportTarget))]
+public class RandomScript_Editor : Editor
+{
+    public override void OnInspectorGUI()
     {
-        public override void OnInspectorGUI()
+        DrawDefaultInspector(); // for other non-HideInInspector fields
+
+        SendTeleportTarget script = (SendTeleportTarget)target;
+
+        // draw checkbox for the bool
+        if (script.isTeleportPlayer) // if bool is true, show other fields
         {
-            DrawDefaultInspector(); // for other non-HideInInspector fields
- 
-            SendTeleportTarget script = (SendTeleportTarget)target;
- 
-            // draw checkbox for the bool
-            if (script.isTeleportPlayer) // if bool is true, show other fields
-            {
-                script._teleportPLayerEventChannel = EditorGUILayout.ObjectField("Teleport Player Channel", script._teleportPLayerEventChannel, typeof(TeleportEventChannelSO), true) as TeleportEventChannelSO;
-            }
-            else
-            {
-                script._teleportObjectEventChannel = EditorGUILayout.ObjectField("Teleport Object Channel", script._teleportObjectEventChannel, typeof(TeleportEventChannelSO), true) as TeleportEventChannelSO;
-                script.objectToTeleport = EditorGUILayout.ObjectField("Object to teleport", script.objectToTeleport, typeof(Transform), true) as Transform;
-            }
+            script._teleportPLayerEventChannel = EditorGUILayout.ObjectField("Teleport Player Channel", script._teleportPLayerEventChannel, typeof(TeleportEventChannelSO), true) as TeleportEventChannelSO;
+        }
+        else
+        {
+            script._teleportObjectEventChannel = EditorGUILayout.ObjectField("Teleport Object Channel", script._teleportObjectEventChannel, typeof(TeleportEventChannelSO), true) as TeleportEventChannelSO;
+            script.objectToTeleport = EditorGUILayout.ObjectField("Object to teleport", script.objectToTeleport, typeof(Transform), true) as Transform;
         }
     }
+}
 #endif
 }
+*/

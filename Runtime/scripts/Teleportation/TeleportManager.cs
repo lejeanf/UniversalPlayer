@@ -1,10 +1,8 @@
-using jeanf.vrplayer;
-using System.Collections;
 using System.Collections.Generic;
 using jeanf.EventSystem;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
+using jeanf.EventSystem;
 
 namespace jeanf.vrplayer 
 {
