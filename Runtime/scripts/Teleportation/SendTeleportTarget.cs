@@ -1,18 +1,22 @@
-using System.Collections;
-using System.Collections.Generic;
+using jeanf.EventSystem;
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 namespace jeanf.vrplayer
 {
     public class SendTeleportTarget : MonoBehaviour
     {
-        public delegate void TeleportPlayer(Transform teleportTarget, bool isRotateCamera);
-        public static event TeleportPlayer teleportPlayer;
-
         [SerializeField] private bool sendEventOnEnable = false;
-        [SerializeField] private bool isRotateCamera = false;
+        [SerializeField] private bool alignWithRotation = false;
+        [Header("Broadcasting on:")]
+        public bool isTeleportPlayer = false;
 
+        [HideInInspector] public TeleportEventChannelSO _teleportObjectEventChannel;
+        [HideInInspector] public TeleportEventChannelSO _teleportPLayerEventChannel;
+        [HideInInspector] public Transform objectToTeleport;
+        
         private void OnEnable()
         {
             if (sendEventOnEnable) Teleport();
@@ -20,12 +24,16 @@ namespace jeanf.vrplayer
 
         public void Teleport() 
         {
-            if (isRotateCamera)
+            if (isTeleportPlayer)
             {
-                MouseLook.ResetCamera?.Invoke();
-                CursorStateController.SetCursorState(CursorStateController.CursorState.OnLocked);
+                var teleportInformation = new TeleportInformation(objectToTeleport, this.transform, alignWithRotation, isTeleportPlayer);
+                _teleportObjectEventChannel.RaiseEvent(teleportInformation);
             }
-            teleportPlayer?.Invoke(this.transform, isRotateCamera);
+            else
+            {
+                var teleportInformation = new TeleportInformation(null, this.transform, alignWithRotation, isTeleportPlayer);
+                _teleportPLayerEventChannel.RaiseEvent(teleportInformation);
+            }
         }
 
 #if UNITY_EDITOR 
@@ -52,4 +60,27 @@ namespace jeanf.vrplayer
         }
 #endif
     }   
+#if UNITY_EDITOR
+    [CustomEditor(typeof(SendTeleportTarget))]
+    public class RandomScript_Editor : Editor
+    {
+        public override void OnInspectorGUI()
+        {
+            DrawDefaultInspector(); // for other non-HideInInspector fields
+ 
+            SendTeleportTarget script = (SendTeleportTarget)target;
+ 
+            // draw checkbox for the bool
+            if (script.isTeleportPlayer) // if bool is true, show other fields
+            {
+                script._teleportPLayerEventChannel = EditorGUILayout.ObjectField("Teleport Player Channel", script._teleportPLayerEventChannel, typeof(TeleportEventChannelSO), true) as TeleportEventChannelSO;
+            }
+            else
+            {
+                script._teleportObjectEventChannel = EditorGUILayout.ObjectField("Teleport Object Channel", script._teleportObjectEventChannel, typeof(TeleportEventChannelSO), true) as TeleportEventChannelSO;
+                script.objectToTeleport = EditorGUILayout.ObjectField("Object to teleport", script.objectToTeleport, typeof(Transform), true) as Transform;
+            }
+        }
+    }
+#endif
 }

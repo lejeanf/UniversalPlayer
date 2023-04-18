@@ -1,32 +1,38 @@
 using jeanf.vrplayer;
 using System.Collections;
 using System.Collections.Generic;
+using jeanf.EventSystem;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 namespace jeanf.vrplayer 
 {
-    public class TeleportManager : MonoBehaviour
+    public class TeleportManager : MonoBehaviour, IDebugBehaviour
     {
+        public bool isDebug
+        { 
+            get => _isDebug;
+            set => _isDebug = value; 
+        }
+        [SerializeField] private bool _isDebug = false;
+        
         [SerializeField] List<Transform> teleportPositions;
         List<InputAction> inputActions = new List<InputAction>();
-
-        public delegate void LoadFloor(int floorToLoad);
-        public static LoadFloor loadFloor;
         private void OnEnable()
         {
-            for (int i = 0; i < teleportPositions.Count; i++)
+            for (var i = 0; i < teleportPositions.Count; i++)
             {
                 if (i >= 10) return;
-                int floorNb = i;
-
-                InputAction inputAction = new InputAction();
-                inputAction.AddBinding($"<Keyboard>/{floorNb}");
-                inputAction.AddBinding($"<Keyboard>/numpad{floorNb}");
+                var spawnId = i;
+                
+                var inputAction = new InputAction();
+                inputAction.AddBinding($"<Keyboard>/{spawnId}");
+                inputAction.AddBinding($"<Keyboard>/numpad{spawnId}");
                 if (!inputActions.Contains(inputAction)) inputActions.Add(inputAction);
 
                 inputAction.Enable();
-                inputAction.performed += ctx => Load(floorNb);
+                inputAction.performed += ctx => TeleportTo(spawnId);
             }
         }
         private void OnDestroy() => Unsubscribe();
@@ -41,11 +47,11 @@ namespace jeanf.vrplayer
             }
         }
 
-        private void Load(int floorNb)
+        private void TeleportTo(int spawnId)
         {
-            Debug.Log($"loading: {floorNb}");
-            loadFloor?.Invoke(floorNb);
-            teleportPositions[floorNb].GetComponent<SendTeleportTarget>().Teleport();
+            if(_isDebug) Debug.Log($"teleporting to spawn nr: {spawnId}");
+            teleportPositions[spawnId].GetComponent<SendTeleportTarget>().Teleport();
         }
+
     }
 }

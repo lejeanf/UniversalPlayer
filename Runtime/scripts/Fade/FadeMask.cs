@@ -39,11 +39,9 @@ namespace jeanf.vrplayer
                 }
             }
 
-            if (_shaderMaterial)
-            {
-                _shaderMaterial.SetColor(FadeColor, new Color(color.r, color.g, color.b, 1));
-                FadeValue(false, .5f);
-            }
+            if (!_shaderMaterial) return;
+            _shaderMaterial.SetColor(FadeColor, new Color(color.r, color.g, color.b, 1));
+            FadeValue(false, .5f);
         }
         
         private void OnEnable()

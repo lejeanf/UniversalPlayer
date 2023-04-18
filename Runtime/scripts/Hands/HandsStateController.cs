@@ -14,16 +14,16 @@ namespace jeanf.vrplayer
         }
         void OnEnable()
         {
-            BroadcastHmdStatus.hmdStatus += SetHandsState;
+            //BroadcastHmdStatus.hmdStatus += SetHandsState;
         }
         void OnDestroy() => Unsubscribe();
         void OnDisable() => Unsubscribe();
         void Unsubscribe()
         {
-            BroadcastHmdStatus.hmdStatus -= SetHandsState;
+            //BroadcastHmdStatus.hmdStatus -= SetHandsState;
         }
 
-        void SetHandsState(bool state)
+        public void SetHandsState(bool state)
         {
             hand_left.SetActive(state);
             hand_right.SetActive(state);

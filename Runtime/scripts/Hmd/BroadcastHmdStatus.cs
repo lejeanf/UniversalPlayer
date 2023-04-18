@@ -1,17 +1,27 @@
+using jeanf.EventSystem;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace jeanf.vrplayer 
 {
-    public class BroadcastHmdStatus : MonoBehaviour
+    public class BroadcastHmdStatus : MonoBehaviour, IDebugBehaviour
     {
-        public delegate void HmdStatus(bool status);
-        public static HmdStatus hmdStatus;
+        public bool isDebug
+        { 
+            get => _isDebug;
+            set => _isDebug = value; 
+        }
+        [SerializeField] private bool _isDebug = false;
+        
+        //public delegate void HmdStatus(bool status);
+        //public static HmdStatus hmdStatus;
         
         [SerializeField] private InputActionReference userPresenceInput;
         public static bool hmdCurrentState = false;
-        [SerializeField] private bool userPresence = false; // just used as visual feedback in unity Editor
-        [SerializeField] private bool isDebug = false;
+        [SerializeField] private bool userPresence = false; // just us
+        
+        [Header("Broadcasting on:")]
+        [SerializeField] private BoolEventChannelSO hmdStateChannel;
         
         private void OnEnable()
         {
@@ -32,10 +42,12 @@ namespace jeanf.vrplayer
 
         private void UpdateHmdState(bool state)
         {
-            if(isDebug) Debug.Log($"UserPresence: {state}");
+            if(_isDebug) Debug.Log($"UserPresence: {state}");
             hmdCurrentState = state;
             userPresence = state;
-            hmdStatus?.Invoke(state);
+            //hmdStatus?.Invoke(state);
+            hmdStateChannel.RaiseEvent(state);
         }
+
     }
 }

@@ -1,40 +1,33 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
+using jeanf.EventSystem;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.XR.Interaction.Toolkit.Inputs;
+using UnityEngine.Serialization;
 
 namespace jeanf.vrplayer
 {
-    public class TeleportOnEvent : MonoBehaviour
+    public class TeleportOnEvent : TeleportEventListener, IDebugBehaviour
     {
+        public bool isDebug
+        { 
+            get => _isDebug;
+            set => _isDebug = value; 
+        }
+        [SerializeField] private bool _isDebug = false;
+        
         [SerializeField] private GameObject objectToTeleport;
         [SerializeField] private Transform cameraOffset;
-        [SerializeField] private bool isDebug;
 
-        private void OnEnable()
+        public void Teleport(TeleportInformation teleportInformation)
         {
-            SendTeleportTarget.teleportPlayer += Teleport;
-        }
-        private void OnDisable() => Unsubscribe();
-        private void OnDestroy() => Unsubscribe();
-        private void Unsubscribe()
-        {
-            SendTeleportTarget.teleportPlayer -= null;
-        }
+            var teleportSubject = teleportInformation.objectIsPlayer ? objectToTeleport.transform : teleportInformation.objectToTeleport.transform;
+            teleportSubject.position = teleportInformation.targetDestination.position;
+            teleportSubject.rotation = teleportInformation.targetDestination.rotation;
 
-        public void Teleport(Transform chosenTarget, bool isRotateCamera)
-        {
-            if (!objectToTeleport) return;
-
-            objectToTeleport.transform.position = chosenTarget.position;
-            objectToTeleport.transform.rotation = chosenTarget.rotation;
-            if(isDebug) Debug.Log($"teleported {chosenTarget.gameObject.name} to {chosenTarget.transform.position} with rotation: {chosenTarget.transform.rotation.eulerAngles}");
+            if(_isDebug) Debug.Log($"teleported {teleportSubject.gameObject.name} to {teleportInformation.targetDestination.transform.position} with rotation: {teleportInformation.targetDestination.transform.rotation.eulerAngles}");
             
-            if (!isRotateCamera) return;
-            cameraOffset.localRotation = Quaternion.Euler(chosenTarget.rotation.x, chosenTarget.rotation.y, 0);
-            if(isDebug) Debug.Log($"cameraOffset rotation: {chosenTarget.transform.rotation.eulerAngles}");
+            if (!teleportInformation.alignToTarget) return;
+            cameraOffset.localRotation = Quaternion.Euler(teleportInformation.targetDestination.rotation.x, teleportInformation.targetDestination.rotation.y, 0);
+            if(isDebug) Debug.Log($"cameraOffset rotation: {teleportInformation.targetDestination.transform.rotation.eulerAngles}");
         }
     }
 }

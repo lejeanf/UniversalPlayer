@@ -1,3 +1,4 @@
+using jeanf.EventSystem;
 using Unity.VectorGraphics;
 using UnityEngine;
 
@@ -10,8 +11,10 @@ namespace jeanf.vrplayer
         [SerializeField] private SVGImage cursorImage;
         private static SVGImage _cursorImage;
 
-        public delegate void SetCurrentCursorState(CursorState cursorState);
-        public static SetCurrentCursorState CurrentCursorState;
+        [Header("Broadcasting on:")]
+        //[SerializeField] private IntEventChannelSO cursorStateChannel;
+        [SerializeField] private BoolEventChannelSO mouselookStateChannel;
+        
 
         public enum CursorState
         {
@@ -21,22 +24,8 @@ namespace jeanf.vrplayer
         }
         private CursorState _cursorState = CursorState.OnLocked;
         private  void Awake() => Init();
-        private  void OnEnable()
-        {
-            BroadcastHmdStatus.hmdStatus += SetCursorAccordingToHmdState;
-            CurrentCursorState += SetCursorState;
-        }
 
-        private  void OnDestroy() => Unsubscribe();
-        private  void OnDisable() => Unsubscribe();
-
-        private void Unsubscribe()
-        {
-            BroadcastHmdStatus.hmdStatus -= SetCursorAccordingToHmdState;
-            CurrentCursorState -= SetCursorState;
-        }
-
-        private void Init()
+        public void Init()
         {
             _cursorImage = cursorImage;
             _cursorState = CursorState.OnLocked;
@@ -46,12 +35,31 @@ namespace jeanf.vrplayer
             SetCursorState(_cursorState);
         }
 
-        private static void SetCursorAccordingToHmdState(bool state)
+        public void SetCursorAccordingToHmdState(bool state)
         {
             SetCursorState(state ? CursorState.Off : CursorState.OnLocked);
         }
         
-        public static void SetCursorState(CursorState state)
+        public void SetCursorAccordingToPrimaryItemState(bool state)
+        {
+            SetCursorState(state ? CursorState.OnConstrained : CursorState.OnLocked);
+        }
+        
+        public void SetCursorAccordingToMainMenuState(bool state)
+        {
+            SetCursorState(state ? CursorState.OnConstrained : CursorState.OnLocked);
+        }
+
+        public void SetCursorState(CursorState state)
+        {
+            SetCursor(state);
+        }
+        public void SetCursorState(int state)
+        {
+            SetCursor((CursorState)state);
+        }
+
+        private void SetCursor(CursorState state)
         {
             if (BroadcastHmdStatus.hmdCurrentState) state = CursorState.Off;
             switch (state)
@@ -60,22 +68,27 @@ namespace jeanf.vrplayer
                     Cursor.visible = true;
                     Cursor.lockState = CursorLockMode.Confined;
                     _cursorImage.enabled = false;
+                    mouselookStateChannel.RaiseEvent(false);
                     break;
                 case CursorState.OnLocked:
                     Cursor.lockState = CursorLockMode.Locked;
                     _cursorImage.enabled = true;
+                    mouselookStateChannel.RaiseEvent(true);
                     break;
                 case CursorState.Off:
                     Cursor.visible = false;
                     Cursor.lockState = CursorLockMode.Locked;
                     _cursorImage.enabled = false;
+                    mouselookStateChannel.RaiseEvent(false);
                     break;
                 default:
                     Cursor.visible = false;
                     Cursor.lockState = CursorLockMode.Locked;
                     _cursorImage.enabled = true;
+                    mouselookStateChannel.RaiseEvent(true);
                     break;
             }
+            //cursorStateChannel.RaiseEvent((int)state);
         }
     }
 }
