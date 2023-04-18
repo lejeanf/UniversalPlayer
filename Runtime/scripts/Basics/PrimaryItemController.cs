@@ -27,11 +27,17 @@ public class PrimaryItemController : MonoBehaviour
     public void Reset()
     {
         primaryItemState = false;
+        Set(primaryItemState);
     }
 
     public void InvertState()
     {
         primaryItemState = !primaryItemState;
-        _PrimaryItemStateChannel.RaiseEvent(primaryItemState);
+        Set(primaryItemState);
+    }
+
+    private void Set(bool state)
+    {
+        _PrimaryItemStateChannel.RaiseEvent(state);
     }
 }
