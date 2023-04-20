@@ -24,7 +24,7 @@
     "com.unity.xr.hands": "1.1.0-pre.3",
     "com.unity.xr.management": "4.3.3",
     "com.unity.xr.oculus": "3.2.3",
-    "fr.jeanf.eventsystem": "0.0.4"
+    "fr.jeanf.eventsystem": "0.0.5"
   },
   "samples": [
         {
