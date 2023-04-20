@@ -25,6 +25,12 @@ namespace jeanf.vrplayer
         [SerializeField] private TeleportEventChannelSO _teleportObjectEventChannel;
         [SerializeField] private Transform objectToTeleport;
 
+        public Transform ObjectToTeleport
+        {
+            get => objectToTeleport;
+            set => objectToTeleport = value;
+        }
+
         private void OnEnable()
         {
             if (sendEventOnEnable) Teleport();
@@ -39,7 +45,7 @@ namespace jeanf.vrplayer
             if(_isDebug) Debug.Log($"sending teleport information");
         }
 
-#if UNITY_EDITOR
+        #if UNITY_EDITOR
         [DrawGizmo(GizmoType.Pickable)]
         private void OnDrawGizmos()
         {
@@ -61,32 +67,7 @@ namespace jeanf.vrplayer
             Gizmos.DrawLine(c, a);
             Gizmos.DrawLine(b, a);
         }
-#endif
+        #endif
     }
 }
-/*
-#if UNITY_EDITOR
-[CustomEditor(typeof(SendTeleportTarget))]
-public class RandomScript_Editor : Editor
-{
-    public override void OnInspectorGUI()
-    {
-        DrawDefaultInspector(); // for other non-HideInInspector fields
 
-        SendTeleportTarget script = (SendTeleportTarget)target;
-
-        // draw checkbox for the bool
-        if (script.isTeleportPlayer) // if bool is true, show other fields
-        {
-            script._teleportPLayerEventChannel = EditorGUILayout.ObjectField("Teleport Player Channel", script._teleportPLayerEventChannel, typeof(TeleportEventChannelSO), true) as TeleportEventChannelSO;
-        }
-        else
-        {
-            script._teleportObjectEventChannel = EditorGUILayout.ObjectField("Teleport Object Channel", script._teleportObjectEventChannel, typeof(TeleportEventChannelSO), true) as TeleportEventChannelSO;
-            script.objectToTeleport = EditorGUILayout.ObjectField("Object to teleport", script.objectToTeleport, typeof(Transform), true) as Transform;
-        }
-    }
-}
-#endif
-}
-*/
