@@ -40,4 +40,9 @@ public class PrimaryItemController : MonoBehaviour
     {
         _PrimaryItemStateChannel.RaiseEvent(state);
     }
+    
+    public void UpdatePrimaryItemStateFromExternalChange(bool state)
+    {
+        primaryItemState = state;
+    }
 }
