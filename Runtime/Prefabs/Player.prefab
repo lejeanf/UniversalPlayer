@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 407147894}
   - component: {fileID: 407147897}
+  - component: {fileID: 6601360084252996715}
   m_Layer: 2
   m_Name: PrimaryItemController
   m_TagString: Untagged
@@ -49,6 +50,34 @@ MonoBehaviour:
     type: 3}
   _PrimaryItemStateChannel: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6,
     type: 2}
+--- !u!114 &6601360084252996715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 407147893}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b82296c84d82a944bb46a1a9ee14d056, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _channel: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6, type: 2}
+  OnEventRaised:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 407147897}
+        m_TargetAssemblyTypeName: PrimaryItemController, vrplayer
+        m_MethodName: UpdatePrimaryItemStateFromExternalChange
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &965419837
 GameObject:
   m_ObjectHideFlags: 0
