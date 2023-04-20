@@ -19,11 +19,12 @@ namespace jeanf.vrplayer
         [SerializeField] private bool alignWithRotation = false;
         public bool isTeleportPlayer = false;
         
-        [Header("Broadcasting on (player):")] 
-        [SerializeField] private TeleportEventChannelSO _teleportPLayerEventChannel;
-        [Header("Broadcasting on (object):")] 
-        [SerializeField] private TeleportEventChannelSO _teleportObjectEventChannel;
+        [Header("Broadcasting on:")] 
+        [SerializeField] private TeleportEventChannelSO _teleportChannel;
+        
+        [Header("Teleportation parameters:")] 
         [SerializeField] private Transform objectToTeleport;
+        [SerializeField] private FilterSO _filter;
 
         public Transform ObjectToTeleport
         {
@@ -38,11 +39,9 @@ namespace jeanf.vrplayer
 
         public void Teleport()
         {
-            var teleportInformation = new TeleportInformation(objectToTeleport, this.transform, alignWithRotation, isTeleportPlayer);
-            if (isTeleportPlayer) _teleportPLayerEventChannel.RaiseEvent(teleportInformation);
-            else  _teleportObjectEventChannel.RaiseEvent(teleportInformation);
-            
-            if(_isDebug) Debug.Log($"sending teleport information");
+            var teleportInformation = new TeleportInformation(objectToTeleport, this.transform, alignWithRotation, isTeleportPlayer, _filter);
+            _teleportChannel.RaiseEvent(teleportInformation);
+            if(_isDebug) Debug.Log($"sending teleport information from {gameObject.name} for {_filter.filters[0]}");
         }
 
         #if UNITY_EDITOR
