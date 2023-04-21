@@ -27,7 +27,6 @@ namespace jeanf.vrplayer
         [DrawIf("isUsingFilter", true, ComparisonType.Equals, DisablingType.DontDraw)]
         public FilterSO _filter;
         [SerializeField] private bool sendEventOnEnable = false;
-        [SerializeField] private bool alignWithRotation = false;
 
         public Transform ObjectToTeleport
         {
@@ -42,7 +41,7 @@ namespace jeanf.vrplayer
 
         public void Teleport()
         {
-            var teleportInformation = new TeleportInformation(objectToTeleport, this.transform, alignWithRotation, isTeleportPlayer, _filter, isUsingFilter);
+            var teleportInformation = new TeleportInformation(objectToTeleport, this.transform, isTeleportPlayer, _filter, isUsingFilter);
             _teleportChannel.RaiseEvent(teleportInformation);
             if(_isDebug) Debug.Log($"sending teleport information from {gameObject.name} for {_filter.filters[0]}");
         }

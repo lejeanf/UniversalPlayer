@@ -19,23 +19,30 @@ namespace jeanf.vrplayer
         [SerializeField] private Transform cameraOffset;
         [SerializeField] private List<FilterSO> listOfFilters;
 
+        [Header("Broadcasting on:")]
+        [SerializeField] private VoidEventChannelSO cameraResetChannel;
+
         public void Teleport(TeleportInformation teleportInformation)
         {
             if (teleportInformation.isUsingFilter)
             {
-                if (!listOfFilters.Contains(teleportInformation.filter)) 
+                if (!listOfFilters.Contains(teleportInformation.filter))
                     return;
-                if(_isDebug) Debug.Log($"{teleportInformation.filter.filters[0]} is within the list of {this.gameObject.name}, proceeding...");
+                if (_isDebug)
+                    Debug.Log(
+                        $"{teleportInformation.filter.filters[0]} is within the list of {this.gameObject.name}, proceeding...");
             }
 
-            var teleportSubject = teleportInformation.objectIsPlayer ? player.transform : teleportInformation.objectToTeleport.transform;
+            var teleportSubject = teleportInformation.objectIsPlayer
+                ? player.transform
+                : teleportInformation.objectToTeleport.transform;
             teleportSubject.position = teleportInformation.targetDestination.position;
             teleportSubject.rotation = teleportInformation.targetDestination.rotation;
-            
-            if ( !teleportInformation.alignToTarget ) return;
-            if ( cameraOffset && teleportInformation.targetDestination) cameraOffset.localRotation = Quaternion.Euler(teleportInformation.targetDestination.rotation.x, teleportInformation.targetDestination.rotation.y, 0);
-            
-            if(_isDebug) Debug.Log($"teleported {teleportSubject.gameObject.name} to {teleportInformation.targetDestination.transform.position} with rotation: {teleportInformation.targetDestination.transform.rotation.eulerAngles}");
+
+            if ( teleportInformation.objectIsPlayer ) cameraResetChannel.RaiseEvent();
+            if (_isDebug) Debug.Log( $"[{teleportInformation.targetDestination.gameObject.name}] teleported {teleportSubject.gameObject.name} to {teleportInformation.targetDestination.transform.position} with rotation: {teleportInformation.targetDestination.transform.rotation.eulerAngles}");
+
+
         }
     }
 }
