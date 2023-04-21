@@ -1,6 +1,7 @@
 using jeanf.EventSystem;
 using UnityEngine;
 #if UNITY_EDITOR
+using System;
 using UnityEditor;
 #endif
 
@@ -14,17 +15,19 @@ namespace jeanf.vrplayer
             set => _isDebug = value; 
         }
         [SerializeField] private bool _isDebug = false;
-
-        [SerializeField] private bool sendEventOnEnable = false;
-        [SerializeField] private bool alignWithRotation = false;
-        public bool isTeleportPlayer = false;
         
         [Header("Broadcasting on:")] 
         [SerializeField] private TeleportEventChannelSO _teleportChannel;
         
         [Header("Teleportation parameters:")] 
-        [SerializeField] private Transform objectToTeleport;
-        [SerializeField] private FilterSO _filter;
+        public bool isTeleportPlayer = false;
+        [DrawIf("isTeleportPlayer", false, ComparisonType.Equals, DisablingType.DontDraw)]
+        [SerializeField] public Transform objectToTeleport;
+        [SerializeField] public bool isUsingFilter = true;
+        [DrawIf("isUsingFilter", true, ComparisonType.Equals, DisablingType.DontDraw)]
+        public FilterSO _filter;
+        [SerializeField] private bool sendEventOnEnable = false;
+        [SerializeField] private bool alignWithRotation = false;
 
         public Transform ObjectToTeleport
         {
@@ -39,7 +42,7 @@ namespace jeanf.vrplayer
 
         public void Teleport()
         {
-            var teleportInformation = new TeleportInformation(objectToTeleport, this.transform, alignWithRotation, isTeleportPlayer, _filter);
+            var teleportInformation = new TeleportInformation(objectToTeleport, this.transform, alignWithRotation, isTeleportPlayer, _filter, isUsingFilter);
             _teleportChannel.RaiseEvent(teleportInformation);
             if(_isDebug) Debug.Log($"sending teleport information from {gameObject.name} for {_filter.filters[0]}");
         }
