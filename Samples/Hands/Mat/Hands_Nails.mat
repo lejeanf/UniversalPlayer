@@ -315,7 +315,7 @@ Material:
     - _ReceivesSSRTransparent: 0
     - _RefractionModel: 0
     - _RenderQueueType: 1
-    - _RequireSplitLighting: 0
+    - _RequireSplitLighting: 1
     - _SSS_Mask_Map_Max: 0.93
     - _SSS_Mask_Map_Min: -3.27
     - _SSS_Thickness_Map_Max: 1
@@ -331,10 +331,10 @@ Material:
     - _SpecularAAThreshold: 0.2
     - _SpecularOcclusionMode: 1
     - _SrcBlend: 1
-    - _StencilRef: 0
+    - _StencilRef: 4
     - _StencilRefDepth: 8
     - _StencilRefDistortionVec: 4
-    - _StencilRefGBuffer: 10
+    - _StencilRefGBuffer: 14
     - _StencilRefMV: 40
     - _StencilWriteMask: 6
     - _StencilWriteMaskDepth: 8
@@ -344,7 +344,7 @@ Material:
     - _SubsurfaceMask: 1
     - _SupportDecals: 1
     - _SurfaceType: 0
-    - _Switch_Gloves: 0.528
+    - _Switch_Gloves: 0
     - _Switch_Gloves1: 0
     - _Switch_Woman: 0
     - _Switch_Woman1: 0

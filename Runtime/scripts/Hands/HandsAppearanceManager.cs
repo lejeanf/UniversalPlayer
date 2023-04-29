@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +11,6 @@ namespace jeanf.vrplayer
     public class HandsAppearanceManager : MonoBehaviour
     {
         [SerializeField] private bool isDebug = false;
-        [SerializeField] private bool gender = true;
         [SerializeField] private float blendTime = 1.0f;
         [SerializeField] private List<SkinnedMeshRenderer> _hands = new List<SkinnedMeshRenderer>();
         private float _blendValue = 100.0f;
@@ -24,6 +22,8 @@ namespace jeanf.vrplayer
         [SerializeField] private Color darkSkinColor;
         [Range(0,1)]
         [SerializeField] private float gloveValue = 1.0f;
+
+        [SerializeField] private bool isGlove = false;
 
         private float tolerance = 0.01f;
 
@@ -43,9 +43,6 @@ namespace jeanf.vrplayer
         {
             BlendableHand.AddHand += AddHand;
             BlendableHand.RemoveHand += RemoveHand;
-            
-            shiftTypeHandAction.action.Enable();
-            shiftTypeHandAction.action.performed += ctx => SetBlendValueFromGender(gender = !gender);
         }
 
 
@@ -73,9 +70,6 @@ namespace jeanf.vrplayer
             
             BlendableHand.AddHand -= null;
             BlendableHand.RemoveHand -= null;
-
-            shiftTypeHandAction.action.performed -= null;
-            shiftTypeHandAction.action.Disable();
         }
         private void SetBlendValueFromGender(bool gender)
         {
@@ -85,7 +79,6 @@ namespace jeanf.vrplayer
         private void Update()
         {
             //SetBlendValueFromGender(gender);
-            SedBlendValue();
             SetHandMaterials(_hands, blendValue * 0.01f);
             SetGloveValue(_hands, gloveValue);
             SetBlendShapeWeight(_hands, blendValue);
@@ -102,14 +95,6 @@ namespace jeanf.vrplayer
             }
         }
 
-        private void SedBlendValue()
-        {
-            if (Math.Abs(blendValue - _blendValue) < tolerance) return;
-            DOTween.To(() => blendValue, x=> blendValue = x, _blendValue, blendTime)
-                .OnUpdate(() => {
-                    if(isDebug) Debug.Log($"blendValue: {blendValue}");
-                });
-        }
 
         private void SetHandMaterials(List<SkinnedMeshRenderer> hands, float value)
         {
@@ -136,6 +121,23 @@ namespace jeanf.vrplayer
             {
                 mat.SetFloat(_gloveValue, value);
             }
+        }
+        
+        private void LerpGloveTowardsValue(float goalValue, float tolerance, float blendTime)
+        {
+            if (Math.Abs(gloveValue - goalValue) < tolerance) return;
+            DOTween.To(() => gloveValue, x=> gloveValue = x, goalValue, blendTime)
+                .OnUpdate(() => {
+                    if(isDebug) Debug.Log($"{nameof(gloveValue)}: {gloveValue}");
+                });
+        }
+
+        public void SetGloveState(bool state)
+        {
+            if(isDebug) Debug.Log($"glove state {state}");
+            isGlove = state;
+            var goalValue = isGlove ? 1 : 0;
+            LerpGloveTowardsValue(goalValue, tolerance, blendTime);
         }
     }
 }
