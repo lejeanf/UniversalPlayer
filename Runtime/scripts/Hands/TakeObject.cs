@@ -3,13 +3,21 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
 using DG.Tweening;
+using jeanf.EventSystem;
 using UnityEditor;
 using Debug = UnityEngine.Debug;
 
 namespace jeanf.vrplayer
 {
-    public class TakeObject : MonoBehaviour
+    public class TakeObject : MonoBehaviour, IDebugBehaviour
     {
+        public bool isDebug
+        { 
+            get => _isDebug;
+            set => _isDebug = value; 
+        }
+        [SerializeField] private bool _isDebug = false;
+        
         // Start is called before the first frame update
         [SerializeField] private LayerMask layerMask;
         [SerializeField] private Transform cameraTransform;
@@ -26,7 +34,6 @@ namespace jeanf.vrplayer
         public enum TakeStyle { hold, toggle}
         [SerializeField] private TakeStyle _takeStyle = TakeStyle.toggle;
         [Space(20)]
-        [SerializeField] private bool isDebug = false;
         private bool holdState = false;
 
         private void OnEnable()
@@ -57,7 +64,7 @@ namespace jeanf.vrplayer
 
         private void ToggleTake()
         {
-            if(isDebug) Debug.Log("toggle take");
+            if(_isDebug) Debug.Log("toggle take");
             
             if (!holdState) Take();
             else Release();
@@ -80,16 +87,16 @@ namespace jeanf.vrplayer
 
         private void Take()
         {
-            if(isDebug) Debug.Log("take");
+            if(_isDebug) Debug.Log("take");
             if(_currentObjectHeld) return;
             if(BroadcastHmdStatus.hmdCurrentState) return;
             
             var ray = new Ray(cameraTransform.position, cameraTransform.forward);
 
             if (!Physics.Raycast(ray, out var hit, maxDistanceCheck, layerMask)) return;
-            if(isDebug) Debug.Log($"ray hit with: {hit.transform.gameObject.name}");
+            if(_isDebug) Debug.Log($"ray hit with: {hit.transform.gameObject.name}");
             if (!hit.collider.GetComponent<XRGrabInteractable>()) return;
-            if(isDebug) Debug.Log($"{hit.transform.gameObject.name} is grabbable");
+            if(_isDebug) Debug.Log($"{hit.transform.gameObject.name} is grabbable");
             
             
             var rb = hit.transform.GetComponent<Rigidbody>();
@@ -106,14 +113,14 @@ namespace jeanf.vrplayer
 
         private void Release()
         {
-            if(isDebug) Debug.Log("release");
+            if(_isDebug) Debug.Log("release");
             if(BroadcastHmdStatus.hmdCurrentState) return;
             if (!_currentObjectHeld) return;
             
             _currentObjectHeldRb.useGravity = _gravityBeforeGrab;
             _currentObjectHeldRb.drag = _dragBeforeGrab;
             _currentObjectHeldRb.angularDrag = _angularDragBeforeGrab;
-            if(isDebug) Debug.Log($"releasing {_currentObjectHeld.name}");
+            if(_isDebug) Debug.Log($"releasing {_currentObjectHeld.name}");
                 
             _currentObjectHeld = null;
             _currentObjectHeldRb = null;
@@ -122,9 +129,10 @@ namespace jeanf.vrplayer
         private void ReleaseHold()
         {
             if(_takeStyle != TakeStyle.hold) return;
-            if(isDebug) Debug.Log("release hold");
+            if(_isDebug) Debug.Log("release hold");
             Release();
         }
+
     }
 }
 
