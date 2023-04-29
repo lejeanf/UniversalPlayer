@@ -9,8 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 836582769974499052}
-  - component: {fileID: 5741019784966119304}
-  - component: {fileID: 5722719890929340157}
+  - component: {fileID: 8739063129632619582}
+  - component: {fileID: 8312249119684171170}
   m_Layer: 0
   m_Name: PoseHelper
   m_TagString: Untagged
@@ -33,7 +33,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5741019784966119304
+--- !u!114 &8739063129632619582
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -42,15 +42,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 1951057812891478833}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e79faebb5b0c4c740b567493d518d3f0, type: 3}
+  m_Script: {fileID: 11500000, guid: 8e54e2dd99db10446aa6b70a0a919d66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   hideHands: 0
-  leftHandPrefab: {fileID: 63484136123966808, guid: 67e27b139a2a06b4985217621d4235d1,
+  leftHandPrefab: {fileID: 419731673132005105, guid: f5f009ce30aa39f49b4c2ba750c55f8e,
     type: 3}
-  rightHandPrefab: {fileID: 900848479362301616, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d,
+  rightHandPrefab: {fileID: 1228170983528486408, guid: 12e3dc8253d908044865f89a315f189d,
     type: 3}
---- !u!114 &5722719890929340157
+--- !u!114 &8312249119684171170
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -59,6 +59,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 1951057812891478833}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca7bee9b86d2b7e4e8a45348213248ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 1fed9d943abe9ba41a1e2d7b1a3542db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

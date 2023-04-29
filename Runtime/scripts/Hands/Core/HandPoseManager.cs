@@ -6,7 +6,7 @@ namespace  jeanf.vrplayer
     public class HandPoseManager : BaseHand
     {
         // The interactor we react to
-        [SerializeField] private XRBaseInteractor targetInteractor = null;
+        public XRBaseInteractor targetInteractor = null;
 
         public delegate void GetDirectInteractor(HandType handType, ref XRBaseInteractor directInteractor);
         public static GetDirectInteractor getDirectInteractor;
@@ -16,7 +16,7 @@ namespace  jeanf.vrplayer
         private void OnEnable()
         {
             // Subscribe to selected events
-            getDirectInteractor?.Invoke(handType,ref targetInteractor);
+            //getDirectInteractor?.Invoke(handType,ref targetInteractor);
             
             if (!targetInteractor) return;
             targetInteractor.onSelectEntered.AddListener(TryApplyObjectPose);
@@ -69,6 +69,11 @@ namespace  jeanf.vrplayer
             {
                 targetInteractor = GetComponentInParent<XRBaseInteractor>();
             }
+        }
+
+        public void SetXRDirectInteractor(XRBaseInteractor xrBaseInteractor)
+        {
+            targetInteractor = xrBaseInteractor;
         }
     }
 }
