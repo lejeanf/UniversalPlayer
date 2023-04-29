@@ -1,5 +1,6 @@
 using jeanf.EventSystem;
 using UnityEngine;
+using UnityEngine.Events;
 #if UNITY_EDITOR
 using System;
 using UnityEditor;
@@ -27,7 +28,7 @@ namespace jeanf.vrplayer
         [DrawIf("isUsingFilter", true, ComparisonType.Equals, DisablingType.DontDraw)]
         public FilterSO _filter;
         [SerializeField] private bool sendEventOnEnable = false;
-
+        
         public Transform ObjectToTeleport
         {
             get => objectToTeleport;
