@@ -2826,8 +2826,8 @@ MonoBehaviour:
   isDebug: 1
   blendTime: 1
   _hands:
-  - {fileID: 1383491606768529367}
-  - {fileID: 5928658156011756682}
+  - {fileID: 1118136480360921292}
+  - {fileID: 590996074549797573}
   blendValue: 0
   skinDarkness: 0
   lightSkinColor: {r: 1, g: 1, b: 1, a: 1}
@@ -2836,8 +2836,6 @@ MonoBehaviour:
   isGlove: 0
   shiftTypeHandAction: {fileID: 7201714218075579698, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
-  skin: {fileID: 2100000, guid: 630def5150fbdea44aef8fdb2db023e9, type: 2}
-  nail: {fileID: 2100000, guid: 19923fd8c1d70eb4b9dd8f46b2c96db8, type: 2}
 --- !u!114 &1115809925
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4271,7 +4269,7 @@ PrefabInstance:
     - target: {fileID: 63484136123966808, guid: 67e27b139a2a06b4985217621d4235d1,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 806290536463621964, guid: 67e27b139a2a06b4985217621d4235d1,
         type: 3}
@@ -4343,11 +4341,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5856355285308875011, guid: 67e27b139a2a06b4985217621d4235d1,
+        type: 3}
+      propertyPath: m_BlendShapeWeights.Array.size
+      value: 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 67e27b139a2a06b4985217621d4235d1, type: 3}
---- !u!137 &5928658156011756682 stripped
+--- !u!137 &590996074549797573 stripped
 SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 806290536463621964, guid: 67e27b139a2a06b4985217621d4235d1,
+  m_CorrespondingSourceObject: {fileID: 5856355285308875011, guid: 67e27b139a2a06b4985217621d4235d1,
     type: 3}
   m_PrefabInstance: {fileID: 6446436497093673926}
   m_PrefabAsset: {fileID: 0}
@@ -4427,7 +4430,7 @@ PrefabInstance:
     - target: {fileID: 900848479362301616, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5224153108080015747, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d,
         type: 3}
@@ -4444,11 +4447,16 @@ PrefabInstance:
       propertyPath: m_BlendShapeWeights.Array.size
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 6109316442407169688, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d,
+        type: 3}
+      propertyPath: m_BlendShapeWeights.Array.size
+      value: 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d, type: 3}
---- !u!137 &1383491606768529367 stripped
+--- !u!137 &1118136480360921292 stripped
 SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 5224153108080015747, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d,
+  m_CorrespondingSourceObject: {fileID: 6109316442407169688, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d,
     type: 3}
   m_PrefabInstance: {fileID: 6578859500331112020}
   m_PrefabAsset: {fileID: 0}

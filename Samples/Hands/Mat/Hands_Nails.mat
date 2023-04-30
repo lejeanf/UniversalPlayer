@@ -318,16 +318,16 @@ Material:
     - _RenderQueueType: 1
     - _RequireSplitLighting: 1
     - _SSS_Mask_Map_Max: 0.93
-    - _SSS_Mask_Map_Min: -3.27
+    - _SSS_Mask_Map_Min: 0
     - _SSS_Thickness_Map_Max: 1
-    - _SSS_Thickness_Map_Min: -0.86
+    - _SSS_Thickness_Map_Min: 0
     - _Smoothness: 0.5
     - _SmoothnessRemapMax: 1
     - _SmoothnessRemapMin: 0
     - _Smoothness_Contrast: 1
     - _Smoothness_Strenght: 0.8
-    - _Smoothness_Strenght_Max: 0.9
-    - _Smoothness_Strenght_Min: -1.88
+    - _Smoothness_Strenght_Max: 1
+    - _Smoothness_Strenght_Min: 0.47
     - _SpecularAAScreenSpaceVariance: 0.1
     - _SpecularAAThreshold: 0.2
     - _SpecularOcclusionMode: 1
@@ -345,7 +345,7 @@ Material:
     - _SubsurfaceMask: 1
     - _SupportDecals: 0
     - _SurfaceType: 0
-    - _Switch_Gloves: 1
+    - _Switch_Gloves: 0
     - _Switch_Gloves1: 0
     - _Switch_Woman: 0
     - _Switch_Woman1: 0
