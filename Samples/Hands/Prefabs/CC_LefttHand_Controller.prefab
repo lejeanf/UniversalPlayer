@@ -89,40 +89,40 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultPose: {fileID: 11400000, guid: cd3bac1a8fe050e4c9b5e42e5d65853b, type: 2}
   fingerRoots:
-  - {fileID: 1545018081383971065}
-  - {fileID: 2701993451181473978}
-  - {fileID: 3421736931536232324}
-  - {fileID: 8486178806953236427}
-  - {fileID: 6471088795723563278}
+  - {fileID: 5693800212239156918}
+  - {fileID: 9154155960898944757}
+  - {fileID: 8433275617867211211}
+  - {fileID: 3436675650832312708}
+  - {fileID: 268135819416469313}
   handType: 1
   targetInteractor: {fileID: 0}
---- !u!4 &1545018081383971065 stripped
+--- !u!4 &268135819416469313 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 1198096391432194645, guid: c90da81e463fe0e44a3fcb2435c686a0,
+  m_CorrespondingSourceObject: {fileID: 462150613433339373, guid: c90da81e463fe0e44a3fcb2435c686a0,
     type: 3}
   m_PrefabInstance: {fileID: 419256512369406636}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &2701993451181473978 stripped
+--- !u!4 &3436675650832312708 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 2354845123287101974, guid: c90da81e463fe0e44a3fcb2435c686a0,
+  m_CorrespondingSourceObject: {fileID: 3053715255370980136, guid: c90da81e463fe0e44a3fcb2435c686a0,
     type: 3}
   m_PrefabInstance: {fileID: 419256512369406636}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &3421736931536232324 stripped
+--- !u!4 &5693800212239156918 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 3075127381518806312, guid: c90da81e463fe0e44a3fcb2435c686a0,
+  m_CorrespondingSourceObject: {fileID: 5392232294583055386, guid: c90da81e463fe0e44a3fcb2435c686a0,
     type: 3}
   m_PrefabInstance: {fileID: 419256512369406636}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &6471088795723563278 stripped
+--- !u!4 &8433275617867211211 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 6637342037845816226, guid: c90da81e463fe0e44a3fcb2435c686a0,
+  m_CorrespondingSourceObject: {fileID: 8131386487091237735, guid: c90da81e463fe0e44a3fcb2435c686a0,
     type: 3}
   m_PrefabInstance: {fileID: 419256512369406636}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &8486178806953236427 stripped
+--- !u!4 &9154155960898944757 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 8076512390728476007, guid: c90da81e463fe0e44a3fcb2435c686a0,
+  m_CorrespondingSourceObject: {fileID: 8852783617767361625, guid: c90da81e463fe0e44a3fcb2435c686a0,
     type: 3}
   m_PrefabInstance: {fileID: 419256512369406636}
   m_PrefabAsset: {fileID: 0}

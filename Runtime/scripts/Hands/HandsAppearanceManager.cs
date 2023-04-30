@@ -29,9 +29,10 @@ namespace jeanf.vrplayer
 
         [SerializeField] private InputActionReference shiftTypeHandAction;
         
-        [SerializeField] private Material skin;
-        [SerializeField] private Material nail;
+        //[SerializeField] private Material skin;
+        //[SerializeField] private Material nail;
         private static readonly int SkinBaseColor = Shader.PropertyToID("_BaseColor");
+        //private static readonly int SkinDarness = Shader.PropertyToID("_SkinDarkness");
         private static readonly int _gloveValue = Shader.PropertyToID("_Switch_Gloves");
 
         [SerializeField] private readonly int _genderValue = Shader.PropertyToID("_Switch_Woman");
@@ -100,7 +101,7 @@ namespace jeanf.vrplayer
         {
             foreach (var hand in hands)
             {
-                hand.material.SetFloat(_genderValue, value);
+                hand.sharedMaterial.SetFloat(_genderValue, value);
             }
         }
 
@@ -110,14 +111,14 @@ namespace jeanf.vrplayer
             //var blendNail = Color.Lerp(lightSkinColor, new Color(darkSkinColor.r * nailDarkness, darkSkinColor.g *nailDarkness, darkSkinColor.b *nailDarkness, darkSkinColor.a), skinDarkness);
             foreach (var hand in hands)
             {
-                hand.materials[0].SetColor(SkinBaseColor, blend);
+                hand.sharedMaterials[0].SetColor(SkinBaseColor, blend);
                 //hand.materials[1].SetColor(SkinBaseColor, blendNail);
             }
         }
 
         private void SetGloveValue(List<SkinnedMeshRenderer> hands, float value)
         {
-            foreach (var mat in hands.SelectMany(hand => hand.materials))
+            foreach (var mat in hands.SelectMany(hand => hand.sharedMaterials))
             {
                 mat.SetFloat(_gloveValue, value);
             }
