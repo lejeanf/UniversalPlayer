@@ -26,13 +26,14 @@ Material:
   m_Shader: {fileID: -6465566751694194690, guid: cd8c3cbdebe488544aacef3a70c1ee8a,
     type: 3}
   m_ValidKeywords:
+  - _DISABLE_DECALS
   - _DISABLE_SSR_TRANSPARENT
   m_InvalidKeywords:
   - _NORMALMAP_TANGENT_SPACE
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2225
+  m_CustomRenderQueue: 2000
   stringTagMap:
     MotionVector: User
   disabledShaderPasses:
@@ -140,11 +141,19 @@ Material:
         m_Texture: {fileID: 2800000, guid: f96c1f1ebec1d9b43969aa33f86b66d1, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Mask_Map_Gloves:
+        m_Texture: {fileID: 2800000, guid: f96c1f1ebec1d9b43969aa33f86b66d1, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _Mask_Map_Man:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: f96c1f1ebec1d9b43969aa33f86b66d1, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Mask_Map_Man1:
+        m_Texture: {fileID: 2800000, guid: f96c1f1ebec1d9b43969aa33f86b66d1, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Mask_Map_Woman:
         m_Texture: {fileID: 2800000, guid: f96c1f1ebec1d9b43969aa33f86b66d1, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -279,7 +288,7 @@ Material:
     - _DisplacementLockTilingScale: 1
     - _DisplacementMode: 0
     - _DoubleSidedEnable: 0
-    - _DoubleSidedGIMode: 0
+    - _DoubleSidedGIMode: 2
     - _DoubleSidedNormalMode: 1
     - _DstBlend: 0
     - _EmissiveColorMode: 1
@@ -335,6 +344,8 @@ Material:
     - _SSS_Mask_Map_Min: 0
     - _SSS_Thickness_Map_Max: 1
     - _SSS_Thickness_Map_Min: 0
+    - _SkinDarkness: 1
+    - _Skin_Darkness: 0
     - _Smoothness: 0.5
     - _SmoothnessRemapMax: 1
     - _SmoothnessRemapMin: 0
@@ -357,9 +368,9 @@ Material:
     - _StencilWriteMaskGBuffer: 14
     - _StencilWriteMaskMV: 40
     - _SubsurfaceMask: 1
-    - _SupportDecals: 1
+    - _SupportDecals: 0
     - _SurfaceType: 0
-    - _Switch_Gloves: 0
+    - _Switch_Gloves: 1
     - _Switch_Gloves1: 0
     - _Switch_Woman: 0
     - _Switch_Woman1: 0
