@@ -43,7 +43,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Base_Map_Gloves:
-        m_Texture: {fileID: 2800000, guid: 00850844a1e1b1a4ea46316937640324, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Base_Map_Gloves1:
@@ -147,7 +147,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Normal_Map_Gloves:
-        m_Texture: {fileID: 2800000, guid: 23cb728119729f5498f2226fd3eca4d1, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Normal_Map_Gloves1:
@@ -171,11 +171,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SSS_Mask_Map:
-        m_Texture: {fileID: 2800000, guid: a51f3db9a5b284d4cbb99eb8fb0163b5, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SSS_Thickness_Map:
-        m_Texture: {fileID: 2800000, guid: 8b47468eeebb8774e8c0cbd08f318f66, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecularColorMap:

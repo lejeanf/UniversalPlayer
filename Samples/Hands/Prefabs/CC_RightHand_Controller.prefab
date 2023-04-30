@@ -73,6 +73,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -3798895358153775464, guid: c08d3f3e4addae54aa02be20f072f386,
         type: 3}
+    - target: {fileID: 9186058171682467088, guid: 93de43dcd9466e64cb862b298189c16d,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 9b7faa4948ac5454db7d8fbc28f3b023, type: 2}
+    - target: {fileID: 9186058171682467088, guid: 93de43dcd9466e64cb862b298189c16d,
+        type: 3}
+      propertyPath: m_Materials.Array.data[1]
+      value: 
+      objectReference: {fileID: 2100000, guid: 6a89980a074b15c4c853305bbffd8ccd, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 93de43dcd9466e64cb862b298189c16d, type: 3}
 --- !u!1 &900848479362301616 stripped
@@ -81,6 +91,34 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 3149082473931260808}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &5222744362947772699
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 900848479362301616}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0f14d7517a90aa4f9db8fe768093ec6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _channel: {fileID: 11400000, guid: e65f25bfe0f34264a8dff83dfac263ff, type: 2}
+  OnEventRaised:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6010695029261600818}
+        m_TargetAssemblyTypeName: jeanf.vrplayer.HandPoseManager, vrplayer
+        m_MethodName: SetXRDirectInteractor
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &6010695029261600818
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -93,7 +131,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dae9340b5138b884ba1c0a169717405e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultPose: {fileID: 11400000, guid: cd3bac1a8fe050e4c9b5e42e5d65853b, type: 2}
+  defaultPose: {fileID: 11400000, guid: 7efd026a7e7794f449bf798735c3f879, type: 2}
   fingerRoots:
   - {fileID: 6900372345543329625}
   - {fileID: 6402263818037277135}

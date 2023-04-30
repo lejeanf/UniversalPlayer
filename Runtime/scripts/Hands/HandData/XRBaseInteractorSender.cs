@@ -21,11 +21,9 @@ namespace jeanf.vrplayer
 
         private void Update()
         {
-            if(!baseInteractor)
-            {
-                baseInteractor = this.transform.GetComponentInChildren<XRDirectInteractor>();
-                SendXRDirectInteractor();
-            }
+            if (baseInteractor) return;
+            baseInteractor = this.transform.GetComponentInChildren<XRDirectInteractor>();
+            SendXRDirectInteractor();
         }
     }
 }
