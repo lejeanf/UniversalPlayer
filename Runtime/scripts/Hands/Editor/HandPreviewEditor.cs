@@ -47,6 +47,7 @@ public class HandPreviewEditor : Editor
             // Draw handle
             Quaternion currentRotation = activeJoint.rotation;
             Quaternion newRotation = Handles.RotationHandle(currentRotation, activeJoint.position);
+            //Quaternion newRotation = Handles.Disc(activeJoint.transform.rotation, activeJoint.transform.position, Vector3.forward, .5f, false, 1);
 
             // Detect if handle has rotated
             if (HandleRotated(currentRotation, newRotation))

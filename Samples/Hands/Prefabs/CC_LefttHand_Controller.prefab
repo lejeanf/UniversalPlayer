@@ -133,6 +133,7 @@ MonoBehaviour:
   - {fileID: 3436675650832312708}
   - {fileID: 268135819416469313}
   handType: 1
+  _isDebug: 0
   targetInteractor: {fileID: 0}
 --- !u!4 &268135819416469313 stripped
 Transform:
