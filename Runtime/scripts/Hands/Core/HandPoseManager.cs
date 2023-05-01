@@ -1,30 +1,38 @@
-﻿using UnityEngine;
+﻿using jeanf.EventSystem;
+using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
 namespace  jeanf.vrplayer
 {
-    public class HandPoseManager : BaseHand
+    public class HandPoseManager : BaseHand, IDebugBehaviour
     {
+        public bool isDebug
+        {
+            get => _isDebug;
+            set => _isDebug = value;
+        }
+        [SerializeField] private bool _isDebug = false;
+        
         // The interactor we react to
         public XRBaseInteractor targetInteractor = null;
 
-        public delegate void GetDirectInteractor(HandType handType, ref XRBaseInteractor directInteractor);
-        public static GetDirectInteractor getDirectInteractor;
-        
+        private bool wasInitialized = false;
 
-
-        private void OnEnable()
+        private void Init()
         {
             // Subscribe to selected events
             //getDirectInteractor?.Invoke(handType,ref targetInteractor);
-            
+            if(_isDebug) Debug.Log($"targetInteractor : {targetInteractor.name}");
             if (!targetInteractor) return;
             targetInteractor.onSelectEntered.AddListener(TryApplyObjectPose);
             targetInteractor.onSelectExited.AddListener(TryApplyDefaultPose);
+
+            wasInitialized = true;
         }
 
         private void OnDisable()
         {
+            if (!wasInitialized) return;
             if (!targetInteractor) return;
             targetInteractor.onSelectEntered.RemoveListener(TryApplyObjectPose);
             targetInteractor.onSelectExited.RemoveListener(TryApplyDefaultPose);
@@ -32,15 +40,18 @@ namespace  jeanf.vrplayer
 
         private void TryApplyObjectPose(XRBaseInteractable interactable)
         {
+            if(_isDebug) Debug.Log($"interactable : {interactable}");
             // Try and get pose container, and apply
             if (interactable.TryGetComponent(out PoseContainer poseContainer))
             {
+                if(_isDebug) Debug.Log($"Pose name : {poseContainer.pose.name}");
                 ApplyPose(poseContainer.pose);
             }
         }
 
         private void TryApplyDefaultPose(XRBaseInteractable interactable)
         {
+            if(_isDebug) Debug.Log($"Default pose, interactable : {interactable}");
             // Try and get pose container, and apply
             if (interactable.TryGetComponent(out PoseContainer poseContainer))
             {
@@ -74,6 +85,7 @@ namespace  jeanf.vrplayer
         public void SetXRDirectInteractor(XRBaseInteractor xrBaseInteractor)
         {
             targetInteractor = xrBaseInteractor;
+            Init();
         }
     }
 }
