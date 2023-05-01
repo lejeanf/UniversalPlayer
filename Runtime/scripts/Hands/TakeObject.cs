@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -20,7 +21,7 @@ namespace jeanf.vrplayer
         
         // Start is called before the first frame update
         [SerializeField] private LayerMask layerMask;
-        [SerializeField] private Transform cameraTransform;
+        private Transform cameraTransform;
         [Space(20)]
         [SerializeField] private InputActionReference takeAction;
         [SerializeField] private float maxDistanceCheck = 1.5f;
@@ -35,6 +36,11 @@ namespace jeanf.vrplayer
         [SerializeField] private TakeStyle _takeStyle = TakeStyle.toggle;
         [Space(20)]
         private bool holdState = false;
+
+        private void Awake()
+        {
+            if (!cameraTransform) cameraTransform = Camera.main.transform;
+        }
 
         private void OnEnable()
         {
@@ -59,6 +65,7 @@ namespace jeanf.vrplayer
         private void FixedUpdate()
         {
             if(BroadcastHmdStatus.hmdCurrentState) return;
+            if (!cameraTransform) cameraTransform = Camera.main.transform;
             if (_currentObjectHeld) _currentObjectHeld.transform.DOMove(cameraTransform.position + cameraTransform.forward * 0.5f, .05f, false);
         }
 
@@ -90,6 +97,7 @@ namespace jeanf.vrplayer
             if(_isDebug) Debug.Log("take");
             if(_currentObjectHeld) return;
             if(BroadcastHmdStatus.hmdCurrentState) return;
+            if (!cameraTransform) cameraTransform = Camera.main.transform;
             
             var ray = new Ray(cameraTransform.position, cameraTransform.forward);
 
