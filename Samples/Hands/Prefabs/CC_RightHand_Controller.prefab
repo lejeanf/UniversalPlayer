@@ -7,6 +7,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1206397720466914794, guid: 93de43dcd9466e64cb862b298189c16d,
+        type: 3}
+      propertyPath: m_TagString
+      value: Hands
+      objectReference: {fileID: 0}
     - target: {fileID: 2824809439973080376, guid: 93de43dcd9466e64cb862b298189c16d,
         type: 3}
       propertyPath: m_Name
