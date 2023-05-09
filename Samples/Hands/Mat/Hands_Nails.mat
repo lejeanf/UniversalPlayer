@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Hands_Nails
-  m_Shader: {fileID: -6465566751694194690, guid: cd8c3cbdebe488544aacef3a70c1ee8a,
+  m_Shader: {fileID: -6465566751694194690, guid: 831dca931f446f9409f3093e59e8603a,
     type: 3}
   m_ValidKeywords:
   - _DISABLE_DECALS
@@ -126,11 +126,19 @@ Material:
         m_Texture: {fileID: 2800000, guid: b06bace8e7c56a64890e15b81c975f23, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Mask_Map_Gloves:
+        m_Texture: {fileID: 2800000, guid: 7e60c5bfa7023c7449e7e7d6cd0dfc6a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _Mask_Map_Man:
         m_Texture: {fileID: 2800000, guid: b06bace8e7c56a64890e15b81c975f23, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Mask_Map_Man1:
+        m_Texture: {fileID: 2800000, guid: b06bace8e7c56a64890e15b81c975f23, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Mask_Map_Woman:
         m_Texture: {fileID: 2800000, guid: b06bace8e7c56a64890e15b81c975f23, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -147,7 +155,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Normal_Map_Gloves:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 59bcd8a71077bf247a454d0ca5e028f5, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Normal_Map_Gloves1:
@@ -171,11 +179,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SSS_Mask_Map:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: d500a0385ccd0e747a09b13ba01589c0, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SSS_Thickness_Map:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: b6dbd0d22b24a2148b57da92e5a737de, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecularColorMap:
@@ -317,10 +325,11 @@ Material:
     - _RefractionModel: 0
     - _RenderQueueType: 1
     - _RequireSplitLighting: 1
-    - _SSS_Mask_Map_Max: 0.93
+    - _SSS_Mask_Map_Max: 1
     - _SSS_Mask_Map_Min: 0
-    - _SSS_Thickness_Map_Max: 1
+    - _SSS_Thickness_Map_Max: 0.5
     - _SSS_Thickness_Map_Min: 0
+    - _Skin_Darkness: 1
     - _Smoothness: 0.5
     - _SmoothnessRemapMax: 1
     - _SmoothnessRemapMin: 0

@@ -23,7 +23,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Hands_Skin
-  m_Shader: {fileID: -6465566751694194690, guid: cd8c3cbdebe488544aacef3a70c1ee8a,
+  m_Shader: {fileID: -6465566751694194690, guid: 831dca931f446f9409f3093e59e8603a,
     type: 3}
   m_ValidKeywords:
   - _DISABLE_DECALS
@@ -58,7 +58,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Base_Map_Gloves:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 761bd445378ea3145ac107009311c2c5, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Base_Map_Gloves1:
@@ -98,7 +98,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Detail_Base_Map:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: c0a8bf97de97e4d4db891e4d597ba92f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Detail_Map:
@@ -106,11 +106,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Detail_Mask_Map:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: c0a8bf97de97e4d4db891e4d597ba92f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Detail_Normal_Map:
-        m_Texture: {fileID: 2800000, guid: 5338e86f7707c47498e10f8317624eaf, type: 3}
+        m_Texture: {fileID: 2800000, guid: c0a8bf97de97e4d4db891e4d597ba92f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissiveColorMap:
@@ -142,7 +142,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Mask_Map_Gloves:
-        m_Texture: {fileID: 2800000, guid: f96c1f1ebec1d9b43969aa33f86b66d1, type: 3}
+        m_Texture: {fileID: 2800000, guid: 7841cd2de2ef5c1499c6f3315ffe9b99, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Mask_Map_Man:
@@ -170,7 +170,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Normal_Map_Gloves:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 4d9836f022e2bc64f929cdc3f3e55840, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Normal_Map_Gloves1:
@@ -194,11 +194,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SSS_Mask_Map:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: d500a0385ccd0e747a09b13ba01589c0, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SSS_Thickness_Map:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: b6dbd0d22b24a2148b57da92e5a737de, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecularColorMap:
@@ -242,7 +242,7 @@ Material:
     - _AORemapMax: 1
     - _AORemapMin: 0
     - _AO_Contrast: 1
-    - _AO_Max: 0
+    - _AO_Max: 1
     - _AO_Min: 0
     - _AO_Strenght: 1
     - _ATDistance: 1
@@ -275,9 +275,9 @@ Material:
     - _Detail_Map_Strenght_old: 1.75
     - _Detail_Map_ajustment: 0.298
     - _Detail_Map_ajustment_old: 1.75
-    - _Detail_Normal_Strenght: 1
+    - _Detail_Normal_Strenght: 0.5
     - _Detail_Scale: 30
-    - _Detail_Smoothness_Strenght: 0.2
+    - _Detail_Smoothness_Strenght: 0.5
     - _DiffusionProfile: 0
     - _DiffusionProfileHash: 0
     - _Diffusion_Profile: 3.3335147
@@ -341,11 +341,11 @@ Material:
     - _RenderQueueType: 1
     - _RequireSplitLighting: 1
     - _SSS_Mask_Map_Max: 1
-    - _SSS_Mask_Map_Min: 0
-    - _SSS_Thickness_Map_Max: 1
-    - _SSS_Thickness_Map_Min: 0
+    - _SSS_Mask_Map_Min: -0.8
+    - _SSS_Thickness_Map_Max: 1.3
+    - _SSS_Thickness_Map_Min: 0.4
     - _SkinDarkness: 1
-    - _Skin_Darkness: 0
+    - _Skin_Darkness: 1
     - _Smoothness: 0.5
     - _SmoothnessRemapMax: 1
     - _SmoothnessRemapMin: 0
@@ -408,9 +408,9 @@ Material:
     - __Smoothness_Contrast: 1
     - __Smoothness_Strenght: 0.6
     m_Colors:
-    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BaseColor: {r: 0.46967927, g: 0.42847058, b: 0.41214117, a: 1}
     - _BaseColorMap_MipInfo: {r: 0, g: 0, b: 0, a: 0}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.23584905, g: 0.17647055, b: 0.15294114, a: 1}
     - _Detail_Base_Map_Strenght: {r: 0, g: 1, b: 0, a: 0}
     - _Detail_Map_Ajustment: {r: 0, g: 1, b: 0, a: 0}
     - _Detail_Map_Strenght: {r: 0, g: 1, b: 0, a: 0}

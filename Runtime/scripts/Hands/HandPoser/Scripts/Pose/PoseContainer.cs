@@ -25,7 +25,7 @@ public class PoseContainer : MonoBehaviour, IDebugBehaviour
 
     public void SetXRDirectInteractor(XRBaseInteractor xrBaseInteractor)
     {
-        interactor = xrBaseInteractor;
+        //interactor = xrBaseInteractor;
         if(_isDebug) Debug.Log($"targetInteractor: {xrBaseInteractor.gameObject.name}");
     }
     

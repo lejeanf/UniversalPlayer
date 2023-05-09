@@ -112,7 +112,7 @@ namespace jeanf.vrplayer
             foreach (var hand in hands)
             {
                 hand.sharedMaterials[0].SetColor(SkinBaseColor, blend);
-                //hand.materials[1].SetColor(SkinBaseColor, blendNail);
+                //hand.materials[1].SetColor(SkinBaseColor, blendnew);
             }
         }
 
