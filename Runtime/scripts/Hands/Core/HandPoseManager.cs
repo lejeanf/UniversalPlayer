@@ -45,6 +45,8 @@ namespace  jeanf.vrplayer
             if (interactable.TryGetComponent(out PoseContainer poseContainer))
             {
                 if(_isDebug) Debug.Log($"Pose name : {poseContainer.pose.name}");
+                //move AttachTransform
+                //AplyPose
                 ApplyPose(poseContainer.pose);
             }
         }
@@ -61,6 +63,8 @@ namespace  jeanf.vrplayer
 
         public override void ApplyOffset(Vector3 position, Quaternion rotation)
         {
+            if(_isDebug) Debug.Log($"ApplyOffset to: [{position}], [{rotation}]");
+            /*
             // Invert since the we're moving the attach point instead of the hand
             Vector3 finalPosition = position * -1.0f;
             Quaternion finalRotation = Quaternion.Inverse(rotation);
@@ -71,6 +75,7 @@ namespace  jeanf.vrplayer
             // Set the position and rotach of attach
             targetInteractor.attachTransform.localPosition = finalPosition;
             targetInteractor.attachTransform.localRotation = finalRotation;
+            */
         }
 
         private void OnValidate()

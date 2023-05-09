@@ -1,6 +1,6 @@
 ﻿{
   "name":"fr.jeanf.vr.player",
-  "version":"0.1.11",
+  "version":"0.2.0",
   "displayName":"VR Player",
   "description":"This package contains a basic VR player",
   "unity": "2021.3",
@@ -20,11 +20,11 @@
     "com.unity.inputsystem": "1.4.4",
     "com.unity.vectorgraphics": "2.0.0-preview.20",
     "com.unity.xr.openxr": "1.6.0",
-    "com.unity.xr.interaction.toolkit": "2.3.0",
+    "com.unity.xr.interaction.toolkit": "2.3.2",
     "com.unity.xr.hands": "1.1.0-pre.3",
     "com.unity.xr.management": "4.3.3",
     "com.unity.xr.oculus": "3.2.3",
-    "fr.jeanf.eventsystem": "0.1.4",
+    "fr.jeanf.eventsystem": "0.1.6",
     "fr.jeanf.propertydrawer": "1.0.4"
 },
   "samples": [

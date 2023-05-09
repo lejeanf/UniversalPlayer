@@ -46,9 +46,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hideHands: 0
-  leftHandPrefab: {fileID: 419731673132005105, guid: f5f009ce30aa39f49b4c2ba750c55f8e,
+  leftHandPrefab: {fileID: 2560909186797584700, guid: f3f1d0d5013000f41a901d8ade10fecb,
     type: 3}
-  rightHandPrefab: {fileID: 1228170983528486408, guid: 12e3dc8253d908044865f89a315f189d,
+  rightHandPrefab: {fileID: 6150694344822603008, guid: a83164b5dbba7ef4fa0656e53d302b1f,
     type: 3}
 --- !u!114 &8312249119684171170
 MonoBehaviour:

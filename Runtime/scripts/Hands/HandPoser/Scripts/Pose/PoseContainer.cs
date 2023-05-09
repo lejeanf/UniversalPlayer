@@ -1,8 +1,6 @@
-﻿using System;
-using jeanf.EventSystem;
+﻿using jeanf.EventSystem;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
-using UnityEngine.XR.Interaction.Toolkit.Transformers;
 
 public class PoseContainer : MonoBehaviour, IDebugBehaviour
 {
@@ -30,6 +28,7 @@ public class PoseContainer : MonoBehaviour, IDebugBehaviour
         interactor = xrBaseInteractor;
         if(_isDebug) Debug.Log($"targetInteractor: {xrBaseInteractor.gameObject.name}");
     }
+    
     public void SetAttachTransform(HandInfo handInfo)
     {
         // in case there is no attatch transform in the Grab Interactable
@@ -38,7 +37,6 @@ public class PoseContainer : MonoBehaviour, IDebugBehaviour
         
         _grabInteractable.attachTransform.localPosition = handInfo.attachPosition;
         _grabInteractable.attachTransform.localRotation = handInfo.attachRotation;
-        
         
         if(_isDebug) Debug.Log($"attach transform pos: [{handInfo.attachPosition}], rot: [{handInfo.attachRotation.eulerAngles}] ");
     }

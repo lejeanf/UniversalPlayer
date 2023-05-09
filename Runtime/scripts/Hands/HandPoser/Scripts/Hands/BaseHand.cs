@@ -44,6 +44,10 @@ public abstract class BaseHand : MonoBehaviour
     {
         ApplyPose(defaultPose);
     }
+    public void ApplyDefaultPoseForeSetup()
+    {
+        ApplyPoseForSetup(defaultPose);
+    }
 
     public void ApplyPose(Pose pose)
     {
@@ -56,7 +60,7 @@ public abstract class BaseHand : MonoBehaviour
         // Position, and rotate, this differs on the type of hand
         //ApplyOffset(handInfo.attachPosition, handInfo.attachRotation);
     }
-    public void ApplyPoseSetup(Pose pose)
+    public void ApplyPoseForSetup(Pose pose)
     {
         // Get the proper info using hand's type
         HandInfo handInfo = pose.GetHandInfo(handType);

@@ -66,6 +66,17 @@ public class HandManager : MonoBehaviour
         LeftHand.ApplyPose(pose);
         RightHand.ApplyPose(pose);
     }
+    public void UpdateHandsForSetup(Pose pose, Transform parentTransform)
+    {
+        // Child the hands to the object we're working with, simplifies everything
+        if (!LeftHand || !RightHand) return;
+        LeftHand.transform.parent = parentTransform;
+        RightHand.transform.parent = parentTransform;
+
+        // Pose 'em!
+        LeftHand.ApplyPoseForSetup(pose);
+        RightHand.ApplyPoseForSetup(pose);
+    }
 
     public void SavePose(Pose pose)
     {

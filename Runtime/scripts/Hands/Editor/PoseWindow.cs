@@ -170,7 +170,7 @@ public class PoseWindow : EditorWindow
         GameObject targetObject = selectionHandler.SetObjectPose(activePose);
 
         // Update the hands
-        handManager.UpdateHands(activePose, targetObject.transform);
+        handManager.UpdateHandsForSetup(activePose, targetObject.transform);
     }
 
     Pose CreatePoseAsset()
@@ -205,7 +205,7 @@ public class PoseWindow : EditorWindow
 
         // If we have a pose, update the hands
         if(activePose)
-            handManager.UpdateHands(activePose, targetObject.transform);
+            handManager.UpdateHandsForSetup(activePose, targetObject.transform);
     }
 
     private void ClearPose()
@@ -224,13 +224,13 @@ public class PoseWindow : EditorWindow
     private void ResetPose(PreviewHand hand)
     {
         Undo.RecordObject(hand.transform, "Reset Pose");
-        hand.ApplyDefaultPose();
+        hand.ApplyDefaultPoseForeSetup();
     }
 
     private void UndoChanges(PreviewHand hand)
     {
         Undo.RecordObject(hand.transform, "Undo Changes");
-        hand.ApplyPoseSetup(activePose);
+        hand.ApplyPoseForSetup(activePose);
     }
 
     private void MirrorPose(PreviewHand sourceHand, PreviewHand targetHand)
