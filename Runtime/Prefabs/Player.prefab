@@ -2809,7 +2809,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isDebug: 1
   blendTime: 1
-  _hands: []
+  _hands:
+  - {fileID: 1118136480360921292}
   blendValue: 0
   skinDarkness: 0
   lightSkinColor: {r: 1, g: 1, b: 1, a: 1}
@@ -4586,7 +4587,7 @@ PrefabInstance:
     - target: {fileID: 561723206917383178, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.323
       objectReference: {fileID: 0}
     - target: {fileID: 561723206917383178, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d,
         type: 3}
@@ -4636,7 +4637,7 @@ PrefabInstance:
     - target: {fileID: 900848479362301616, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5224153108080015747, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d,
         type: 3}
@@ -4655,11 +4656,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6109316442407169688, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d,
         type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6109316442407169688, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d,
+        type: 3}
+      propertyPath: m_Materials.Array.data[1]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6109316442407169688, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d,
+        type: 3}
       propertyPath: m_BlendShapeWeights.Array.size
       value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d, type: 3}
+--- !u!137 &1118136480360921292 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 6109316442407169688, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d,
+    type: 3}
+  m_PrefabInstance: {fileID: 6578859500331112020}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6667413892787335774 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 561723206917383178, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d,
