@@ -230,7 +230,7 @@ public class PoseWindow : EditorWindow
     private void UndoChanges(PreviewHand hand)
     {
         Undo.RecordObject(hand.transform, "Undo Changes");
-        hand.ApplyPose(activePose);
+        hand.ApplyPoseSetup(activePose);
     }
 
     private void MirrorPose(PreviewHand sourceHand, PreviewHand targetHand)

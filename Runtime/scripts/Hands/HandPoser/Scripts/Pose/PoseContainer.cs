@@ -1,11 +1,11 @@
-﻿using jeanf.EventSystem;
+﻿using System;
+using jeanf.EventSystem;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Transformers;
 
 public class PoseContainer : MonoBehaviour, IDebugBehaviour
 {
-    
     public bool isDebug
     {
         get => _isDebug;
@@ -17,35 +17,32 @@ public class PoseContainer : MonoBehaviour, IDebugBehaviour
     public Pose pose = null;
     
     // The interactor we react to
-    private XRBaseInteractor rightInteractor = null;
-    
-    
-    /*
-    public override void Process(XRGrabInteractable grabInteractable, XRInteractionUpdateOrder.UpdatePhase updatePhase, ref UnityEngine.Pose targetPose, ref Vector3 localScale)
-    
+    private XRBaseInteractor interactor = null;
+    private XRGrabInteractable _grabInteractable;
+
+    private void Awake()
     {
-        ApplyOffset(grabInteractable);
+        _grabInteractable = this.GetComponent<XRGrabInteractable>();
     }
-    */
 
     public void SetXRDirectInteractor(XRBaseInteractor xrBaseInteractor)
     {
-        rightInteractor = xrBaseInteractor;
+        interactor = xrBaseInteractor;
         if(_isDebug) Debug.Log($"targetInteractor: {xrBaseInteractor.gameObject.name}");
     }
-
-    public void ApplyOffset(XRGrabInteractable grabInteractable)
+    public void SetAttachTransform(HandInfo handInfo)
     {
-        if(_isDebug) Debug.Log($"apply offset start.");
+        // in case there is no attatch transform in the Grab Interactable
+        if (_grabInteractable.attachTransform == null)
+            Instantiate(new GameObject("attachTransform"), _grabInteractable.transform);
         
-        HandInfo handInfo = pose.GetHandInfo(HandType.Right);
-        var objectRotation = handInfo.attachRotation;
-        var objectPosition = handInfo.attachPosition;
-
-        // Set the position and rotach of attach
-        grabInteractable.transform.localPosition = objectPosition;
-        grabInteractable.transform.localRotation = objectRotation;
+        _grabInteractable.attachTransform.localPosition = handInfo.attachPosition;
+        _grabInteractable.attachTransform.localRotation = handInfo.attachRotation;
         
-        if(_isDebug) Debug.Log($"overriding: pos[{objectPosition}], rot[{objectRotation}]");
+        
+        if(_isDebug) Debug.Log($"attach transform pos: [{handInfo.attachPosition}], rot: [{handInfo.attachRotation.eulerAngles}] ");
     }
+
+    public void SetAttachTransform_Left() => SetAttachTransform(pose.leftHandInfo);
+    public void SetAttachTransform_Right()=> SetAttachTransform(pose.rightHandInfo);
 }

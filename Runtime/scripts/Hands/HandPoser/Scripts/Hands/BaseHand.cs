@@ -54,6 +54,17 @@ public abstract class BaseHand : MonoBehaviour
         ApplyFingerRotations(handInfo.fingerRotations);
 
         // Position, and rotate, this differs on the type of hand
+        //ApplyOffset(handInfo.attachPosition, handInfo.attachRotation);
+    }
+    public void ApplyPoseSetup(Pose pose)
+    {
+        // Get the proper info using hand's type
+        HandInfo handInfo = pose.GetHandInfo(handType);
+
+        // Apply rotations 
+        ApplyFingerRotations(handInfo.fingerRotations);
+
+        // Position, and rotate, this differs on the type of hand
         ApplyOffset(handInfo.attachPosition, handInfo.attachRotation);
     }
 
