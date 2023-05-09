@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Transformers;
 
-public class PoseContainer : XRBaseGrabTransformer, IDebugBehaviour
+public class PoseContainer : MonoBehaviour, IDebugBehaviour
 {
     
     public bool isDebug
@@ -19,12 +19,14 @@ public class PoseContainer : XRBaseGrabTransformer, IDebugBehaviour
     // The interactor we react to
     private XRBaseInteractor rightInteractor = null;
     
+    
+    /*
     public override void Process(XRGrabInteractable grabInteractable, XRInteractionUpdateOrder.UpdatePhase updatePhase, ref UnityEngine.Pose targetPose, ref Vector3 localScale)
+    
     {
         ApplyOffset(grabInteractable);
-        
     }
-    
+    */
 
     public void SetXRDirectInteractor(XRBaseInteractor xrBaseInteractor)
     {
