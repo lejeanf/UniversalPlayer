@@ -408,9 +408,9 @@ Material:
     - __Smoothness_Contrast: 1
     - __Smoothness_Strenght: 0.6
     m_Colors:
-    - _BaseColor: {r: 0.46967927, g: 0.42847058, b: 0.41214117, a: 1}
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorMap_MipInfo: {r: 0, g: 0, b: 0, a: 0}
-    - _Color: {r: 0.23584905, g: 0.17647055, b: 0.15294114, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Detail_Base_Map_Strenght: {r: 0, g: 1, b: 0, a: 0}
     - _Detail_Map_Ajustment: {r: 0, g: 1, b: 0, a: 0}
     - _Detail_Map_Strenght: {r: 0, g: 1, b: 0, a: 0}

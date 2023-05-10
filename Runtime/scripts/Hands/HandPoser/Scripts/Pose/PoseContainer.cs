@@ -15,7 +15,6 @@ public class PoseContainer : MonoBehaviour, IDebugBehaviour
     public Pose pose = null;
     
     // The interactor we react to
-    private XRBaseInteractor interactor = null;
     private XRGrabInteractable _grabInteractable;
 
     private void Awake()
@@ -23,12 +22,6 @@ public class PoseContainer : MonoBehaviour, IDebugBehaviour
         _grabInteractable = this.GetComponent<XRGrabInteractable>();
     }
 
-    public void SetXRDirectInteractor(XRBaseInteractor xrBaseInteractor)
-    {
-        //interactor = xrBaseInteractor;
-        if(_isDebug) Debug.Log($"targetInteractor: {xrBaseInteractor.gameObject.name}");
-    }
-    
     public void SetAttachTransform(HandInfo handInfo)
     {
         // in case there is no attatch transform in the Grab Interactable

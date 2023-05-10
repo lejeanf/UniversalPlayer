@@ -39,7 +39,7 @@ namespace jeanf.vrplayer
         //[Range(0,100)]
         //[SerializeField] private float nailDarkness = 10f;
 
-
+        [SerializeField] private bool canUpdate = false;
         private void OnEnable()
         {
             BlendableHand.AddHand += AddHand;
@@ -79,6 +79,7 @@ namespace jeanf.vrplayer
 
         private void Update()
         {
+            if(!canUpdate)return;
             //SetBlendValueFromGender(gender);
             SetHandMaterials(_hands, blendValue * 0.01f);
             SetGloveValue(_hands, gloveValue);
@@ -142,6 +143,11 @@ namespace jeanf.vrplayer
             isGlove = state;
             var goalValue = isGlove ? 1 : 0;
             LerpGloveTowardsValue(goalValue, tolerance, blendTime);
+        }
+
+        public void SetUpdateState(bool updateState)
+        {
+            canUpdate = updateState;
         }
     }
 }
