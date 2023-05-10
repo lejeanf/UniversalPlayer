@@ -1,5 +1,6 @@
 ﻿using jeanf.EventSystem;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit;
 
 namespace  jeanf.vrplayer
@@ -17,6 +18,9 @@ namespace  jeanf.vrplayer
         public XRBaseInteractor targetInteractor = null;
 
         private bool wasInitialized = false;
+
+        public UnityEvent grabAction;
+        public UnityEvent ungrabAction;
 
         private void Init()
         {
@@ -44,6 +48,7 @@ namespace  jeanf.vrplayer
             // Try and get pose container, and apply
             if (interactable.TryGetComponent(out PoseContainer poseContainer))
             {
+                grabAction.Invoke();
                 if(_isDebug) Debug.Log($"Pose name : {poseContainer.pose.name}");
                 //move AttachTransform
                 //AplyPose
@@ -57,6 +62,7 @@ namespace  jeanf.vrplayer
             // Try and get pose container, and apply
             if (interactable.TryGetComponent(out PoseContainer poseContainer))
             {
+                ungrabAction.Invoke();  
                 ApplyDefaultPose();
             }
         }

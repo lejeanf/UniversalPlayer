@@ -104,6 +104,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6995397936724755259, guid: c90da81e463fe0e44a3fcb2435c686a0,
         type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 6995397936724755259, guid: c90da81e463fe0e44a3fcb2435c686a0,
+        type: 3}
       propertyPath: m_TagString
       value: Hands
       objectReference: {fileID: 0}
@@ -115,6 +120,20 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 419256512369406636}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &5394782743452376494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 63484136123966808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97089b669d0079a4aa9e4695271e9dc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _isDebug: 0
+  boolMessageChannel: {fileID: 11400000, guid: cf08fc0c61fce0d408103dcf2c99df5e, type: 2}
 --- !u!114 &6161415323995238451
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -165,6 +184,52 @@ MonoBehaviour:
   handType: 1
   _isDebug: 0
   targetInteractor: {fileID: 0}
+  grabAction:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 5394782743452376494}
+        m_TargetAssemblyTypeName: BoolEventSender, jeanf.eventsystem
+        m_MethodName: SendBool
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+  ungrabAction:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 5394782743452376494}
+        m_TargetAssemblyTypeName: BoolEventSender, jeanf.eventsystem
+        m_MethodName: SendBool
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &4026587517280131968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 63484136123966808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2213876c6e21ff145b1dbbc0791cd80b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultPose: {fileID: 11400000, guid: 547a2e0e82cf3084786548d39808494f, type: 2}
+  pointingPose: {fileID: 11400000, guid: ea306bf6523757048950f570597df0a7, type: 2}
+  handPoseEventChannelSO: {fileID: 11400000, guid: 4d2497ed035a70443a2a34543417a09e,
+    type: 2}
 --- !u!4 &418014420392340747 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7998350896258983, guid: c90da81e463fe0e44a3fcb2435c686a0,
