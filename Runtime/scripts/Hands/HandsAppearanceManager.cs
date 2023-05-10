@@ -88,7 +88,7 @@ namespace jeanf.vrplayer
         
         private void SetBlendShapeWeight(List<SkinnedMeshRenderer> hands, float value)
         {
-            if (_hands.Count <= 0) return;
+            if(hands.Count < 1) return;
             foreach (var hand in hands)
             {
                 hand.SetBlendShapeWeight(0, value);
@@ -99,6 +99,7 @@ namespace jeanf.vrplayer
 
         private void SetHandMaterials(List<SkinnedMeshRenderer> hands, float value)
         {
+            if(hands.Count < 1) return;
             foreach (var hand in hands)
             {
                 hand.sharedMaterial.SetFloat(_genderValue, value);
@@ -107,6 +108,7 @@ namespace jeanf.vrplayer
 
         private void SetSkinDarkness(List<SkinnedMeshRenderer> hands, float skinDarness)
         {
+            if(hands.Count < 1) return;
             var blend = Color.Lerp(lightSkinColor, darkSkinColor, skinDarkness);
             //var blendNail = Color.Lerp(lightSkinColor, new Color(darkSkinColor.r * nailDarkness, darkSkinColor.g *nailDarkness, darkSkinColor.b *nailDarkness, darkSkinColor.a), skinDarkness);
             foreach (var hand in hands)
@@ -118,6 +120,7 @@ namespace jeanf.vrplayer
 
         private void SetGloveValue(List<SkinnedMeshRenderer> hands, float value)
         {
+            if(hands.Count < 1) return;
             foreach (var mat in hands.SelectMany(hand => hand.sharedMaterials))
             {
                 mat.SetFloat(_gloveValue, value);
