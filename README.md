@@ -18,7 +18,7 @@ Features:
 
 
 ------------------------------------------------------------------------------------------------------
-to add this package in package manage:
+to add this package in unity's package manager:
 - add new scopedRegisteries in ProjectSettings/Package manager
 - name: jeanf
 - url: https://registry.npmjs.com
