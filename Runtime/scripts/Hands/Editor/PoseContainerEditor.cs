@@ -1,22 +1,26 @@
-﻿#if UNITY_EDITOR
-
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
-[CustomEditor(typeof(PoseContainer))]
-public class PoseContainerEditor : Editor
+
+namespace jeanf.vrplayer
 {
-    private PoseContainer poseContainer = null;
+    #if UNITY_EDITOR
 
-    private void OnEnable()
+    [CustomEditor(typeof(PoseContainer))]
+    public class PoseContainerEditor : Editor
     {
-        poseContainer = (PoseContainer)target;
-    }
-    public override void OnInspectorGUI()
-    {
-        base.OnInspectorGUI();
+        private PoseContainer poseContainer = null;
 
-        if (GUILayout.Button("Open Pose Editor"))
-            PoseWindow.Open(poseContainer.pose);
+        private void OnEnable()
+        {
+            poseContainer = (PoseContainer)target;
+        }
+        public override void OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
+
+            if (GUILayout.Button("Open Pose Editor"))
+                PoseWindow.Open(poseContainer.pose);
+        }
     }
+    #endif
 }
-#endif

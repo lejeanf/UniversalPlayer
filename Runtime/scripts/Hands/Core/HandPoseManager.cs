@@ -46,14 +46,12 @@ namespace  jeanf.vrplayer
         {
             if(_isDebug) Debug.Log($"interactable : {interactable}");
             // Try and get pose container, and apply
-            if (interactable.TryGetComponent(out PoseContainer poseContainer))
-            {
-                grabAction.Invoke();
-                if(_isDebug) Debug.Log($"Pose name : {poseContainer.pose.name}");
-                //move AttachTransform
-                //AplyPose
-                ApplyPose(poseContainer.pose);
-            }
+            if (!interactable.TryGetComponent(out PoseContainer poseContainer)) return;
+            grabAction.Invoke();
+            if(_isDebug) Debug.Log($"Pose name : {poseContainer.pose.name}");
+            //move AttachTransform
+            //AplyPose
+            ApplyPose(poseContainer.pose);
         }
 
         private void TryApplyDefaultPose(XRBaseInteractable interactable)

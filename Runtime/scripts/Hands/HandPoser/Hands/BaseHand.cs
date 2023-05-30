@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public abstract class BaseHand : MonoBehaviour
 {
@@ -14,6 +15,10 @@ public abstract class BaseHand : MonoBehaviour
     public HandType HandType => handType;
 
     public List<Transform> Joints { get; protected set; } = new List<Transform>();
+
+    public bool isLerpingOverTipe = true;
+    [DrawIf("isLerpingOverTipe", true, ComparisonType.Equals)]
+    [SerializeField] private float lerpTime = .2f;
 
     protected virtual void Awake()
     {
@@ -79,7 +84,18 @@ public abstract class BaseHand : MonoBehaviour
         {
             // Set the local rotation of each joint
             for (int i = 0; i < Joints.Count; i++)
-                Joints[i].localRotation = rotations[i];
+            {
+                if (!isLerpingOverTipe)
+                {
+                    Joints[i].localRotation = rotations[i];
+                    
+                }
+                else
+                {
+                    Joints[i].DOLocalRotate(rotations[i].eulerAngles, lerpTime) ;
+                }
+            }
+
         }
     }
 

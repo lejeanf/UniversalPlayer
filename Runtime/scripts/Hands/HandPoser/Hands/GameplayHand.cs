@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
-public class GameplayHand : BaseHand
+namespace jeanf.vrplayer
+{
+    public class GameplayHand : BaseHand
 {
     // The interactor we react to
     [SerializeField] private XRBaseInteractor targetInteractor = null;
@@ -60,4 +62,5 @@ public class GameplayHand : BaseHand
             targetInteractor = GetComponentInParent<XRBaseInteractor>();
         }
     }
+}
 }

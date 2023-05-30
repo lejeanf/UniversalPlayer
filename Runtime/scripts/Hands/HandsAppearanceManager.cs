@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 namespace jeanf.vrplayer
 {
@@ -15,7 +16,9 @@ namespace jeanf.vrplayer
         [SerializeField] private List<SkinnedMeshRenderer> _hands = new List<SkinnedMeshRenderer>();
         private float _blendValue = 100.0f;
         [Range(0,100)]
-        [SerializeField] private float blendValue = 100.0f;
+        [SerializeField] private float gender = 100.0f;
+        [Range(0,100)]
+        [SerializeField] private float bodyMass = 100.0f;
         [Range(0,1)]
         [SerializeField] private float skinDarkness = 1.0f;
         [SerializeField] private Color lightSkinColor;
@@ -52,7 +55,7 @@ namespace jeanf.vrplayer
             if (!_hands.Contains(hand))
             {
                 _hands.Add(hand);
-                SetBlendShapeWeight(_hands, blendValue);
+                SetGender(_hands, gender);
             }
 
         }
@@ -81,19 +84,26 @@ namespace jeanf.vrplayer
         {
             if(!canUpdate)return;
             //SetBlendValueFromGender(gender);
-            SetHandMaterials(_hands, blendValue * 0.01f);
+            SetHandMaterials(_hands, gender * 0.01f);
             SetGloveValue(_hands, gloveValue);
-            SetBlendShapeWeight(_hands, blendValue);
+            SetGender(_hands, gender);
+            SetBodyMass(_hands, bodyMass);
             SetSkinDarkness(_hands, skinDarkness);
         }
         
-        private void SetBlendShapeWeight(List<SkinnedMeshRenderer> hands, float value)
+        private void SetGender(List<SkinnedMeshRenderer> hands, float value)
         {
-            if(hands.Count < 1) return;
             foreach (var hand in hands)
             {
                 hand.SetBlendShapeWeight(0, value);
-                var materialBlendValue = MathF.Round(value * .01f, 1);
+            }
+        }
+        
+        private void SetBodyMass(List<SkinnedMeshRenderer> hands, float value)
+        {
+            foreach (var hand in hands)
+            {
+                hand.SetBlendShapeWeight(2, value);
             }
         }
 

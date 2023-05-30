@@ -2892,15 +2892,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isDebug: 0
+  grabCount: 0
+  handsInDetectionzone: 0
   _LeftHandState: {fileID: 11400000, guid: cf08fc0c61fce0d408103dcf2c99df5e, type: 2}
   _RightHandState: {fileID: 11400000, guid: e2b569a0c3f568248bad34b4660c194e, type: 2}
-  grabCount: 0
+  _HandDetectedEvent: {fileID: 0}
+  _HandDisapearedEvent: {fileID: 0}
   grabCountChannelSO: {fileID: 11400000, guid: b2cdb0e34277d0c429452b36a1bf74c2, type: 2}
   setPointingPoseOnOppositeHandGrab: 1
   leftHandIsPointingChannelSO: {fileID: 11400000, guid: 4d2497ed035a70443a2a34543417a09e,
     type: 2}
   rightHandIsPointingChannelSO: {fileID: 11400000, guid: f81ac86b022e53543a64380062a12cd1,
     type: 2}
+  leftHandGrabState: 0
+  rightHandGrabState: 0
 --- !u!1001 &53461677430660841
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2982,11 +2987,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_SelectEntered.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
-      objectReference: {fileID: 0}
-    - target: {fileID: 6059725000919627127, guid: 2fd3e07afe5b461490fb8e314976b1b0,
-        type: 3}
-      propertyPath: m_Radius
-      value: 0.06
       objectReference: {fileID: 0}
     - target: {fileID: 6189354538098044173, guid: 2fd3e07afe5b461490fb8e314976b1b0,
         type: 3}
@@ -4399,11 +4399,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_SelectEntered.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
-      objectReference: {fileID: 0}
-    - target: {fileID: 6059725000919627127, guid: 2fd3e07afe5b461490fb8e314976b1b0,
-        type: 3}
-      propertyPath: m_Radius
-      value: 0.06
       objectReference: {fileID: 0}
     - target: {fileID: 6189354538098044173, guid: 2fd3e07afe5b461490fb8e314976b1b0,
         type: 3}
