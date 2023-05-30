@@ -33,6 +33,12 @@ namespace jeanf.vrplayer
                         $"{teleportInformation.filter.filters[0]} is within the list of {this.gameObject.name}, proceeding...");
             }
 
+            if (_isDebug)
+            {
+                Debug.Log($"[{gameObject.name}] destination : {teleportInformation.targetDestination.gameObject.name}, objectIsPlayer : {teleportInformation.objectIsPlayer}");
+                Debug.Log($"ObjectToTeleport : {teleportInformation.objectToTeleport.name}");
+            }             
+            
             var teleportSubject = teleportInformation.objectIsPlayer
                 ? player.transform
                 : teleportInformation.objectToTeleport.transform;

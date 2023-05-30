@@ -32,7 +32,11 @@ namespace jeanf.vrplayer
         public Transform ObjectToTeleport
         {
             get => objectToTeleport;
-            set => objectToTeleport = value;
+            set
+            {
+                if(_isDebug) Debug.Log($"ObjectToTeleport name : {value.gameObject.name}");
+                objectToTeleport = value;
+            } 
         }
 
         private void OnEnable()
@@ -43,8 +47,13 @@ namespace jeanf.vrplayer
         public void Teleport()
         {
             var teleportInformation = new TeleportInformation(objectToTeleport, this.transform, isTeleportPlayer, _filter, isUsingFilter);
+            if(_isDebug) Debug.Log($"[teleportInformation ({gameObject.name})] " +
+                                   $"objectToTeleport : {teleportInformation.objectToTeleport}, " +
+                                   $"targetDestination : {teleportInformation.targetDestination}, " +
+                                   $"isTeleportPlayer : {teleportInformation.objectIsPlayer}, " +
+                                   $"_filter : {teleportInformation.filter.filters[0]}, " +
+                                   $"isUsingFilter : {teleportInformation.isUsingFilter}");
             _teleportChannel.RaiseEvent(teleportInformation);
-            if(_isDebug) Debug.Log($"sending teleport information from {gameObject.name} for {_filter.filters[0]}");
         }
 
         #if UNITY_EDITOR
