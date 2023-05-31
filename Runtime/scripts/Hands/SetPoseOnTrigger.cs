@@ -19,7 +19,10 @@ namespace jeanf.vrplayer
         {
             if(!other.GetComponent(typeof(BlendableHand))) return;
             _handPoseManager = (HandPoseManager) other.GetComponentInParent(typeof(Transform)).GetComponentInParent(typeof(HandPoseManager));
-            if (isUsingGrabCheck && _handPoseManager.HandType == HandType.Left && leftHandGrab || isUsingGrabCheck && _handPoseManager.HandType == HandType.Right && rightHandGrab) return;
+            
+            if ((isUsingGrabCheck && _handPoseManager.HandType == HandType.Left && leftHandGrab) || 
+                (isUsingGrabCheck && _handPoseManager.HandType == HandType.Right && rightHandGrab)) return;
+            
             if(_handPoseManager) _handPoseManager.ApplyPose(poseToSet);
         }
 
@@ -28,7 +31,8 @@ namespace jeanf.vrplayer
             if (!other.GetComponent(typeof(BlendableHand))) return;
             _handPoseManager = (HandPoseManager)other.GetComponentInParent(typeof(Transform)).GetComponentInParent(typeof(HandPoseManager));
             
-            if (isUsingGrabCheck && _handPoseManager.HandType == HandType.Left && leftHandGrab || isUsingGrabCheck && _handPoseManager.HandType == HandType.Right && rightHandGrab) return;
+            if ((isUsingGrabCheck && _handPoseManager.HandType == HandType.Left && leftHandGrab) || 
+                (isUsingGrabCheck && _handPoseManager.HandType == HandType.Right && rightHandGrab)) return;
             
             if (_handPoseManager) _handPoseManager.ApplyPose(defaultPose);
         }
