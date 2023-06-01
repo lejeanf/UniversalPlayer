@@ -8,9 +8,12 @@ using UnityEngine.SceneManagement;
 
 namespace jeanf.vrplayer
 {
+#if !UNITY_EDITOR
+public class PoseWindow {}
+#endif
+#if UNITY_EDITOR
     public class PoseWindow : EditorWindow
     {
-        #if UNITY_EDITOR
         // The pose we're editing
         private Pose activePose = null;
 
@@ -249,7 +252,7 @@ namespace jeanf.vrplayer
             PoseWindow window = GetWindow<PoseWindow>("Hand Poser");
             window.activePose = pose;
         }
-        #endif
     }
+#endif
 
 }
