@@ -1,11 +1,11 @@
-﻿#if UNITY_EDITOR
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace jeanf.vrplayer
 {
+    #if UNITY_EDITOR
     public class PoseWindow : EditorWindow
     {
         // The pose we're editing
