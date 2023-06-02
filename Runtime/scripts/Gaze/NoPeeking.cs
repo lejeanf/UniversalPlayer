@@ -1,5 +1,6 @@
 using jeanf.EventSystem;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace jeanf.vrplayer
 {
@@ -18,10 +19,10 @@ namespace jeanf.vrplayer
         private bool isHeadInWall = false;
         private bool isHeadInWallLastValue = false;
         
-        [SerializeField] private bool canFadeOut = false;
+        [SerializeField] private bool isSceneLoading = false;
         private void Update()
         {
-            if(!canFadeOut) return;
+            if(isSceneLoading) return;
             if (Physics.CheckSphere(transform.position, sphereCheckSize, collisionLayer, QueryTriggerInteraction.Ignore))
             {
                 isHeadInWall = true;
@@ -43,7 +44,7 @@ namespace jeanf.vrplayer
 
         public void SetCanFadeOutValue(bool value)
         {
-            canFadeOut = value;
+            isSceneLoading = value;
         }
     }
 }
