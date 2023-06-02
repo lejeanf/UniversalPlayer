@@ -5,12 +5,24 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.HighDefinition;
 using DG.Tweening;
+using jeanf.EventSystem;
 using UnityEngine.Serialization;
 
 namespace jeanf.vrplayer
 {
-    public class FadeMask : MonoBehaviour
+    public class FadeMask : MonoBehaviour, IDebugBehaviour
     {
+        public bool isDebug
+        { 
+            get => _isDebug;
+            set => _isDebug = value; 
+        }
+        [SerializeField] private bool _isDebug = false;
+        private static bool _isDebugSTATIC = false;
+        [SerializeField] private bool checkForDebugChangeState = false;
+        
+        
+        
         private CustomPassVolume _customPassVolume;
 
         [FormerlySerializedAs("_inputBinding")]
@@ -53,11 +65,17 @@ namespace jeanf.vrplayer
         private void OnDisable() => Unsubscribe();
         private void OnDestroy() => Unsubscribe();
 
-        void Unsubscribe()
+        private void Unsubscribe()
         {
             if (_shaderMaterial)_shaderMaterial.SetColor(FadeColor, new Color(color.r, color.g, color.b, 0));
             inputBinding.performed -= null;
             inputBinding.Disable();
+        }
+
+        private void Update()
+        {
+            if(!checkForDebugChangeState) return;
+            _isDebugSTATIC = _isDebug;
         }
 
         public static void SwitchFadeState()
@@ -69,9 +87,10 @@ namespace jeanf.vrplayer
         {
             FadeValue(value, _fadeTime);
         }
+
         public static void FadeValue(bool value, float fadeTime)
         {
-            Debug.Log($"Fading to: {value}, in {fadeTime}s");
+            if(_isDebugSTATIC) Debug.Log($"Fading to: {value}, in {fadeTime}s");
             float alpha = value ? 1 : 0;
             _shaderMaterial.DOColor(new Color(color.r, color.g, color.b, alpha), fadeTime);
         }

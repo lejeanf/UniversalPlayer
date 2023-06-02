@@ -1,49 +1,36 @@
-using System.Collections;
-using System.Collections.Generic;
+using jeanf.EventSystem;
 using UnityEngine;
-using UnityEngine.UI;
+
 namespace jeanf.vrplayer
 {
-    public class NoPeeking : MonoBehaviour
+    public class NoPeeking : MonoBehaviour, IDebugBehaviour
     {
-        [SerializeField] LayerMask collisionLayer;
-        [SerializeField] float sphereCheckSize = .15f;
-        [Range(1f, 10f)]
-        [SerializeField] float fadeSpeed = 4.0f;
-
-        private Material cameraFadeMat;
-        private bool isCameraFadeOut = true;
-
-        private void Awake()
-        {
-            cameraFadeMat = this.GetComponent<Renderer>().material;
-            CameraFade(0f);
-            isCameraFadeOut = true;
+        public bool isDebug
+        { 
+            get => _isDebug;
+            set => _isDebug = value; 
         }
+        [SerializeField] private bool _isDebug = false;
+        
+        [SerializeField] private LayerMask collisionLayer;
+        [SerializeField] private float sphereCheckSize = .15f;
 
-        void Update()
+        private bool isHeadInWall = false;
+        private bool isHeadInWallLastValue = false;
+        private void Update()
         {
+            
             if (Physics.CheckSphere(transform.position, sphereCheckSize, collisionLayer, QueryTriggerInteraction.Ignore))
             {
-                CameraFade(1f);
-                isCameraFadeOut = true;
+                isHeadInWall = true;
             }
             else
             {
-                if (!isCameraFadeOut)
-                    return;
-
-                CameraFade(0f);
+                isHeadInWall = false;
             }
-        }
-
-        public void CameraFade(float targetAlpha)
-        {
-            var fadeValue = Mathf.MoveTowards(cameraFadeMat.GetFloat("_AlphaValue"), targetAlpha, Time.deltaTime * fadeSpeed);
-            cameraFadeMat.SetFloat("_AlphaValue", fadeValue);
-
-            if (fadeValue <= 0.01f)
-                isCameraFadeOut = false;
+            
+            FadeMask.FadeValue(isHeadInWall);
+            if(isDebug) Debug.Log($"isHeadInWall: {isHeadInWall}");
         }
 
         private void OnDrawGizmos()
