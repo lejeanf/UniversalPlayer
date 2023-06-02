@@ -39,6 +39,7 @@ namespace jeanf.vrplayer
 
         private static Material _shaderMaterial;
         private static bool _isFaded = false;
+
         private void Awake()
         {
             if (!_customPassVolume) _customPassVolume = GetComponent<CustomPassVolume>();

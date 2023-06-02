@@ -17,9 +17,11 @@ namespace jeanf.vrplayer
 
         private bool isHeadInWall = false;
         private bool isHeadInWallLastValue = false;
+        
+        [SerializeField] private bool canFadeOut = false;
         private void Update()
         {
-            
+            if(!canFadeOut) return;
             if (Physics.CheckSphere(transform.position, sphereCheckSize, collisionLayer, QueryTriggerInteraction.Ignore))
             {
                 isHeadInWall = true;
@@ -37,6 +39,11 @@ namespace jeanf.vrplayer
         {
             Gizmos.color = new Color(0f, 1f, 0f, .75f);
             Gizmos.DrawSphere(transform.position, sphereCheckSize);
+        }
+
+        public void SetCanFadeOutValue(bool value)
+        {
+            canFadeOut = value;
         }
     }
 }
