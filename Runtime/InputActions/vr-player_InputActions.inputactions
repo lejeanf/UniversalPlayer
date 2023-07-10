@@ -1779,7 +1779,7 @@
                     "name": "ScrollWheel",
                     "type": "PassThrough",
                     "id": "bd7fc534-75e3-489d-94fb-3d45cb78d8f3",
-                    "expectedControlType": "Vector2",
+                    "expectedControlType": "Delta",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -2239,6 +2239,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Scroll",
+                    "type": "Value",
+                    "id": "d5ec55cc-6b33-43b7-933d-5190d1e939ad",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -2338,6 +2347,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "TakeObject",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "db1a93a7-3580-42c7-a760-ab3fde485151",
+                    "path": "<Mouse>/scroll/y",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Scroll",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

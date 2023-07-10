@@ -5,22 +5,24 @@ using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
 namespace jeanf.vrplayer
 {
+    [System.Obsolete("This is an obsolete method")]
     public class KeyboardGrab : MonoBehaviour
     {
+        /*
         [SerializeField] Camera camera;
         [SerializeField] private InputActionReference keyboardGrabAction;
-        void OnEnable()
+        private void OnEnable()
         {
             keyboardGrabAction.action.performed += ctx => GrabObject();
         }
-        void OnDestroy() => Unsubscribe();
-        void OnDisable() => Unsubscribe();
-        void Unsubscribe()
+        private void OnDestroy() => Unsubscribe();
+        private void OnDisable() => Unsubscribe();
+        private void Unsubscribe()
         {
-            keyboardGrabAction.action.performed -= ctx => GrabObject();
+            keyboardGrabAction.action.performed -= null;
         }
 
-        void GrabObject()
+        private void GrabObject()
         {
             GameObject grabbedObject = LookForObjectToGrab();
             if (grabbedObject == null) return;
@@ -42,5 +44,6 @@ namespace jeanf.vrplayer
 
             return objectToGrab;
         }
+        */
     }
 }

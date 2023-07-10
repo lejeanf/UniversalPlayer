@@ -20,11 +20,34 @@ namespace jeanf.vrplayer
         [SerializeField] private bool _isDebug = false;
         
         // Start is called before the first frame update
-        [SerializeField] private LayerMask layerMask;
         private Transform cameraTransform;
         [Space(20)]
         [SerializeField] private InputActionReference takeAction;
-        [SerializeField] private float maxDistanceCheck = 1.5f;
+        [SerializeField] private InputActionReference scrollAction;
+        public enum TakeStyle { hold, toggle}
+        [Space(20)]
+        [SerializeField] private LayerMask layerMask;
+        [SerializeField] private TakeStyle _takeStyle = TakeStyle.toggle;
+        
+        
+        [Space(20)]
+        [SerializeField] private bool advancedSettings = false;
+        private float objectDistance = .5f;
+        [DrawIf("advancedSettings", true, ComparisonType.Equals)]
+        [Range(.1f, .9f)]
+        [SerializeField]
+        private float minDistance = .5f;
+        [DrawIf("advancedSettings", true, ComparisonType.Equals)]
+        [Range(1f, 2f)]
+        [SerializeField]
+        private float maxDistance = 1.25f;
+        [DrawIf("advancedSettings", true, ComparisonType.Equals)]
+        [Range(.0001f, 0.001f)]
+        [SerializeField]
+        private float scrollStep = .001f;
+        [DrawIf("advancedSettings", true, ComparisonType.Equals)]
+        [Range(.5f, 10f)]
+        [SerializeField] private float maxDistanceCheck = 2f;
         private Transform _currentObjectHeld;
         private Rigidbody _currentObjectHeldRb;
 
@@ -32,8 +55,6 @@ namespace jeanf.vrplayer
         private float _dragBeforeGrab;
         private float _angularDragBeforeGrab;
 
-        public enum TakeStyle { hold, toggle}
-        [SerializeField] private TakeStyle _takeStyle = TakeStyle.toggle;
         [Space(20)]
         private bool holdState = false;
 
@@ -45,8 +66,10 @@ namespace jeanf.vrplayer
         private void OnEnable()
         {
             takeAction.action.Enable();
+            scrollAction.action.Enable();
             takeAction.action.performed += _ => DecideAction();
             takeAction.action.canceled += _ => ReleaseHold();
+            scrollAction.action.performed += ctx => UpdateObjectDistance(ctx.ReadValue<float>());
         }
 
 
@@ -58,7 +81,9 @@ namespace jeanf.vrplayer
             //takeAction.action.started -= null;
             takeAction.action.canceled -= null;
             takeAction.action.performed -= null;
+            scrollAction.action.performed -= null;
             takeAction.action.Disable();
+            scrollAction.action.Disable();
             DOTween.KillAll();
         }
 
@@ -66,7 +91,7 @@ namespace jeanf.vrplayer
         {
             if(BroadcastHmdStatus.hmdCurrentState) return;
             if (!cameraTransform) cameraTransform = Camera.main.transform;
-            if (_currentObjectHeld) _currentObjectHeld.transform.DOMove(cameraTransform.position + cameraTransform.forward * 0.5f, .05f, false);
+            if (_currentObjectHeld) _currentObjectHeld.transform.DOMove(cameraTransform.position + cameraTransform.forward * objectDistance, .05f, false);
         }
 
         private void ToggleTake()
@@ -139,6 +164,17 @@ namespace jeanf.vrplayer
             if(_takeStyle != TakeStyle.hold) return;
             if(_isDebug) Debug.Log("release hold");
             Release();
+        }
+
+        private void UpdateObjectDistance(float value)
+        {
+            value *= scrollStep;
+            if (_isDebug) Debug.Log($"scroll reading: {value}");
+            objectDistance += value;
+            if (objectDistance > maxDistance) objectDistance = maxDistance;
+            if (objectDistance < minDistance) objectDistance = minDistance;
+            if (_currentObjectHeld) _currentObjectHeld.transform.DOMove(cameraTransform.position + cameraTransform.forward * objectDistance, .05f, false);
+            
         }
 
     }
