@@ -1,18 +1,37 @@
+
+
 Shader "FullScreen/Fade"
 {
     Properties {
         _Color("Color", Color) = (0,0,0,0)
+        [MainTexture] _BaseMap("Texture", 2D) = "white" {}
         //_Alpha("Aplha", Range (0, 1)) = 0
     }
 
     HLSLINCLUDE
 
-    #pragma vertex Vert
+
+    
 
     #pragma target 4.5
     #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
 
-    #include "Packages/com.unity.render-pipelines.high-definition/Runtime/RenderPipeline/RenderPass/CustomPass/CustomPassCommon.hlsl"
+    #include "Packages/jeanf/VR_Player/RenderPipeline.hlsl"
+
+    #ifdef URP
+        #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+        #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityInput.hlsl"
+        #include "Packages/fr.jeanf.vr.player/Runtime/scripts/Fade/Fade.hlsl"
+        #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
+        // #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UniversalMetaPass.hlsl"
+    #endif
+
+    #ifdef HDRP
+        #include "Packages/com.unity.render-pipelines.high-definition/Runtime/RenderPipeline/RenderPass/CustomPass/CustomPassCommon.hlsl"
+    #endif
+
+    #pragma vertex Vert
+
 
     // The PositionInputs struct allow you to retrieve a lot of useful information for your fullScreenShader:
     // struct PositionInputs
@@ -41,6 +60,7 @@ Shader "FullScreen/Fade"
     float4 FullScreenPass(Varyings varyings) : SV_Target
     {
         UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(varyings);
+        #ifdef HDRP
         float depth = LoadCameraDepth(varyings.positionCS.xy);
         PositionInputs posInput = GetPositionInput(varyings.positionCS.xy, _ScreenSize.zw, depth, UNITY_MATRIX_I_VP, UNITY_MATRIX_V);
         float3 viewDirection = GetWorldSpaceNormalizeViewDir(posInput.positionWS);
@@ -57,6 +77,11 @@ Shader "FullScreen/Fade"
         //_Color.a = _Alpha;
         //return float4(_Color.rgb + f, _Color.a);
         return float4(_Color);
+        #endif
+
+        #ifdef URP
+            return float4(float4(_Color.r, _Color.g, _Color.b, _Color.a));
+        #endif
     }
 
     ENDHLSL
