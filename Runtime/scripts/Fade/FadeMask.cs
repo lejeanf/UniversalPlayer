@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Rendering.HighDefinition;
+// using UnityEngine.Rendering.HighDefinition;
 using DG.Tweening;
 using jeanf.EventSystem;
 using UnityEngine.Serialization;
@@ -22,8 +22,7 @@ namespace jeanf.vrplayer
         [SerializeField] private bool checkForDebugChangeState = false;
         
         
-        
-        private CustomPassVolume _customPassVolume;
+        // private CustomPassVolume _customPassVolume;
 
         [FormerlySerializedAs("_inputBinding")]
         [Header("Manual Switch Input")]
@@ -42,15 +41,15 @@ namespace jeanf.vrplayer
 
         private void Awake()
         {
-            if (!_customPassVolume) _customPassVolume = GetComponent<CustomPassVolume>();
-            foreach (var pass in _customPassVolume.customPasses)
-            {
-                if (pass is FullScreenCustomPass f) 
-                {
-                    _shaderMaterial = f.fullscreenPassMaterial;
-                    color = _shaderMaterial.GetColor(FadeColor);
-                }
-            }
+            // if (!_customPassVolume) _customPassVolume = GetComponent<CustomPassVolume>();
+            // foreach (var pass in _customPassVolume.customPasses)
+            // {
+            //     if (pass is FullScreenCustomPass f) 
+            //     {
+            //         _shaderMaterial = f.fullscreenPassMaterial;
+            //         color = _shaderMaterial.GetColor(FadeColor);
+            //     }
+            // }
 
             if (!_shaderMaterial) return;
             _shaderMaterial.SetColor(FadeColor, new Color(color.r, color.g, color.b, 1));
