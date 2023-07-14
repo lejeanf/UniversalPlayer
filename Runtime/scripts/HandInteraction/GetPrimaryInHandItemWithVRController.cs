@@ -25,6 +25,9 @@ namespace jeanf.vrplayer
         [Header("PrimaryItem")] 
         public Transform primaryItem;
         [SerializeField] private BoolEventChannelSO _PrimaryItemStateChannel;
+        [SerializeField] private VoidEventChannelSO _leftGrab;
+        [SerializeField] private VoidEventChannelSO _rightGrab;
+        
         
         
         [SerializeField] private List<SkinnedMeshRenderer> _hands = new List<SkinnedMeshRenderer>();
@@ -100,11 +103,12 @@ namespace jeanf.vrplayer
         {
             if (_ipadState is IpadState.Disabled or IpadState.InRightHand)
             {
-                SetIpadStateForASpecificHand(handInfo, _leftHand);
+                //SetIpadStateForASpecificHand(handInfo, _leftHand);
                 _ipadState = IpadState.InLeftHand;
                 _PrimaryItemStateChannel.RaiseEvent(true);
-                if(_rightHandPoseManager) _leftHandPoseManager.ApplyPose(primaryItemPose);
-                if(_leftHandPoseManager) _rightHandPoseManager.ApplyDefaultPose();
+                _leftGrab.RaiseEvent();
+                //if(_leftHandPoseManager) _leftHandPoseManager.ApplyPose(primaryItemPose);
+                //if(_rightHandPoseManager) _rightHandPoseManager.ApplyDefaultPose();
             }
             else
             {
@@ -117,11 +121,12 @@ namespace jeanf.vrplayer
         {
             if (_ipadState is IpadState.Disabled or IpadState.InLeftHand)
             {
-                SetIpadStateForASpecificHand(handInfo, _rightHand);
+                //SetIpadStateForASpecificHand(handInfo, _rightHand);
                 _ipadState = IpadState.InRightHand;
                 _PrimaryItemStateChannel.RaiseEvent(true);
-                if(_rightHandPoseManager) _rightHandPoseManager.ApplyPose(primaryItemPose);
-                if(_leftHandPoseManager) _leftHandPoseManager.ApplyDefaultPose();
+                _rightGrab.RaiseEvent();
+                //if(_rightHandPoseManager) _rightHandPoseManager.ApplyPose(primaryItemPose);
+                //if(_leftHandPoseManager) _leftHandPoseManager.ApplyDefaultPose();
             }
             else
             {
