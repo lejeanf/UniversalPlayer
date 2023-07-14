@@ -72,6 +72,18 @@ PrefabInstance:
     - {fileID: 7711447818570943638, guid: 67e27b139a2a06b4985217621d4235d1, type: 3}
     - {fileID: 1298321975892423556, guid: 67e27b139a2a06b4985217621d4235d1, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 67e27b139a2a06b4985217621d4235d1, type: 3}
+--- !u!4 &1467574287199742778 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3978499416533880670, guid: 67e27b139a2a06b4985217621d4235d1,
+    type: 3}
+  m_PrefabInstance: {fileID: 2552317412859995236}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1776687456507840786 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4306471478001053046, guid: 67e27b139a2a06b4985217621d4235d1,
+    type: 3}
+  m_PrefabInstance: {fileID: 2552317412859995236}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2560909186797584700 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 63484136123966808, guid: 67e27b139a2a06b4985217621d4235d1,
@@ -92,9 +104,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultPose: {fileID: 11400000, guid: 547a2e0e82cf3084786548d39808494f, type: 2}
   fingerRoots:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 5236812399887988461}
+  - {fileID: 1467574287199742778}
+  - {fileID: 5386429633067530212}
+  - {fileID: 5689893870785209647}
+  - {fileID: 1776687456507840786}
   handType: 1
+  isLerpingOverTipe: 1
+  lerpTime: 0.2
+--- !u!4 &5236812399887988461 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7766248700812153481, guid: 67e27b139a2a06b4985217621d4235d1,
+    type: 3}
+  m_PrefabInstance: {fileID: 2552317412859995236}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &5386429633067530212 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7614415012847735680, guid: 67e27b139a2a06b4985217621d4235d1,
+    type: 3}
+  m_PrefabInstance: {fileID: 2552317412859995236}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &5689893870785209647 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7898530337029046603, guid: 67e27b139a2a06b4985217621d4235d1,
+    type: 3}
+  m_PrefabInstance: {fileID: 2552317412859995236}
+  m_PrefabAsset: {fileID: 0}
