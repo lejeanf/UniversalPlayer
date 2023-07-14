@@ -27,6 +27,7 @@ namespace jeanf.vrplayer
         [SerializeField] private BoolEventChannelSO _PrimaryItemStateChannel;
         [SerializeField] private VoidEventChannelSO _leftGrab;
         [SerializeField] private VoidEventChannelSO _rightGrab;
+        [SerializeField] private VoidEventChannelSO _noGrab;
         
         
         
@@ -95,6 +96,7 @@ namespace jeanf.vrplayer
             _rightHand = null;
             _leftHandPoseManager = null;
             _rightHandPoseManager = null;
+            _noGrab.RaiseEvent();
         }
 
 
@@ -114,7 +116,9 @@ namespace jeanf.vrplayer
             {
                 _ipadState = IpadState.Disabled;
                 _PrimaryItemStateChannel.RaiseEvent(false);
-                if(_leftHandPoseManager) _leftHandPoseManager.ApplyDefaultPose();
+                if (!_leftHandPoseManager) return;
+                _leftHandPoseManager.ApplyDefaultPose();
+                _noGrab.RaiseEvent();
             }
         }
         public void SetIpadStateForRightHand(HandInfo handInfo)
@@ -126,7 +130,9 @@ namespace jeanf.vrplayer
                 _PrimaryItemStateChannel.RaiseEvent(true);
                 _rightGrab.RaiseEvent();
                 if(_rightHandPoseManager) _rightHandPoseManager.ApplyPose(primaryItemPose);
-                if(_leftHandPoseManager) _leftHandPoseManager.ApplyDefaultPose();
+                if (!_leftHandPoseManager) return;
+                _leftHandPoseManager.ApplyDefaultPose();
+                _noGrab.RaiseEvent();
             }
             else
             {

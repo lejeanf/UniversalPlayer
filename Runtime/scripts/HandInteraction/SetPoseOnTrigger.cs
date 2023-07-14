@@ -11,6 +11,7 @@ namespace jeanf.vrplayer
         [SerializeField] private Pose defaultPose;
         [SerializeField] private Pose poseToSet;
 
+        [SerializeField] private bool isUsingGrabCheck = true;
         [SerializeField] private bool canRightHandPoint = false;
         [SerializeField] private bool canLeftHandPoint = false;
 
@@ -20,7 +21,14 @@ namespace jeanf.vrplayer
             if(!other.GetComponent(typeof(BlendableHand))) return;
             _handPoseManager = (HandPoseManager) other.GetComponentInParent(typeof(Transform)).GetComponentInParent(typeof(HandPoseManager));
 
-            if(_handPoseManager.HandType == HandType.Left && canLeftHandPoint || _handPoseManager.HandType == HandType.Right && canRightHandPoint) _handPoseManager.ApplyPose(poseToSet);
+            if (isUsingGrabCheck)
+            {
+                if(_handPoseManager.HandType == HandType.Left && canLeftHandPoint || _handPoseManager.HandType == HandType.Right && canRightHandPoint) _handPoseManager.ApplyPose(poseToSet);
+            }
+            else
+            {
+                _handPoseManager.ApplyPose(poseToSet);
+            }
         }
 
         private void OnTriggerExit(Collider other)
@@ -39,6 +47,12 @@ namespace jeanf.vrplayer
         public void LeftHandIsGrabbing()
         {
             canLeftHandPoint = false;
+            canRightHandPoint = true;
+        }
+
+        public void NoHandIsGrabbing()
+        {
+            canLeftHandPoint = true;
             canRightHandPoint = true;
         }
     }

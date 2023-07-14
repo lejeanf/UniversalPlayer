@@ -14,8 +14,9 @@ GameObject:
   - component: {fileID: 7000397549278052490}
   - component: {fileID: 7000397549278052491}
   - component: {fileID: 7000397549278052535}
-  - component: {fileID: 7000397549278052529}
-  - component: {fileID: 7000397549278052534}
+  - component: {fileID: 5179769254145774337}
+  - component: {fileID: 3393288013400524159}
+  - component: {fileID: 4802985064253362810}
   m_Layer: 6
   m_Name: HandDetector
   m_TagString: Untagged
@@ -64,7 +65,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isDebug: 0
-  useLayerMask: 1
   layerMask:
     serializedVersion: 2
     m_Bits: 128
@@ -142,7 +142,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultPose: {fileID: 11400000, guid: 547a2e0e82cf3084786548d39808494f, type: 2}
   poseToSet: {fileID: 11400000, guid: ea306bf6523757048950f570597df0a7, type: 2}
---- !u!114 &7000397549278052529
+  isUsingGrabCheck: 1
+  canRightHandPoint: 0
+  canLeftHandPoint: 0
+--- !u!114 &5179769254145774337
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -151,18 +154,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 7000397549278052489}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b82296c84d82a944bb46a1a9ee14d056, type: 3}
+  m_Script: {fileID: 11500000, guid: 9de4f9f3fef96bf4e80e2514b4dd7e85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _isDebug: 0
-  _channel: {fileID: 11400000, guid: cf08fc0c61fce0d408103dcf2c99df5e, type: 2}
+  _channel: {fileID: 11400000, guid: be6ea7ff04e4c4b40aff5a5fb9e1ade6, type: 2}
   OnEventRaised:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 7000397549278052535}
         m_TargetAssemblyTypeName: jeanf.vrplayer.SetPoseOnTrigger, vrplayer
-        m_MethodName: SetLeftHandState
-        m_Mode: 0
+        m_MethodName: RightHandIsGrabbing
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -171,7 +174,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &7000397549278052534
+--- !u!114 &3393288013400524159
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -180,18 +183,47 @@ MonoBehaviour:
   m_GameObject: {fileID: 7000397549278052489}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b82296c84d82a944bb46a1a9ee14d056, type: 3}
+  m_Script: {fileID: 11500000, guid: 9de4f9f3fef96bf4e80e2514b4dd7e85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _isDebug: 0
-  _channel: {fileID: 11400000, guid: e2b569a0c3f568248bad34b4660c194e, type: 2}
+  _channel: {fileID: 11400000, guid: 3ee38a5004a83534b954968c729c71c1, type: 2}
   OnEventRaised:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 7000397549278052535}
         m_TargetAssemblyTypeName: jeanf.vrplayer.SetPoseOnTrigger, vrplayer
-        m_MethodName: SetRightHandState
-        m_Mode: 0
+        m_MethodName: LeftHandIsGrabbing
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &4802985064253362810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7000397549278052489}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9de4f9f3fef96bf4e80e2514b4dd7e85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _isDebug: 0
+  _channel: {fileID: 11400000, guid: 21ae158d418b6b3459089b17603970c2, type: 2}
+  OnEventRaised:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7000397549278052535}
+        m_TargetAssemblyTypeName: jeanf.vrplayer.SetPoseOnTrigger, vrplayer
+        m_MethodName: NoHandIsGrabbing
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
