@@ -1,48 +1,50 @@
 using jeanf.EventSystem;
 using UnityEngine;
 using UnityEngine.InputSystem;
-
-public class PrimaryItemController : MonoBehaviour
+namespace jeanf.vrplayer
 {
-    [SerializeField] private bool useInputAction = true; 
-    [SerializeField] private InputActionReference drawPrimaryItem;
-
-    //[SerializeField] private VoidEventChannelSO _invertMouselookStateChannel;
-    [Header("Broadcasting on Channel:")]
-    [SerializeField] private BoolEventChannelSO _PrimaryItemStateChannel;
-    private bool primaryItemState = false;
-    private void OnEnable()
+    public class PrimaryItemController : MonoBehaviour
     {
-        if(useInputAction) drawPrimaryItem.action.performed += ctx=> InvertState();
-    }
+        [SerializeField] private bool useInputAction = true; 
+        [SerializeField] private InputActionReference drawPrimaryItem;
 
-    private void OnDestroy() => Unsubscribe();
-    private void OnDisable() => Unsubscribe();
+        //[SerializeField] private VoidEventChannelSO _invertMouselookStateChannel;
+        [Header("Broadcasting on Channel:")]
+        [SerializeField] private BoolEventChannelSO _PrimaryItemStateChannel;
+        private bool primaryItemState = false;
+        private void OnEnable()
+        {
+            if(useInputAction) drawPrimaryItem.action.performed += ctx=> InvertState();
+        }
 
-    private void Unsubscribe()
-    {
-        if(useInputAction) drawPrimaryItem.action.performed -= null;
-    }
+        private void OnDestroy() => Unsubscribe();
+        private void OnDisable() => Unsubscribe();
 
-    public void Reset()
-    {
-        primaryItemState = false;
-        Set(primaryItemState);
-    }
+        private void Unsubscribe()
+        {
+            if(useInputAction) drawPrimaryItem.action.performed -= null;
+        }
 
-    public void InvertState()
-    {
-        primaryItemState = !primaryItemState;
-        Set(primaryItemState);
-    }
+        public void Reset()
+        {
+            primaryItemState = false;
+            Set(primaryItemState);
+        }
 
-    private void Set(bool state)
-    {
-        _PrimaryItemStateChannel.RaiseEvent(state);
-    }
-    
-    public void UpdatePrimaryItemStateFromExternalChange(bool state)
-    {
-        primaryItemState = state;
+        public void InvertState()
+        {
+            primaryItemState = !primaryItemState;
+            Set(primaryItemState);
+        }
+
+        private void Set(bool state)
+        {
+            _PrimaryItemStateChannel.RaiseEvent(state);
+        }
+        
+        public void UpdatePrimaryItemStateFromExternalChange(bool state)
+        {
+            primaryItemState = state;
+        }
     }
 }
