@@ -43,11 +43,13 @@ namespace jeanf.vrplayer
 
         private void Awake()
         {
-            #if UNITY_PIPELINE_HDRP
+            if (GraphicsSettings.renderPipelineAsset == null) return;
+            var renderingAssetType = GraphicsSettings.renderPipelineAsset.GetType().ToString();
+            if (renderingAssetType.Contains("HDRenderPipelineAsset")) {
                 postProcessVolume.profile = HDRPVolumeProfile;
-            #elif UNITY_PIPELINE_URP
+            } else if (renderingAssetType.Contains("UniversalRenderPipelineAsset")) {
                 postProcessVolume.profile = URPVolumeProfile;
-            #endif
+            }
             staticPostProcessVolume = postProcessVolume;
             FadeValue(false, .5f);
         }
