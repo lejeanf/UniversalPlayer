@@ -130,7 +130,7 @@ MonoBehaviour:
   mouseSensitivity: 2
   mouseXY: {fileID: -7474146709482753281, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
-  camera: {fileID: 0}
+  playerCamera: {fileID: 0}
   cameraOffset: {fileID: 7264267533532500776}
   _isHmdActive: 0
   min: -60
@@ -531,7 +531,7 @@ MonoBehaviour:
   _isDebug: 0
   layerMask:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 0
   takeAction: {fileID: 562945156622505213, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   maxDistanceCheck: 1.5
@@ -1020,7 +1020,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 4935331013338665783}
   m_Father: {fileID: 7264267533721849609}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1036,10 +1037,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2757314de84e135479f8049b398cb2d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isDebug: 1
+  _isDebug: 0
   collisionLayer:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 0
   sphereCheckSize: 0.15
   isSceneLoading: 0
 --- !u!114 &7491902866069632838
@@ -1445,10 +1446,10 @@ MonoBehaviour:
   m_PositionInput:
     m_UseReference: 1
     m_Action:
-      m_Name: Position Input
+      m_Name: 
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: f8277e89-eb90-4cd2-909a-174d39fbf1d3
+      m_Id: 
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -1458,10 +1459,10 @@ MonoBehaviour:
   m_RotationInput:
     m_UseReference: 1
     m_Action:
-      m_Name: Rotation Input
+      m_Name: 
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: ac537ea7-ea86-4f57-af1c-286a5b81dde3
+      m_Id: 
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -1572,6 +1573,104 @@ Transform:
   m_Father: {fileID: 2423214379621556911}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6257423915777697682
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4935331013338665783}
+  - component: {fileID: 1989632603716548249}
+  - component: {fileID: 8755935149309269784}
+  - component: {fileID: 3359612486687220250}
+  m_Layer: 0
+  m_Name: FadeGlobalVolume
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4935331013338665783
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6257423915777697682}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2969270201452490162}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1989632603716548249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6257423915777697682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IsGlobal: 0
+  priority: 0
+  blendDistance: 0
+  weight: 0
+  sharedProfile: {fileID: 11400000, guid: ab06ed5ee4fe73548b3c4829b155a02d, type: 2}
+--- !u!114 &8755935149309269784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6257423915777697682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12c6a802e6d59184b8cf4723661dfc95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _isDebug: 0
+  checkForDebugChangeState: 0
+  inputBinding:
+    m_Name: Input Binding
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 28a25623-80ed-4c15-b352-b8b07f838219
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  HDRPVolumeProfile: {fileID: 11400000, guid: ebc5f30c794e40c45a699e74a1b1d92f, type: 2}
+  URPVolumeProfile: {fileID: 11400000, guid: ab06ed5ee4fe73548b3c4829b155a02d, type: 2}
+  postProcessVolume: {fileID: 1989632603716548249}
+--- !u!135 &3359612486687220250
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6257423915777697682}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6485358544041231287
 GameObject:
   m_ObjectHideFlags: 0
@@ -1936,6 +2035,7 @@ GameObject:
   - component: {fileID: 7264267533721849609}
   - component: {fileID: 7264267533721849614}
   - component: {fileID: 3652687777324193000}
+  - component: {fileID: 4918474635368940506}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -2072,6 +2172,18 @@ MonoBehaviour:
       m_Flags: 0
     m_Flags: 0
   m_HasMigratedActions: 1
+--- !u!114 &4918474635368940506
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7264267533721849610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7331cdce5df026a46af41d7397e2bbf2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7477736644872530421
 GameObject:
   m_ObjectHideFlags: 0
@@ -2184,10 +2296,10 @@ MonoBehaviour:
   m_PositionInput:
     m_UseReference: 1
     m_Action:
-      m_Name: Position Input
+      m_Name: 
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: ca01fc97-0e39-4036-b931-98dfbffd202d
+      m_Id: 
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -2197,10 +2309,10 @@ MonoBehaviour:
   m_RotationInput:
     m_UseReference: 1
     m_Action:
-      m_Name: Rotation Input
+      m_Name: 
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: 5a3ee5b1-dfd9-4e4b-8ba9-f45db67beb28
+      m_Id: 
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
