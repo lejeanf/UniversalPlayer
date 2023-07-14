@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Codice.CM.Common;
 using jeanf.EventSystem;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
+using Debug = UnityEngine.Debug;
 
 namespace jeanf.vrplayer
 {
@@ -15,13 +18,16 @@ namespace jeanf.vrplayer
         [SerializeField] private InputActionReference drawPrimaryItem_RightHand;
 
         [Header("Hands Information")]
-        [SerializeField] private Transform leftHand;
-        [SerializeField] private Transform rightHand;
-        [SerializeField] private Pose ipadPose;
+        private Transform _leftHand, _rightHand;
+        private HandPoseManager _leftHandPoseManager, _rightHandPoseManager;
+        [SerializeField] private Pose primaryItemPose;
         
         [Header("PrimaryItem")] 
         public Transform primaryItem;
         [SerializeField] private BoolEventChannelSO _PrimaryItemStateChannel;
+        
+        
+        [SerializeField] private List<SkinnedMeshRenderer> _hands = new List<SkinnedMeshRenderer>();
 
         private enum IpadState
         {
@@ -32,10 +38,14 @@ namespace jeanf.vrplayer
 
         private IpadState _ipadState = IpadState.Disabled;
 
+
         private void OnEnable()
         {
-            drawPrimaryItem_LeftHand.action.performed += ctx=> SetIpadStateForLeftHand(ipadPose.leftHandInfo);
-            drawPrimaryItem_RightHand.action.performed += ctx=> SetIpadStateForRightHand(ipadPose.rightHandInfo);
+            BlendableHand.AddHand += AddHand;
+            BlendableHand.RemoveHand += RemoveHand;
+            
+            drawPrimaryItem_LeftHand.action.performed += ctx=> SetIpadStateForLeftHand(primaryItemPose.leftHandInfo);
+            drawPrimaryItem_RightHand.action.performed += ctx=> SetIpadStateForRightHand(primaryItemPose.rightHandInfo);
         }
 
         private void OnDestroy() => Unsubscribe();
@@ -43,37 +53,81 @@ namespace jeanf.vrplayer
 
         private void Unsubscribe()
         {
+            _hands.Clear();
+            _hands.TrimExcess();
+            
+            BlendableHand.AddHand -= null;
+            BlendableHand.RemoveHand -= null;
             drawPrimaryItem_LeftHand.action.performed -= null;
             drawPrimaryItem_RightHand.action.performed -= null;
         }
+        
+        private void AddHand(SkinnedMeshRenderer hand)
+        {
+            if (_hands.Contains(hand)) return;
+            _hands.Add(hand);
+            var handPoseManager = hand.transform.parent.transform.parent.GetComponent<HandPoseManager>();
+            var handType = handPoseManager.HandType;
+            Debug.Log($"handType {handType}");
+            Debug.Log($"handPoseManager {handPoseManager.HandType}");
+            switch (handType)
+            {
+                case HandType.Left:
+                    _leftHand = hand.gameObject.transform;
+                    _leftHandPoseManager = handPoseManager;
+                    break;
+                case HandType.Right:
+                    _rightHand = hand.gameObject.transform;
+                    _rightHandPoseManager = handPoseManager;
+                    break;
+                case HandType.None:
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+        private void RemoveHand(SkinnedMeshRenderer hand)
+        {
+            if(_hands.Count > 0 && _hands.Contains(hand)) _hands.Remove(hand);
+            _leftHand = null;
+            _rightHand = null;
+            _leftHandPoseManager = null;
+            _rightHandPoseManager = null;
+        }
+
 
 
         public void SetIpadStateForLeftHand(HandInfo handInfo)
         {
             if (_ipadState is IpadState.Disabled or IpadState.InRightHand)
             {
-                SetIpadStateForASpecificHand(handInfo, leftHand);
+                SetIpadStateForASpecificHand(handInfo, _leftHand);
                 _ipadState = IpadState.InLeftHand;
                 _PrimaryItemStateChannel.RaiseEvent(true);
+                if(_rightHandPoseManager) _leftHandPoseManager.ApplyPose(primaryItemPose);
+                if(_leftHandPoseManager) _rightHandPoseManager.ApplyDefaultPose();
             }
             else
             {
                 _ipadState = IpadState.Disabled;
                 _PrimaryItemStateChannel.RaiseEvent(false);
+                if(_leftHandPoseManager) _leftHandPoseManager.ApplyDefaultPose();
             }
         }
         public void SetIpadStateForRightHand(HandInfo handInfo)
         {
             if (_ipadState is IpadState.Disabled or IpadState.InLeftHand)
             {
-                SetIpadStateForASpecificHand(handInfo, rightHand);
+                SetIpadStateForASpecificHand(handInfo, _rightHand);
                 _ipadState = IpadState.InRightHand;
                 _PrimaryItemStateChannel.RaiseEvent(true);
+                if(_rightHandPoseManager) _rightHandPoseManager.ApplyPose(primaryItemPose);
+                if(_leftHandPoseManager) _leftHandPoseManager.ApplyDefaultPose();
             }
             else
             {
                 _ipadState = IpadState.Disabled;
                 _PrimaryItemStateChannel.RaiseEvent(false);
+                if(_rightHandPoseManager) _rightHandPoseManager.ApplyDefaultPose();
             }
         }
         public void SetIpadStateForASpecificHand(HandInfo handInfo, Transform parent)
