@@ -21,7 +21,8 @@ namespace jeanf.vrplayer
         [SerializeField] private InputActionReference mouseXY;
         private static bool _canLook = true;
         [Space(10)]
-        [SerializeField] Camera camera;
+        [SerializeField]
+        public Camera playerCamera;
         [SerializeField] Transform cameraOffset;
         private Transform _originalCameraOffset;
         [SerializeField] private bool _isHmdActive = false;
@@ -60,7 +61,7 @@ namespace jeanf.vrplayer
         public void ResetCameraSettings()
         {
             if(!BroadcastHmdStatus.hmdCurrentState) SetMouseState(true);
-            camera.fieldOfView = 60f;
+            playerCamera.fieldOfView = 60f;
             _rotation = Vector2.zero;
             cameraOffset.localPosition = _originalCameraOffset.localPosition;
             cameraOffset.localRotation = _originalCameraOffset.localRotation;
