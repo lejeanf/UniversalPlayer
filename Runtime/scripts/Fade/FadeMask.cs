@@ -47,6 +47,7 @@ namespace jeanf.vrplayer
             var renderingAssetType = GraphicsSettings.renderPipelineAsset.GetType().ToString();
             if (renderingAssetType.Contains("HDRenderPipelineAsset")) {
                 postProcessVolume.profile = HDRPVolumeProfile;
+                postProcessVolume.blendDistance = 10.0f;
             } else if (renderingAssetType.Contains("UniversalRenderPipelineAsset")) {
                 postProcessVolume.profile = URPVolumeProfile;
             }

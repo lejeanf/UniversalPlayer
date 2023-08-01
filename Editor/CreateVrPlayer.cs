@@ -6,8 +6,12 @@ namespace jeanf.vrplayer {
     public class CreateVrPlayer : MonoBehaviour
     {
         [MenuItem("GameObject/VR Player")]
-        private static void createVrPlayer() {
-            GameObject prefab = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<Object>("Packages/fr.jeanf.vr.player/Runtime/Prefabs/Player.prefab"));
+        private static void createVrPlayer()
+        {
+            var playerInPackage = AssetDatabase.LoadAssetAtPath<Object>("Packages/fr.jeanf.vr.player/Runtime/Prefabs/Player.prefab");
+            var playerInPackageBuilder = AssetDatabase.LoadAssetAtPath<Object>("Assets/VR_Player/Runtime/Prefabs/Player.prefab");
+            var playerPrefab = playerInPackage == null ? playerInPackageBuilder : playerInPackage;
+            var prefab = (GameObject)PrefabUtility.InstantiatePrefab(playerPrefab);
             if(Selection.activeTransform != null)
             {
                 prefab.transform.SetParent(Selection.activeTransform, false);

@@ -56,7 +56,7 @@ namespace jeanf.vrplayer
             _teleportChannel.RaiseEvent(teleportInformation);
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         [DrawGizmo(GizmoType.Pickable)]
         private void OnDrawGizmos()
         {
