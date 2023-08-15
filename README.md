@@ -14,16 +14,24 @@ Features:
 - Mouse and keyboard works as well as VR (all headset) although there is sometimes a bug when returning ot MK after using VR.
 
 
-
+------------------------------------------------------------------------------------------------------
+Compatibility:
+- URP
+- HDRP
+- Unity 2022.3.3f1 and above.
 
 
 ------------------------------------------------------------------------------------------------------
-to add this package in unity's package manager:
+How to install the package:
 - add new scopedRegisteries in ProjectSettings/Package manager
 - name: jeanf
 - url: https://registry.npmjs.com
 - scope fr.jeanf
 
+------------------------------------------------------------------------------------------------------
+How to get started:
+- In a scene project's hiearchy: Right click > Create VR Player . This will create a player for your current rendering pipeline and add and bind the camera to the necessary scripts.
+- It might be a good idea to make local "events" and bind it tho the scripts as to avoid issues with furute updates if you modify the player, for this you can just copy the events in the pacakge to your local project.
 
 
 ------------------------------------------------------------------------------------------------------

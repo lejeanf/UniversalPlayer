@@ -5,7 +5,7 @@ using Unity.XR.CoreUtils;
 namespace jeanf.vrplayer {
     public class CreateVrPlayer : MonoBehaviour
     {
-        [MenuItem("GameObject/VR Player")]
+        [MenuItem("GameObject/Create VR Player")]
         private static void createVrPlayer()
         {
             var playerInPackage = AssetDatabase.LoadAssetAtPath<Object>("Packages/fr.jeanf.vr.player/Runtime/Prefabs/Player.prefab");
@@ -27,6 +27,9 @@ namespace jeanf.vrplayer {
             var mainCameraTarget = prefab.GetComponentInChildren<MainCameraTarget>().gameObject;
             var cameraComponent = mainCameraTarget.AddComponent<Camera>();
             cameraComponent.nearClipPlane = 0.1f;
+
+            var mouseLook = prefab.GetComponentInChildren<MouseLook>();
+            mouseLook.playerCamera = cameraComponent;
 
             DestroyImmediate(prefab.GetComponentInChildren<MainCameraTarget>());
 
