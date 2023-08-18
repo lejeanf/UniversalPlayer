@@ -56,10 +56,12 @@ public abstract class BaseHand : MonoBehaviour
 
     public void ApplyPose(Pose pose)
     {
+        if (pose == null) return;
         // Get the proper info using hand's type
         HandInfo handInfo = pose.GetHandInfo(handType);
 
         // Apply rotations 
+        if (handInfo == null) return;
         ApplyFingerRotations(handInfo.fingerRotations);
 
         // Position, and rotate, this differs on the type of hand
@@ -67,10 +69,12 @@ public abstract class BaseHand : MonoBehaviour
     }
     public void ApplyPoseForSetup(Pose pose)
     {
+        if (pose == null) return;
         // Get the proper info using hand's type
         HandInfo handInfo = pose.GetHandInfo(handType);
 
         // Apply rotations 
+        if (handInfo == null) return;
         ApplyFingerRotations(handInfo.fingerRotations);
 
         // Position, and rotate, this differs on the type of hand

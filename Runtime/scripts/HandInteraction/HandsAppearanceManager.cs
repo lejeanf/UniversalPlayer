@@ -157,7 +157,16 @@ namespace jeanf.vrplayer
 
         public void SetUpdateState(bool updateState)
         {
+            SetHandsVisibility(updateState);
             canUpdate = updateState;
+        }
+
+        public void SetHandsVisibility(bool state)
+        {
+            foreach (var hand in _hands)
+            {
+                hand.enabled = state;
+            }
         }
     }
 }
