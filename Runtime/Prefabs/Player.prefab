@@ -504,7 +504,6 @@ GameObject:
   - component: {fileID: 8394116557782897441}
   - component: {fileID: 6444868254256545449}
   - component: {fileID: 5620139168628689739}
-  - component: {fileID: 7069242852731135925}
   m_Layer: 0
   m_Name: InteractionManager
   m_TagString: Untagged
@@ -555,32 +554,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_ActionAssets:
   - {fileID: -944628639613478452, guid: 110d9016d6486d84697b9d7a66a57d45, type: 3}
---- !u!114 &7069242852731135925
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1241713917107224982}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a85ac7aafd8c6ca42b1d7389a069a1e2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _isDebug: 0
-  takeAction: {fileID: 562945156622505213, guid: 110d9016d6486d84697b9d7a66a57d45,
-    type: 3}
-  scrollAction: {fileID: -5729134651079810961, guid: 110d9016d6486d84697b9d7a66a57d45,
-    type: 3}
-  layerMask:
-    serializedVersion: 2
-    m_Bits: 64
-  _takeStyle: 1
-  advancedSettings: 0
-  minDistance: 0.5
-  maxDistance: 1.25
-  scrollStep: 0.001
-  maxDistanceCheck: 1.5
 --- !u!1 &1276718794057257641
 GameObject:
   m_ObjectHideFlags: 0
@@ -1283,8 +1256,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   continuousMoveStateChannel: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6,
-    type: 2}
-  teleportationMoveStateChannel: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6,
     type: 2}
   invertInputValue: 1
 --- !u!1 &4568312785888129817
@@ -2777,6 +2748,8 @@ MonoBehaviour:
   darkSkinColor: {r: 0.23584908, g: 0.1764706, b: 0.15294118, a: 1}
   gloveValue: 0
   isGlove: 0
+  isHandVisible: 0
+  lastHandVisibility: 0
   shiftTypeHandAction: {fileID: 7201714218075579698, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   canUpdate: 0

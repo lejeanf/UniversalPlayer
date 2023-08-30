@@ -27,6 +27,8 @@ namespace jeanf.vrplayer
         [SerializeField] private float gloveValue = 1.0f;
 
         [SerializeField] private bool isGlove = false;
+        [SerializeField] private bool isHandVisible = true;
+        [SerializeField] private bool lastHandVisibility = true;
 
         private float tolerance = 0.01f;
 
@@ -56,6 +58,7 @@ namespace jeanf.vrplayer
             {
                 _hands.Add(hand);
                 SetGender(_hands, gender);
+                SetHandsVisibility(isHandVisible);
             }
 
         }
@@ -80,8 +83,10 @@ namespace jeanf.vrplayer
             _blendValue = gender ? 100f : 0f;
         }
 
+
         private void Update()
         {
+            if(lastHandVisibility != isHandVisible) SetHandsVisibility(isHandVisible);
             if(!canUpdate)return;
             //SetBlendValueFromGender(gender);
             SetHandMaterials(_hands, gender * 0.01f);
@@ -157,7 +162,7 @@ namespace jeanf.vrplayer
 
         public void SetUpdateState(bool updateState)
         {
-            SetHandsVisibility(updateState);
+            isHandVisible = updateState;
             canUpdate = updateState;
         }
 
@@ -167,6 +172,8 @@ namespace jeanf.vrplayer
             {
                 hand.enabled = state;
             }
+
+            lastHandVisibility = state;
         }
     }
 }

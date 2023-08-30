@@ -372,7 +372,7 @@ Material:
     - _SurfaceType: 0
     - _Switch_Gloves: 0
     - _Switch_Gloves1: 0
-    - _Switch_Woman: 0
+    - _Switch_Woman: 1
     - _Switch_Woman1: 0
     - _TexWorldScale: 1
     - _TexWorldScaleEmissive: 1

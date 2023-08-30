@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using jeanf.EventSystem;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(ContinuousMoveProviderBase))]
@@ -11,22 +12,24 @@ public class LocomotionManager : MonoBehaviour
 {
     [Header("Listening on:")]
     [SerializeField] private BoolEventChannelSO continuousMoveStateChannel;
-    [SerializeField] private BoolEventChannelSO teleportationMoveStateChannel;
 
     [SerializeField] private bool invertInputValue = true;
-    private ContinuousMoveProviderBase _continuousMoveProvider;
-    private TeleportationProvider _teleportationProvider;
+    private ActionBasedContinuousMoveProvider _continuousMoveProvider;
+    private LocomotionSystem _locomotionSystem;
+    
+    
+    private InputActionReference _continuousMoveInputReference;
 
     private void Awake()
     {
-        _continuousMoveProvider = GetComponent<ContinuousMoveProviderBase>();
-        _teleportationProvider = GetComponent<TeleportationProvider>();
+        _continuousMoveProvider = GetComponent<ActionBasedContinuousMoveProvider>();
+        
+        SetContinuousMoveInputReference();
     }
 
     private void OnEnable()
     {
         continuousMoveStateChannel.OnEventRaised += SetContiuousMoveState;
-        teleportationMoveStateChannel.OnEventRaised += SetTeleportationsMoveState;
     }
 
     private void OnDisable() => Unsubscribe();
@@ -35,19 +38,23 @@ public class LocomotionManager : MonoBehaviour
     private void Unsubscribe()
     {
         continuousMoveStateChannel.OnEventRaised -= null;
-        teleportationMoveStateChannel.OnEventRaised -= null;
     }
 
     private void SetContiuousMoveState(bool state)
     {
         if (invertInputValue) state = !state;
-        _continuousMoveProvider.CancelInvoke();    
+        if (state) SetContinuousMoveInputReference();
         _continuousMoveProvider.enabled = state;
     }
-    private void SetTeleportationsMoveState(bool state)
+    private void SetContinuousMoveInputReference()
     {
-        if (invertInputValue) state = !state;
-        _teleportationProvider.CancelInvoke();   
-        _teleportationProvider.enabled = state;
+        if(_continuousMoveProvider.leftHandMoveAction.reference != null)
+        {
+            _continuousMoveInputReference = _continuousMoveProvider.leftHandMoveAction.reference;
+        }
+        else
+        {
+            Debug.Log("No Continuous Move Provider Input Action was found on the Left Hand. Please set it on your  Left hand Move Action found on the Continuous Move Provider use the Locomotion Manager");
+        }
     }
 }
