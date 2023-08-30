@@ -8,8 +8,15 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(ContinuousMoveProviderBase))]
 [RequireComponent(typeof(TeleportationProvider))]
-public class LocomotionManager : MonoBehaviour
+public class LocomotionManager : MonoBehaviour, IDebugBehaviour
 {
+    public bool isDebug
+    { 
+        get => _isDebug;
+        set => _isDebug = value; 
+    }
+    [SerializeField] private bool _isDebug = false;
+    
     [Header("Listening on:")]
     [SerializeField] private BoolEventChannelSO continuousMoveStateChannel;
 
@@ -43,18 +50,21 @@ public class LocomotionManager : MonoBehaviour
     private void SetContiuousMoveState(bool state)
     {
         if (invertInputValue) state = !state;
-        if (state) SetContinuousMoveInputReference();
+        if (state == true) SetContinuousMoveInputReference();
         _continuousMoveProvider.enabled = state;
+        if(isDebug) Debug.Log($"_continuousMoveProvider state: {state}");
     }
     private void SetContinuousMoveInputReference()
     {
         if(_continuousMoveProvider.leftHandMoveAction.reference != null)
         {
+            if(isDebug) Debug.Log("Re-assigning input reference");
+
             _continuousMoveInputReference = _continuousMoveProvider.leftHandMoveAction.reference;
         }
         else
         {
-            Debug.Log("No Continuous Move Provider Input Action was found on the Left Hand. Please set it on your  Left hand Move Action found on the Continuous Move Provider use the Locomotion Manager");
+            if(isDebug) Debug.Log("No Continuous Move Provider Input Action was found on the Left Hand. Please set it on your  Left hand Move Action found on the Continuous Move Provider use the Locomotion Manager");
         }
     }
 }
