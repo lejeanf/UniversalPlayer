@@ -1115,6 +1115,7 @@ GameObject:
   - component: {fileID: 7599293053117974697}
   - component: {fileID: 77702643294028684}
   - component: {fileID: 3787747753465050079}
+  - component: {fileID: 4184769348366918061}
   m_Layer: 0
   m_Name: Locomotion
   m_TagString: Untagged
@@ -1269,6 +1270,23 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: -8198699208435500284, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+--- !u!114 &4184769348366918061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4461274153183352764}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d889ad02dbd7ade468abae0cf627db48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  continuousMoveStateChannel: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6,
+    type: 2}
+  teleportationMoveStateChannel: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6,
+    type: 2}
+  invertInputValue: 1
 --- !u!1 &4568312785888129817
 GameObject:
   m_ObjectHideFlags: 0
