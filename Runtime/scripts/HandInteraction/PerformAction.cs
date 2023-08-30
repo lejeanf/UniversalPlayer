@@ -55,7 +55,7 @@ public class PerformAction : MonoBehaviour, IDebugBehaviour
         if (hit.transform.gameObject == objectToInteractWith)
         {
             if (_isDebug) Debug.Log($"it's a match! lets act");
-            actionMade.RaiseEvent(hit.transform);
+            if(actionMade) actionMade.RaiseEvent(hit.transform);
         }
     }
 }

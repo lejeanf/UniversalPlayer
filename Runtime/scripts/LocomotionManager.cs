@@ -21,11 +21,8 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour
     [SerializeField] private BoolEventChannelSO continuousMoveStateChannel;
 
     [SerializeField] private bool invertInputValue = true;
-    private ActionBasedContinuousMoveProvider _continuousMoveProvider;
-    private LocomotionSystem _locomotionSystem;
-    
-    
-    private InputActionReference _continuousMoveInputReference;
+    [SerializeField] private ActionBasedContinuousMoveProvider _continuousMoveProvider;
+    [SerializeField] private InputActionReference _continuousMoveInputReference;
 
     private void Awake()
     {
@@ -50,7 +47,8 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour
     private void SetContiuousMoveState(bool state)
     {
         if (invertInputValue) state = !state;
-        if (state == true) SetContinuousMoveInputReference();
+        if (state) SetContinuousMoveInputReference();
+
         _continuousMoveProvider.enabled = state;
         if(isDebug) Debug.Log($"_continuousMoveProvider state: {state}");
     }
@@ -58,13 +56,15 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour
     {
         if(_continuousMoveProvider.leftHandMoveAction.reference != null)
         {
-            if(isDebug) Debug.Log("Re-assigning input reference");
+            if(isDebug) Debug.Log($"Re-assigning input reference {_continuousMoveProvider.leftHandMoveAction.reference.name}");
 
             _continuousMoveInputReference = _continuousMoveProvider.leftHandMoveAction.reference;
+            
         }
         else
         {
             if(isDebug) Debug.Log("No Continuous Move Provider Input Action was found on the Left Hand. Please set it on your  Left hand Move Action found on the Continuous Move Provider use the Locomotion Manager");
         }
+        _continuousMoveProvider.leftHandMoveAction = new InputActionProperty(_continuousMoveInputReference);
     }
 }
