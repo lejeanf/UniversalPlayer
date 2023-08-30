@@ -21,8 +21,8 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour
     [SerializeField] private BoolEventChannelSO continuousMoveStateChannel;
 
     [SerializeField] private bool invertInputValue = true;
-    [SerializeField] private ActionBasedContinuousMoveProvider _continuousMoveProvider;
-    [SerializeField] private InputActionReference _continuousMoveInputReference;
+    private ActionBasedContinuousMoveProvider _continuousMoveProvider;
+    private InputActionReference _continuousMoveInputReference;
 
     private void Awake()
     {
@@ -44,7 +44,7 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour
         continuousMoveStateChannel.OnEventRaised -= null;
     }
 
-    private void SetContiuousMoveState(bool state)
+    public void SetContiuousMoveState(bool state)
     {
         if (invertInputValue) state = !state;
         if (state) SetContinuousMoveInputReference();
