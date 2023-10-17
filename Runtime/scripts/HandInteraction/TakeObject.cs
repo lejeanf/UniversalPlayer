@@ -160,7 +160,7 @@ namespace jeanf.vrplayer
             _currentObjectHeld = null;
             _currentObjectHeldRb = null;
             
-            releaseObject.RaiseEvent();
+            if (releaseObject != null) releaseObject.RaiseEvent();
         }
 
         private void ReleaseHold()
