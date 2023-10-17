@@ -12,6 +12,8 @@ namespace jeanf.vrplayer
 {
     public class TakeObject : MonoBehaviour, IDebugBehaviour
     {
+        public VoidEventChannelSO releaseObject;
+        
         public bool isDebug
         { 
             get => _isDebug;
@@ -157,6 +159,8 @@ namespace jeanf.vrplayer
                 
             _currentObjectHeld = null;
             _currentObjectHeldRb = null;
+            
+            releaseObject.RaiseEvent();
         }
 
         private void ReleaseHold()
