@@ -16,11 +16,11 @@ namespace jeanf.vrplayer
         [SerializeField] private List<SkinnedMeshRenderer> _hands = new List<SkinnedMeshRenderer>();
         private float _blendValue = 100.0f;
         [Range(0,100)]
-        [SerializeField] private float gender = 100.0f;
+        public float gender = 100.0f;
         [Range(0,100)]
-        [SerializeField] private float bodyMass = 100.0f;
+        public float bodyMass = 100.0f;
         [Range(0,1)]
-        [SerializeField] private float skinDarkness = 1.0f;
+        public float skinDarkness = 1.0f;
         [SerializeField] private Color lightSkinColor;
         [SerializeField] private Color darkSkinColor;
         [Range(0,1)]
