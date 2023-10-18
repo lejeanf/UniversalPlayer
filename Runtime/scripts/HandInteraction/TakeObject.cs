@@ -12,8 +12,6 @@ namespace jeanf.vrplayer
 {
     public class TakeObject : MonoBehaviour, IDebugBehaviour
     {
-        public VoidEventChannelSO releaseObject;
-        
         public bool isDebug
         { 
             get => _isDebug;
@@ -56,6 +54,11 @@ namespace jeanf.vrplayer
         private bool _gravityBeforeGrab;
         private float _dragBeforeGrab;
         private float _angularDragBeforeGrab;
+        
+        //Reset position on release
+        public bool resetPositionOnRelease = false;
+        [SerializeField] [ReadOnly] private Vector3 initialPos;
+        [SerializeField] [ReadOnly] private Quaternion initialRot;
 
         [Space(20)]
         private bool holdState = false;
@@ -63,6 +66,8 @@ namespace jeanf.vrplayer
         private void Awake()
         {
             if (!cameraTransform) cameraTransform = Camera.main.transform;
+            initialPos = gameObject.transform.position;
+            initialRot = gameObject.transform.rotation;
         }
 
         private void OnEnable()
@@ -152,6 +157,13 @@ namespace jeanf.vrplayer
             if(BroadcastHmdStatus.hmdCurrentState) return;
             if (!_currentObjectHeld) return;
             
+            if (resetPositionOnRelease)
+            {
+                if(_isDebug) Debug.Log("Reset position");
+                _currentObjectHeld.transform.DOMove(initialPos, .05f, false);
+                _currentObjectHeld.transform.DORotateQuaternion(initialRot, .05f);
+            }
+
             _currentObjectHeldRb.useGravity = _gravityBeforeGrab;
             _currentObjectHeldRb.drag = _dragBeforeGrab;
             _currentObjectHeldRb.angularDrag = _angularDragBeforeGrab;
@@ -159,8 +171,6 @@ namespace jeanf.vrplayer
                 
             _currentObjectHeld = null;
             _currentObjectHeldRb = null;
-            
-            if (releaseObject != null) releaseObject.RaiseEvent();
         }
 
         private void ReleaseHold()
