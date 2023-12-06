@@ -9,12 +9,14 @@ namespace jeanf.vrplayer
         [SerializeField] private InputActionReference drawPrimaryItem;
 
         //[SerializeField] private VoidEventChannelSO _invertMouselookStateChannel;
-        [Header("Broadcasting on Channel:")]
+        [Header("Listening on:")]
         [SerializeField] private BoolEventChannelSO _PrimaryItemStateChannel;
         private bool primaryItemState = false;
         private void OnEnable()
         {
             if(useInputAction) drawPrimaryItem.action.performed += ctx=> InvertState();
+            _PrimaryItemStateChannel.OnEventRaised += SetPrimaryItemState;
+
         }
 
         private void OnDestroy() => Unsubscribe();
@@ -22,27 +24,23 @@ namespace jeanf.vrplayer
 
         private void Unsubscribe()
         {
-            if(useInputAction) drawPrimaryItem.action.performed -= null;
+            if(useInputAction) drawPrimaryItem.action.performed -= ctx=> InvertState();
+            _PrimaryItemStateChannel.OnEventRaised -= SetPrimaryItemState;
         }
 
         public void Reset()
         {
             primaryItemState = false;
-            Set(primaryItemState);
+            SetPrimaryItemState(primaryItemState);
         }
 
         public void InvertState()
         {
             primaryItemState = !primaryItemState;
-            Set(primaryItemState);
+            SetPrimaryItemState(primaryItemState);
         }
 
-        private void Set(bool state)
-        {
-            _PrimaryItemStateChannel.RaiseEvent(state);
-        }
-        
-        public void UpdatePrimaryItemStateFromExternalChange(bool state)
+        private void SetPrimaryItemState(bool state)
         {
             primaryItemState = state;
         }

@@ -38,11 +38,33 @@ namespace jeanf.vrplayer
         //[SerializeField] private VoidEventChannelSO _invertPrimaryItemStateChannel;
         */
 
+        [Header("Listening on:")] 
+        [SerializeField] private BoolEventChannelSO mouselookStateChannel;
+        [SerializeField] private VoidEventChannelSO mouselookCameraReset;
+        [SerializeField] private TeleportEventChannelSO teleportEventChannel;
+
         private void Awake()
         {
             _originalCameraOffset = cameraOffset;
             //_useInputAction = useInputAction;
             Init();
+        }
+
+        private void OnEnable()
+        {
+            mouselookStateChannel.OnEventRaised += SetMouseState;
+            mouselookCameraReset.OnEventRaised += ResetCameraSettings;
+            teleportEventChannel.OnEventRaised += _ => ResetCameraSettings();
+        }
+
+        private void OnDisable() => Unsubscribe();
+        private void OnDestroy() => Unsubscribe();
+
+        private void Unsubscribe()
+        {
+            mouselookStateChannel.OnEventRaised -= SetMouseState;
+            mouselookCameraReset.OnEventRaised -= ResetCameraSettings;
+            teleportEventChannel.OnEventRaised -= _ => ResetCameraSettings();
         }
         private void Update()
         {

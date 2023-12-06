@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using DG.Tweening;
+using jeanf.EventSystem;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 
@@ -12,8 +13,9 @@ namespace jeanf.vrplayer
     public class HandsAppearanceManager : MonoBehaviour
     {
         [SerializeField] private bool isDebug = false;
+        
+        [Header("Settings")]
         [SerializeField] private float blendTime = 1.0f;
-        [SerializeField] private List<SkinnedMeshRenderer> _hands = new List<SkinnedMeshRenderer>();
         private float _blendValue = 100.0f;
         [Range(0,100)]
         [SerializeField] private float gender = 100.0f;
@@ -43,13 +45,19 @@ namespace jeanf.vrplayer
         [SerializeField] private Color darkSkinColor;
         [Range(0,1)]
         [SerializeField] private float gloveValue = 1.0f;
+        
+        [Header("Hands detected")]
+        [SerializeField] private List<SkinnedMeshRenderer> _hands = new List<SkinnedMeshRenderer>();
 
-        [SerializeField] private bool isGlove = false;
-        [SerializeField] private bool isHandVisible = true;
-        [SerializeField] private bool lastHandVisibility = true;
+        [Header("States")]
+        [ReadOnly] [SerializeField] private bool isGlove = false;
+        [ReadOnly] [SerializeField] private bool isHandVisible = true;
+        [ReadOnly] [SerializeField] private bool lastHandVisibility = true;
+        [ReadOnly] [SerializeField] private bool canUpdate = false;
 
         private float tolerance = 0.01f;
 
+        [Header("Action binding")]
         [SerializeField] private InputActionReference shiftTypeHandAction;
         
         //[SerializeField] private Material skin;
@@ -62,14 +70,45 @@ namespace jeanf.vrplayer
         //[Range(0,100)]
         //[SerializeField] private float nailDarkness = 10f;
 
-        [SerializeField] private bool canUpdate = false;
+
+        [Header("Listening on:")]
+        [SerializeField] private BoolEventChannelSO gloveStateChannel;
+
+        [SerializeField] private BoolEventChannelSO hmdStateChannel;
         private void OnEnable()
         {
             BlendableHand.AddHand += AddHand;
             BlendableHand.RemoveHand += RemoveHand;
+            gloveStateChannel.OnEventRaised += SetGloveState;
+            hmdStateChannel.OnEventRaised += SetUpdateState;
+        }
+
+        private void OnDisable() => Unsubscribe();
+        private void OnDestroy() => Unsubscribe();
+
+        private void Unsubscribe()
+        {
+            _hands.Clear();
+            _hands.TrimExcess();
+            BlendableHand.AddHand -= AddHand;
+            BlendableHand.RemoveHand -= RemoveHand;
+            gloveStateChannel.OnEventRaised -= SetGloveState;
+            hmdStateChannel.OnEventRaised -= SetUpdateState;
         }
 
 
+
+        private void Update()
+        {
+            if(lastHandVisibility != isHandVisible) SetHandsVisibility(isHandVisible);
+            if(!canUpdate)return;
+            //SetBlendValueFromGender(gender);
+            SetHandMaterials(_hands, gender * 0.01f);
+            SetGloveValue(_hands, gloveValue);
+            SetGender(_hands, gender);
+            SetBodyMass(_hands, bodyMass);
+            SetSkinDarkness(_hands, skinDarkness);
+        }
         private void AddHand(SkinnedMeshRenderer hand)
         {
             if (!_hands.Contains(hand))
@@ -85,34 +124,12 @@ namespace jeanf.vrplayer
             if(_hands.Count > 0 && _hands.Contains(hand)) _hands.Remove(hand);
         }
 
-        private void OnDisable() => Unsubscribe();
-        private void OnDestroy() => Unsubscribe();
-
-        private void Unsubscribe()
-        {
-            _hands.Clear();
-            _hands.TrimExcess();
-            
-            BlendableHand.AddHand -= null;
-            BlendableHand.RemoveHand -= null;
-        }
+        
         private void SetBlendValueFromGender(bool gender)
         {
             _blendValue = gender ? 100f : 0f;
         }
 
-
-        private void Update()
-        {
-            if(lastHandVisibility != isHandVisible) SetHandsVisibility(isHandVisible);
-            if(!canUpdate)return;
-            //SetBlendValueFromGender(gender);
-            SetHandMaterials(_hands, gender * 0.01f);
-            SetGloveValue(_hands, gloveValue);
-            SetGender(_hands, gender);
-            SetBodyMass(_hands, bodyMass);
-            SetSkinDarkness(_hands, skinDarkness);
-        }
         
         private void SetGender(List<SkinnedMeshRenderer> hands, float value)
         {

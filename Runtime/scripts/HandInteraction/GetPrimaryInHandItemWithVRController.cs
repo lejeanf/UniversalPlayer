@@ -7,8 +7,14 @@ using Debug = UnityEngine.Debug;
 
 namespace jeanf.vrplayer
 {
-    public class GetPrimaryInHandItemWithVRController : MonoBehaviour
+    public class GetPrimaryInHandItemWithVRController : MonoBehaviour, IDebugBehaviour
     {
+        public bool isDebug
+        { 
+            get => _isDebug;
+            set => _isDebug = value; 
+        }
+        [SerializeField] private bool _isDebug = false;
         [Header("Inputs")]
         [SerializeField] private InputActionReference drawPrimaryItem_LeftHand;
         [SerializeField] private InputActionReference drawPrimaryItem_RightHand;
@@ -68,8 +74,8 @@ namespace jeanf.vrplayer
             _hands.Add(hand);
             var handPoseManager = hand.transform.parent.transform.parent.GetComponent<HandPoseManager>();
             var handType = handPoseManager.HandType;
-            Debug.Log($"handType {handType}");
-            Debug.Log($"handPoseManager {handPoseManager.HandType}");
+            if(isDebug) Debug.Log($"handType {handType}");
+            if(isDebug) Debug.Log($"handPoseManager {handPoseManager.HandType}");
             switch (handType)
             {
                 case HandType.Left:

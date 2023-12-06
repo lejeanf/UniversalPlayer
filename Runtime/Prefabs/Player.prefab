@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 407147894}
   - component: {fileID: 407147897}
-  - component: {fileID: 6601360084252996715}
   - component: {fileID: 1445164021152325472}
   m_Layer: 2
   m_Name: PrimaryItemController
@@ -26,13 +25,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 407147893}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8151279016463066}
-  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &407147897
 MonoBehaviour:
@@ -51,36 +50,6 @@ MonoBehaviour:
     type: 3}
   _PrimaryItemStateChannel: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6,
     type: 2}
---- !u!114 &6601360084252996715
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 407147893}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b82296c84d82a944bb46a1a9ee14d056, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _isDebug: 0
-  _channel: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6, type: 2}
-  invertIncomingValue: 0
-  OnEventRaised:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 407147897}
-        m_TargetAssemblyTypeName: PrimaryItemController, vrplayer
-        m_MethodName: UpdatePrimaryItemStateFromExternalChange
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!114 &1445164021152325472
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -93,6 +62,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0536dff838919554b97f24d874c8b558, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _isDebug: 0
   drawPrimaryItem_LeftHand: {fileID: -1773342767403361641, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   drawPrimaryItem_RightHand: {fileID: -269443202914654657, guid: 110d9016d6486d84697b9d7a66a57d45,
@@ -115,9 +85,6 @@ GameObject:
   m_Component:
   - component: {fileID: 965419838}
   - component: {fileID: 965419840}
-  - component: {fileID: 965419842}
-  - component: {fileID: 965419841}
-  - component: {fileID: 965419843}
   m_Layer: 2
   m_Name: MouseLook
   m_TagString: Untagged
@@ -132,13 +99,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 965419837}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8151279016463066}
-  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &965419840
 MonoBehaviour:
@@ -161,93 +128,12 @@ MonoBehaviour:
   _isHmdActive: 0
   min: -60
   max: 75
---- !u!114 &965419842
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 965419837}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b82296c84d82a944bb46a1a9ee14d056, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _isDebug: 0
-  _channel: {fileID: 11400000, guid: 12b53e1a3498ada41a3dcc8b4edd9b35, type: 2}
-  invertIncomingValue: 0
-  OnEventRaised:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 965419840}
-        m_TargetAssemblyTypeName: jeanf.vrplayer.MouseLook, vrplayer
-        m_MethodName: SetMouseState
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
---- !u!114 &965419841
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 965419837}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9de4f9f3fef96bf4e80e2514b4dd7e85, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _isDebug: 0
-  _channel: {fileID: 11400000, guid: 869cdbdb9de48ea42aa65f9a90dbc1d4, type: 2}
-  OnEventRaised:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 965419840}
-        m_TargetAssemblyTypeName: jeanf.vrplayer.MouseLook, vrplayer
-        m_MethodName: ResetCameraSettings
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
---- !u!114 &965419843
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 965419837}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d2c2c7896254d141b74d3d98daac446, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _channel: {fileID: 11400000, guid: a03c9fca588e41848abdc740acc54aeb, type: 2}
-  OnEventRaised:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 965419840}
-        m_TargetAssemblyTypeName: jeanf.vrplayer.MouseLook, vrplayer
-        m_MethodName: ResetCameraSettings
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+  mouselookStateChannel: {fileID: 11400000, guid: 12b53e1a3498ada41a3dcc8b4edd9b35,
+    type: 2}
+  mouselookCameraReset: {fileID: 11400000, guid: 869cdbdb9de48ea42aa65f9a90dbc1d4,
+    type: 2}
+  teleportEventChannel: {fileID: 11400000, guid: a03c9fca588e41848abdc740acc54aeb,
+    type: 2}
 --- !u!1 &1263127692
 GameObject:
   m_ObjectHideFlags: 0
@@ -258,9 +144,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1263127693}
   - component: {fileID: 1263127696}
-  - component: {fileID: 1263127698}
-  - component: {fileID: 1263127697}
-  - component: {fileID: 1263127699}
   m_Layer: 2
   m_Name: CursorStateController
   m_TagString: Untagged
@@ -275,13 +158,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1263127692}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8151279016463066}
-  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1263127696
 MonoBehaviour:
@@ -298,96 +181,9 @@ MonoBehaviour:
   cursorImage: {fileID: 6018571504813308516}
   mouselookStateChannel: {fileID: 11400000, guid: 12b53e1a3498ada41a3dcc8b4edd9b35,
     type: 2}
---- !u!114 &1263127698
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1263127692}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b82296c84d82a944bb46a1a9ee14d056, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _isDebug: 0
-  _channel: {fileID: 11400000, guid: 386d301c089a7c545adcdce484194ba9, type: 2}
-  invertIncomingValue: 0
-  OnEventRaised:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1263127696}
-        m_TargetAssemblyTypeName: jeanf.vrplayer.CursorStateController, vrplayer
-        m_MethodName: SetCursorAccordingToHmdState
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
---- !u!114 &1263127697
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1263127692}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b82296c84d82a944bb46a1a9ee14d056, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _isDebug: 0
-  _channel: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6, type: 2}
-  invertIncomingValue: 0
-  OnEventRaised:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1263127696}
-        m_TargetAssemblyTypeName: jeanf.vrplayer.CursorStateController, vrplayer
-        m_MethodName: SetCursorAccordingToPrimaryItemState
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
---- !u!114 &1263127699
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1263127692}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b82296c84d82a944bb46a1a9ee14d056, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _isDebug: 0
-  _channel: {fileID: 11400000, guid: ff0093fdb7d83c9449485ee73150fa72, type: 2}
-  invertIncomingValue: 0
-  OnEventRaised:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1263127696}
-        m_TargetAssemblyTypeName: jeanf.vrplayer.CursorStateController, vrplayer
-        m_MethodName: SetCursorAccordingToMainMenuState
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+  HmdState: {fileID: 11400000, guid: 386d301c089a7c545adcdce484194ba9, type: 2}
+  PrimaryItemState: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6, type: 2}
+  MainMenuState: {fileID: 11400000, guid: ff0093fdb7d83c9449485ee73150fa72, type: 2}
 --- !u!1 &1768687715
 GameObject:
   m_ObjectHideFlags: 0
@@ -412,13 +208,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1768687715}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8151279016463066}
-  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1768687717
 MonoBehaviour:
@@ -446,7 +242,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1913895002}
-  - component: {fileID: 1282791591}
+  - component: {fileID: 2791876995596971495}
+  - component: {fileID: 5959858377094773320}
   m_Layer: 0
   m_Name: HandStateController
   m_TagString: Untagged
@@ -461,15 +258,15 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1913895001}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8151279016463066}
-  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1282791591
+--- !u!114 &2791876995596971495
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -478,27 +275,53 @@ MonoBehaviour:
   m_GameObject: {fileID: 1913895001}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b82296c84d82a944bb46a1a9ee14d056, type: 3}
+  m_Script: {fileID: 11500000, guid: cfbbfb2fc276a1f4599ee4e3e0defd60, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isDebug: 1
+  blendTime: 1
+  gender: 100
+  bodyMass: 100
+  skinDarkness: 1
+  lightSkinColor: {r: 1, g: 1, b: 1, a: 1}
+  darkSkinColor: {r: 0.23584908, g: 0.1764706, b: 0.15294118, a: 1}
+  gloveValue: 1
+  _hands: []
+  isGlove: 0
+  isHandVisible: 0
+  lastHandVisibility: 0
+  canUpdate: 0
+  shiftTypeHandAction: {fileID: 7201714218075579698, guid: 110d9016d6486d84697b9d7a66a57d45,
+    type: 3}
+  gloveStateChannel: {fileID: 11400000, guid: 44afa38efccaafb40b05699ac6bd3740, type: 2}
+  hmdStateChannel: {fileID: 11400000, guid: 386d301c089a7c545adcdce484194ba9, type: 2}
+--- !u!114 &5959858377094773320
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1913895001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 667fba4714c935941bed985525d8b435, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _isDebug: 0
-  _channel: {fileID: 11400000, guid: 386d301c089a7c545adcdce484194ba9, type: 2}
-  invertIncomingValue: 0
-  OnEventRaised:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 4546857310092738130}
-        m_TargetAssemblyTypeName: jeanf.vrplayer.HandsAppearanceManager, vrplayer
-        m_MethodName: SetUpdateState
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+  grabCount: 0
+  handsInDetectionzone: 0
+  _LeftHandState: {fileID: 11400000, guid: cf08fc0c61fce0d408103dcf2c99df5e, type: 2}
+  _RightHandState: {fileID: 11400000, guid: e2b569a0c3f568248bad34b4660c194e, type: 2}
+  _HandDetectedEvent: {fileID: 0}
+  _HandDisapearedEvent: {fileID: 0}
+  grabCountChannelSO: {fileID: 11400000, guid: b2cdb0e34277d0c429452b36a1bf74c2, type: 2}
+  setPointingPoseOnOppositeHandGrab: 1
+  leftHandIsPointingChannelSO: {fileID: 11400000, guid: 4d2497ed035a70443a2a34543417a09e,
+    type: 2}
+  rightHandIsPointingChannelSO: {fileID: 11400000, guid: f81ac86b022e53543a64380062a12cd1,
+    type: 2}
+  leftHandGrabState: 0
+  rightHandGrabState: 0
 --- !u!1 &1241713917107224982
 GameObject:
   m_ObjectHideFlags: 0
@@ -524,13 +347,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1241713917107224982}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8151279016463066}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6444868254256545449
 MonoBehaviour:
@@ -583,6 +406,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1276718794057257641}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -591,7 +415,6 @@ Transform:
   - {fileID: 6601360084267668001}
   - {fileID: 2805212139640213861}
   m_Father: {fileID: 2423214379621556911}
-  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1694165133293327989
 GameObject:
@@ -625,7 +448,6 @@ RectTransform:
   m_Children:
   - {fileID: 8571423574190401458}
   m_Father: {fileID: 7264267533721849609}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -649,7 +471,9 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 10
   m_TargetDisplay: 0
@@ -702,6 +526,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2278783626678670785}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -713,7 +538,6 @@ Transform:
   - {fileID: 4725844072889927442}
   - {fileID: 5970661526352903204}
   m_Father: {fileID: 4128668795761766398}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8156799933376207823
 MonoBehaviour:
@@ -763,6 +587,18 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 8248158260566104461, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_IsTrackedAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Is Tracked
+      m_Type: 1
+      m_ExpectedControlType: 
+      m_Id: 7fffce3c-9950-44b4-bb46-a34e598b4a94
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 1
+    m_Reference: {fileID: 0}
   m_TrackingStateAction:
     m_UseReference: 1
     m_Action:
@@ -854,6 +690,18 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 71106601250685021, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_UIScrollAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: UI Scroll
+      m_Type: 0
+      m_ExpectedControlType: Vector2
+      m_Id: c76bcd52-2302-4862-9f8b-aeb82bd7cdc3
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   m_HapticDeviceAction:
     m_UseReference: 1
     m_Action:
@@ -906,6 +754,30 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 7779212132400271959, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_ScaleToggleAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Scale Toggle
+      m_Type: 1
+      m_ExpectedControlType: 
+      m_Id: d097af1d-b5ce-4922-8a04-8c38267a5e80
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
+  m_ScaleDeltaAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Scale Delta
+      m_Type: 0
+      m_ExpectedControlType: Vector2
+      m_Id: 073ca124-c54e-4507-a862-16c482b4a860
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   m_ButtonPressPoint: 0.5
 --- !u!114 &7816588686488658059
 MonoBehaviour:
@@ -919,11 +791,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4a50d88b55b45648927679791f472de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_GroupName: 
   m_InteractionManager: {fileID: 0}
   m_StartingGroupMembers:
   - {fileID: 977005594590858648}
   - {fileID: 686045676980936107}
   - {fileID: 5788363634771824364}
+  m_StartingInteractionOverridesMap: []
 --- !u!114 &3350861050267628585
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -974,13 +848,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2735981089737131052}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8151279016463066}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1172544497597652837
 MonoBehaviour:
@@ -1024,6 +898,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2739228493864874897}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
@@ -1031,7 +906,6 @@ Transform:
   m_Children:
   - {fileID: 4935331013338665783}
   m_Father: {fileID: 7264267533721849609}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1480624697409009770
 MonoBehaviour:
@@ -1110,13 +984,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4461274153183352764}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8151279016463066}
-  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6279515060260792805
 MonoBehaviour:
@@ -1291,13 +1165,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4568312785888129817}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8151279016463066}
-  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4530535229687505303
 MonoBehaviour:
@@ -1332,6 +1206,7 @@ MonoBehaviour:
   m_RepeatDelay: 0.5
   m_RepeatRate: 0.1
   m_TrackedDeviceDragThresholdMultiplier: 2
+  m_TrackedScrollDeltaMultiplier: 5
   m_ActiveInputMode: 1
   m_MaxTrackedDeviceRaycastDistance: 1000
   m_EnableXRInput: 1
@@ -1385,13 +1260,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4586419434641734267}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6601360083180395374}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2840192040183070578
 MonoBehaviour:
@@ -1454,6 +1329,12 @@ MonoBehaviour:
   m_RequirePokeFilter: 1
   m_EnableUIInteraction: 1
   m_DebugVisualizationsEnabled: 0
+  m_UIHoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_UIHoverExited:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &7477736645793942341
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1525,7 +1406,6 @@ MonoBehaviour:
     m_Interactions: 
     m_SingletonActionBindings: []
     m_Flags: 0
-  m_HasMigratedActions: 1
 --- !u!1 &5627144869325066832
 GameObject:
   m_ObjectHideFlags: 0
@@ -1549,6 +1429,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5627144869325066832}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -1557,7 +1438,6 @@ Transform:
   - {fileID: 6601360083180395374}
   - {fileID: 7177261453982029667}
   m_Father: {fileID: 2423214379621556911}
-  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6136729394139936081
 GameObject:
@@ -1582,6 +1462,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6136729394139936081}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -1597,7 +1478,6 @@ Transform:
   - {fileID: 965419838}
   - {fileID: 1768687716}
   m_Father: {fileID: 2423214379621556911}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6257423915777697682
 GameObject:
@@ -1625,13 +1505,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6257423915777697682}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2969270201452490162}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1989632603716548249
 MonoBehaviour:
@@ -1684,9 +1564,17 @@ SphereCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6257423915777697682}
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
   m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
+  serializedVersion: 3
   m_Radius: 0.1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6485358544041231287
@@ -1720,7 +1608,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1694165133293327988}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1783,6 +1670,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6601360083180395373}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -1793,7 +1681,6 @@ Transform:
   - {fileID: 8770217445644950952}
   - {fileID: 3612802746241183794}
   m_Father: {fileID: 5781580102001219749}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6601360083180395375
 MonoBehaviour:
@@ -1807,11 +1694,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4a50d88b55b45648927679791f472de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_GroupName: 
   m_InteractionManager: {fileID: 0}
   m_StartingGroupMembers:
   - {fileID: 2840192040183070578}
   - {fileID: 7998107238821928573}
   - {fileID: 5737150283745364023}
+  m_StartingInteractionOverridesMap: []
 --- !u!114 &6601360083180395361
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1880,6 +1769,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6601360084267668000}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -1889,7 +1779,6 @@ Transform:
   - {fileID: 3612802746951532011}
   - {fileID: 3926955472332997004}
   m_Father: {fileID: 4128668795761766398}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6601360084267668002
 MonoBehaviour:
@@ -1903,11 +1792,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4a50d88b55b45648927679791f472de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_GroupName: 
   m_InteractionManager: {fileID: 0}
   m_StartingGroupMembers:
   - {fileID: 7477736644872530419}
   - {fileID: 7998107238456431524}
   - {fileID: 24550684524942355}
+  m_StartingInteractionOverridesMap: []
 --- !u!114 &6601360084267668004
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1975,13 +1866,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6601360084331319163}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7264267533532500776}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3350861050816484079
 MonoBehaviour:
@@ -2032,6 +1923,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7264267533532500777}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1.65, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -2040,7 +1932,6 @@ Transform:
   - {fileID: 7264267533721849609}
   - {fileID: 6601360084331319164}
   m_Father: {fileID: 2423214379621556911}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7264267533721849610
 GameObject:
@@ -2053,7 +1944,6 @@ GameObject:
   - component: {fileID: 7264267533721849609}
   - component: {fileID: 7264267533721849614}
   - component: {fileID: 3652687777324193000}
-  - component: {fileID: 4918474635368940506}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -2068,6 +1958,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7264267533721849610}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -2076,7 +1967,6 @@ Transform:
   - {fileID: 1694165133293327988}
   - {fileID: 2969270201452490162}
   m_Father: {fileID: 7264267533532500776}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!81 &7264267533721849614
 AudioListener:
@@ -2189,19 +2079,6 @@ MonoBehaviour:
       m_Action: Rotation
       m_Flags: 0
     m_Flags: 0
-  m_HasMigratedActions: 1
---- !u!114 &4918474635368940506
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7264267533721849610}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7331cdce5df026a46af41d7397e2bbf2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &7477736644872530421
 GameObject:
   m_ObjectHideFlags: 0
@@ -2227,13 +2104,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7477736644872530421}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6601360084267668001}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7477736644872530419
 MonoBehaviour:
@@ -2296,6 +2173,12 @@ MonoBehaviour:
   m_RequirePokeFilter: 1
   m_EnableUIInteraction: 1
   m_DebugVisualizationsEnabled: 0
+  m_UIHoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_UIHoverExited:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &7477736644872530418
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2367,7 +2250,6 @@ MonoBehaviour:
     m_Interactions: 
     m_SingletonActionBindings: []
     m_Flags: 0
-  m_HasMigratedActions: 1
 --- !u!1 &8387425044706141412
 GameObject:
   m_ObjectHideFlags: 0
@@ -2394,6 +2276,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8387425044706141412}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -2405,7 +2288,6 @@ Transform:
   - {fileID: 4718367287597235937}
   - {fileID: 6667413892787335774}
   m_Father: {fileID: 5781580102001219749}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6492901293686355863
 MonoBehaviour:
@@ -2455,6 +2337,18 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 5101698808175986029, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_IsTrackedAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Is Tracked
+      m_Type: 1
+      m_ExpectedControlType: 
+      m_Id: 034d7b0d-ebe6-4af9-9200-ec5988d3b3e0
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 1
+    m_Reference: {fileID: 0}
   m_TrackingStateAction:
     m_UseReference: 1
     m_Action:
@@ -2546,6 +2440,18 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: -5908353012961274365, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_UIScrollAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: UI Scroll
+      m_Type: 0
+      m_ExpectedControlType: Vector2
+      m_Id: 3d2fbb30-4aa2-45c7-9fe4-f321dddea9c6
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   m_HapticDeviceAction:
     m_UseReference: 1
     m_Action:
@@ -2598,6 +2504,30 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 875253871413052681, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_ScaleToggleAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Scale Toggle
+      m_Type: 1
+      m_ExpectedControlType: 
+      m_Id: b06e832e-b080-4677-820e-e177171e9297
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
+  m_ScaleDeltaAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Scale Delta
+      m_Type: 0
+      m_ExpectedControlType: Vector2
+      m_Id: 32bb1599-188d-4e98-887f-c296f87be915
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   m_ButtonPressPoint: 0.5
 --- !u!114 &5225059346588149137
 MonoBehaviour:
@@ -2611,11 +2541,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4a50d88b55b45648927679791f472de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_GroupName: 
   m_InteractionManager: {fileID: 0}
   m_StartingGroupMembers:
   - {fileID: 2271310323494017192}
   - {fileID: 4931788783090079221}
   - {fileID: 5635143459220303080}
+  m_StartingInteractionOverridesMap: []
 --- !u!114 &3350861050526337658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2654,9 +2586,6 @@ GameObject:
   - component: {fileID: 5246354473374005088}
   - component: {fileID: 2665802328072059309}
   - component: {fileID: 5280162163099371832}
-  - component: {fileID: 4546857310092738130}
-  - component: {fileID: 1115809925}
-  - component: {fileID: 5725089727089328894}
   m_Layer: 2
   m_Name: Player
   m_TagString: Player
@@ -2671,6 +2600,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8694773027870397994}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -2681,7 +2611,6 @@ Transform:
   - {fileID: 5781580102001219749}
   - {fileID: 4128668795761766398}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5246354473374005088
 MonoBehaviour:
@@ -2724,9 +2653,17 @@ CharacterController:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8694773027870397994}
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
   m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
+  serializedVersion: 3
   m_Height: 1.7
   m_Radius: 0.1
   m_SlopeLimit: 45
@@ -2734,95 +2671,12 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.85, z: 0}
---- !u!114 &4546857310092738130
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8694773027870397994}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfbbfb2fc276a1f4599ee4e3e0defd60, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isDebug: 1
-  blendTime: 1
-  _hands: []
-  gender: 100
-  bodyMass: 100
-  skinDarkness: 0
-  lightSkinColor: {r: 1, g: 1, b: 1, a: 1}
-  darkSkinColor: {r: 0.23584908, g: 0.1764706, b: 0.15294118, a: 1}
-  gloveValue: 0
-  isGlove: 0
-  isHandVisible: 0
-  lastHandVisibility: 0
-  shiftTypeHandAction: {fileID: 7201714218075579698, guid: 110d9016d6486d84697b9d7a66a57d45,
-    type: 3}
-  canUpdate: 0
---- !u!114 &1115809925
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8694773027870397994}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b82296c84d82a944bb46a1a9ee14d056, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _isDebug: 1
-  _channel: {fileID: 11400000, guid: 44afa38efccaafb40b05699ac6bd3740, type: 2}
-  invertIncomingValue: 0
-  OnEventRaised:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 4546857310092738130}
-        m_TargetAssemblyTypeName: jeanf.vrplayer.HandsAppearanceManager, vrplayer
-        m_MethodName: SetGloveState
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
---- !u!114 &5725089727089328894
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8694773027870397994}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 667fba4714c935941bed985525d8b435, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _isDebug: 0
-  grabCount: 0
-  handsInDetectionzone: 0
-  _LeftHandState: {fileID: 11400000, guid: cf08fc0c61fce0d408103dcf2c99df5e, type: 2}
-  _RightHandState: {fileID: 11400000, guid: e2b569a0c3f568248bad34b4660c194e, type: 2}
-  _HandDetectedEvent: {fileID: 0}
-  _HandDisapearedEvent: {fileID: 0}
-  grabCountChannelSO: {fileID: 11400000, guid: b2cdb0e34277d0c429452b36a1bf74c2, type: 2}
-  setPointingPoseOnOppositeHandGrab: 1
-  leftHandIsPointingChannelSO: {fileID: 11400000, guid: 4d2497ed035a70443a2a34543417a09e,
-    type: 2}
-  rightHandIsPointingChannelSO: {fileID: 11400000, guid: f81ac86b022e53543a64380062a12cd1,
-    type: 2}
-  leftHandGrabState: 0
-  rightHandGrabState: 0
 --- !u!1001 &53461677430660841
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 2805212139640213861}
     m_Modifications:
     - target: {fileID: 664489801923019586, guid: 2fd3e07afe5b461490fb8e314976b1b0,
@@ -2961,6 +2815,17 @@ PrefabInstance:
       value: Direct Interactor
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8841706926471734270, guid: 2fd3e07afe5b461490fb8e314976b1b0,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 946520930}
+    - targetCorrespondingSourceObject: {fileID: 8841706926471734270, guid: 2fd3e07afe5b461490fb8e314976b1b0,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4912687826894108832}
   m_SourcePrefab: {fileID: 100100000, guid: 2fd3e07afe5b461490fb8e314976b1b0, type: 3}
 --- !u!114 &686045676980936107 stripped
 MonoBehaviour:
@@ -3020,6 +2885,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 6601360083180395374}
     m_Modifications:
     - target: {fileID: 1787346994484839025, guid: ad818c36731146e994540a1896ad8f24,
@@ -3093,6 +2959,13 @@ PrefabInstance:
       value: 33
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1787346994484839025, guid: ad818c36731146e994540a1896ad8f24,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3257940852111089991}
   m_SourcePrefab: {fileID: 100100000, guid: ad818c36731146e994540a1896ad8f24, type: 3}
 --- !u!1 &3513621613152715113 stripped
 GameObject:
@@ -3147,6 +3020,18 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: -3870559572202308136, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_IsTrackedAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Is Tracked
+      m_Type: 1
+      m_ExpectedControlType: 
+      m_Id: a42a30f5-ad05-444c-b231-184a3b61f7e0
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 1
+    m_Reference: {fileID: 0}
   m_TrackingStateAction:
     m_UseReference: 1
     m_Action:
@@ -3238,6 +3123,18 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: -5908353012961274365, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_UIScrollAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: UI Scroll
+      m_Type: 0
+      m_ExpectedControlType: Vector2
+      m_Id: 19594aa9-0dfb-4621-8aeb-d169a2afb58b
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   m_HapticDeviceAction:
     m_UseReference: 1
     m_Action:
@@ -3290,6 +3187,30 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 875253871413052681, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_ScaleToggleAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Scale Toggle
+      m_Type: 1
+      m_ExpectedControlType: 
+      m_Id: f4cfff2c-a2d7-4bb2-895e-65f5825ad877
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
+  m_ScaleDeltaAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Scale Delta
+      m_Type: 0
+      m_ExpectedControlType: Vector2
+      m_Id: f2e8378a-449d-4c69-830e-3b4d3ef7704c
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   m_ButtonPressPoint: 0.5
 --- !u!114 &5737150283745364023 stripped
 MonoBehaviour:
@@ -3314,6 +3235,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 7177261453982029667}
     m_Modifications:
     - target: {fileID: 1787346994484839025, guid: ad818c36731146e994540a1896ad8f24,
@@ -3397,6 +3319,17 @@ PrefabInstance:
       value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1787346994484839025, guid: ad818c36731146e994540a1896ad8f24,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4563228703315976954}
+    - targetCorrespondingSourceObject: {fileID: 1787346994484839025, guid: ad818c36731146e994540a1896ad8f24,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7297534746949492245}
   m_SourcePrefab: {fileID: 100100000, guid: ad818c36731146e994540a1896ad8f24, type: 3}
 --- !u!1 &3560265836382381494 stripped
 GameObject:
@@ -3445,6 +3378,7 @@ MonoBehaviour:
     atime6: 0
     atime7: 0
     m_Mode: 0
+    m_ColorSpace: -1
     m_NumColorKeys: 2
     m_NumAlphaKeys: 3
   _transparent:
@@ -3474,6 +3408,7 @@ MonoBehaviour:
     atime6: 0
     atime7: 0
     m_Mode: 0
+    m_ColorSpace: -1
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
 --- !u!114 &7297534746949492245
@@ -3520,6 +3455,18 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
+    m_Reference: {fileID: 0}
+  m_IsTrackedAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Is Tracked
+      m_Type: 1
+      m_ExpectedControlType: 
+      m_Id: 84aa6119-8440-4c47-9722-dbccbc742553
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 1
     m_Reference: {fileID: 0}
   m_TrackingStateAction:
     m_UseReference: 0
@@ -3617,6 +3564,18 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: -5908353012961274365, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_UIScrollAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: UI Scroll
+      m_Type: 0
+      m_ExpectedControlType: Vector2
+      m_Id: 317031c9-4d4b-44f3-bced-09e450fde612
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   m_HapticDeviceAction:
     m_UseReference: 0
     m_Action:
@@ -3665,6 +3624,30 @@ MonoBehaviour:
       m_SingletonActionBindings: []
       m_Flags: 0
     m_Reference: {fileID: 0}
+  m_ScaleToggleAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Scale Toggle
+      m_Type: 1
+      m_ExpectedControlType: 
+      m_Id: b48e7504-e07e-4387-b9d3-a799716cab37
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
+  m_ScaleDeltaAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Scale Delta
+      m_Type: 0
+      m_ExpectedControlType: Vector2
+      m_Id: 67197b93-b803-4f77-92b9-3ac0f4e347f9
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   m_ButtonPressPoint: 0.5
 --- !u!114 &5635143459220303080 stripped
 MonoBehaviour:
@@ -3689,6 +3672,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 2805212139640213861}
     m_Modifications:
     - target: {fileID: 780270278251679399, guid: 27024f5809f4a4347b9cd7f26a1bdf93,
@@ -3792,6 +3776,9 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 27024f5809f4a4347b9cd7f26a1bdf93, type: 3}
 --- !u!114 &977005594590858648 stripped
 MonoBehaviour:
@@ -3816,6 +3803,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 6601360083180395374}
     m_Modifications:
     - target: {fileID: 6059725000919627127, guid: 2fd3e07afe5b461490fb8e314976b1b0,
@@ -3884,6 +3872,13 @@ PrefabInstance:
       value: Direct Interactor
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8841706926471734270, guid: 2fd3e07afe5b461490fb8e314976b1b0,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7761142486788259598}
   m_SourcePrefab: {fileID: 100100000, guid: 2fd3e07afe5b461490fb8e314976b1b0, type: 3}
 --- !u!1 &6067663463450346335 stripped
 GameObject:
@@ -3938,6 +3933,18 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 5101698808175986029, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_IsTrackedAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Is Tracked
+      m_Type: 1
+      m_ExpectedControlType: 
+      m_Id: 45248ad5-ebb0-4413-97bf-855d29d1f882
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 1
+    m_Reference: {fileID: 0}
   m_TrackingStateAction:
     m_UseReference: 1
     m_Action:
@@ -4029,6 +4036,18 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: -5908353012961274365, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_UIScrollAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: UI Scroll
+      m_Type: 0
+      m_ExpectedControlType: Vector2
+      m_Id: 009c3297-ff0f-4047-9039-9d32b6ae3639
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   m_HapticDeviceAction:
     m_UseReference: 1
     m_Action:
@@ -4081,6 +4100,30 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 875253871413052681, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_ScaleToggleAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Scale Toggle
+      m_Type: 1
+      m_ExpectedControlType: 
+      m_Id: 31d75dbf-a5ce-4d04-9427-e521893326d5
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
+  m_ScaleDeltaAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Scale Delta
+      m_Type: 0
+      m_ExpectedControlType: Vector2
+      m_Id: a2f0c948-2f42-43b5-be5b-0a61e169d5a5
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   m_ButtonPressPoint: 0.5
 --- !u!4 &8891697172944211372 stripped
 Transform:
@@ -4093,6 +4136,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 2805212139640213861}
     m_Modifications:
     - target: {fileID: 1787346994484839025, guid: ad818c36731146e994540a1896ad8f24,
@@ -4176,6 +4220,17 @@ PrefabInstance:
       value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1787346994484839025, guid: ad818c36731146e994540a1896ad8f24,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5394640488223455149}
+    - targetCorrespondingSourceObject: {fileID: 1787346994484839025, guid: ad818c36731146e994540a1896ad8f24,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8609626484092209826}
   m_SourcePrefab: {fileID: 100100000, guid: ad818c36731146e994540a1896ad8f24, type: 3}
 --- !u!1 &3389224776645724082 stripped
 GameObject:
@@ -4224,6 +4279,7 @@ MonoBehaviour:
     atime6: 0
     atime7: 0
     m_Mode: 0
+    m_ColorSpace: -1
     m_NumColorKeys: 2
     m_NumAlphaKeys: 3
   _transparent:
@@ -4253,6 +4309,7 @@ MonoBehaviour:
     atime6: 0
     atime7: 0
     m_Mode: 0
+    m_ColorSpace: -1
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
 --- !u!114 &8609626484092209826
@@ -4299,6 +4356,18 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
+    m_Reference: {fileID: 0}
+  m_IsTrackedAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Is Tracked
+      m_Type: 1
+      m_ExpectedControlType: 
+      m_Id: 69fdd2c7-a4f2-434c-b008-c02996a207da
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 1
     m_Reference: {fileID: 0}
   m_TrackingStateAction:
     m_UseReference: 0
@@ -4396,6 +4465,18 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 71106601250685021, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_UIScrollAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: UI Scroll
+      m_Type: 0
+      m_ExpectedControlType: Vector2
+      m_Id: b4707265-5e83-4b5a-bb9d-f420ee3db3e1
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   m_HapticDeviceAction:
     m_UseReference: 0
     m_Action:
@@ -4444,6 +4525,30 @@ MonoBehaviour:
       m_SingletonActionBindings: []
       m_Flags: 0
     m_Reference: {fileID: 0}
+  m_ScaleToggleAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Scale Toggle
+      m_Type: 1
+      m_ExpectedControlType: 
+      m_Id: f31e5844-65fa-4446-8e99-4d37b6ac597b
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
+  m_ScaleDeltaAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Scale Delta
+      m_Type: 0
+      m_ExpectedControlType: Vector2
+      m_Id: 5e4cdfaf-1c3c-4856-a277-a4b9f2b13b27
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   m_ButtonPressPoint: 0.5
 --- !u!114 &5788363634771824364 stripped
 MonoBehaviour:
@@ -4468,6 +4573,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 7177261453982029667}
     m_Modifications:
     - target: {fileID: 780270278251679399, guid: 27024f5809f4a4347b9cd7f26a1bdf93,
@@ -4591,6 +4697,9 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 27024f5809f4a4347b9cd7f26a1bdf93, type: 3}
 --- !u!114 &2271310323494017192 stripped
 MonoBehaviour:
@@ -4615,6 +4724,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 7177261453982029667}
     m_Modifications:
     - target: {fileID: 664489801923019586, guid: 2fd3e07afe5b461490fb8e314976b1b0,
@@ -4753,6 +4863,17 @@ PrefabInstance:
       value: Direct Interactor
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8841706926471734270, guid: 2fd3e07afe5b461490fb8e314976b1b0,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1418528141}
+    - targetCorrespondingSourceObject: {fileID: 8841706926471734270, guid: 2fd3e07afe5b461490fb8e314976b1b0,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5488365344474781434}
   m_SourcePrefab: {fileID: 100100000, guid: 2fd3e07afe5b461490fb8e314976b1b0, type: 3}
 --- !u!4 &1777944490513005498 stripped
 Transform:
@@ -4812,6 +4933,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 2805212139640213861}
     m_Modifications:
     - target: {fileID: 63484136123966808, guid: 67e27b139a2a06b4985217621d4235d1,
@@ -4900,6 +5022,9 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 67e27b139a2a06b4985217621d4235d1, type: 3}
 --- !u!4 &5970661526352903204 stripped
 Transform:
@@ -4912,6 +5037,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 7177261453982029667}
     m_Modifications:
     - target: {fileID: 561723206917383178, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d,
@@ -5010,6 +5136,9 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d, type: 3}
 --- !u!4 &6667413892787335774 stripped
 Transform:
@@ -5022,6 +5151,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 7177261453982029667}
     m_Modifications:
     - target: {fileID: 2761784063978902503, guid: c1800acf6366418a9b5f610249000331,
@@ -5115,6 +5245,13 @@ PrefabInstance:
       value: Teleport Interactor
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2761784063978902507, guid: c1800acf6366418a9b5f610249000331,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1358496670245337343}
   m_SourcePrefab: {fileID: 100100000, guid: c1800acf6366418a9b5f610249000331, type: 3}
 --- !u!1 &4718367287597235936 stripped
 GameObject:
@@ -5166,6 +5303,18 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
+    m_Reference: {fileID: 0}
+  m_IsTrackedAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Is Tracked
+      m_Type: 1
+      m_ExpectedControlType: 
+      m_Id: 6c2263be-298b-4369-8f87-41f22b4b4c13
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 1
     m_Reference: {fileID: 0}
   m_TrackingStateAction:
     m_UseReference: 0
@@ -5257,6 +5406,18 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: -5908353012961274365, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_UIScrollAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: UI Scroll
+      m_Type: 0
+      m_ExpectedControlType: Vector2
+      m_Id: 46d3d193-3621-4f88-a535-d51baba8e915
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   m_HapticDeviceAction:
     m_UseReference: 1
     m_Action:
@@ -5309,6 +5470,30 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 875253871413052681, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_ScaleToggleAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Scale Toggle
+      m_Type: 1
+      m_ExpectedControlType: 
+      m_Id: 3f5e2f4f-12ed-4c97-b700-4b60a457ddd0
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
+  m_ScaleDeltaAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Scale Delta
+      m_Type: 0
+      m_ExpectedControlType: Vector2
+      m_Id: 066b7e7c-bba4-47d2-a8ae-747570303d8d
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   m_ButtonPressPoint: 0.5
 --- !u!4 &4718367287597235937 stripped
 Transform:
@@ -5333,6 +5518,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 6601360084267668001}
     m_Modifications:
     - target: {fileID: 6059725000919627127, guid: 2fd3e07afe5b461490fb8e314976b1b0,
@@ -5401,6 +5587,13 @@ PrefabInstance:
       value: Direct Interactor
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8841706926471734270, guid: 2fd3e07afe5b461490fb8e314976b1b0,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8471229335964532189}
   m_SourcePrefab: {fileID: 100100000, guid: 2fd3e07afe5b461490fb8e314976b1b0, type: 3}
 --- !u!1 &2121842240923218712 stripped
 GameObject:
@@ -5455,6 +5648,18 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 8248158260566104461, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_IsTrackedAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Is Tracked
+      m_Type: 1
+      m_ExpectedControlType: 
+      m_Id: 886fa7b9-1876-4ca3-ae97-bba4809055cc
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 1
+    m_Reference: {fileID: 0}
   m_TrackingStateAction:
     m_UseReference: 1
     m_Action:
@@ -5546,6 +5751,18 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 71106601250685021, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_UIScrollAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: UI Scroll
+      m_Type: 0
+      m_ExpectedControlType: Vector2
+      m_Id: bff70462-be86-4b85-a17a-9f9dc4493ac8
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   m_HapticDeviceAction:
     m_UseReference: 1
     m_Action:
@@ -5598,6 +5815,30 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 7779212132400271959, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_ScaleToggleAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Scale Toggle
+      m_Type: 1
+      m_ExpectedControlType: 
+      m_Id: bc25c13c-2032-42e7-b279-c69cb62072ab
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
+  m_ScaleDeltaAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Scale Delta
+      m_Type: 0
+      m_ExpectedControlType: Vector2
+      m_Id: 94ed7698-04b0-4e50-b6e8-f3d6b462f02c
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   m_ButtonPressPoint: 0.5
 --- !u!4 &3612802746951532011 stripped
 Transform:
@@ -5622,6 +5863,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 6601360083180395374}
     m_Modifications:
     - target: {fileID: 6059725000919627127, guid: 2fd3e07afe5b461490fb8e314976b1b0,
@@ -5690,6 +5932,13 @@ PrefabInstance:
       value: Direct Interactor
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8841706926471734270, guid: 2fd3e07afe5b461490fb8e314976b1b0,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6336531834934747065}
   m_SourcePrefab: {fileID: 100100000, guid: 2fd3e07afe5b461490fb8e314976b1b0, type: 3}
 --- !u!1 &2121842240484458177 stripped
 GameObject:
@@ -5744,6 +5993,18 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 5101698808175986029, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_IsTrackedAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Is Tracked
+      m_Type: 1
+      m_ExpectedControlType: 
+      m_Id: dda036a8-291f-4a9a-b902-4be3f3e2bda5
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 1
+    m_Reference: {fileID: 0}
   m_TrackingStateAction:
     m_UseReference: 1
     m_Action:
@@ -5835,6 +6096,18 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: -5908353012961274365, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_UIScrollAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: UI Scroll
+      m_Type: 0
+      m_ExpectedControlType: Vector2
+      m_Id: b2e3e827-471c-4686-b688-1b220ab2873e
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   m_HapticDeviceAction:
     m_UseReference: 1
     m_Action:
@@ -5887,6 +6160,30 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 875253871413052681, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_ScaleToggleAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Scale Toggle
+      m_Type: 1
+      m_ExpectedControlType: 
+      m_Id: 5946535a-e172-4d80-8164-c914c80e252d
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
+  m_ScaleDeltaAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Scale Delta
+      m_Type: 0
+      m_ExpectedControlType: Vector2
+      m_Id: ca632cda-5abe-453e-87b4-585685bc6df3
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   m_ButtonPressPoint: 0.5
 --- !u!4 &3612802746241183794 stripped
 Transform:
@@ -5911,6 +6208,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 2805212139640213861}
     m_Modifications:
     - target: {fileID: 2761784063978902503, guid: c1800acf6366418a9b5f610249000331,
@@ -5994,6 +6292,9 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c1800acf6366418a9b5f610249000331, type: 3}
 --- !u!4 &4725844072889927442 stripped
 Transform:
@@ -6018,6 +6319,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 6601360084267668001}
     m_Modifications:
     - target: {fileID: 1787346994484839025, guid: ad818c36731146e994540a1896ad8f24,
@@ -6091,6 +6393,13 @@ PrefabInstance:
       value: 97
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1787346994484839025, guid: ad818c36731146e994540a1896ad8f24,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1255510511678210544}
   m_SourcePrefab: {fileID: 100100000, guid: ad818c36731146e994540a1896ad8f24, type: 3}
 --- !u!114 &24550684524942355 stripped
 MonoBehaviour:
@@ -6163,6 +6472,18 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 7149951272733842039, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_IsTrackedAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Is Tracked
+      m_Type: 1
+      m_ExpectedControlType: 
+      m_Id: 6d10ded5-8e0f-4f2a-8ee1-9c063d49dc8c
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 1
+    m_Reference: {fileID: 0}
   m_TrackingStateAction:
     m_UseReference: 1
     m_Action:
@@ -6254,6 +6575,18 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 71106601250685021, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_UIScrollAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: UI Scroll
+      m_Type: 0
+      m_ExpectedControlType: Vector2
+      m_Id: 9954928f-1ff1-4279-a57d-e05cc443f6bd
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   m_HapticDeviceAction:
     m_UseReference: 1
     m_Action:
@@ -6306,4 +6639,28 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 7779212132400271959, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
+  m_ScaleToggleAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Scale Toggle
+      m_Type: 1
+      m_ExpectedControlType: 
+      m_Id: 7008c603-b317-479f-a285-0bf4d6ede1ec
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
+  m_ScaleDeltaAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Scale Delta
+      m_Type: 0
+      m_ExpectedControlType: Vector2
+      m_Id: 47ab4dcf-9ee5-443f-89f0-45dfb27cb228
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   m_ButtonPressPoint: 0.5

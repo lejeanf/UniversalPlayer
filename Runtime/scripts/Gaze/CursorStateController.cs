@@ -14,6 +14,11 @@ namespace jeanf.vrplayer
         [Header("Broadcasting on:")]
         //[SerializeField] private IntEventChannelSO cursorStateChannel;
         [SerializeField] private BoolEventChannelSO mouselookStateChannel;
+
+        [Header("Listening on:")] 
+        [SerializeField] private BoolEventChannelSO HmdState;
+        [SerializeField] private BoolEventChannelSO PrimaryItemState;
+        [SerializeField] private BoolEventChannelSO MainMenuState;
         
 
         public enum CursorState
@@ -24,6 +29,23 @@ namespace jeanf.vrplayer
         }
         private CursorState _cursorState = CursorState.OnLocked;
         private  void Awake() => Init();
+
+        private void OnEnable()
+        {
+            HmdState.OnEventRaised += SetCursorAccordingToHmdState;
+            PrimaryItemState.OnEventRaised += SetCursorAccordingToPrimaryItemState;
+            MainMenuState.OnEventRaised += SetCursorAccordingToMainMenuState;
+        }
+
+        private void OnDisable() => Unsubscribe();
+        private void OnDestroy() => Unsubscribe();
+
+        private void Unsubscribe()
+        {
+            HmdState.OnEventRaised -= SetCursorAccordingToHmdState;
+            PrimaryItemState.OnEventRaised -= SetCursorAccordingToPrimaryItemState;
+            MainMenuState.OnEventRaised -= SetCursorAccordingToMainMenuState;
+        }
 
         public void Init()
         {
