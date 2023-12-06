@@ -15,6 +15,7 @@ namespace jeanf.vrplayer
         private void OnEnable()
         {
             if(useInputAction) drawPrimaryItem.action.performed += ctx=> InvertState();
+            _PrimaryItemStateChannel.OnEventRaised += StateOverride;
 
         }
 
@@ -24,6 +25,7 @@ namespace jeanf.vrplayer
         private void Unsubscribe()
         {
             if(useInputAction) drawPrimaryItem.action.performed -= ctx=> InvertState();
+            _PrimaryItemStateChannel.OnEventRaised -= StateOverride;
         }
 
         public void Reset()
@@ -42,6 +44,11 @@ namespace jeanf.vrplayer
         {
             primaryItemState = state;
             _PrimaryItemStateChannel.RaiseEvent(state);
+        }
+
+        private void StateOverride(bool state)
+        {
+            primaryItemState = state;
         }
     }
 }
