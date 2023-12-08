@@ -5,7 +5,7 @@ using Unity.XR.CoreUtils;
 namespace jeanf.vrplayer {
     public class CreateVrPlayer : MonoBehaviour
     {
-        [MenuItem("GameObject/Create VR Player")]
+        [MenuItem("GameObject/Create Universal Player")]
         private static void createVrPlayer()
         {
             var playerInPackage = AssetDatabase.LoadAssetAtPath<Object>("Packages/fr.jeanf.vr.player/Runtime/Prefabs/Player.prefab");
