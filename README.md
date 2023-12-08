@@ -1,4 +1,4 @@
-VR PLAYER
+UNIVERSAL PLAYER
 
 
 Description:
