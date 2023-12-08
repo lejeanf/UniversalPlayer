@@ -16,8 +16,17 @@ namespace jeanf.vrplayer
         
         private Vector2 _inputView;
 
-        [Range(0,2)]
-        public float mouseSensitivity = 1.2f;
+        public float mouseSensitivity 
+        { 
+            get { return _mouseSensitivity; }
+            set
+            {
+                if(isDebug) Debug.Log($"Mouse sensitivity set to {value}");
+                _mouseSensitivity = value;
+            }
+        }
+
+        [Range(0,5.0f)] [SerializeField] private float _mouseSensitivity = 1.2f;
         [SerializeField] private InputActionReference mouseXY;
         private static bool _canLook = true;
         [Space(10)]
@@ -99,8 +108,8 @@ namespace jeanf.vrplayer
         {
             if(BroadcastHmdStatus.hmdCurrentState) return;
             if (!_canLook) return;
-            _rotation.y += inputView.x * mouseSensitivity;
-            _rotation.x += -inputView.y * mouseSensitivity;
+            _rotation.y += inputView.x * _mouseSensitivity;
+            _rotation.x += -inputView.y * _mouseSensitivity;
             _rotation.x = Mathf.Clamp(_rotation.x, min, max);
 
             cameraOffset.transform.localRotation = Quaternion.Euler(_rotation.x, _rotation.y, 0);
