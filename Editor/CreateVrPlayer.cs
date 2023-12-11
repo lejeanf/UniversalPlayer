@@ -31,7 +31,6 @@ namespace jeanf.vrplayer {
             var mouseLook = prefab.GetComponentInChildren<MouseLook>();
             mouseLook.playerCamera = cameraComponent;
 
-            DestroyImmediate(prefab.GetComponentInChildren<MainCameraTarget>());
 
             prefab.GetComponent<XROrigin>().Camera = cameraComponent;
             prefab.gameObject.GetComponentInChildren<MouseLook>().playerCamera = cameraComponent;
