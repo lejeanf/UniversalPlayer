@@ -1,18 +1,18 @@
 ﻿{
-  "name":"fr.jeanf.vr.player",
-  "version":"0.3.08",
-  "displayName":"Universal Player",
-  "description":"This package contains a universal player working in URP & HDRP for Mouse+Keyboard or VR",
+  "name": "fr.jeanf.vr.player",
+  "version": "0.3.09",
+  "displayName": "Universal Player",
+  "description": "This package contains a universal player working in URP & HDRP for Mouse+Keyboard or VR",
   "unity": "2021.3",
   "keywords": [
     "jeanf",
     "vr",
     "player"
   ],
-  "author":{
-    "name":"Jean-François Robin",
-    "email":"robin.jeanfrancois@gmail.com",
-    "url":"https://jeanfrancoisrobin.art"
+  "author": {
+    "name": "Jean-François Robin",
+    "email": "robin.jeanfrancois@gmail.com",
+    "url": "https://jeanfrancoisrobin.art"
   },
   "dependencies": {
     "com.unity.modules.vr": "1.0.0",
@@ -28,20 +28,20 @@
     "fr.jeanf.propertydrawer": "1.1.1"
   },
   "samples": [
-        {
-            "displayName": "VR Player",
-            "description": "Prefab of the player",
-            "path": "Samples/VRPlayer"
-        },
-        {
-          "displayName": "Hand Poses",
-          "description": "A set of hand poses",
-          "path": "Samples/HandPoses"
-        },
-        {
-          "displayName": "Hands",
-          "description": "A set of hands",
-          "path": "Samples/Hands"
-        }
-    ]
+    {
+      "displayName": "VR Player",
+      "description": "Prefab of the player",
+      "path": "Samples/VRPlayer"
+    },
+    {
+      "displayName": "Hand Poses",
+      "description": "A set of hand poses",
+      "path": "Samples/HandPoses"
+    },
+    {
+      "displayName": "Hands",
+      "description": "A set of hands",
+      "path": "Samples/Hands"
+    }
+  ]
 }

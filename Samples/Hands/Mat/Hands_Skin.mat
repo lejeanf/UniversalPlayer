@@ -366,14 +366,14 @@ Material:
     - _StencilRefGBuffer: 14
     - _StencilRefMV: 40
     - _StencilWriteMask: 6
-    - _StencilWriteMaskDepth: 8
+    - _StencilWriteMaskDepth: 9
     - _StencilWriteMaskDistortionVec: 4
-    - _StencilWriteMaskGBuffer: 14
-    - _StencilWriteMaskMV: 40
+    - _StencilWriteMaskGBuffer: 15
+    - _StencilWriteMaskMV: 41
     - _SubsurfaceMask: 1
     - _SupportDecals: 0
     - _SurfaceType: 0
-    - _Switch_Gloves: 0
+    - _Switch_Gloves: 1
     - _Switch_Gloves1: 0
     - _Switch_Woman: 1
     - _Switch_Woman1: 0
@@ -411,7 +411,7 @@ Material:
     - __Smoothness_Contrast: 1
     - __Smoothness_Strenght: 0.6
     m_Colors:
-    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BaseColor: {r: 0.23584908, g: 0.1764706, b: 0.15294118, a: 1}
     - _BaseColorMap_MipInfo: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Detail_Base_Map_Strenght: {r: 0, g: 1, b: 0, a: 0}

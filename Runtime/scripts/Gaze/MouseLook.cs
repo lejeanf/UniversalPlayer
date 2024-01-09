@@ -26,7 +26,7 @@ namespace jeanf.vrplayer
             }
         }
 
-        [Range(0,5.0f)] [SerializeField] private float _mouseSensitivity = 1.2f;
+        [Range(0,100.0f)] [SerializeField] private float _mouseSensitivity = 45.0f;
         [SerializeField] private InputActionReference mouseXY;
         private static bool _canLook = true;
         [Space(10)]
@@ -61,6 +61,7 @@ namespace jeanf.vrplayer
 
         private void OnEnable()
         {
+            mouseXY.action.performed += ctx => LookAround(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime);
             mouselookStateChannel.OnEventRaised += SetMouseState;
             mouselookCameraReset.OnEventRaised += ResetCameraSettings;
             teleportEventChannel.OnEventRaised += _ => ResetCameraSettings();
@@ -71,14 +72,16 @@ namespace jeanf.vrplayer
 
         private void Unsubscribe()
         {
+            mouseXY.action.performed -= ctx => LookAround(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime);
             mouselookStateChannel.OnEventRaised -= SetMouseState;
             mouselookCameraReset.OnEventRaised -= ResetCameraSettings;
             teleportEventChannel.OnEventRaised -= _ => ResetCameraSettings();
         }
         private void Update()
         {
-            var targetMouseDelta = Mouse.current.delta.ReadValue() * Time.smoothDeltaTime;
-            LookAround(targetMouseDelta);
+
+            //var targetMouseDelta = Mouse.current.delta.ReadValue() * Time.smoothDeltaTime;
+            //LookAround(targetMouseDelta);
         }
 
         public void Init()
