@@ -2246,12 +2246,12 @@
                 },
                 {
                     "name": "LookAround",
-                    "type": "Value",
+                    "type": "PassThrough",
                     "id": "857a3819-d51b-4137-9eb8-760943362101",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": true
+                    "initialStateCheck": false
                 },
                 {
                     "name": "MainMenu",
@@ -2318,7 +2318,7 @@
                     "id": "e938e684-f834-4eff-9fb9-77f50b0d1773",
                     "path": "<Mouse>/delta",
                     "interactions": "",
-                    "processors": "NormalizeVector2",
+                    "processors": "",
                     "groups": "",
                     "action": "LookAround",
                     "isComposite": false,

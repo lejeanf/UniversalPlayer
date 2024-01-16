@@ -61,7 +61,7 @@ namespace jeanf.vrplayer
 
         private void OnEnable()
         {
-            mouseXY.action.performed += ctx => LookAround(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime);
+            mouseXY.action.performed += ctx => LookAround(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * .25f);
             mouselookStateChannel.OnEventRaised += SetMouseState;
             mouselookCameraReset.OnEventRaised += ResetCameraSettings;
             teleportEventChannel.OnEventRaised += _ => ResetCameraSettings();
@@ -72,7 +72,7 @@ namespace jeanf.vrplayer
 
         private void Unsubscribe()
         {
-            mouseXY.action.performed -= ctx => LookAround(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime);
+            mouseXY.action.performed -= ctx => LookAround(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * .25f);
             mouselookStateChannel.OnEventRaised -= SetMouseState;
             mouselookCameraReset.OnEventRaised -= ResetCameraSettings;
             teleportEventChannel.OnEventRaised -= _ => ResetCameraSettings();
@@ -111,6 +111,8 @@ namespace jeanf.vrplayer
         {
             if(BroadcastHmdStatus.hmdCurrentState) return;
             if (!_canLook) return;
+            
+            if(isDebug) Debug.Log($"Mouse inputView value : ({inputView.x}:{inputView.y})");
             _rotation.y += inputView.x * _mouseSensitivity;
             _rotation.x += -inputView.y * _mouseSensitivity;
             _rotation.x = Mathf.Clamp(_rotation.x, min, max);
