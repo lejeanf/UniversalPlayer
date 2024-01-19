@@ -2,6 +2,8 @@
 using UnityEngine;
 using DG.Tweening;
 
+using jeanf.propertyDrawer;
+
 public abstract class BaseHand : MonoBehaviour
 {
     // Neutral pose for the hand

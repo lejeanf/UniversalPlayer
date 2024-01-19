@@ -1,6 +1,6 @@
 using jeanf.EventSystem;
 using UnityEngine;
-
+using jeanf.propertyDrawer;
 namespace jeanf.vrplayer
 {
     public class PointOnCollisionTriggerWhenGrab : MonoBehaviour, IDebugBehaviour

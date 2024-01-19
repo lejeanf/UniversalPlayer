@@ -5,10 +5,10 @@ using UnityEngine;
 using DG.Tweening;
 using jeanf.EventSystem;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 
 namespace jeanf.vrplayer
 {
+    using jeanf.propertyDrawer;
     [ExecuteAlways]
     public class HandsAppearanceManager : MonoBehaviour
     {

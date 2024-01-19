@@ -7,6 +7,7 @@ using DG.Tweening;
 using jeanf.EventSystem;
 using UnityEditor;
 using Debug = UnityEngine.Debug;
+using jeanf.propertyDrawer;
 
 namespace jeanf.vrplayer
 {

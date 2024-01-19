@@ -5,6 +5,7 @@ using UnityEngine.Events;
 using System;
 using UnityEditor;
 #endif
+using jeanf.propertyDrawer;
 
 namespace jeanf.vrplayer
 {
