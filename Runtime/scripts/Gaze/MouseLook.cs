@@ -38,7 +38,8 @@ namespace jeanf.vrplayer
         [Space(10)]
         [SerializeField] [Validation("A reference to the Player's Camera is required.")]
         public Camera playerCamera;
-        [SerializeField] [Validation("A reference to the cameraOffset is required.")] Transform cameraOffset;
+        [SerializeField] [Validation("A reference to the cameraOffset is required.")]
+        private Transform cameraOffset;
         private Transform _originalCameraOffset;
         [SerializeField] private bool _isHmdActive = false;
         [SerializeField] private float min = -60.0f;
@@ -139,6 +140,7 @@ namespace jeanf.vrplayer
             //_invertPrimaryItemStateChannel.RaiseEvent();
         }
 
+        #if UNITY_EDITOR
         private void OnValidate()
         {
             var invalidObjects = new List<object>();
@@ -159,14 +161,12 @@ namespace jeanf.vrplayer
 
             IsValid = validityCheck;
 
-            if (!IsValid || Application.isPlaying)
+            if (IsValid && !Application.isPlaying) return;
+            for(var i = 0 ; i < invalidObjects.Count ; i++)
             {
-                
-                for(var i = 0 ; i < invalidObjects.Count ; i++)
-                {
-                    Debug.LogError($"Error: {errorMessages[i]} " , this.gameObject);
-                }
+                Debug.LogError($"Error: {errorMessages[i]} " , this.gameObject);
             }
         }
+        #endif
     }
 }
