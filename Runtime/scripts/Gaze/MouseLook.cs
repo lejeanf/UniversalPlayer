@@ -1,11 +1,15 @@
+using System;
+using System.Collections.Generic;
+using System.Reflection;
 using jeanf.EventSystem;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
+using jeanf.validationTools;
 
 namespace jeanf.vrplayer
 {
-    public class MouseLook : MonoBehaviour, IDebugBehaviour 
+    public class MouseLook : MonoBehaviour, IDebugBehaviour, IValidatable
     {
         public bool isDebug
         { 
@@ -13,7 +17,9 @@ namespace jeanf.vrplayer
             set => _isDebug = value; 
         }
         [SerializeField] private bool _isDebug = false;
-        
+
+        public bool IsValid { get; private set; }
+
         private Vector2 _inputView;
 
         public float mouseSensitivity 
@@ -30,9 +36,9 @@ namespace jeanf.vrplayer
         [SerializeField] private InputActionReference mouseXY;
         private static bool _canLook = true;
         [Space(10)]
-        [SerializeField]
+        [SerializeField] [Validation("A reference to the Player's Camera is required.")]
         public Camera playerCamera;
-        [SerializeField] Transform cameraOffset;
+        [SerializeField] [Validation("A reference to the cameraOffset is required.")] Transform cameraOffset;
         private Transform _originalCameraOffset;
         [SerializeField] private bool _isHmdActive = false;
         [SerializeField] private float min = -60.0f;
@@ -133,5 +139,34 @@ namespace jeanf.vrplayer
             //_invertPrimaryItemStateChannel.RaiseEvent();
         }
 
+        private void OnValidate()
+        {
+            var invalidObjects = new List<object>();
+            var errorMessages = new List<string>();
+            var validityCheck = true;
+            if (playerCamera == null)
+            {
+                invalidObjects.Add(playerCamera);
+                errorMessages.Add("No Camera set");
+                validityCheck = false;
+            }
+            else if (cameraOffset == null)
+            {
+                invalidObjects.Add(cameraOffset);
+                errorMessages.Add("No CameraOffset set");
+                validityCheck = false;
+            }
+
+            IsValid = validityCheck;
+
+            if (!IsValid || Application.isPlaying)
+            {
+                
+                for(var i = 0 ; i < invalidObjects.Count ; i++)
+                {
+                    Debug.LogError($"Error: {errorMessages[i]} " , this.gameObject);
+                }
+            }
+        }
     }
 }
