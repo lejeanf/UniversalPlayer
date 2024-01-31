@@ -3,11 +3,11 @@ using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
-using DG.Tweening;
 using jeanf.EventSystem;
 using UnityEditor;
 using Debug = UnityEngine.Debug;
 using jeanf.propertyDrawer;
+using LitMotion;
 
 namespace jeanf.vrplayer
 {
@@ -51,6 +51,8 @@ namespace jeanf.vrplayer
         [SerializeField] private float maxDistanceCheck = 2f;
         private Transform _currentObjectHeld;
         private Rigidbody _currentObjectHeldRb;
+        private MotionHandle _positionHandle;
+        private MotionHandle _rotationHandle;
 
         private bool _gravityBeforeGrab;
         private float _dragBeforeGrab;
@@ -92,15 +94,17 @@ namespace jeanf.vrplayer
             scrollAction.action.performed -= null;
             takeAction.action.Disable();
             scrollAction.action.Disable();
-            DOTween.KillAll();
         }
 
-        private void FixedUpdate()
+        private void LateUpdate()
         {
             if(BroadcastHmdStatus.hmdCurrentState) return;
             if (!cameraTransform) cameraTransform = Camera.main.transform;
-            if (_currentObjectHeld) _currentObjectHeld.transform.DOMove(cameraTransform.position + cameraTransform.forward * objectDistance, .05f, false);
+
+            var goal = cameraTransform.position + cameraTransform.forward * objectDistance;
+            SetObjectPosition(_currentObjectHeld, goal);
         }
+        
 
         private void ToggleTake()
         {
@@ -116,7 +120,7 @@ namespace jeanf.vrplayer
         {
             switch (_takeStyle)
             {
-                case TakeStyle.toggle:
+                case TakeObject.TakeStyle.toggle:
                     ToggleTake();
                     break;
                 default:
@@ -161,8 +165,12 @@ namespace jeanf.vrplayer
             if (resetPositionOnRelease)
             {
                 if(_isDebug) Debug.Log("Reset position");
-                _currentObjectHeld.transform.DOMove(initialPos, .05f, false);
-                _currentObjectHeld.transform.DORotateQuaternion(initialRot, .05f);
+
+                var goalPosition = initialPos;
+                SetObjectPosition(_currentObjectHeld, goalPosition);
+                
+                var goalRotation = initialRot;
+                SetObjectRotation(_currentObjectHeld, goalRotation);
             }
 
             _currentObjectHeldRb.useGravity = _gravityBeforeGrab;
@@ -176,7 +184,7 @@ namespace jeanf.vrplayer
 
         private void ReleaseHold()
         {
-            if(_takeStyle != TakeStyle.hold) return;
+            if(_takeStyle != TakeObject.TakeStyle.hold) return;
             if(_isDebug) Debug.Log("release hold");
             Release();
         }
@@ -188,8 +196,40 @@ namespace jeanf.vrplayer
             objectDistance += value;
             if (objectDistance > maxDistance) objectDistance = maxDistance;
             if (objectDistance < minDistance) objectDistance = minDistance;
-            if (_currentObjectHeld) _currentObjectHeld.transform.DOMove(cameraTransform.position + cameraTransform.forward * objectDistance, .05f, false);
             
+            var goalPosition = cameraTransform.position + cameraTransform.forward * objectDistance;
+            SetObjectPosition(_currentObjectHeld, goalPosition);
+        }
+
+        private void SetObjectPosition(Transform objectToMove ,Vector3 goal)
+        {
+            if (!objectToMove)
+            {
+                if (_positionHandle.IsActive())
+                {
+                    _positionHandle.Complete();
+                    _positionHandle.Cancel();
+                }
+                return;
+            }
+            _positionHandle = LMotion.Create(objectToMove.transform.position,goal,.05f)
+                .Bind(x => objectToMove.transform.position = x)
+                .AddTo(objectToMove.gameObject);
+        }
+        private void SetObjectRotation(Transform objectToMove ,Quaternion goal)
+        {
+            if (!objectToMove)
+            {
+                if (_rotationHandle.IsActive())
+                {
+                    _rotationHandle.Complete();
+                    _rotationHandle.Cancel();
+                }
+                return;
+            }
+            _rotationHandle = LMotion.Create(objectToMove.transform.rotation,goal,.05f)
+                .Bind(x => objectToMove.transform.rotation = x)
+                .AddTo(objectToMove.gameObject);
         }
 
     }

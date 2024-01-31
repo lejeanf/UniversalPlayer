@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using DG.Tweening;
 using jeanf.EventSystem;
+using LitMotion;
 using UnityEngine.InputSystem;
 
 namespace jeanf.vrplayer
@@ -45,6 +45,8 @@ namespace jeanf.vrplayer
         [SerializeField] private Color darkSkinColor;
         [Range(0,1)]
         [SerializeField] private float gloveValue = 1.0f;
+
+        private MotionHandle _gloveHandle;
         
         [Header("Hands detected")]
         [SerializeField] private List<SkinnedMeshRenderer> _hands = new List<SkinnedMeshRenderer>();
@@ -181,10 +183,8 @@ namespace jeanf.vrplayer
         private void LerpGloveTowardsValue(float goalValue, float tolerance, float blendTime)
         {
             if (Math.Abs(gloveValue - goalValue) < tolerance) return;
-            DOTween.To(() => gloveValue, x=> gloveValue = x, goalValue, blendTime)
-                .OnUpdate(() => {
-                    if(isDebug) Debug.Log($"{nameof(gloveValue)}: {gloveValue}");
-                });
+            _gloveHandle = LMotion.Create(gloveValue,goalValue,blendTime)
+                .Bind(x => gloveValue = x);
         }
 
         public void SetGloveState(bool state)

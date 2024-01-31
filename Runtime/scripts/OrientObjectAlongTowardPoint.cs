@@ -1,8 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using LitMotion;
 using UnityEngine;
-using DG.Tweening;
 
 namespace jeanf.vrplayer
 {
@@ -59,7 +59,8 @@ namespace jeanf.vrplayer
 
             if (!canRotate)
             {
-                _collider.transform.DOLocalRotateQuaternion(lookRotation, transitionTime).OnComplete(delegate { canRotate = true; });
+                LMotion.Create(_collider.transform.rotation,lookRotation,transitionTime)
+                    .Bind(x => _collider.transform.rotation = x);
             }
             else
             {
@@ -70,7 +71,9 @@ namespace jeanf.vrplayer
         private void ResetOriginalObjectRotation()
         {
             if(!_collider) return;
-            _collider.transform.DOLocalRotateQuaternion(originalRotation, transitionTime);
+            
+            LMotion.Create(_collider.transform.rotation,originalRotation,transitionTime)
+                .Bind(x => _collider.transform.rotation = x);
         }
         
         

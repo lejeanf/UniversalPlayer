@@ -37,7 +37,6 @@ How to install the VRPlayer for edition:
     - Property Drawer
 - Clone the git repository in Project/Assets folder. 
 - Install required packages:
-    - DG.Tween (link: https://dotween.demigiant.com/getstarted.php for installation guidelines)
     - Vector Graphics (link: https://docs.unity3d.com/Packages/com.unity.vectorgraphics@2.0/manual/index.html for installation guidelines)
     - Input System (You will also need to edit your project settings in Edit/projectSettings/Player/Configuration/ActiveInputHandling and turn on new Input System Package)
     - XR Core Utilities

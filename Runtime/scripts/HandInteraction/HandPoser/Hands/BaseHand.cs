@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using DG.Tweening;
+using LitMotion;
 
 using jeanf.propertyDrawer;
 
@@ -98,7 +98,7 @@ public abstract class BaseHand : MonoBehaviour
                 }
                 else
                 {
-                    Joints[i].DOLocalRotate(rotations[i].eulerAngles, lerpTime) ;
+                    LMotion.Create(Joints[i].eulerAngles, rotations[i].eulerAngles,lerpTime);
                 }
             }
 

@@ -1,6 +1,6 @@
 ﻿{
   "name": "fr.jeanf.vr.player",
-  "version": "0.3.14",
+  "version": "0.3.15",
   "displayName": "Universal Player",
   "description": "This package contains a universal player working in URP & HDRP for Mouse+Keyboard or VR",
   "unity": "2021.3",
@@ -25,8 +25,7 @@
     "com.unity.xr.management": "4.3.3",
     "com.unity.xr.oculus": "3.2.3",
     "fr.jeanf.eventsystem": "0.1.81",
-    "fr.jeanf.propertydrawer": "1.1.1",
-    "com.annulusgames.lit-motion": "https://github.com/AnnulusGames/LitMotion.git?path=src/LitMotion/Assets/LitMotion"
+    "fr.jeanf.propertydrawer": "1.1.1"
   },
   "samples": [
     {
