@@ -1,12 +1,9 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using DG.Tweening;
 using jeanf.EventSystem;
 using UnityEngine.Serialization;
 using UnityEngine.Rendering;
+using LitMotion;
 
 namespace jeanf.vrplayer
 {
@@ -30,6 +27,7 @@ namespace jeanf.vrplayer
         [Header("Fade Settings")]
         [SerializeField] private static float _fadeTime = .2f;
         private static Color color = new Color(0, 0, 0, 0);
+        private static MotionHandle motionHandle;
 
         private static readonly int FadeColor = Shader.PropertyToID("_Color");
 
@@ -40,6 +38,7 @@ namespace jeanf.vrplayer
         [SerializeField] private VolumeProfile URPVolumeProfile;
         [SerializeField] private Volume postProcessVolume;
         private static Volume staticPostProcessVolume;
+        
 
         private void Awake()
         {
@@ -91,12 +90,9 @@ namespace jeanf.vrplayer
         {
             if(_isDebugSTATIC) Debug.Log($"Fading to: {value}, in {fadeTime}s");
             float alpha = value ? 1 : 0;
-            DOTween.To(
-                () => {return staticPostProcessVolume.weight;},
-                x => staticPostProcessVolume.weight = x,
-                alpha,
-                fadeTime
-            );
+            
+            LMotion.Create(staticPostProcessVolume.weight,alpha,fadeTime)
+                .Bind(x => staticPostProcessVolume.weight = x);
         }
     }
 }

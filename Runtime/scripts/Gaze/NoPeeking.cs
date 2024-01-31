@@ -20,7 +20,7 @@ namespace jeanf.vrplayer
         private bool isHeadInWallLastValue = false;
         
         [SerializeField] private bool isSceneLoading = false;
-        private void Update()
+        private void FixedUpdate()
         {
             if(isSceneLoading) return;
             if (Physics.CheckSphere(transform.position, sphereCheckSize, collisionLayer, QueryTriggerInteraction.Ignore))
@@ -36,11 +36,13 @@ namespace jeanf.vrplayer
             if(isDebug) Debug.Log($"isHeadInWall: {isHeadInWall}");
         }
 
+        #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
             Gizmos.color = new Color(0f, 1f, 0f, .75f);
             Gizmos.DrawSphere(transform.position, sphereCheckSize);
         }
+        #endif
 
         public void SetCanFadeOutValue(bool value)
         {
