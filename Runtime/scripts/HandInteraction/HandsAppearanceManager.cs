@@ -163,11 +163,9 @@ namespace jeanf.vrplayer
         {
             if(hands.Count < 1) return;
             var blend = Color.Lerp(lightSkinColor, darkSkinColor, skinDarkness);
-            //var blendNail = Color.Lerp(lightSkinColor, new Color(darkSkinColor.r * nailDarkness, darkSkinColor.g *nailDarkness, darkSkinColor.b *nailDarkness, darkSkinColor.a), skinDarkness);
             foreach (var hand in hands)
             {
                 hand.sharedMaterials[0].SetColor(SkinBaseColor, blend);
-                //hand.materials[1].SetColor(SkinBaseColor, blendnew);
             }
         }
 
@@ -180,9 +178,8 @@ namespace jeanf.vrplayer
             }
         }
         
-        private void LerpGloveTowardsValue(float goalValue, float tolerance, float blendTime)
+        private void LerpGloveTowardsValue(float goalValue, float blendTime)
         {
-            if (Math.Abs(gloveValue - goalValue) < tolerance) return;
             _gloveHandle = LMotion.Create(gloveValue,goalValue,blendTime)
                 .Bind(x => gloveValue = x);
         }
@@ -192,7 +189,7 @@ namespace jeanf.vrplayer
             if(isDebug) Debug.Log($"glove state {state}");
             isGlove = state;
             var goalValue = isGlove ? 1 : 0;
-            LerpGloveTowardsValue(goalValue, tolerance, blendTime);
+            LerpGloveTowardsValue(goalValue, blendTime);
         }
 
         public void SetUpdateState(bool updateState)

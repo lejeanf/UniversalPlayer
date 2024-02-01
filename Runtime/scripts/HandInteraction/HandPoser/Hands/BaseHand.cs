@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using LitMotion;
 
 using jeanf.propertyDrawer;
+using UnityEngine.Serialization;
 
 public abstract class BaseHand : MonoBehaviour
 {
@@ -18,7 +21,7 @@ public abstract class BaseHand : MonoBehaviour
 
     public List<Transform> Joints { get; protected set; } = new List<Transform>();
 
-    public bool isLerpingOverTipe = true;
+    [FormerlySerializedAs("isLerpingOverTipe")] public bool isLerpingOverTime = true;
     [DrawIf("isLerpingOverTipe", true, ComparisonType.Equals)]
     [SerializeField] private float lerpTime = .2f;
 
@@ -86,22 +89,22 @@ public abstract class BaseHand : MonoBehaviour
     public void ApplyFingerRotations(List<Quaternion> rotations)
     {
         // Make sure we have the rotations for all the joints
-        if (HasProperCount(rotations))
-        {
-            // Set the local rotation of each joint
-            for (int i = 0; i < Joints.Count; i++)
-            {
-                if (!isLerpingOverTipe)
-                {
-                    Joints[i].localRotation = rotations[i];
-                    
-                }
-                else
-                {
-                    LMotion.Create(Joints[i].eulerAngles, rotations[i].eulerAngles,lerpTime);
-                }
-            }
+        if (!HasProperCount(rotations)) return;
+        // Set the local rotation of each joint
 
+        foreach (var (value, i) in Joints.Select((value, i) => ( value, i )))
+        {
+            if (!isLerpingOverTime)
+            {
+                Joints[i].localRotation = rotations[i];
+            }
+            else
+            {
+                    
+                var from = value.localRotation;
+                var to = rotations[i];
+                LMotion.Create(from, to, lerpTime).Bind(x => Joints[i].localRotation = x);
+            }
         }
     }
 

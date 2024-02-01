@@ -74,8 +74,8 @@ namespace jeanf.vrplayer
             _hands.Add(hand);
             var handPoseManager = hand.transform.parent.transform.parent.GetComponent<HandPoseManager>();
             var handType = handPoseManager.HandType;
-            if(isDebug) Debug.Log($"handType {handType}");
-            if(isDebug) Debug.Log($"handPoseManager {handPoseManager.HandType}");
+            if(isDebug && handType != null) Debug.Log($"handType {handType}");
+            if(isDebug && handPoseManager) Debug.Log($"handPoseManager {handPoseManager.HandType}");
             switch (handType)
             {
                 case HandType.Left:

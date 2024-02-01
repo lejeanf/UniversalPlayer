@@ -146,6 +146,8 @@ namespace jeanf.vrplayer
             var invalidObjects = new List<object>();
             var errorMessages = new List<string>();
             var validityCheck = true;
+            
+            invalidObjects.Clear();
             if (playerCamera == null)
             {
                 invalidObjects.Add(playerCamera);
@@ -160,6 +162,7 @@ namespace jeanf.vrplayer
             }
 
             IsValid = validityCheck;
+            if(!IsValid) return;
 
             if (IsValid && !Application.isPlaying) return;
             for(var i = 0 ; i < invalidObjects.Count ; i++)
