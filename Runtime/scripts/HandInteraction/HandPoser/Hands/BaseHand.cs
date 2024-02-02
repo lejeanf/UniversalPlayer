@@ -99,8 +99,7 @@ public abstract class BaseHand : MonoBehaviour
                 Joints[i].localRotation = rotations[i];
             }
             else
-            {
-                    
+            { 
                 var from = value.localRotation;
                 var to = rotations[i];
                 LMotion.Create(from, to, lerpTime).Bind(x => Joints[i].localRotation = x);

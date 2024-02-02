@@ -36,8 +36,8 @@ How to install the VRPlayer for edition:
     - Event System
     - Property Drawer
 - Clone the git repository in Project/Assets folder. 
-- Install required packages:
-    - Lit Motion (link: https://github.com/AnnulusGames/LitMotion) 
+- Make sure all required packages are installed in your project:
+    - LitMotion
     - Vector Graphics (link: https://docs.unity3d.com/Packages/com.unity.vectorgraphics@2.0/manual/index.html for installation guidelines)
     - Input System (You will also need to edit your project settings in Edit/projectSettings/Player/Configuration/ActiveInputHandling and turn on new Input System Package)
     - XR Core Utilities
