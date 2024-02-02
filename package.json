@@ -1,6 +1,6 @@
 ﻿{
   "name": "fr.jeanf.vr.player",
-  "version": "0.3.18",
+  "version": "0.3.19",
   "displayName": "Universal Player",
   "description": "This package contains a universal player working in URP & HDRP for Mouse+Keyboard or VR",
   "unity": "2021.3",
@@ -14,15 +14,6 @@
     "email": "robin.jeanfrancois@gmail.com",
     "url": "https://jeanfrancoisrobin.art"
   },
-  "scopedRegistries": [
-    {
-      "name": "package.openupm.com",
-      "url": "https://package.openupm.com",
-      "scopes": [
-        "com.annulusgames.lit-motion"
-      ]
-    }
-  ],
   "dependencies": {
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.xr": "1.0.0",
@@ -34,12 +25,11 @@
     "com.unity.xr.management": "4.3.3",
     "com.unity.xr.oculus": "3.2.3",
     "fr.jeanf.eventsystem": "0.1.81",
-    "fr.jeanf.propertydrawer": "1.1.1",
-    "com.annulusgames.lit-motion": "1.8.0"
+    "fr.jeanf.propertydrawer": "1.1.1"
   },
   "samples": [
     {
-      "displayName": "VR Player",
+      "displayName": "VR Player", 
       "description": "Prefab of the player",
       "path": "Samples/VRPlayer"
     },
