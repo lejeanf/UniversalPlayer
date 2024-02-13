@@ -34,6 +34,10 @@ namespace jeanf.vrplayer
 
         [Range(0,100.0f)] [SerializeField] private float _mouseSensitivity = 45.0f;
         [SerializeField] private InputActionReference mouseXY;
+        public InputActionReference mouseXYInputAction {
+            get { return mouseXY; }
+            set {mouseXY = value; }
+        }
         private static bool _canLook = true;
         [Space(10)]
         [SerializeField] [Validation("A reference to the Player's Camera is required.")]
