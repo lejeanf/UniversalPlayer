@@ -89,7 +89,6 @@ namespace jeanf.vrplayer
                         Cursor.visible = false;
                     }
                 }
-                //UIGO.SetActive(false);
             }
         }
     }
