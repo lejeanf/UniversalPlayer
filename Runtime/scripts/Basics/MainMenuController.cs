@@ -9,7 +9,12 @@ namespace jeanf.vrplayer
         [Header("Main menu settings:")]
         [SerializeField] private GameObject mainMenu;
         [SerializeField] private InputActionReference openMainMenuAction;
-        
+        public InputActionReference _openMainMenuAction
+        {
+            get { return openMainMenuAction; }
+            set { openMainMenuAction = value; }
+        }
+
         [Header("Broadcasting on:")]
         [SerializeField] private BoolEventChannelSO mainMenuStateChannel;
         private bool _menuState;

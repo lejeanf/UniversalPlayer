@@ -101,7 +101,21 @@ namespace jeanf.vrplayer
             _noGrab.RaiseEvent();
         }
 
-
+        public InputActionReference GetActiveHand()
+        {
+            if (_ipadState is IpadState.InLeftHand)
+            {
+                return drawPrimaryItem_LeftHand;
+            }
+            else if (_ipadState is IpadState.InRightHand)
+            {
+                return drawPrimaryItem_RightHand;
+            }
+            else
+            {
+                return null;
+            }
+        }
 
         public void SetIpadStateForLeftHand(HandInfo handInfo)
         {
