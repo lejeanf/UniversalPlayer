@@ -109,7 +109,7 @@ namespace jeanf.vrplayer
             actionRebindedListener.OnEventRaised -= (input, value) => RebindInput(input, value);
         }
 
-//#if UNITY_EDITOR
+        #if UNITY_EDITOR
         public void CreatePlayerActions()
         {
             foreach (var action in m_InputActionAsset)
@@ -132,7 +132,7 @@ namespace jeanf.vrplayer
                 }
             }
         }
-//#endif
+        #endif
 
         private void ListAllInputs()
         {
