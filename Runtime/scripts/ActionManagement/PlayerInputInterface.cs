@@ -5,26 +5,105 @@ using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
 using jeanf.vrplayer;
 using jeanf.EventSystem;
+using jeanf.validationTools;
 
 namespace jeanf.vrplayer 
 {
-    public class PlayerInputInterface : MonoBehaviour
+    public class PlayerInputInterface : MonoBehaviour, IValidatable
     {
+
+        #region Debug tools
+        public bool IsValid { get; private set; }
+        #endregion
+
+        [Validation("A reference to InputActionAsset is required.")]
         [SerializeField] private InputActionAsset inputActionAsset;
+        [Validation("A reference to ContinuousMoveProvider is required.")]
         [SerializeField] private ActionBasedContinuousMoveProvider continuousMoveProvider;
+        [Validation("A reference to mouseLook is required.")]
         [SerializeField] private MouseLook mouseLook;
+        [Validation("A reference to ActionBasedSnapTurnProvider is required.")]
         [SerializeField] private ActionBasedSnapTurnProvider snapTurnProvider;
-        [SerializeField] private ActionRebindEventChannelSO actionRebindedListener;
-        [SerializeField] private BoolEventChannelSO uiActivationChannel;
+        [Validation("A reference to GetPrimaryInHandItemWithVRController is required.")]
         [SerializeField] private GetPrimaryInHandItemWithVRController controller;
+        [Validation("A reference to MainMenuController is required.")]
         [SerializeField] private MainMenuController _mainMenuController;
+        [Validation("A reference to ActionRebind event channel SO is required.")]
+        [SerializeField] private ActionRebindEventChannelSO actionRebindedListener;
 
 
+        #if UNITY_EDITOR
+        private void OnValidate()
+        {
+            var invalidObjects = new List<object>();
+            var errorMessages = new List<string>();
+            var validityCheck = true;
+
+            invalidObjects.Clear();
+
+            if (inputActionAsset == null)
+            {
+                invalidObjects.Add(inputActionAsset);
+                errorMessages.Add("No InputActionAsset set");
+                validityCheck = false;
+            }
+
+            if (continuousMoveProvider == null)
+            {
+                invalidObjects.Add(continuousMoveProvider);
+                errorMessages.Add("No continuousMoveProvider set");
+                validityCheck = false;
+            }
+
+            if (mouseLook == null)
+            {
+                invalidObjects.Add(mouseLook);
+                errorMessages.Add("No mouseLook set");
+                validityCheck = false;
+            }
+
+            if (snapTurnProvider == null)
+            {
+                invalidObjects.Add(snapTurnProvider);
+                errorMessages.Add("No snapTurnProvider set");
+                validityCheck = false;
+            }
+
+            if (controller == null)
+            {
+                invalidObjects.Add(controller);
+                errorMessages.Add("No PrimaryInHandItemWithVRController set");
+                validityCheck = false;
+            }
+
+            if (_mainMenuController == null)
+            {
+                invalidObjects.Add(_mainMenuController);
+                errorMessages.Add("No MainMenuController set");
+                validityCheck = false;
+            }
+            if (actionRebindedListener == null)
+            {
+                invalidObjects.Add(actionRebindedListener);
+                errorMessages.Add("No Action Rebind SO set");
+                validityCheck = false;
+            }
+
+
+            IsValid = validityCheck;
+            if (!IsValid) return;
+
+            if (IsValid && !Application.isPlaying) return;
+            for (int i = 0; i < invalidObjects.Count; i++)
+            {
+                Debug.LogError($"Error: {errorMessages[i]} ", this.gameObject);
+            }
+        }
+        #endif
 
         private void OnEnable()
         {
             actionRebindedListener.OnEventRaised += (InputAction, Int) => ChangeActionBindingOnDeltaScript(InputAction, Int);
-            uiActivationChannel.OnEventRaised += state => SetUIState(state);
         }
 
         private void OnDisable() => Unsubscribe();
@@ -35,7 +114,6 @@ namespace jeanf.vrplayer
         private void Unsubscribe()
         {
             actionRebindedListener.OnEventRaised -= (InputAction, Int) => ChangeActionBindingOnDeltaScript(InputAction, Int);
-            uiActivationChannel.OnEventRaised -= state => SetUIState(state);            
 
         }
 
@@ -62,33 +140,6 @@ namespace jeanf.vrplayer
                     break;
                 default:
                     break;
-            }
-        }
-
-        private void SetUIState(bool state)
-        {
-            if (state)
-            {
-                foreach (var actionMap in inputActionAsset.actionMaps)
-                {
-                    if (actionMap == inputActionAsset.FindActionMap("XRI LeftHand Locomotion") || actionMap == inputActionAsset.FindActionMap("FPS"))
-                    {
-                        actionMap.Disable();
-                        Cursor.visible = true;
-                    }
-                }
-            }
-
-            else
-            {
-                foreach (var actionMap in inputActionAsset.actionMaps)
-                {
-                    if (actionMap == inputActionAsset.FindActionMap("XRI LeftHand Locomotion") || actionMap == inputActionAsset.FindActionMap("FPS"))
-                    {
-                        actionMap.Enable();
-                        Cursor.visible = false;
-                    }
-                }
             }
         }
     }

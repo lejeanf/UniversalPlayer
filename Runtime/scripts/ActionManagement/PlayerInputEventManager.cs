@@ -29,7 +29,7 @@ namespace jeanf.vrplayer
         #endregion
 
 
-
+        #if UNITY_EDITOR
         public void CreateEventChannels()
         {
             const string searching = "attempting to find";
@@ -182,9 +182,7 @@ namespace jeanf.vrplayer
                     AssetDatabase.CreateAsset(xrDirectInteractorEvent_RightChannelSO, $"Assets/Resources/{pathChannelsFolder}/XRDirectInteractorEvent_RightChannel SO.asset");
                 }
             }
-
             #endregion
-
             #region Events to go in Assets/Resources/Player/Channels/Grab folder
             if (grab_LeftHand_SetAttachTransformSO == null)
             {
@@ -258,10 +256,7 @@ namespace jeanf.vrplayer
                 }
             }
             #endregion
-
-
-
         }
+        #endif
     }
-
 }

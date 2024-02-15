@@ -10,7 +10,7 @@ namespace jeanf.vrplayer
     [CreateAssetMenu(fileName = "ActionSO", menuName = "PlayerActions/ActionSO", order = 2)]
 
     [ScriptableObjectDrawer]
-    public class ActionSO : ScriptableObject
+    public class ActionSO : ScriptableObject, ISerializationCallbackReceiver
     {
 
         public InputAction inputAction;
@@ -20,11 +20,30 @@ namespace jeanf.vrplayer
 
         public List<InputBinding> bindings = new List<InputBinding>();
 
-
         public DescriptionBaseSO eventChannel;
 
         public bool canRebind = false;
-
         
+       
+        public void OnBeforeSerialize()
+        {
+        }
+
+        public void OnAfterDeserialize()
+        {
+            foreach (var binding in bindings)
+            {
+                if (inputAction.bindings.Count >= bindings.Count)
+                {
+                    return;
+                }
+                inputAction.AddBinding(binding);
+            }
+        }
+
+        void SaveData()
+        {
+
+        }
     }
 }

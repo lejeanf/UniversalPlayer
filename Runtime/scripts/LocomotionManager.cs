@@ -5,10 +5,11 @@ using jeanf.EventSystem;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
+using jeanf.validationTools;
 
 [RequireComponent(typeof(ContinuousMoveProviderBase))]
 [RequireComponent(typeof(TeleportationProvider))]
-public class LocomotionManager : MonoBehaviour, IDebugBehaviour
+public class LocomotionManager : MonoBehaviour, IDebugBehaviour, IValidatable
 {
     public bool isDebug
     { 
@@ -16,24 +17,52 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour
         set => _isDebug = value; 
     }
     [SerializeField] private bool _isDebug = false;
-    
+    public bool IsValid { get; private set; }
+
+    [Validation("A reference to InputActionAsset is required.")]
+    [SerializeField] private InputActionAsset inputActionAsset;
+    [Validation("A reference to bool event channel SO (from UI opening) is required.")]
     [Header("Listening on:")]
     [SerializeField] private BoolEventChannelSO continuousMoveStateChannel;
 
-    [SerializeField] private bool invertInputValue = true;
-    private ActionBasedContinuousMoveProvider _continuousMoveProvider;
-    private InputActionReference _continuousMoveInputReference;
 
-    private void Awake()
+    #if UNITY_EDITOR
+    private void OnValidate()
     {
-        _continuousMoveProvider = GetComponent<ActionBasedContinuousMoveProvider>();
-        
-        SetContinuousMoveInputReference();
-    }
+        var invalidObjects = new List<object>();
+        var errorMessages = new List<string>();
+        var validityCheck = true;
 
+        invalidObjects.Clear();
+
+        if (inputActionAsset == null)
+        {
+            invalidObjects.Add(inputActionAsset);
+            errorMessages.Add("No InputActionAsset set");
+            validityCheck = false;
+        }
+
+        if (continuousMoveStateChannel == null)
+        {
+            invalidObjects.Add(continuousMoveStateChannel);
+            errorMessages.Add("No Bool Event Channel set");
+            validityCheck = false;
+        }
+
+
+        IsValid = validityCheck;
+        if (!IsValid) return;
+
+        if (IsValid && !Application.isPlaying) return;
+        for (int i = 0; i < invalidObjects.Count; i++)
+        {
+            Debug.LogError($"Error: {errorMessages[i]} ", this.gameObject);
+        }
+    }
+    #endif
     private void OnEnable()
     {
-        continuousMoveStateChannel.OnEventRaised += SetContiuousMoveState;
+        continuousMoveStateChannel.OnEventRaised += state => SetUIState(state);
     }
 
     private void OnDisable() => Unsubscribe();
@@ -41,30 +70,34 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour
 
     private void Unsubscribe()
     {
-        continuousMoveStateChannel.OnEventRaised -= null;
+        continuousMoveStateChannel.OnEventRaised -= state => SetUIState(state);
     }
 
-    public void SetContiuousMoveState(bool state)
-    {
-        if (invertInputValue) state = !state;
-        if (state) SetContinuousMoveInputReference();
 
-        _continuousMoveProvider.enabled = state;
-        if(isDebug) Debug.Log($"_continuousMoveProvider state: {state}");
-    }
-    private void SetContinuousMoveInputReference()
+    private void SetUIState(bool state)
     {
-        if(_continuousMoveProvider.leftHandMoveAction.reference != null)
+        if (state)
         {
-            if(isDebug) Debug.Log($"Re-assigning input reference {_continuousMoveProvider.leftHandMoveAction.reference.name}");
-
-            _continuousMoveInputReference = _continuousMoveProvider.leftHandMoveAction.reference;
-            
+            foreach (var actionMap in inputActionAsset.actionMaps)
+            {
+                if (actionMap == inputActionAsset.FindActionMap("XRI LeftHand Locomotion"))
+                {
+                    actionMap.Disable();
+                    Cursor.visible = true;
+                }
+            }
         }
+
         else
         {
-            if(isDebug) Debug.Log("No Continuous Move Provider Input Action was found on the Left Hand. Please set it on your  Left hand Move Action found on the Continuous Move Provider use the Locomotion Manager");
+            foreach (var actionMap in inputActionAsset.actionMaps)
+            {
+                if (actionMap == inputActionAsset.FindActionMap("XRI LeftHand Locomotion"))
+                {
+                    actionMap.Enable();
+                    Cursor.visible = false;
+                }
+            }
         }
-        _continuousMoveProvider.leftHandMoveAction = new InputActionProperty(_continuousMoveInputReference);
     }
 }
