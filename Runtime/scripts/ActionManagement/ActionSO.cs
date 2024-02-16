@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 using jeanf.propertyDrawer;
 using jeanf.EventSystem;
 
+
 namespace jeanf.vrplayer
 {
     [CreateAssetMenu(fileName = "ActionSO", menuName = "PlayerActions/ActionSO", order = 2)]
@@ -12,6 +13,8 @@ namespace jeanf.vrplayer
     [ScriptableObjectDrawer]
     public class ActionSO : ScriptableObject, ISerializationCallbackReceiver
     {
+
+        private const string RebindsKey = "rebinds";
 
         public InputAction inputAction;
 
@@ -23,10 +26,16 @@ namespace jeanf.vrplayer
         public DescriptionBaseSO eventChannel;
 
         public bool canRebind = false;
-        
-       
+
+        private void OnEnable()
+        {
+            string rebinds = PlayerPrefs.GetString(RebindsKey, string.Empty);
+            if (string.IsNullOrEmpty(rebinds)) { return; }
+            inputAction.LoadBindingOverridesFromJson(rebinds);
+        }
         public void OnBeforeSerialize()
         {
+           
         }
 
         public void OnAfterDeserialize()
@@ -41,9 +50,10 @@ namespace jeanf.vrplayer
             }
         }
 
-        void SaveData()
-        {
-
-        }
+        //public void SaveData()
+        //{
+        //    string rebinds = inputAction.SaveBindingOverridesAsJson();
+        //    PlayerPrefs.SetString("ActionSORebinds", rebinds);
+        //}
     }
 }

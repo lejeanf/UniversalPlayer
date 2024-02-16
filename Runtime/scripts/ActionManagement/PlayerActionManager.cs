@@ -130,6 +130,8 @@ namespace jeanf.vrplayer
                 {
                     actionSO.bindings.Add(binding);
                 }
+
+                EditorUtility.SetDirty(actionSO);
             }
         }
         #endif
@@ -159,6 +161,8 @@ namespace jeanf.vrplayer
             }
             Debug.Log($"This is RebindInput and this is your new path {_actionContainer._actions[inputAction].inputAction.bindings[index]}");
             Debug.Log($"This is RebindInput and this is to make sure {_actionContainer._actions[inputAction].inputAction.bindings[index - 1]}");
+
+            //_actionContainer._actions[inputAction].SaveData();
         }
 
         private Action ForwardActionToSO(ActionSO action, InputAction.CallbackContext ctx)
