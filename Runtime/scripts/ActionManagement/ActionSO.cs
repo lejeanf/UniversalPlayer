@@ -49,11 +49,5 @@ namespace jeanf.vrplayer
                 inputAction.AddBinding(binding);
             }
         }
-
-        //public void SaveData()
-        //{
-        //    string rebinds = inputAction.SaveBindingOverridesAsJson();
-        //    PlayerPrefs.SetString("ActionSORebinds", rebinds);
-        //}
     }
 }

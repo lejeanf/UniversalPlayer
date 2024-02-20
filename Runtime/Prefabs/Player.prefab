@@ -955,6 +955,58 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!1 &3588530343261627086
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4457342228019473233}
+  - component: {fileID: 3912709190188265426}
+  m_Layer: 0
+  m_Name: ActionRebinder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4457342228019473233
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3588530343261627086}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.5466079, y: 0, z: 0.5466079}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8151279016463066}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3912709190188265426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3588530343261627086}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 822f26158615d4c45a49f3abfafce33b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputActionAsset: {fileID: -944628639613478452, guid: 110d9016d6486d84697b9d7a66a57d45,
+    type: 3}
+  rebindedActionSenderSO: {fileID: 11400000, guid: 6a5f2ae95d02ea1458fca4946f54c37b,
+    type: 2}
+  actionRebindListenerSO: {fileID: 11400000, guid: 7aa852caccf3d7c45a6cf6d510c76159,
+    type: 2}
+  uiActivationEventChannelSO: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6,
+    type: 2}
 --- !u!1 &4461274153183352764
 GameObject:
   m_ObjectHideFlags: 0
@@ -1137,9 +1189,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isDebug: 0
+  inputActionAsset: {fileID: 0}
   continuousMoveStateChannel: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6,
     type: 2}
-  invertInputValue: 1
 --- !u!1 &4568312785888129817
 GameObject:
   m_ObjectHideFlags: 0
@@ -1475,6 +1527,7 @@ Transform:
   - {fileID: 1263127693}
   - {fileID: 965419838}
   - {fileID: 1768687716}
+  - {fileID: 4457342228019473233}
   m_Father: {fileID: 2423214379621556911}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6257423915777697682
@@ -2717,12 +2770,10 @@ MonoBehaviour:
   continuousMoveProvider: {fileID: 3787747753465050079}
   mouseLook: {fileID: 965419840}
   snapTurnProvider: {fileID: 77702643294028684}
-  actionRebindedListener: {fileID: 11400000, guid: 6a5f2ae95d02ea1458fca4946f54c37b,
-    type: 2}
-  uiActivationChannel: {fileID: 11400000, guid: e6da35119f512934e84de7e2f1b729d0,
-    type: 2}
   controller: {fileID: 1445164021152325472}
   _mainMenuController: {fileID: 1768687717}
+  actionRebindedListener: {fileID: 11400000, guid: 6a5f2ae95d02ea1458fca4946f54c37b,
+    type: 2}
 --- !u!114 &891806810656328775
 MonoBehaviour:
   m_ObjectHideFlags: 0

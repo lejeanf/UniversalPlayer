@@ -154,15 +154,10 @@ namespace jeanf.vrplayer
 
         void RebindInput(InputAction inputAction, int index)
         {
-            Debug.Log($"This is RebindInput and this is your old path {_actionContainer._actions[inputAction].inputAction.bindings[index]}");
             if (_actionContainer._actions[inputAction] != null && _actionContainer._actions[inputAction].canRebind)
             {
                 _actionContainer._actions[inputAction].inputAction.ApplyBindingOverride(index, inputAction.bindings[index].overridePath);
             }
-            Debug.Log($"This is RebindInput and this is your new path {_actionContainer._actions[inputAction].inputAction.bindings[index]}");
-            Debug.Log($"This is RebindInput and this is to make sure {_actionContainer._actions[inputAction].inputAction.bindings[index - 1]}");
-
-            //_actionContainer._actions[inputAction].SaveData();
         }
 
         private Action ForwardActionToSO(ActionSO action, InputAction.CallbackContext ctx)
