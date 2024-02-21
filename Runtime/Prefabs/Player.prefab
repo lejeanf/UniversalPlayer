@@ -48,6 +48,7 @@ MonoBehaviour:
   useInputAction: 1
   drawPrimaryItem: {fileID: 4704634921477788372, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
+  loginFieldIsOpened: {fileID: 11400000, guid: 18a5405adeda6b6469dc7393511504a2, type: 2}
   _PrimaryItemStateChannel: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6,
     type: 2}
 --- !u!114 &1445164021152325472
@@ -1189,7 +1190,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isDebug: 0
-  inputActionAsset: {fileID: 0}
+  inputActionAsset: {fileID: -944628639613478452, guid: 110d9016d6486d84697b9d7a66a57d45,
+    type: 3}
   continuousMoveStateChannel: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6,
     type: 2}
 --- !u!1 &4568312785888129817
@@ -2750,7 +2752,7 @@ MonoBehaviour:
   _inputActionList: []
   m_InputActionAsset: {fileID: -944628639613478452, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
-  _actionContainer: {fileID: 11400000, guid: ed543a8a7c7bbaf42bc8c8d3920646b4, type: 2}
+  _actionContainer: {fileID: 11400000, guid: b5b1fec7d21b69145a675d01177823e2, type: 2}
   actionRebindedListener: {fileID: 11400000, guid: 6a5f2ae95d02ea1458fca4946f54c37b,
     type: 2}
 --- !u!114 &8181721135841574653

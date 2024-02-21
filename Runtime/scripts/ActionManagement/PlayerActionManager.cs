@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -78,6 +79,7 @@ namespace jeanf.vrplayer
             {
                 Debug.LogError($"Error: {errorMessages[i]} ", this.gameObject);
             }
+            
         }
         #endif
 
@@ -119,7 +121,27 @@ namespace jeanf.vrplayer
                 {
                     actionSO = (ActionSO)ScriptableObject.CreateInstance($"ActionSO");
                     actionSO.name = $"{action.actionMap.name}_{action.name}";
-                    AssetDatabase.CreateAsset(actionSO, $"Assets/Resources/Player/Actions/{actionSO.name}.asset");
+                    const string path = "Assets/Resources/Player/Actions";
+                    if (!Directory.Exists(path))
+                    {
+                        var folderTree = path.Split('/');
+                        var previousTest = "";
+                        for (var i = 0; i < folderTree.Length; i++)
+                        {
+                            previousTest += $"{folderTree[i]}/";
+                            if (!Directory.Exists(folderTree[i]))
+                            {
+                                Debug.Log($"Directory {folderTree[i]} does not exist, creating it." );
+                                Directory.CreateDirectory($"{previousTest}");
+                            }
+                            else
+                            {
+                                Debug.Log($"Directory {folderTree[i]} exists, going forward." );
+                            }
+                        }
+                    }
+
+                    AssetDatabase.CreateAsset(actionSO, $"{path}/{actionSO.name}.asset");
                     
                 }
                 actionSO.actionName = action.name;
@@ -134,7 +156,7 @@ namespace jeanf.vrplayer
                 EditorUtility.SetDirty(actionSO);
             }
         }
-        #endif
+#endif
 
         private void ListAllInputs()
         {
