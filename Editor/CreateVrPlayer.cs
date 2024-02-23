@@ -5,19 +5,11 @@ using jeanf.EventSystem;
 namespace jeanf.vrplayer {
     public class CreateVrPlayer : MonoBehaviour
     {
-        private static VoidEventChannelSO playerCreatedEventChannel;
+        //private static VoidEventChannelSO playerCreatedEventChannel;
 
         [MenuItem("GameObject/Create Universal Player")]
         private static void CreateUniversalPlayer()
         {
-            playerCreatedEventChannel = Resources.Load<VoidEventChannelSO>("Player/Channels/PlayerCreatedEventChannel");
-
-            if(playerCreatedEventChannel == null)
-            {
-                playerCreatedEventChannel = (VoidEventChannelSO)ScriptableObject.CreateInstance(typeof(VoidEventChannelSO));
-                playerCreatedEventChannel.name = "PlayerCreatedEventChannel";
-                AssetDatabase.CreateAsset(playerCreatedEventChannel, $"Assets/Resources/Player/Channels/PlayerCreatedEventChannel.asset");
-            }
             var playerInPackage = AssetDatabase.LoadAssetAtPath<Object>("Packages/fr.jeanf.vr.player/Runtime/Prefabs/Player.prefab");
             var playerInPackageBuilder = AssetDatabase.LoadAssetAtPath<Object>("Assets/VR_Player/Runtime/Prefabs/Player.prefab");
             var playerPrefab = playerInPackage == null ? playerInPackageBuilder : playerInPackage;
@@ -46,8 +38,6 @@ namespace jeanf.vrplayer {
             prefab.GetComponent<XROrigin>().Camera = cameraComponent;
             prefab.gameObject.GetComponentInChildren<MouseLook>().playerCamera = cameraComponent;
             mainCameraTarget.GetComponentInChildren<Canvas>().worldCamera = cameraComponent;
-
-            playerCreatedEventChannel.RaiseEvent();
         }
     }
 }
