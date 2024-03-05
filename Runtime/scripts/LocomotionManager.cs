@@ -23,7 +23,7 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour, IValidatable
     [SerializeField] private InputActionAsset inputActionAsset;
     [Validation("A reference to bool event channel SO (from UI opening) is required.")]
     [Header("Listening on:")]
-    [SerializeField] private BoolEventChannelSO continuousMoveStateChannel;
+    [SerializeField] private BoolEventChannelSO isInputFieldFocused;
 
 
     #if UNITY_EDITOR
@@ -42,9 +42,9 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour, IValidatable
             validityCheck = false;
         }
 
-        if (continuousMoveStateChannel == null)
+        if (isInputFieldFocused == null)
         {
-            invalidObjects.Add(continuousMoveStateChannel);
+            invalidObjects.Add(isInputFieldFocused);
             errorMessages.Add("No Bool Event Channel set");
             validityCheck = false;
         }
@@ -62,7 +62,8 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour, IValidatable
     #endif
     private void OnEnable()
     {
-        continuousMoveStateChannel.OnEventRaised += state => SetUIState(state);
+
+         isInputFieldFocused.OnEventRaised += state => SetUIState(state);
     }
 
     private void OnDisable() => Unsubscribe();
@@ -70,7 +71,7 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour, IValidatable
 
     private void Unsubscribe()
     {
-        continuousMoveStateChannel.OnEventRaised -= state => SetUIState(state);
+        isInputFieldFocused.OnEventRaised += state => SetUIState(state);
     }
 
 
