@@ -24,6 +24,7 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour, IValidatable
     [Validation("A reference to bool event channel SO (from UI opening) is required.")]
     [Header("Listening on:")]
     [SerializeField] private BoolEventChannelSO isInputFieldFocused;
+    [SerializeField] private BoolEventChannelSO mainMenuIsOpened;
 
 
     #if UNITY_EDITOR
@@ -71,7 +72,8 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour, IValidatable
 
     private void Unsubscribe()
     {
-        isInputFieldFocused.OnEventRaised += state => SetUIState(state);
+        isInputFieldFocused.OnEventRaised -= state => SetUIState(state);
+        mainMenuIsOpened.OnEventRaised -= state => SetUIState(state);
     }
 
 
@@ -84,7 +86,6 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour, IValidatable
                 if (actionMap == inputActionAsset.FindActionMap("XRI LeftHand Locomotion"))
                 {
                     actionMap.Disable();
-                    Cursor.visible = true;
                 }
             }
         }
@@ -96,7 +97,6 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour, IValidatable
                 if (actionMap == inputActionAsset.FindActionMap("XRI LeftHand Locomotion"))
                 {
                     actionMap.Enable();
-                    Cursor.visible = false;
                 }
             }
         }
