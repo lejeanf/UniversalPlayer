@@ -17,6 +17,7 @@ namespace jeanf.vrplayer
 
         [Header("Broadcasting on:")]
         [SerializeField] private BoolEventChannelSO mainMenuStateChannel;
+        [SerializeField] private BoolEventChannelSO GeneralPauseEventChannel;
         private bool _menuState;
 
         private void OnEnable()
@@ -43,7 +44,11 @@ namespace jeanf.vrplayer
         private void SetMenu(bool state)
         {
             mainMenuStateChannel.RaiseEvent(state);
-            if(mainMenu) mainMenu.SetActive(state);
+            if (GeneralPauseEventChannel != null )
+            {
+                GeneralPauseEventChannel.RaiseEvent(state);
+            }
+            if (mainMenu) mainMenu.SetActive(state);
         }
     }
 }
