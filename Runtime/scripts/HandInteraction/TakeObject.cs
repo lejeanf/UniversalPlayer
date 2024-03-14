@@ -66,6 +66,8 @@ namespace jeanf.vrplayer
         [Space(20)]
         private bool holdState = false;
 
+        [SerializeField] private BoolEventChannelSO objectTakenChannel;
+
         private void Awake()
         {
             if (!cameraTransform) cameraTransform = Camera.main.transform;
@@ -154,6 +156,8 @@ namespace jeanf.vrplayer
             rb.angularDrag = 10;
             _currentObjectHeldRb = rb;
             _currentObjectHeld = hit.transform;
+            
+            objectTakenChannel.RaiseEvent(true);
         }
 
         private void Release()
@@ -180,6 +184,8 @@ namespace jeanf.vrplayer
                 
             _currentObjectHeld = null;
             _currentObjectHeldRb = null;
+            
+            objectTakenChannel.RaiseEvent(false);
         }
 
         private void ReleaseHold()
