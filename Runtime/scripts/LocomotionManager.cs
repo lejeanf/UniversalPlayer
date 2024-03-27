@@ -24,6 +24,7 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour, IValidatable
     [Validation("A reference to bool event channel SO (from UI opening) is required.")]
     [Header("Listening on:")]
     [SerializeField] private BoolEventChannelSO isInputFieldFocused;
+    [SerializeField] private BoolEventChannelSO isLoadingScene;
 
 
     #if UNITY_EDITOR
@@ -63,7 +64,8 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour, IValidatable
     private void OnEnable()
     {
 
-         isInputFieldFocused.OnEventRaised += state => SetUIState(state);
+        isInputFieldFocused.OnEventRaised += state => SetInputActivation(state);
+        isLoadingScene.OnEventRaised += state => SetInputActivation(state);
     }
 
     private void OnDisable() => Unsubscribe();
@@ -71,11 +73,12 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour, IValidatable
 
     private void Unsubscribe()
     {
-        isInputFieldFocused.OnEventRaised -= state => SetUIState(state);
+        isInputFieldFocused.OnEventRaised -= state => SetInputActivation(state);
+        isLoadingScene.OnEventRaised += state => SetInputActivation(state);
     }
 
 
-    private void SetUIState(bool state)
+    private void SetInputActivation(bool state)
     {
         if (state)
         {
