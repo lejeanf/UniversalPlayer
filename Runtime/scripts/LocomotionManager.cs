@@ -50,6 +50,12 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour, IValidatable
             validityCheck = false;
         }
 
+        if (isLoadingScene == null)
+        {
+            invalidObjects.Add(isLoadingScene);
+            errorMessages.Add("No Bool Event Channel set");
+            validityCheck = false;
+        }
 
         IsValid = validityCheck;
         if (!IsValid) return;
