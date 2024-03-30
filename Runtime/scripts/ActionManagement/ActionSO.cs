@@ -38,6 +38,7 @@ namespace jeanf.vrplayer
            
         }
 
+
         public void OnAfterDeserialize()
         {
             foreach (var binding in bindings)

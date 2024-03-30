@@ -2655,6 +2655,7 @@ GameObject:
   - component: {fileID: 4061889393909512434}
   - component: {fileID: 8181721135841574653}
   - component: {fileID: 891806810656328775}
+  - component: {fileID: 6693059999648577018}
   m_Layer: 2
   m_Name: Player
   m_TagString: Player
@@ -2792,6 +2793,361 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80ae9bca6617e104096d39288abffe29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &6693059999648577018
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8694773027870397994}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Actions: {fileID: -944628639613478452, guid: 9728644601756ff4fa7d5275dffb423f,
+    type: 3}
+  m_NotificationBehavior: 2
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents:
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 75ffee48-6668-45f4-a7ac-40b8a2473396
+    m_ActionName: Player/HMD Position
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 16330805-4508-4422-8932-8b4f30ed1d2e
+    m_ActionName: Player/HMD Rotation
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: ee37cabb-b84a-42f0-9885-3683c5c99f61
+    m_ActionName: Player/HMD Is Tracked
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 82b348ea-c14f-4fd3-85ec-440c590e9548
+    m_ActionName: Player/HMD Tracking State
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: bb2e0c04-e669-4005-b2d8-5c379aaca01f
+    m_ActionName: Player/HMD Eye Gaze Position
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: c9e0057b-e925-484a-9973-25c5c2400a94
+    m_ActionName: Player/HMD Eye Gaze Rotation
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 610d72d5-793f-4eb8-8182-6c130743fd10
+    m_ActionName: Player/HMD Eye Gaze Tracking State
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: c24f0a80-2b80-4b30-b511-1fd98fcc8b14
+    m_ActionName: Player/HMD UserPresence
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: afd00a7e-b3de-4058-8662-539f8370284d
+    m_ActionName: Player/XRLH DrawPrimaryItem
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2278783626678670785}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 3c97bac5-09d3-4ae4-a5e5-27dac17f7dbe
+    m_ActionName: Player/XRLH Poke Rotation
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: deffa02e-77bc-48d8-a7e4-3c7c2d1e749e
+    m_ActionName: Player/XRLH Poke Position
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 99a134cf-b361-4735-bafa-d13d3e6733aa
+    m_ActionName: Player/XRLH Pinch Position
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 56a16464-8667-416c-afe8-7df76251d977
+    m_ActionName: Player/XRLH Aim Rotation
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: b05f4dfb-041e-4fd0-a91c-9d5070b2b167
+    m_ActionName: Player/XRLH Aim Position
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: eb448173-bb04-4a13-b900-756f9cf005fd
+    m_ActionName: Player/XRLH Haptic Device
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 633fd9da-9144-47d4-a143-7977affd1f0b
+    m_ActionName: Player/XRLH Tracking State
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: d785875f-8c22-4c88-8680-f1fbecea9827
+    m_ActionName: Player/XRLH Is Tracked
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: d0333bfb-e300-48c0-88a4-68b8b2c3ae60
+    m_ActionName: Player/XRLH Rotation
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e2ac42a4-d5bd-4e10-89b6-5890601978c5
+    m_ActionName: Player/XRLH Position
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 94b8dd49-a28d-403e-a839-bc15c18d2479
+    m_ActionName: Player/XRLH Preview Raycast
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e0b351f2-db6f-45bf-8e05-a3f0acd3ced9
+    m_ActionName: Player/XRLH Translate Anchor
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 02db05f3-8802-4cba-964e-0348f9c943a0
+    m_ActionName: Player/XRLH Rotate Anchor
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 8415b3c3-b181-48a2-ad11-97e4442984a0
+    m_ActionName: Player/XRLH UI Press Value
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: ef53eca5-3485-4cd1-a1ae-0f0c53fd7345
+    m_ActionName: Player/XRLH UI Press
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: fde890d7-78ef-4923-a2cd-a0062fa119ff
+    m_ActionName: Player/XRLH Activate Value
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 1ce126b2-674a-45f1-9993-f80163e03d46
+    m_ActionName: Player/XRLH Activate
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 28fde444-717a-40e7-8f24-227996d1ad26
+    m_ActionName: Player/XRLH Select Value
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 52014dd1-4d89-4c17-ac1d-c7bf6a1f8c50
+    m_ActionName: Player/XRLH Select
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e95fc5a3-8f54-4dcc-a976-86d250317da1
+    m_ActionName: Player/XRLH Teleport Select
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 2b2c3494-e55d-4aba-ba2d-c1a70bd539b6
+    m_ActionName: Player/XRLH Teleport Mode Activate
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 304a6126-76c9-48fb-a22e-52ad04b79250
+    m_ActionName: Player/XRLH Teleport Mode Cancel
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 05d694de-2f7f-4555-b7f9-5762c1a226eb
+    m_ActionName: Player/XRLH Teleport Direction
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: faed82ff-a379-4e04-8823-82956b7d3229
+    m_ActionName: Player/XRLH Turn
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 108bea2f-a341-4ce1-8651-8f796c1a968d
+    m_ActionName: Player/XRLH Move[/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow,/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 4125bc57-bd43-4a50-bba6-c46020be7880
+    m_ActionName: Player/XRLH Grab Move
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 2090a1e4-cc78-456f-9abe-95943fd52a94
+    m_ActionName: Player/XRLH Snap Turn
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: ca41e1e0-bc9e-49df-83bd-5995150e6bce
+    m_ActionName: Player/XRRH DrawPrimaryItem
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 3744c1be-b584-4d5b-8ebb-f87872fb7d0d
+    m_ActionName: Player/XRRH Poke Rotation
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: a197bc32-c456-4f3d-bbb5-c9e55133f584
+    m_ActionName: Player/XRRH Poke Position
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 8bbd673b-2cfb-4108-95ff-3fe088d135c4
+    m_ActionName: Player/XRRH Pinch Position
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: af4c1b95-e467-46ad-900c-ca43d9fb43a1
+    m_ActionName: Player/XRRH Aim Rotation
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: d0696445-1a21-42ac-a465-b87f3fcdd798
+    m_ActionName: Player/XRRH Aim Position
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: b7b5201a-eccf-41c5-8261-2ce27f36d719
+    m_ActionName: Player/XRRH Haptic Device
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: b2d63d44-f7d6-485a-a05b-dcbb9f5c32ae
+    m_ActionName: Player/XRRH Tracking State
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: c4388459-ca60-4987-8022-3fd6bf6dbbda
+    m_ActionName: Player/XRRH Is Tracked
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 6cfcd36b-2158-46ae-bdc9-e77b8491b2ba
+    m_ActionName: Player/XRRH Rotation
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 58ec7d16-587f-4d25-abb6-7b207252973b
+    m_ActionName: Player/XRRH Position
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 73074f7d-dc6a-4513-bcbb-b3077b7dc02e
+    m_ActionName: Player/XRRH Preview Raycast
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: fd1646ce-7a0a-4c54-b423-d5186029e557
+    m_ActionName: Player/XRRH Translate Anchor
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: a6168f6f-8080-49b8-8876-9c3b5288d845
+    m_ActionName: Player/XRRH Rotate Anchor
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: cacd05e0-bc69-484d-9725-18b1ce62f149
+    m_ActionName: Player/XRRH UI Press Value
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 9645a965-e563-467a-9a93-69115a93659e
+    m_ActionName: Player/XRRH UI Press
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: a817b16c-2292-4af2-954d-c046a394bddf
+    m_ActionName: Player/XRRH Activate Value
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: d4ea7c6a-9c90-4f03-b74a-135ba4dfed9f
+    m_ActionName: Player/XRRH Activate
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 0198f554-40db-4d8c-9444-9187c7c246ed
+    m_ActionName: Player/XRRH Select Value
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 956e010a-1733-4231-b2ce-a1cd680d663d
+    m_ActionName: Player/XRRH Select
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 3a0ef5c5-9fec-4468-b718-024a5492a885
+    m_ActionName: Player/XRRH Snap Turn
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 539e6584-db89-49e4-919e-b6513f654bda
+    m_ActionName: Player/XRRH Grab Move
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: b9501fd6-7445-4931-9a74-bf8a7748be64
+    m_ActionName: Player/XRRH Move
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: f33b6126-f078-40c4-988b-0bee24927e65
+    m_ActionName: Player/XRRH Turn
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: db4246a4-171d-477c-95e0-9fbb6d0dd01f
+    m_ActionName: Player/XRRH Teleport Direction
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: ca9ff8de-68fc-4e19-bd57-a99975751086
+    m_ActionName: Player/XRRH Teleport Mode Cancel
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 94371da3-e030-4f0d-a2ea-663898196144
+    m_ActionName: Player/XRRH Teleport Mode Activate
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: df8fe452-264e-4652-a3c6-c784c448dc91
+    m_ActionName: Player/XRRH Teleport Select
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 88e82366-d8b5-4600-9760-ab963059ca4f
+    m_ActionName: Player/FPS DrawPrimaryItem[/Keyboard/1]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 4a381024-fd81-4983-904b-a3755abeb952
+    m_ActionName: Player/FPS LookAround[/Mouse/delta]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 99364fb4-9fb6-4f4c-94d8-3f86047d3125
+    m_ActionName: Player/FPS MainMenu[/Keyboard/escape]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: c55e322b-6f40-4a48-ad16-5be703ff5c63
+    m_ActionName: Player/FPS PauseGame[/Keyboard/p]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 0dc8cd7f-6743-418c-ab15-9c33bb0a6849
+    m_ActionName: Player/FPS TakeObject[/Keyboard/e,/Mouse/leftButton]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 5fd358c2-a017-41f2-a8cf-bbaf493cea38
+    m_ActionName: Player/FPS Scroll[/Mouse/scroll/y]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: df48a857-c387-42f7-a186-4411fc535ee3
+    m_ActionName: UI/Navigate
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 149e66cb-149b-43f2-ad64-b769ed61ceef
+    m_ActionName: UI/Submit
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 5aee8ac7-902a-4b18-afae-855ab735cb74
+    m_ActionName: UI/Cancel
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e386ab33-c686-48b6-b471-d7d31a3585ae
+    m_ActionName: UI/Point
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 2030fe30-7fd7-4406-80bd-3c74a2682d6c
+    m_ActionName: UI/Click
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 456d28d1-f307-4197-a702-79b10e44d276
+    m_ActionName: UI/ScrollWheel
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 1c3d9cf0-c8e8-4928-b116-6f8bb160c71a
+    m_ActionName: UI/MiddleClick
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: b4d25fe1-3c17-4f2f-88d5-604104a29059
+    m_ActionName: UI/RightClick
+  m_NeverAutoSwitchControlSchemes: 1
+  m_DefaultControlScheme: Gamepad
+  m_DefaultActionMap: Player
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
 --- !u!1001 &53461677430660841
 PrefabInstance:
   m_ObjectHideFlags: 0
