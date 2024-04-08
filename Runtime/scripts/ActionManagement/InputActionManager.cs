@@ -11,10 +11,25 @@ namespace jeanf.vrplayer
         [SerializeField] InputActionAsset inputActionAsset;
 
 
-
-        private void Update()
+        private void OnEnable()
         {
-            Debug.Log(playerInputComponent.currentControlScheme);
+            SwitchEnabledInputs();
+            playerInputComponent.onControlsChanged += ctx => SwitchEnabledInputs();
+        }
+
+        private void OnDisable() => Unsubscribe();
+
+        private void OnDestroy() => Unsubscribe();
+
+        private void Unsubscribe()
+        {
+            playerInputComponent.onControlsChanged -= ctx => SwitchEnabledInputs();
+
+        }
+
+        private void SwitchEnabledInputs()
+        {
+            Debug.Log("Testing switch inputs");
         }
     }
 }

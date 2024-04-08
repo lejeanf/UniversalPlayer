@@ -5,6 +5,7 @@ using jeanf.tooltip;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.XR;
+using UnityEngine.InputSystem.Users;
 
 namespace jeanf.vrplayer
 {
@@ -15,7 +16,7 @@ namespace jeanf.vrplayer
 
         public ActionSO actionSO;
 
-
+        
         public override string Tooltip
         {
             get
@@ -40,10 +41,6 @@ namespace jeanf.vrplayer
             {
                 
                 if (inputControl.device is Gamepad)
-                {
-                    bindingsToDisplay += $"{inputControl.name}";
-                }
-                if (inputControl.device is Keyboard)
                 {
                     bindingsToDisplay += $"{inputControl.name}";
                 }

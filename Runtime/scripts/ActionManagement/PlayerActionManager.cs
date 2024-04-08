@@ -146,6 +146,7 @@ namespace jeanf.vrplayer
                 }
                 actionSO.actionName = action.name;
                 actionSO.inputAction = action;
+                actionSO.playerInputComponent = GetComponent<PlayerInput>();
                 actionSO.bindings.Clear();
                 actionSO.bindings.TrimExcess();
                 foreach(var binding in action.bindings)

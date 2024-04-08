@@ -20,6 +20,7 @@ namespace jeanf.vrplayer
 
         public string actionName;
 
+        public PlayerInput playerInputComponent;
 
         public List<InputBinding> bindings = new List<InputBinding>();
 
