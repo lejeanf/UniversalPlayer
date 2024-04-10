@@ -114,8 +114,6 @@ namespace jeanf.vrplayer
             
             if (!holdState) Take();
             else Release();
-            
-            holdState = !holdState;
         }
         
         private void DecideAction()
@@ -156,7 +154,8 @@ namespace jeanf.vrplayer
             rb.angularDrag = 10;
             _currentObjectHeldRb = rb;
             _currentObjectHeld = hit.transform;
-            
+
+            holdState = !holdState;
             objectTakenChannel.RaiseEvent(true);
         }
 
@@ -184,7 +183,8 @@ namespace jeanf.vrplayer
                 
             _currentObjectHeld = null;
             _currentObjectHeldRb = null;
-            
+
+            holdState = !holdState;
             objectTakenChannel.RaiseEvent(false);
         }
 
