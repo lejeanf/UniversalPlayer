@@ -23,29 +23,13 @@ namespace jeanf.vrplayer
             {
                 if (actionSO != null)
                 {
-                    return $"{actionToAccomplish} {GetInputBindingsToDisplay()} to {actionSO.actionName}";
+                    return $"{actionToAccomplish} Bindings to {actionSO.actionName}";
                 }
                 else
                 {
                     return $"{actionToAccomplish}";
                 }
             }
-        }
-
-
-        private string GetInputBindingsToDisplay()
-        {
-            string bindingsToDisplay = "";
-            
-            foreach(InputControl inputControl in actionSO.inputAction.controls)
-            {
-                
-                if (inputControl.device is Gamepad)
-                {
-                    bindingsToDisplay += $"{inputControl.name}";
-                }
-            }
-            return bindingsToDisplay;
         }
     }
 
