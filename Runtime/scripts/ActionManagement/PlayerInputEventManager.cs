@@ -1,13 +1,16 @@
+using System;
 using UnityEngine;
 using UnityEditor;
 using jeanf.EventSystem;
-using Unity.XR.CoreUtils;
 
 namespace jeanf.vrplayer
 {
     public class PlayerInputEventManager : MonoBehaviour
     {
         #region event scriptable objects
+        private BoolEventChannelSO takeObject;
+        private BoolEventChannelSO cursorStateChannel_ManualOverrideSO;
+        private IntBoolEventChannelSO takeObjectInSpecificLocation;
         private VoidEventChannelSO grab_LeftHand_SetAttachTransformSO;
         private VoidEventChannelSO grab_RightHand_SetAttachTransformSO;
         private IntEventChannelSO grabCountEventChannelSO;
@@ -15,7 +18,6 @@ namespace jeanf.vrplayer
         private BoolEventChannelSO grabEvent_RightHandStateSO;
         private VoidEventChannelSO noHandGrabbingSO;
         private VoidEventChannelSO actionDeniedSO;
-        private BoolEventChannelSO cursorStateChannel_ManualOverrideSO;
         private IntEventChannelSO floorChangeSO;
         private IntEventChannelSO floorInaccessibleSO;
         private BoolEventChannelSO gloveStateEventChannelSO;
@@ -30,233 +32,70 @@ namespace jeanf.vrplayer
 
 
         #if UNITY_EDITOR
+        // ReSharper disable Unity.PerformanceAnalysis
         public void CreateEventChannels()
         {
-            const string searching = "attempting to find";
             const string pathGrabFolder = "Player/Channels/Grab";
             const string pathChannelsFolder = "Player/Channels";
-            const string searchLocation = "the resources folder";
-
 
             #region Events to go in Assets/Resources/Player/Channels folder
-            if (actionDeniedSO == null)
-            {
-                actionDeniedSO = Resources.Load<VoidEventChannelSO>($"{pathChannelsFolder}/ActionDenied");
-                if (actionDeniedSO == null)
-                {
-                    Debug.Log($"Did not found channel, creating in folder {pathChannelsFolder}");
-                    actionDeniedSO = (VoidEventChannelSO)ScriptableObject.CreateInstance($"VoidEventChannelSO");
-                    actionDeniedSO.name = "ActionDenied";
-                    AssetDatabase.CreateAsset(actionDeniedSO, $"Assets/Resources/{pathChannelsFolder}/ActionDenied.asset");
-                }
-            }
 
-            if (cursorStateChannel_ManualOverrideSO == null)
-            {
-                cursorStateChannel_ManualOverrideSO = Resources.Load<BoolEventChannelSO>($"{pathChannelsFolder}/CursorStateChannel_ManualOverride");
-                if (cursorStateChannel_ManualOverrideSO == null)
-                {
-                    Debug.Log($"Did not found channel, creating in folder {pathChannelsFolder}");
-                    cursorStateChannel_ManualOverrideSO = (BoolEventChannelSO)ScriptableObject.CreateInstance($"BoolEventChannelSO");
-                    cursorStateChannel_ManualOverrideSO.name = "CursorStateChannel_ManualOverride";
-                    AssetDatabase.CreateAsset(cursorStateChannel_ManualOverrideSO, $"Assets/Resources/{pathChannelsFolder}/CursorStateChannel_ManualOverride.asset");
-                }
-            }
+            var path = pathChannelsFolder;
 
-            if (floorChangeSO == null)
-            {
-                floorChangeSO = Resources.Load<IntEventChannelSO>($"{pathChannelsFolder}/FloorChange");
-                if (floorChangeSO == null)
-                {
-                    Debug.Log($"Did not found channel, creating in folder {pathChannelsFolder}");
-                    floorChangeSO = (IntEventChannelSO)ScriptableObject.CreateInstance($"IntEventChannelSO");
-                    floorChangeSO.name = "FloorChange";
-                    AssetDatabase.CreateAsset(floorChangeSO, $"Assets/Resources/{pathChannelsFolder}/FloorChange.asset");
-                }
-            }
+            takeObject                             = CreateSO<BoolEventChannelSO>( nameof(takeObject),typeof(BoolEventChannelSO),  path) as BoolEventChannelSO;
+            cursorStateChannel_ManualOverrideSO    = CreateSO<BoolEventChannelSO>( nameof(cursorStateChannel_ManualOverrideSO), typeof(BoolEventChannelSO),  path) as BoolEventChannelSO;
+            actionDeniedSO                         = CreateSO<VoidEventChannelSO>( nameof(actionDeniedSO),typeof(VoidEventChannelSO), path) as VoidEventChannelSO;
+            takeObjectInSpecificLocation           = CreateSO<IntBoolEventChannelSO>( nameof(takeObjectInSpecificLocation), typeof(IntBoolEventChannelSO), path) as IntBoolEventChannelSO;
+            actionDeniedSO                         = CreateSO<VoidEventChannelSO>( nameof(actionDeniedSO), typeof(VoidEventChannelSO),path) as VoidEventChannelSO;
+            cursorStateChannel_ManualOverrideSO    = CreateSO<BoolEventChannelSO>( nameof(cursorStateChannel_ManualOverrideSO), typeof(BoolEventChannelSO),path) as BoolEventChannelSO;
+            floorChangeSO                          = CreateSO<IntEventChannelSO>( nameof(floorChangeSO), typeof(IntEventChannelSO),path) as IntEventChannelSO;
+            floorInaccessibleSO                    = CreateSO<IntEventChannelSO>( nameof(floorInaccessibleSO), typeof(IntEventChannelSO),path) as IntEventChannelSO;
+            gloveStateEventChannelSO               = CreateSO<BoolEventChannelSO>( nameof(gloveStateEventChannelSO),typeof(BoolEventChannelSO),path) as BoolEventChannelSO;
+            HMDStateEventChannelSO                 = CreateSO<BoolEventChannelSO>( nameof(HMDStateEventChannelSO), typeof(BoolEventChannelSO),path) as BoolEventChannelSO;
+            mouseLookCameraResentEventChannelSO    = CreateSO<VoidEventChannelSO>( nameof(mouseLookCameraResentEventChannelSO), typeof(VoidEventChannelSO),path) as VoidEventChannelSO;
+            mouseLookStateEventChannelSO           = CreateSO<BoolEventChannelSO>( nameof(mouseLookStateEventChannelSO), typeof(BoolEventChannelSO),path) as BoolEventChannelSO;
+            primaryItemStateEventChannelSO         = CreateSO<BoolEventChannelSO>( nameof(primaryItemStateEventChannelSO), typeof(BoolEventChannelSO), path) as BoolEventChannelSO;
+            primaryItemStateEventVR_ChannelSO      = CreateSO<BoolEventChannelSO>( nameof(primaryItemStateEventVR_ChannelSO),typeof(BoolEventChannelSO), path) as BoolEventChannelSO;
+            xrDirectInteractorEvent_LeftChannelSO  = CreateSO<XRBaseInteractorEventChannelSO>( nameof(xrDirectInteractorEvent_LeftChannelSO), typeof(XRBaseInteractorEventChannelSO), path) as XRBaseInteractorEventChannelSO;
+            xrDirectInteractorEvent_RightChannelSO = CreateSO<XRBaseInteractorEventChannelSO>(nameof(xrDirectInteractorEvent_RightChannelSO), typeof(XRBaseInteractorEventChannelSO), path) as XRBaseInteractorEventChannelSO;
 
-            if (floorInaccessibleSO == null)
-            {
-                floorInaccessibleSO = Resources.Load<IntEventChannelSO>($"{pathChannelsFolder}/FloorInaccessible");
-                if (floorInaccessibleSO == null)
-                {
-                    Debug.Log($"Did not found channel, creating in folder {pathChannelsFolder}");
-                    floorInaccessibleSO = (IntEventChannelSO)ScriptableObject.CreateInstance($"IntEventChannelSO");
-                    floorInaccessibleSO.name = "FloorInaccessible";
-                    AssetDatabase.CreateAsset(floorInaccessibleSO, $"Assets/Resources/{pathChannelsFolder}/FloorInaccessible.asset");
-                }
-            }
-
-            if (gloveStateEventChannelSO == null)
-            {
-                gloveStateEventChannelSO = Resources.Load<BoolEventChannelSO>($"{pathChannelsFolder}/GloveState Event Channel SO");
-                if (gloveStateEventChannelSO == null)
-                {
-                    Debug.Log($"Did not found channel, creating in folder {pathChannelsFolder}");
-                    gloveStateEventChannelSO = (BoolEventChannelSO)ScriptableObject.CreateInstance($"BoolEventChannelSO");
-                    gloveStateEventChannelSO.name = "GloveState Event Channel SO";
-                    AssetDatabase.CreateAsset(gloveStateEventChannelSO, $"Assets/Resources/{pathChannelsFolder}/GloveState Event Channel SO.asset");
-                }
-            }
-
-            if (HMDStateEventChannelSO == null)
-            {
-                HMDStateEventChannelSO = Resources.Load<BoolEventChannelSO>($"{pathChannelsFolder}/HMDState Event Channel SO");
-                if (HMDStateEventChannelSO == null)
-                {
-                    Debug.Log($"Did not found channel, creating in folder {pathChannelsFolder}");
-                    HMDStateEventChannelSO = (BoolEventChannelSO)ScriptableObject.CreateInstance($"BoolEventChannelSO");
-                    HMDStateEventChannelSO.name = "HMDState Event Channel SO";
-                    AssetDatabase.CreateAsset(HMDStateEventChannelSO, $"Assets/Resources/{pathChannelsFolder}/HMDState Event Channel SO.asset");
-                }
-            }
-
-            if (mouseLookCameraResentEventChannelSO == null)
-            {
-                mouseLookCameraResentEventChannelSO = Resources.Load<VoidEventChannelSO>($"{pathChannelsFolder}/MouseLookCameraReset Event Channel SO");
-                if (mouseLookCameraResentEventChannelSO == null)
-                {
-                    Debug.Log($"Did not found channel, creating in folder {pathChannelsFolder}");
-                    mouseLookCameraResentEventChannelSO = (VoidEventChannelSO)ScriptableObject.CreateInstance($"VoidEventChannelSO");
-                    mouseLookCameraResentEventChannelSO.name = "MouseLookCameraReset Event Channel SO";
-                    AssetDatabase.CreateAsset(mouseLookCameraResentEventChannelSO, $"Assets/Resources/{pathChannelsFolder}/MouseLookCameraReset Event Channel SO.asset");
-                }
-            }
-
-            if (mouseLookStateEventChannelSO == null)
-            {
-                mouseLookStateEventChannelSO = Resources.Load<BoolEventChannelSO>($"{pathChannelsFolder}/MouseLookState Event Channel SO");
-                if (mouseLookStateEventChannelSO == null)
-                {
-                    Debug.Log($"Did not found channel, creating in folder {pathChannelsFolder}");
-                    mouseLookStateEventChannelSO = (BoolEventChannelSO)ScriptableObject.CreateInstance($"BoolEventChannelSO");
-                    mouseLookStateEventChannelSO.name = "MouseLookState Event Channel SO";
-                    AssetDatabase.CreateAsset(mouseLookStateEventChannelSO, $"Assets/Resources/{pathChannelsFolder}/MouseLookState Event Channel SO.asset");
-                }
-            }
-
-            if (primaryItemStateEventChannelSO == null)
-            {
-                primaryItemStateEventChannelSO = Resources.Load<BoolEventChannelSO>($"{pathChannelsFolder}/PrimaryItemState Event Channel SO");
-                if (primaryItemStateEventChannelSO == null)
-                {
-                    Debug.Log($"Did not found channel, creating in folder {pathChannelsFolder}");
-                    primaryItemStateEventChannelSO = (BoolEventChannelSO)ScriptableObject.CreateInstance($"BoolEventChannelSO");
-                    primaryItemStateEventChannelSO.name = "PrimaryItemState Event Channel SO";
-                    AssetDatabase.CreateAsset(primaryItemStateEventChannelSO, $"Assets/Resources/{pathChannelsFolder}/PrimaryItemState Event Channel SO.asset");
-                }
-            }
-
-            if (primaryItemStateEventVR_ChannelSO == null)
-            {
-                primaryItemStateEventVR_ChannelSO = Resources.Load<BoolEventChannelSO>($"{pathChannelsFolder}/PrimaryItemState Event VR_Channel SO");
-                if (primaryItemStateEventVR_ChannelSO == null)
-                {
-                    Debug.Log($"Did not found channel, creating in folder {pathChannelsFolder}");
-                    primaryItemStateEventVR_ChannelSO = (BoolEventChannelSO)ScriptableObject.CreateInstance($"BoolEventChannelSO");
-                    primaryItemStateEventVR_ChannelSO.name = "PrimaryItemState Event VR_Channel SO";
-                    AssetDatabase.CreateAsset(primaryItemStateEventVR_ChannelSO, $"Assets/Resources/{pathChannelsFolder}/PrimaryItemState Event VR_Channel SO.asset");
-                }
-            }
-
-            if (xrDirectInteractorEvent_LeftChannelSO == null)
-            {
-                xrDirectInteractorEvent_LeftChannelSO = Resources.Load<XRBaseInteractorEventChannelSO>($"{pathChannelsFolder}/XRDirectInteractorEvent_LeftChannel SO");
-                if (xrDirectInteractorEvent_LeftChannelSO == null)
-                {
-                    Debug.Log($"Did not found channel, creating in folder {pathChannelsFolder}");
-                    xrDirectInteractorEvent_LeftChannelSO = (XRBaseInteractorEventChannelSO)ScriptableObject.CreateInstance($"XRBaseInteractorEventChannelSO");
-                    xrDirectInteractorEvent_LeftChannelSO.name = "XRDirectInteractorEvent_LeftChannel SO";
-                    AssetDatabase.CreateAsset(xrDirectInteractorEvent_LeftChannelSO, $"Assets/Resources/{pathChannelsFolder}/XRDirectInteractorEvent_LeftChannel SO.asset");
-                }
-            }
-
-            if (xrDirectInteractorEvent_RightChannelSO == null)
-            {
-                xrDirectInteractorEvent_RightChannelSO = Resources.Load<XRBaseInteractorEventChannelSO>($"{pathChannelsFolder}/XRDirectInteractorEvent_RightChannel SO");
-                if (xrDirectInteractorEvent_RightChannelSO == null)
-                {
-                    Debug.Log($"Did not found channel, creating in folder {pathChannelsFolder}");
-                    xrDirectInteractorEvent_RightChannelSO = (XRBaseInteractorEventChannelSO)ScriptableObject.CreateInstance($"XRBaseInteractorEventChannelSO");
-                    xrDirectInteractorEvent_RightChannelSO.name = "XRDirectInteractorEvent_RightChannel SO";
-                    AssetDatabase.CreateAsset(xrDirectInteractorEvent_RightChannelSO, $"Assets/Resources/{pathChannelsFolder}/XRDirectInteractorEvent_RightChannel SO.asset");
-                }
-            }
             #endregion
+
             #region Events to go in Assets/Resources/Player/Channels/Grab folder
-            if (grab_LeftHand_SetAttachTransformSO == null)
-            {
-                grab_LeftHand_SetAttachTransformSO = Resources.Load<VoidEventChannelSO>($"{pathGrabFolder}/Grab_LeftHand_SetAttachTransformSO");
-                if (grab_LeftHand_SetAttachTransformSO == null)
-                {
-                    Debug.Log($"Did not found channel, creating in folder {pathGrabFolder}");
-                    grab_LeftHand_SetAttachTransformSO = (VoidEventChannelSO)ScriptableObject.CreateInstance($"VoidEventChannelSO");
-                    grab_LeftHand_SetAttachTransformSO.name = "Grab_LeftHand_SetAttachTransform";
-                    AssetDatabase.CreateAsset(grab_LeftHand_SetAttachTransformSO, $"Assets/Resources/{pathGrabFolder}/Grab_LeftHand_SetAttachTransformSO.asset");
-                }
-            }
 
-            if (grab_RightHand_SetAttachTransformSO == null)
-            {
-                grab_RightHand_SetAttachTransformSO = Resources.Load<VoidEventChannelSO>($"{pathGrabFolder}/Grab_RightHand_SetAttachTransformSO");
-                if (grab_RightHand_SetAttachTransformSO == null)
-                {
-                    Debug.Log($"Did not found channel, creating in folder {pathGrabFolder}");
-                    grab_RightHand_SetAttachTransformSO = (VoidEventChannelSO)ScriptableObject.CreateInstance($"VoidEventChannelSO");
-                    grab_RightHand_SetAttachTransformSO.name = "Grab_RightHand_SetAttachTransform";
-                    AssetDatabase.CreateAsset(grab_RightHand_SetAttachTransformSO, $"Assets/Resources/{pathGrabFolder}/Grab_RightHand_SetAttachTransformSO.asset");
-                }
-            }
+            path = pathGrabFolder;
 
-            if (grabCountEventChannelSO == null)
-            {
-                grabCountEventChannelSO = Resources.Load<IntEventChannelSO>($"{pathGrabFolder}/GrabCount Event Channel SO");
-                if (grabCountEventChannelSO == null)
-                {
-                    Debug.Log($"Did not found channel, creating in folder {pathGrabFolder}");
-                    grabCountEventChannelSO = (IntEventChannelSO)ScriptableObject.CreateInstance($"IntEventChannelSO");
-                    grabCountEventChannelSO.name = "GrabCount Event Channel SO";
-                    AssetDatabase.CreateAsset(grabCountEventChannelSO, $"Assets/Resources/{pathGrabFolder}/GrabCount Event Channel SO.asset");
-                }
-            }
-
-            if (grabEvent_LeftHandStateSO == null)
-            {
-                grabEvent_LeftHandStateSO = Resources.Load<BoolEventChannelSO>($"{pathGrabFolder}/GrabEvent_LeftHandState");
-                if (grabEvent_LeftHandStateSO == null)
-                {
-                    Debug.Log($"Did not found channel, creating in folder {pathGrabFolder}");
-                    grabEvent_LeftHandStateSO = (BoolEventChannelSO)ScriptableObject.CreateInstance($"BoolEventChannelSO");
-                    grabEvent_LeftHandStateSO.name = "GrabEvent_LeftHandState";
-                    AssetDatabase.CreateAsset(grabEvent_LeftHandStateSO, $"Assets/Resources/{pathGrabFolder}/GrabEvent_LeftHandState.asset");
-                }
-            }
-
-            if (grabEvent_RightHandStateSO == null)
-            {
-                grabEvent_RightHandStateSO = Resources.Load<BoolEventChannelSO>($"{pathGrabFolder}/GrabEvent_RightHandState");
-                if (grabEvent_RightHandStateSO == null)
-                {
-                    Debug.Log($"Did not found channel, creating in folder {pathGrabFolder}");
-                    grabEvent_RightHandStateSO = (BoolEventChannelSO)ScriptableObject.CreateInstance($"BoolEventChannelSO");
-                    grabEvent_RightHandStateSO.name = "GrabEvent_RightHandState";
-                    AssetDatabase.CreateAsset(grabEvent_RightHandStateSO, $"Assets/Resources/{pathGrabFolder}/GrabEvent_RightHandState.asset");
-                }
-            }
-
-            if (noHandGrabbingSO == null)
-            {
-                noHandGrabbingSO = Resources.Load<VoidEventChannelSO>($"{pathGrabFolder}/NoHandGrabbing");
-                if (noHandGrabbingSO == null)
-                {
-                    Debug.Log($"Did not found channel, creating in folder {pathGrabFolder}");
-                    noHandGrabbingSO = (VoidEventChannelSO)ScriptableObject.CreateInstance($"VoidEventChannelSO");
-                    noHandGrabbingSO.name = "NoHandGrabbing";
-                    AssetDatabase.CreateAsset(noHandGrabbingSO, $"Assets/Resources/{pathGrabFolder}/NoHandGrabbing.asset");
-                }
-            }
+            grab_LeftHand_SetAttachTransformSO     = CreateSO<VoidEventChannelSO>( nameof(grab_LeftHand_SetAttachTransformSO), typeof(VoidEventChannelSO), path) as VoidEventChannelSO;
+            grab_RightHand_SetAttachTransformSO    = CreateSO<VoidEventChannelSO>( nameof(grab_RightHand_SetAttachTransformSO), typeof(VoidEventChannelSO), path) as VoidEventChannelSO;
+            grabCountEventChannelSO                = CreateSO<IntEventChannelSO>( nameof(grabCountEventChannelSO), typeof(IntEventChannelSO), path) as IntEventChannelSO;
+            grabEvent_LeftHandStateSO              = CreateSO<BoolEventChannelSO>( nameof(grabEvent_LeftHandStateSO), typeof(BoolEventChannelSO), path) as BoolEventChannelSO;
+            grabEvent_RightHandStateSO             = CreateSO<BoolEventChannelSO>( nameof(grabEvent_RightHandStateSO), typeof(BoolEventChannelSO), path) as BoolEventChannelSO;
+            noHandGrabbingSO                       = CreateSO<VoidEventChannelSO>( nameof(noHandGrabbingSO), typeof(VoidEventChannelSO),  path) as VoidEventChannelSO;
+            
             #endregion
         }
         #endif
+
+        private ScriptableObject CreateSO<T>(string name, Type type, string folderPath)
+        {
+            ScriptableObject so;
+            Debug.Log($"Attempting to create so {name}");
+            var path = $"Assets/Resources/{folderPath}/{name}.asset";
+            // first check if it exists
+            var existingSO = Resources.Load<ScriptableObject>(path);
+            
+            if (existingSO == null)
+            {
+                Debug.Log($"Did not found channel {name}, creating in folder {folderPath}");
+                so = ScriptableObject.CreateInstance(type);
+                AssetDatabase.CreateAsset(so, path);
+            }
+            else
+            {
+                so = existingSO;
+                Debug.Log($"The SO: {name} exists.");
+            }
+            return so;
+        }
     }
 }

@@ -66,6 +66,12 @@ namespace jeanf.vrplayer
         [Space(20)]
         private bool holdState = false;
 
+        [SerializeField] private bool useSpecificLocation = false;
+        [DrawIf("useSpecificLocation", true, ComparisonType.Equals)]
+        [SerializeField] private IntBoolEventChannelSO objectTakenInSpecificLocation;
+        [DrawIf("useSpecificLocation", true, ComparisonType.Equals)]
+        [SerializeField] private int currentLocation = 0;
+        [DrawIf("useSpecificLocation", false, ComparisonType.Equals)]
         [SerializeField] private BoolEventChannelSO objectTakenChannel;
 
         private void Awake()
@@ -156,8 +162,15 @@ namespace jeanf.vrplayer
             rb.angularDrag = 10;
             _currentObjectHeldRb = rb;
             _currentObjectHeld = hit.transform;
+
+            if (useSpecificLocation)
+            {
+                objectTakenInSpecificLocation.RaiseEvent(currentLocation,true);
+            }
+            else{
+                objectTakenChannel.RaiseEvent(true);
+            }
             
-            objectTakenChannel.RaiseEvent(true);
         }
 
         private void Release()
@@ -237,7 +250,6 @@ namespace jeanf.vrplayer
                 .Bind(x => objectToMove.transform.rotation = x)
                 .AddTo(objectToMove.gameObject);
         }
-
     }
 }
 
