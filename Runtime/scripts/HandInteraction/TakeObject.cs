@@ -120,8 +120,6 @@ namespace jeanf.vrplayer
             
             if (!holdState) Take();
             else Release();
-            
-            holdState = !holdState;
         }
         
         private void DecideAction()
@@ -163,6 +161,8 @@ namespace jeanf.vrplayer
             _currentObjectHeldRb = rb;
             _currentObjectHeld = hit.transform;
 
+            holdState = !holdState;
+            
             if (useSpecificLocation)
             {
                 objectTakenInSpecificLocation.RaiseEvent(currentLocation,true);
@@ -171,6 +171,7 @@ namespace jeanf.vrplayer
                 objectTakenChannel.RaiseEvent(true);
             }
             
+            objectTakenChannel.RaiseEvent(true);
         }
 
         private void Release()
@@ -197,7 +198,8 @@ namespace jeanf.vrplayer
                 
             _currentObjectHeld = null;
             _currentObjectHeldRb = null;
-            
+
+            holdState = !holdState;
             objectTakenChannel.RaiseEvent(false);
         }
 
