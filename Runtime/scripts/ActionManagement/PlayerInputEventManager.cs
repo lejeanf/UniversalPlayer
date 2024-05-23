@@ -74,7 +74,6 @@ namespace jeanf.vrplayer
             
             #endregion
         }
-        #endif
 
         private ScriptableObject CreateSO<T>(string name, Type type, string folderPath)
         {
@@ -97,5 +96,6 @@ namespace jeanf.vrplayer
             }
             return so;
         }
+        #endif
     }
 }

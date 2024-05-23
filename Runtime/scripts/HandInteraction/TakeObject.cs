@@ -66,6 +66,7 @@ namespace jeanf.vrplayer
         [Space(20)]
         private bool holdState = false;
 
+        [Space(20)]
         [SerializeField] private bool useSpecificLocation = false;
         [DrawIf("useSpecificLocation", true, ComparisonType.Equals)]
         [SerializeField] private IntBoolEventChannelSO objectTakenInSpecificLocation;
@@ -73,6 +74,8 @@ namespace jeanf.vrplayer
         [SerializeField] private int currentLocation = 0;
         [DrawIf("useSpecificLocation", false, ComparisonType.Equals)]
         [SerializeField] private BoolEventChannelSO objectTakenChannel;
+
+        private bool isThisObjectHeld = false;
 
         private void Awake()
         {
@@ -126,8 +129,11 @@ namespace jeanf.vrplayer
         {
             switch (_takeStyle)
             {
-                case TakeObject.TakeStyle.toggle:
+                case TakeStyle.toggle:
                     ToggleTake();
+                    break;
+                case TakeStyle.hold:
+                    Take();
                     break;
                 default:
                     Take();
@@ -149,6 +155,8 @@ namespace jeanf.vrplayer
             if (!hit.collider.GetComponent<XRGrabInteractable>()) return;
             if(_isDebug) Debug.Log($"{hit.transform.gameObject.name} is grabbable");
             
+            _currentObjectHeld = hit.transform;
+            if (_currentObjectHeld.gameObject != this.transform.gameObject) return;
             
             var rb = hit.transform.GetComponent<Rigidbody>();
             _gravityBeforeGrab = rb.useGravity;
@@ -159,7 +167,6 @@ namespace jeanf.vrplayer
             rb.drag = 10;
             rb.angularDrag = 10;
             _currentObjectHeldRb = rb;
-            _currentObjectHeld = hit.transform;
 
             holdState = !holdState;
             
@@ -172,10 +179,14 @@ namespace jeanf.vrplayer
             }
             
             objectTakenChannel.RaiseEvent(true);
+            isThisObjectHeld = true;
         }
 
         private void Release()
         {
+            if (!isThisObjectHeld) return;
+            isThisObjectHeld = false;
+            
             if(_isDebug) Debug.Log("release");
             if(BroadcastHmdStatus.hmdCurrentState) return;
             if (!_currentObjectHeld) return;
