@@ -212,7 +212,14 @@ namespace jeanf.vrplayer
             _currentObjectHeldRb = null;
 
             holdState = !holdState;
-            objectTakenChannel.RaiseEvent(false);
+            
+            if (useSpecificLocation)
+            {
+                objectTakenInSpecificLocation.RaiseEvent(currentLocation,false);
+            }
+            else{
+                objectTakenChannel.RaiseEvent(false);
+            }
         }
 
         private void ReleaseHold()
