@@ -188,8 +188,6 @@ namespace jeanf.vrplayer
             if(BroadcastHmdStatus.hmdCurrentState) return;
             
             if (!isThisObjectHeld) return;
-            isThisObjectHeld = false;
-            
             if (!_currentObjectHeld) return;
             
             if (resetPositionOnRelease)
@@ -220,6 +218,7 @@ namespace jeanf.vrplayer
             else{
                 objectTakenChannel.RaiseEvent(false);
             }
+            isThisObjectHeld = false;
         }
 
         private void ReleaseHold()
