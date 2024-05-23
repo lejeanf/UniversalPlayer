@@ -178,17 +178,18 @@ namespace jeanf.vrplayer
                 objectTakenChannel.RaiseEvent(true);
             }
             
-            objectTakenChannel.RaiseEvent(true);
             isThisObjectHeld = true;
         }
 
         private void Release()
         {
-            if (!isThisObjectHeld) return;
-            isThisObjectHeld = false;
             
             if(_isDebug) Debug.Log("release");
             if(BroadcastHmdStatus.hmdCurrentState) return;
+            
+            if (!isThisObjectHeld) return;
+            isThisObjectHeld = false;
+            
             if (!_currentObjectHeld) return;
             
             if (resetPositionOnRelease)
