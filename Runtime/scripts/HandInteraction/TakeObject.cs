@@ -105,6 +105,9 @@ namespace jeanf.vrplayer
             scrollAction.action.performed -= null;
             takeAction.action.Disable();
             scrollAction.action.Disable();
+            
+            DisablePositionHandle();
+            DisableRotationHandle();
         }
 
         private void LateUpdate()
@@ -122,8 +125,7 @@ namespace jeanf.vrplayer
 
         private void ToggleTake()
         {
-            if(_isDebug) Debug.Log("toggle take");
-            
+            if(_isDebug) Debug.Log("toggle");
             if (!holdState) Take();
             else Release();
         }
@@ -146,8 +148,9 @@ namespace jeanf.vrplayer
 
         private void Take()
         {
-            if(_isDebug) Debug.Log("take");
+            if(_isDebug) Debug.Log("take attempt");
             if(_currentObjectHeld) return;
+            if(_isDebug) Debug.Log("take success");
             if(BroadcastHmdStatus.hmdCurrentState) return;
             if (!cameraTransform) cameraTransform = Camera.main.transform;
             
@@ -186,12 +189,15 @@ namespace jeanf.vrplayer
 
         private void Release()
         {
+
+            if (!_currentObjectHeld)
+            {
+                if(_isDebug) Debug.Log("no object to release");
+                return;
+            }
             
             if(_isDebug) Debug.Log("release");
             if(BroadcastHmdStatus.hmdCurrentState) return;
-            
-            if (!isThisObjectHeld) return;
-            if (!_currentObjectHeld) return;
             
             if (resetPositionOnRelease)
             {
@@ -243,17 +249,26 @@ namespace jeanf.vrplayer
             SetObjectPosition(_currentObjectHeld, goalPosition);
         }
 
+        private void DisablePositionHandle()
+        {
+            if (!_positionHandle.IsActive()) return;
+            _positionHandle.Complete();
+            _positionHandle.Cancel();
+        }
+        private void DisableRotationHandle()
+        {
+            if (!_rotationHandle.IsActive()) return;
+            _rotationHandle.Complete();
+            _rotationHandle.Cancel();
+        }
+
         private void SetObjectPosition(Transform objectToMove ,Vector3 goal)
         {
             if (!objectToMove)
             {
                 if (_isDebug) Debug.Log($"objectToMove is null");
-                
-                if (_positionHandle.IsActive())
-                {
-                    _positionHandle.Complete();
-                    _positionHandle.Cancel();
-                }
+
+                DisablePositionHandle();
                 return;
             }
 
@@ -267,11 +282,7 @@ namespace jeanf.vrplayer
         {
             if (!objectToMove)
             {
-                if (_rotationHandle.IsActive())
-                {
-                    _rotationHandle.Complete();
-                    _rotationHandle.Cancel();
-                }
+                DisableRotationHandle();
                 return;
             }
             if (objectToMove.transform.rotation == goal) return;

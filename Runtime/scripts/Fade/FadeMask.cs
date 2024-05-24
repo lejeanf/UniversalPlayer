@@ -22,7 +22,6 @@ namespace jeanf.vrplayer
         [Header("Manual Switch Input")]
         [Tooltip("Input to manually switch the fade state")]
         [SerializeField] private InputAction inputBinding = new InputAction();
-        [FormerlySerializedAs("fadeTime")]
         [Space(10)]
         [Header("Fade Settings")]
         [SerializeField] private static float _fadeTime = .2f;
@@ -38,6 +37,9 @@ namespace jeanf.vrplayer
         [SerializeField] private VolumeProfile URPVolumeProfile;
         [SerializeField] private Volume postProcessVolume;
         private static Volume staticPostProcessVolume;
+        
+            
+        private static MotionHandle _fadeHandle;
         
 
         private void Awake()
@@ -68,6 +70,7 @@ namespace jeanf.vrplayer
             if (_shaderMaterial)_shaderMaterial.SetColor(FadeColor, new Color(color.r, color.g, color.b, 0));
             inputBinding.performed -= null;
             inputBinding.Disable();
+            DisableFadeHandle();
         }
 
         private void Update()
@@ -91,8 +94,15 @@ namespace jeanf.vrplayer
             if(_isDebugSTATIC) Debug.Log($"Fading to: {value}, in {fadeTime}s");
             float alpha = value ? 1 : 0;
             
-            LMotion.Create(staticPostProcessVolume.weight,alpha,fadeTime)
+            _fadeHandle = LMotion.Create(staticPostProcessVolume.weight,alpha,fadeTime)
                 .Bind(x => staticPostProcessVolume.weight = x);
+        }
+
+        private void DisableFadeHandle()
+        {
+            if (!_fadeHandle.IsActive()) return;
+            _fadeHandle.Complete();
+            _fadeHandle.Cancel();
         }
     }
 }
