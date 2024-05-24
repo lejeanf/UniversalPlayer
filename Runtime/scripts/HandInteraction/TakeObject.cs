@@ -110,6 +110,9 @@ namespace jeanf.vrplayer
         private void LateUpdate()
         {
             if(BroadcastHmdStatus.hmdCurrentState) return;
+            if(!isThisObjectHeld) return;
+            if(!_currentObjectHeld) return;
+            
             if (!cameraTransform) cameraTransform = Camera.main.transform;
 
             var goal = cameraTransform.position + cameraTransform.forward * objectDistance;
@@ -244,6 +247,8 @@ namespace jeanf.vrplayer
         {
             if (!objectToMove)
             {
+                if (_isDebug) Debug.Log($"objectToMove is null");
+                
                 if (_positionHandle.IsActive())
                 {
                     _positionHandle.Complete();
@@ -251,7 +256,10 @@ namespace jeanf.vrplayer
                 }
                 return;
             }
-            _positionHandle = LMotion.Create(objectToMove.transform.position,goal,.05f)
+
+            if (objectToMove.transform.position == goal) return;
+            
+            _positionHandle = LMotion.Create(objectToMove.transform.position, goal, .05f)
                 .Bind(x => objectToMove.transform.position = x)
                 .AddTo(objectToMove.gameObject);
         }
@@ -266,6 +274,8 @@ namespace jeanf.vrplayer
                 }
                 return;
             }
+            if (objectToMove.transform.rotation == goal) return;
+            
             _rotationHandle = LMotion.Create(objectToMove.transform.rotation,goal,.05f)
                 .Bind(x => objectToMove.transform.rotation = x)
                 .AddTo(objectToMove.gameObject);
