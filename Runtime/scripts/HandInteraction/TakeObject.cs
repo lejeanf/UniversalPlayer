@@ -158,7 +158,7 @@ namespace jeanf.vrplayer
 
             if (!Physics.Raycast(ray, out var hit, maxDistanceCheck, layerMask)) return;
             if(_isDebug) Debug.Log($"ray hit with: {hit.transform.gameObject.name}");
-            if (!hit.collider.GetComponent<XRGrabInteractable>()) return;
+            if (!hit.collider.GetComponent<XRGrabInteractable>() || !hit.collider.GetComponent<TakeObject>()) return;
             if(_isDebug) Debug.Log($"{hit.transform.gameObject.name} is grabbable");
             
             _currentObjectHeld = hit.transform;
@@ -203,6 +203,11 @@ namespace jeanf.vrplayer
             {
                 if(_isDebug) Debug.Log("Reset position");
 
+                Debug.Log(_positionHandle.IsActive());
+                if (_positionHandle.IsActive())
+                {
+                    DisablePositionHandle();
+                }
                 var goalPosition = initialPos;
                 SetObjectPosition(_currentObjectHeld, goalPosition);
                 
@@ -218,8 +223,8 @@ namespace jeanf.vrplayer
             _currentObjectHeld = null;
             _currentObjectHeldRb = null;
 
+
             holdState = !holdState;
-            
             if (useSpecificLocation)
             {
                 objectTakenInSpecificLocation.RaiseEvent(currentLocation,false);
@@ -271,6 +276,7 @@ namespace jeanf.vrplayer
                 DisablePositionHandle();
                 return;
             }
+
 
             if (objectToMove.transform.position == goal) return;
             
