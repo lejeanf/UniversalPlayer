@@ -203,11 +203,8 @@ namespace jeanf.vrplayer
             {
                 if(_isDebug) Debug.Log("Reset position");
 
-                Debug.Log(_positionHandle.IsActive());
-                if (_positionHandle.IsActive())
-                {
-                    DisablePositionHandle();
-                }
+                DisablePositionHandle();
+
                 var goalPosition = initialPos;
                 SetObjectPosition(_currentObjectHeld, goalPosition);
                 
