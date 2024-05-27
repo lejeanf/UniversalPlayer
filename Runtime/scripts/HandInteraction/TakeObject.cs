@@ -66,7 +66,16 @@ namespace jeanf.vrplayer
         [Space(20)]
         private bool holdState = false;
 
+        [Space(20)]
+        [SerializeField] private bool useSpecificLocation = false;
+        [DrawIf("useSpecificLocation", true, ComparisonType.Equals)]
+        [SerializeField] private IntBoolEventChannelSO objectTakenInSpecificLocation;
+        [DrawIf("useSpecificLocation", true, ComparisonType.Equals)]
+        [SerializeField] private int currentLocation = 0;
+        [DrawIf("useSpecificLocation", false, ComparisonType.Equals)]
         [SerializeField] private BoolEventChannelSO objectTakenChannel;
+
+        private bool isThisObjectHeld = false;
 
         private void Awake()
         {
@@ -96,11 +105,17 @@ namespace jeanf.vrplayer
             scrollAction.action.performed -= null;
             takeAction.action.Disable();
             scrollAction.action.Disable();
+            
+            DisablePositionHandle();
+            DisableRotationHandle();
         }
 
         private void LateUpdate()
         {
             if(BroadcastHmdStatus.hmdCurrentState) return;
+            if(!isThisObjectHeld) return;
+            if(!_currentObjectHeld) return;
+            
             if (!cameraTransform) cameraTransform = Camera.main.transform;
 
             var goal = cameraTransform.position + cameraTransform.forward * objectDistance;
@@ -110,8 +125,7 @@ namespace jeanf.vrplayer
 
         private void ToggleTake()
         {
-            if(_isDebug) Debug.Log("toggle take");
-            
+            if(_isDebug) Debug.Log("toggle");
             if (!holdState) Take();
             else Release();
         }
@@ -120,8 +134,11 @@ namespace jeanf.vrplayer
         {
             switch (_takeStyle)
             {
-                case TakeObject.TakeStyle.toggle:
+                case TakeStyle.toggle:
                     ToggleTake();
+                    break;
+                case TakeStyle.hold:
+                    Take();
                     break;
                 default:
                     Take();
@@ -131,8 +148,9 @@ namespace jeanf.vrplayer
 
         private void Take()
         {
-            if(_isDebug) Debug.Log("take");
+            if(_isDebug) Debug.Log("take attempt");
             if(_currentObjectHeld) return;
+            if(_isDebug) Debug.Log("take success");
             if(BroadcastHmdStatus.hmdCurrentState) return;
             if (!cameraTransform) cameraTransform = Camera.main.transform;
             
@@ -140,9 +158,11 @@ namespace jeanf.vrplayer
 
             if (!Physics.Raycast(ray, out var hit, maxDistanceCheck, layerMask)) return;
             if(_isDebug) Debug.Log($"ray hit with: {hit.transform.gameObject.name}");
-            if (!hit.collider.GetComponent<XRGrabInteractable>()) return;
+            if (!hit.collider.GetComponent<XRGrabInteractable>() || !hit.collider.GetComponent<TakeObject>()) return;
             if(_isDebug) Debug.Log($"{hit.transform.gameObject.name} is grabbable");
             
+            _currentObjectHeld = hit.transform;
+            if (_currentObjectHeld.gameObject != this.transform.gameObject) return;
             
             var rb = hit.transform.GetComponent<Rigidbody>();
             _gravityBeforeGrab = rb.useGravity;
@@ -153,21 +173,37 @@ namespace jeanf.vrplayer
             rb.drag = 10;
             rb.angularDrag = 10;
             _currentObjectHeldRb = rb;
-            _currentObjectHeld = hit.transform;
 
             holdState = !holdState;
-            objectTakenChannel.RaiseEvent(true);
+            
+            if (useSpecificLocation)
+            {
+                objectTakenInSpecificLocation.RaiseEvent(currentLocation,true);
+            }
+            else{
+                objectTakenChannel.RaiseEvent(true);
+            }
+            
+            isThisObjectHeld = true;
         }
 
         private void Release()
         {
+
+            if (!_currentObjectHeld)
+            {
+                if(_isDebug) Debug.Log("no object to release");
+                return;
+            }
+            
             if(_isDebug) Debug.Log("release");
             if(BroadcastHmdStatus.hmdCurrentState) return;
-            if (!_currentObjectHeld) return;
             
             if (resetPositionOnRelease)
             {
                 if(_isDebug) Debug.Log("Reset position");
+
+                DisablePositionHandle();
 
                 var goalPosition = initialPos;
                 SetObjectPosition(_currentObjectHeld, goalPosition);
@@ -184,8 +220,16 @@ namespace jeanf.vrplayer
             _currentObjectHeld = null;
             _currentObjectHeldRb = null;
 
+
             holdState = !holdState;
-            objectTakenChannel.RaiseEvent(false);
+            if (useSpecificLocation)
+            {
+                objectTakenInSpecificLocation.RaiseEvent(currentLocation,false);
+            }
+            else{
+                objectTakenChannel.RaiseEvent(false);
+            }
+            isThisObjectHeld = false;
         }
 
         private void ReleaseHold()
@@ -207,18 +251,33 @@ namespace jeanf.vrplayer
             SetObjectPosition(_currentObjectHeld, goalPosition);
         }
 
+        private void DisablePositionHandle()
+        {
+            if (!_positionHandle.IsActive()) return;
+            _positionHandle.Complete();
+            _positionHandle.Cancel();
+        }
+        private void DisableRotationHandle()
+        {
+            if (!_rotationHandle.IsActive()) return;
+            _rotationHandle.Complete();
+            _rotationHandle.Cancel();
+        }
+
         private void SetObjectPosition(Transform objectToMove ,Vector3 goal)
         {
             if (!objectToMove)
             {
-                if (_positionHandle.IsActive())
-                {
-                    _positionHandle.Complete();
-                    _positionHandle.Cancel();
-                }
+                if (_isDebug) Debug.Log($"objectToMove is null");
+
+                DisablePositionHandle();
                 return;
             }
-            _positionHandle = LMotion.Create(objectToMove.transform.position,goal,.05f)
+
+
+            if (objectToMove.transform.position == goal) return;
+            
+            _positionHandle = LMotion.Create(objectToMove.transform.position, goal, .05f)
                 .Bind(x => objectToMove.transform.position = x)
                 .AddTo(objectToMove.gameObject);
         }
@@ -226,18 +285,15 @@ namespace jeanf.vrplayer
         {
             if (!objectToMove)
             {
-                if (_rotationHandle.IsActive())
-                {
-                    _rotationHandle.Complete();
-                    _rotationHandle.Cancel();
-                }
+                DisableRotationHandle();
                 return;
             }
+            if (objectToMove.transform.rotation == goal) return;
+            
             _rotationHandle = LMotion.Create(objectToMove.transform.rotation,goal,.05f)
                 .Bind(x => objectToMove.transform.rotation = x)
                 .AddTo(objectToMove.gameObject);
         }
-
     }
 }
 

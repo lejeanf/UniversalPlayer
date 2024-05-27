@@ -52,10 +52,9 @@ public class PerformAction : MonoBehaviour, IDebugBehaviour
         if (!Physics.Raycast(ray, out var hit, maxDistanceCheck, layerMask)) return;
 
         if (_isDebug) Debug.Log($"ray hit with: {hit.transform.gameObject.name}");
-        if (hit.transform.gameObject == objectToInteractWith)
-        {
-            if (_isDebug) Debug.Log($"it's a match! lets act");
-            if(actionMade) actionMade.RaiseEvent(hit.transform);
-        }
+        if (hit.transform.gameObject != objectToInteractWith) return;
+        
+        if (_isDebug) Debug.Log($"it's a match! lets act");
+        if(actionMade) actionMade.RaiseEvent(hit.transform);
     }
 }
