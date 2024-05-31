@@ -9,16 +9,20 @@ namespace jeanf.vrplayer
     {
         [SerializeField] InputActionReference moveAction;
         [SerializeField] CharacterController controller;
-        [SerializeField] GameObject mainCamera;
+        [SerializeField] MouseLook mouseLook;
 
         float speed;
         [SerializeField] float speedChangeRate;
         [SerializeField] float moveSpeed;
         [SerializeField] bool isGrounded;
 
+        bool isMoving;
+        Vector2 moveValue;
         private void OnEnable()
         {
-            moveAction.action.performed += ctx => Move(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime);
+            moveAction.action.performed += ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 10f, true);
+            moveAction.action.canceled += ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 10f, false);
+
         }
 
         private void OnDisable() => Unsubscribe();
@@ -26,11 +30,24 @@ namespace jeanf.vrplayer
 
         private void Unsubscribe()
         {
-            moveAction.action.performed -= ctx => Move(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime);
+            moveAction.action.performed -= ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 10f, true);
+            moveAction.action.canceled -= ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 10f, false);
+
 
         }
 
-
+        private void FixedUpdate()
+        {
+            if (isMoving)
+            {
+                Move(moveValue);
+            }
+        }
+        private void SetMoveValue(Vector2 move, bool isMoving)
+        {
+            moveValue = move;
+            this.isMoving = isMoving;
+        }
         private void Move(Vector2 move)
         {
             Debug.Log("Movin'");
@@ -55,7 +72,8 @@ namespace jeanf.vrplayer
             }
 
             Vector3 inputDirection = new Vector3(move.x, 0.0f, move.y).normalized;
-
+            
+            
             if (move != Vector2.zero)
             {
                 inputDirection = transform.right * move.x + transform.forward * move.y;
