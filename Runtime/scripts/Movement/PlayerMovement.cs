@@ -76,10 +76,10 @@ namespace jeanf.vrplayer
             
             if (move != Vector2.zero)
             {
-                inputDirection = transform.right * move.x + transform.forward * move.y;
+                inputDirection = mouseLook.CameraOffset.transform.right * move.x + mouseLook.CameraOffset.transform.forward * move.y;
             }
 
-            controller.Move(inputDirection.normalized * (speed * Time.deltaTime));
+            controller.Move(new Vector3(inputDirection.x, 0.0f, inputDirection.z).normalized * (speed * Time.deltaTime));
         }
     }
 }

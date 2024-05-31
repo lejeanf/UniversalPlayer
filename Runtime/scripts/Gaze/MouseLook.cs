@@ -44,6 +44,7 @@ namespace jeanf.vrplayer
         public Camera playerCamera;
         [SerializeField] [Validation("A reference to the cameraOffset is required.")]
         private Transform cameraOffset;
+        public Transform CameraOffset { get { return cameraOffset; }}
         private Transform _originalCameraOffset;
         [SerializeField] private bool _isHmdActive = false;
         [SerializeField] private float min = -60.0f;
