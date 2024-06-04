@@ -13,24 +13,24 @@ namespace jeanf.vrplayer
 {
     public class TakeObject : MonoBehaviour, IDebugBehaviour
     {
+
         public bool isDebug
-        { 
+        {
             get => _isDebug;
-            set => _isDebug = value; 
+            set => _isDebug = value;
         }
         [SerializeField] private bool _isDebug = false;
-        
-        // Start is called before the first frame update
-        private Transform cameraTransform;
-        [Space(20)]
-        [SerializeField] private InputActionReference takeAction;
-        [SerializeField] private InputActionReference scrollAction;
-        public enum TakeStyle { hold, toggle}
-        [Space(20)]
-        [SerializeField] private LayerMask layerMask;
-        [SerializeField] private TakeStyle _takeStyle = TakeStyle.toggle;
-        
-        
+
+        //Camera
+        [SerializeField] Camera mainCamera;
+
+        //TakeObject
+        Transform objectInHandTransform;
+        PickableObject objectInHand;
+        //InputActions
+        [SerializeField] InputActionReference takeAction;
+        [SerializeField] InputActionReference scrollAction;
+
         [Space(20)]
         [SerializeField] private bool advancedSettings = false;
         private float objectDistance = .5f;
@@ -49,194 +49,93 @@ namespace jeanf.vrplayer
         [DrawIf("advancedSettings", true, ComparisonType.Equals)]
         [Range(.5f, 10f)]
         [SerializeField] private float maxDistanceCheck = 2f;
-        private Transform _currentObjectHeld;
-        private Rigidbody _currentObjectHeldRb;
         private MotionHandle _positionHandle;
         private MotionHandle _rotationHandle;
+        [SerializeField] private LayerMask layerMask;
 
-        private bool _gravityBeforeGrab;
-        private float _dragBeforeGrab;
-        private float _angularDragBeforeGrab;
-        
-        //Reset position on release
-        public bool resetPositionOnRelease = false;
-        [SerializeField] [ReadOnly] private Vector3 initialPos;
-        [SerializeField] [ReadOnly] private Quaternion initialRot;
 
-        [Space(20)]
-        private bool holdState = false;
-
-        [Space(20)]
-        [SerializeField] private bool useSpecificLocation = false;
-        [DrawIf("useSpecificLocation", true, ComparisonType.Equals)]
-        [SerializeField] private IntBoolEventChannelSO objectTakenInSpecificLocation;
-        [DrawIf("useSpecificLocation", true, ComparisonType.Equals)]
-        [SerializeField] private int currentLocation = 0;
-        [DrawIf("useSpecificLocation", false, ComparisonType.Equals)]
-        [SerializeField] private BoolEventChannelSO objectTakenChannel;
-
-        private bool isThisObjectHeld = false;
-
-        private void Awake()
+        private void LateUpdate()
         {
-            if (!cameraTransform) cameraTransform = Camera.main.transform;
-            initialPos = gameObject.transform.position;
-            initialRot = gameObject.transform.rotation;
+            if (objectInHand)
+            {
+                var goal = mainCamera.transform.position + mainCamera.transform.forward * objectDistance;
+                SetObjectPosition(objectInHandTransform, goal);
+            }
         }
+
 
         private void OnEnable()
         {
-            takeAction.action.Enable();
-            scrollAction.action.Enable();
-            takeAction.action.performed += _ => DecideAction();
-            takeAction.action.canceled += _ => ReleaseHold();
+            takeAction.action.performed += ctx => DispatchAction();
             scrollAction.action.performed += ctx => UpdateObjectDistance(ctx.ReadValue<float>());
         }
 
-
         private void OnDisable() => Unsubscribe();
+
+
         private void OnDestroy() => Unsubscribe();
 
         private void Unsubscribe()
         {
-            //takeAction.action.started -= null;
-            takeAction.action.canceled -= null;
-            takeAction.action.performed -= null;
-            scrollAction.action.performed -= null;
-            takeAction.action.Disable();
-            scrollAction.action.Disable();
-            
+            takeAction.action.performed -= ctx => DispatchAction();
+            scrollAction.action.performed -= ctx => UpdateObjectDistance(ctx.ReadValue<float>());
             DisablePositionHandle();
             DisableRotationHandle();
+
         }
 
-        private void LateUpdate()
+        //Check, when received input action for take, if there's already an object in hand or not
+        private void DispatchAction()
         {
-            if(BroadcastHmdStatus.hmdCurrentState) return;
-            if(!isThisObjectHeld) return;
-            if(!_currentObjectHeld) return;
-            
-            if (!cameraTransform) cameraTransform = Camera.main.transform;
-
-            var goal = cameraTransform.position + cameraTransform.forward * objectDistance;
-            SetObjectPosition(_currentObjectHeld, goal);
-        }
-        
-
-        private void ToggleTake()
-        {
-            if(_isDebug) Debug.Log("toggle");
-            if (!holdState) Take();
-            else Release();
-        }
-        
-        private void DecideAction()
-        {
-            switch (_takeStyle)
+            if (objectInHand == null)
             {
-                case TakeStyle.toggle:
-                    ToggleTake();
-                    break;
-                case TakeStyle.hold:
-                    Take();
-                    break;
-                default:
-                    Take();
-                    break;
+                Take();
+            }
+            else
+            {
+                Release();
             }
         }
 
+        //Checks for raycast hit, if object is pickable then pick it
         private void Take()
         {
-            if(_isDebug) Debug.Log("take attempt");
-            if(_currentObjectHeld) return;
-            if(_isDebug) Debug.Log("take success");
-            if(BroadcastHmdStatus.hmdCurrentState) return;
-            if (!cameraTransform) cameraTransform = Camera.main.transform;
+            RaycastHit hit;
+            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
             
-            var ray = new Ray(cameraTransform.position, cameraTransform.forward);
-
-            if (!Physics.Raycast(ray, out var hit, maxDistanceCheck, layerMask)) return;
-            if(_isDebug) Debug.Log($"ray hit with: {hit.transform.gameObject.name}");
-            if (!hit.collider.GetComponent<XRGrabInteractable>() || !hit.collider.GetComponent<TakeObject>()) return;
-            if(_isDebug) Debug.Log($"{hit.transform.gameObject.name} is grabbable");
-            
-            _currentObjectHeld = hit.transform;
-            if (_currentObjectHeld.gameObject != this.transform.gameObject) return;
-            
-            var rb = hit.transform.GetComponent<Rigidbody>();
-            _gravityBeforeGrab = rb.useGravity;
-            _dragBeforeGrab = rb.drag;
-            _angularDragBeforeGrab = rb.angularDrag;
-                    
-            rb.useGravity = false;
-            rb.drag = 10;
-            rb.angularDrag = 10;
-            _currentObjectHeldRb = rb;
-
-            holdState = !holdState;
-            
-            if (useSpecificLocation)
+            if (Physics.Raycast(ray, out hit, maxDistanceCheck, layerMask))
             {
-                objectTakenInSpecificLocation.RaiseEvent(currentLocation,true);
+                if (hit.transform.gameObject.GetComponent<PickableObject>())
+                {
+                    Transform objectHit = hit.transform;
+                    objectInHandTransform = objectHit;
+                    objectInHand = hit.transform.gameObject.GetComponent<PickableObject>();
+                    objectInHandTransform.SetParent(this.gameObject.transform);
+                    objectInHand.Rigidbody.freezeRotation = true;
+                    objectInHand.Rigidbody.useGravity = false;
+                }
             }
-            else{
-                objectTakenChannel.RaiseEvent(true);
-            }
-            
-            isThisObjectHeld = true;
         }
 
+        //Drops object in hand
         private void Release()
         {
-
-            if (!_currentObjectHeld)
+            if (objectInHand.ReturnToInitialPositionOnRelease)
             {
-                if(_isDebug) Debug.Log("no object to release");
-                return;
-            }
-            
-            if(_isDebug) Debug.Log("release");
-            if(BroadcastHmdStatus.hmdCurrentState) return;
-            
-            if (resetPositionOnRelease)
-            {
-                if(_isDebug) Debug.Log("Reset position");
-
                 DisablePositionHandle();
+                var goalPosition = objectInHand.InitialPosition;
+                SetObjectPosition(objectInHandTransform, goalPosition);
 
-                var goalPosition = initialPos;
-                SetObjectPosition(_currentObjectHeld, goalPosition);
-                
-                var goalRotation = initialRot;
-                SetObjectRotation(_currentObjectHeld, goalRotation);
+                var goalRotation = objectInHand.InitialRotation;
+                SetObjectRotation(objectInHandTransform, goalRotation);
             }
-
-            _currentObjectHeldRb.useGravity = _gravityBeforeGrab;
-            _currentObjectHeldRb.drag = _dragBeforeGrab;
-            _currentObjectHeldRb.angularDrag = _angularDragBeforeGrab;
-            if(_isDebug) Debug.Log($"releasing {_currentObjectHeld.name}");
-                
-            _currentObjectHeld = null;
-            _currentObjectHeldRb = null;
-
-
-            holdState = !holdState;
-            if (useSpecificLocation)
-            {
-                objectTakenInSpecificLocation.RaiseEvent(currentLocation,false);
-            }
-            else{
-                objectTakenChannel.RaiseEvent(false);
-            }
-            isThisObjectHeld = false;
-        }
-
-        private void ReleaseHold()
-        {
-            if(_takeStyle != TakeObject.TakeStyle.hold) return;
-            if(_isDebug) Debug.Log("release hold");
-            Release();
+            objectInHand.Rigidbody.useGravity = objectInHand.InitialUseGravity;
+            objectInHand.Rigidbody.drag = objectInHand.InitialDrag;
+            objectInHand.Rigidbody.angularDrag = objectInHand.InitialAngularDrag;
+            objectInHand.Rigidbody.freezeRotation = false;
+            objectInHandTransform.SetParent(null);
+            objectInHandTransform = null;
+            objectInHand = null;
         }
 
         private void UpdateObjectDistance(float value)
@@ -246,9 +145,9 @@ namespace jeanf.vrplayer
             objectDistance += value;
             if (objectDistance > maxDistance) objectDistance = maxDistance;
             if (objectDistance < minDistance) objectDistance = minDistance;
-            
-            var goalPosition = cameraTransform.position + cameraTransform.forward * objectDistance;
-            SetObjectPosition(_currentObjectHeld, goalPosition);
+
+            var goalPosition = mainCamera.transform.position + mainCamera.transform.forward * objectDistance;
+            SetObjectPosition(objectInHandTransform, goalPosition);
         }
 
         private void DisablePositionHandle()
@@ -264,7 +163,7 @@ namespace jeanf.vrplayer
             _rotationHandle.Cancel();
         }
 
-        private void SetObjectPosition(Transform objectToMove ,Vector3 goal)
+        private void SetObjectPosition(Transform objectToMove, Vector3 goal)
         {
             if (!objectToMove)
             {
@@ -276,12 +175,12 @@ namespace jeanf.vrplayer
 
 
             if (objectToMove.transform.position == goal) return;
-            
+
             _positionHandle = LMotion.Create(objectToMove.transform.position, goal, .05f)
                 .Bind(x => objectToMove.transform.position = x)
                 .AddTo(objectToMove.gameObject);
         }
-        private void SetObjectRotation(Transform objectToMove ,Quaternion goal)
+        private void SetObjectRotation(Transform objectToMove, Quaternion goal)
         {
             if (!objectToMove)
             {
@@ -289,12 +188,13 @@ namespace jeanf.vrplayer
                 return;
             }
             if (objectToMove.transform.rotation == goal) return;
-            
-            _rotationHandle = LMotion.Create(objectToMove.transform.rotation,goal,.05f)
+
+            _rotationHandle = LMotion.Create(objectToMove.transform.rotation, goal, .05f)
                 .Bind(x => objectToMove.transform.rotation = x)
                 .AddTo(objectToMove.gameObject);
         }
     }
 }
+
 
 

@@ -121,7 +121,6 @@ namespace jeanf.vrplayer
 
         private void LookAround(Vector2 inputView)
         {
-            Debug.Log("Lookin'");
             if(BroadcastHmdStatus.hmdCurrentState) return;
             if (!_canLook) return;
             

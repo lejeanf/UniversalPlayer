@@ -20,8 +20,8 @@ namespace jeanf.vrplayer
         Vector2 moveValue;
         private void OnEnable()
         {
-            moveAction.action.performed += ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 10f, true);
-            moveAction.action.canceled += ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 10f, false);
+            moveAction.action.performed += ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50f, true);
+            moveAction.action.canceled += ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50f, false);
 
         }
 
@@ -30,8 +30,8 @@ namespace jeanf.vrplayer
 
         private void Unsubscribe()
         {
-            moveAction.action.performed -= ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 10f, true);
-            moveAction.action.canceled -= ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 10f, false);
+            moveAction.action.performed -= ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50f, true);
+            moveAction.action.canceled -= ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50f, false);
 
 
         }
