@@ -118,6 +118,9 @@ namespace jeanf.vrplayer
                     objectInHand = hit.transform.gameObject.GetComponent<PickableObject>();
                     objectInHand.Rigidbody.freezeRotation = true;
                     objectInHand.Rigidbody.useGravity = false;
+
+
+
                 }
             }
         }
@@ -133,6 +136,11 @@ namespace jeanf.vrplayer
 
                 var goalRotation = objectInHand.InitialRotation;
                 SetObjectRotation(objectInHandTransform, goalRotation);
+                objectInHand.Rigidbody.isKinematic = objectInHand.InitialIsKinematic;
+            }
+            else
+            {
+                objectInHand.Rigidbody.isKinematic = false;
             }
             objectInHand.Rigidbody.useGravity = objectInHand.InitialUseGravity;
             objectInHand.Rigidbody.drag = objectInHand.InitialDrag;
