@@ -22,8 +22,11 @@ namespace jeanf.vrplayer
         float initialDrag;
         float initialAngularDrag;
         bool initialUseGravity;
-        public Rigidbody Rigidbody { get { return rb; } }
-        public float InitialDrag { get {  return initialDrag; } }
+        public Rigidbody Rigidbody { get { return rb; } set { rb = value; } }
+
+
+
+        public float InitialDrag { get { return initialDrag; } }
         public float InitialAngularDrag { get { return initialAngularDrag; } }
         public bool InitialUseGravity { get { return initialUseGravity; } }
 

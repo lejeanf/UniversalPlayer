@@ -53,6 +53,8 @@ namespace jeanf.vrplayer
         private MotionHandle _rotationHandle;
         [SerializeField] private LayerMask layerMask;
 
+        [Range(0.01f, 0.5f)]
+        [SerializeField] private float sliderMotionDuration;
 
         private void LateUpdate()
         {
@@ -110,7 +112,7 @@ namespace jeanf.vrplayer
                     Transform objectHit = hit.transform;
                     objectInHandTransform = objectHit;
                     objectInHand = hit.transform.gameObject.GetComponent<PickableObject>();
-                    objectInHandTransform.SetParent(this.gameObject.transform);
+                    //objectInHandTransform.SetParent(this.gameObject.transform);
                     objectInHand.Rigidbody.freezeRotation = true;
                     objectInHand.Rigidbody.useGravity = false;
                 }
@@ -176,9 +178,10 @@ namespace jeanf.vrplayer
 
             if (objectToMove.transform.position == goal) return;
 
-            _positionHandle = LMotion.Create(objectToMove.transform.position, goal, .05f)
+            _positionHandle = LMotion.Create(objectToMove.transform.position, goal, sliderMotionDuration)
                 .Bind(x => objectToMove.transform.position = x)
                 .AddTo(objectToMove.gameObject);
+            //objectToMove.transform.position = goal;
         }
         private void SetObjectRotation(Transform objectToMove, Quaternion goal)
         {
@@ -189,9 +192,12 @@ namespace jeanf.vrplayer
             }
             if (objectToMove.transform.rotation == goal) return;
 
-            _rotationHandle = LMotion.Create(objectToMove.transform.rotation, goal, .05f)
+            _rotationHandle = LMotion.Create(objectToMove.transform.rotation, goal, sliderMotionDuration)
                 .Bind(x => objectToMove.transform.rotation = x)
                 .AddTo(objectToMove.gameObject);
+
+            //objectToMove.transform.rotation = goal;
+            
         }
     }
 }

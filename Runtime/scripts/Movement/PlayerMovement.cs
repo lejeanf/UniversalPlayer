@@ -36,7 +36,7 @@ namespace jeanf.vrplayer
 
         }
 
-        private void FixedUpdate()
+        private void LateUpdate()
         {
             if (isMoving)
             {
