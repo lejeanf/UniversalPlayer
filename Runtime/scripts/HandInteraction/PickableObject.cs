@@ -22,7 +22,7 @@ namespace jeanf.vrplayer
         float initialDrag;
         float initialAngularDrag;
         bool initialUseGravity;
-        bool initialUseKinematic;
+        bool initialIsKinematic;
         public Rigidbody Rigidbody { get { return rb; } set { rb = value; } }
 
 
@@ -30,7 +30,7 @@ namespace jeanf.vrplayer
         public float InitialDrag { get { return initialDrag; } }
         public float InitialAngularDrag { get { return initialAngularDrag; } }
         public bool InitialUseGravity { get { return initialUseGravity; } }
-        public bool InitialIsKinematic { get { return initialUseKinematic;  } }
+        public bool InitialIsKinematic { get { return initialIsKinematic;  } }
 
         private void Awake()
         {
@@ -48,7 +48,7 @@ namespace jeanf.vrplayer
             initialDrag = rb.drag;
             initialAngularDrag = rb.angularDrag;
             initialUseGravity = rb.useGravity;
-            initialUseKinematic = rb.isKinematic;
+            initialIsKinematic = rb.isKinematic;
         }
     }
 }
