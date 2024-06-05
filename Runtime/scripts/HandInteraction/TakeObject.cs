@@ -22,7 +22,7 @@ namespace jeanf.vrplayer
         [SerializeField] private bool _isDebug = false;
 
         //Camera
-        [SerializeField] Camera mainCamera;
+        Camera mainCamera;
 
         //TakeObject
         Transform objectInHandTransform;
@@ -65,6 +65,10 @@ namespace jeanf.vrplayer
             }
         }
 
+        private void Awake()
+        {
+            mainCamera = Camera.main;
+        }
 
         private void OnEnable()
         {
@@ -112,7 +116,6 @@ namespace jeanf.vrplayer
                     Transform objectHit = hit.transform;
                     objectInHandTransform = objectHit;
                     objectInHand = hit.transform.gameObject.GetComponent<PickableObject>();
-                    //objectInHandTransform.SetParent(this.gameObject.transform);
                     objectInHand.Rigidbody.freezeRotation = true;
                     objectInHand.Rigidbody.useGravity = false;
                 }
@@ -181,7 +184,6 @@ namespace jeanf.vrplayer
             _positionHandle = LMotion.Create(objectToMove.transform.position, goal, sliderMotionDuration)
                 .Bind(x => objectToMove.transform.position = x)
                 .AddTo(objectToMove.gameObject);
-            //objectToMove.transform.position = goal;
         }
         private void SetObjectRotation(Transform objectToMove, Quaternion goal)
         {
@@ -195,8 +197,6 @@ namespace jeanf.vrplayer
             _rotationHandle = LMotion.Create(objectToMove.transform.rotation, goal, sliderMotionDuration)
                 .Bind(x => objectToMove.transform.rotation = x)
                 .AddTo(objectToMove.gameObject);
-
-            //objectToMove.transform.rotation = goal;
             
         }
     }

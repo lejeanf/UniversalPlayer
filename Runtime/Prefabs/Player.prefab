@@ -90,7 +90,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isDebug: 0
-  mainCamera: {fileID: 0}
   takeAction: {fileID: 8990341900327466869, guid: d1922f8dbfee69c43b48934c1c604812,
     type: 3}
   scrollAction: {fileID: -4818242150996139549, guid: d1922f8dbfee69c43b48934c1c604812,
