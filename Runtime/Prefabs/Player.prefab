@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useInputAction: 1
-  drawPrimaryItem: {fileID: 5689770770937974823, guid: d1922f8dbfee69c43b48934c1c604812,
+  drawPrimaryItem: {fileID: 4704634921477788372, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   loginFieldIsOpened: {fileID: 11400000, guid: 18a5405adeda6b6469dc7393511504a2, type: 2}
   _PrimaryItemStateChannel: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6,
@@ -65,9 +65,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isDebug: 1
-  drawPrimaryItem_LeftHand: {fileID: 407126851597506744, guid: d1922f8dbfee69c43b48934c1c604812,
+  drawPrimaryItem_LeftHand: {fileID: -1773342767403361641, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
-  drawPrimaryItem_RightHand: {fileID: 4307043635462824090, guid: d1922f8dbfee69c43b48934c1c604812,
+  drawPrimaryItem_RightHand: {fileID: -269443202914654657, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   primaryItemPose: {fileID: 11400000, guid: 90c516f6ae0768d4d908ca1335e1bc71, type: 2}
   primaryItem: {fileID: 0}
@@ -90,9 +90,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isDebug: 0
-  takeAction: {fileID: 8990341900327466869, guid: d1922f8dbfee69c43b48934c1c604812,
+  takeAction: {fileID: 562945156622505213, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
-  scrollAction: {fileID: -4818242150996139549, guid: d1922f8dbfee69c43b48934c1c604812,
+  scrollAction: {fileID: 4546399164687744209, guid: da2b439d1a2de5c46a4f428f8cf4fe19,
     type: 3}
   advancedSettings: 0
   minDistance: 0.5
@@ -149,7 +149,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isDebug: 0
   _mouseSensitivity: 75
-  mouseXY: {fileID: 7256559532032209167, guid: d1922f8dbfee69c43b48934c1c604812, type: 3}
+  mouseXY: {fileID: -7474146709482753281, guid: 110d9016d6486d84697b9d7a66a57d45,
+    type: 3}
   playerCamera: {fileID: 0}
   cameraOffset: {fileID: 7264267533532500776}
   _isHmdActive: 0
@@ -256,7 +257,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainMenu: {fileID: 0}
-  openMainMenuAction: {fileID: 2623204996511939643, guid: d1922f8dbfee69c43b48934c1c604812,
+  openMainMenuAction: {fileID: 4037659062510700127, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   mainMenuStateChannel: {fileID: 11400000, guid: ff0093fdb7d83c9449485ee73150fa72,
     type: 2}
@@ -320,7 +321,7 @@ MonoBehaviour:
   isHandVisible: 0
   lastHandVisibility: 0
   canUpdate: 0
-  shiftTypeHandAction: {fileID: -5830310781938285777, guid: d1922f8dbfee69c43b48934c1c604812,
+  shiftTypeHandAction: {fileID: 7201714218075579698, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   gloveStateChannel: {fileID: 11400000, guid: 44afa38efccaafb40b05699ac6bd3740, type: 2}
   hmdStateChannel: {fileID: 11400000, guid: 386d301c089a7c545adcdce484194ba9, type: 2}
@@ -412,7 +413,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ActionAssets:
-  - {fileID: -944628639613478452, guid: d1922f8dbfee69c43b48934c1c604812, type: 3}
+  - {fileID: -944628639613478452, guid: 110d9016d6486d84697b9d7a66a57d45, type: 3}
 --- !u!1 &1276718794057257641
 GameObject:
   m_ObjectHideFlags: 0
@@ -900,7 +901,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isDebug: 0
-  userPresenceInput: {fileID: -5736715441349342166, guid: d1922f8dbfee69c43b48934c1c604812,
+  userPresenceInput: {fileID: -8415894783946063446, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   userPresence: 0
   hmdStateChannel: {fileID: 11400000, guid: 386d301c089a7c545adcdce484194ba9, type: 2}
@@ -1030,7 +1031,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 822f26158615d4c45a49f3abfafce33b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputActionAsset: {fileID: -944628639613478452, guid: d1922f8dbfee69c43b48934c1c604812,
+  inputActionAsset: {fileID: -944628639613478452, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   rebindedActionSenderSO: {fileID: 11400000, guid: 6a5f2ae95d02ea1458fca4946f54c37b,
     type: 2}
@@ -1053,7 +1054,6 @@ GameObject:
   - component: {fileID: 77702643294028684}
   - component: {fileID: 3787747753465050079}
   - component: {fileID: 4184769348366918061}
-  - component: {fileID: 8937129821655775713}
   m_Layer: 0
   m_Name: Locomotion
   m_TagString: Untagged
@@ -1161,7 +1161,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: -8258569334123342738, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: -8525429354371678379, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
 --- !u!114 &3787747753465050079
 MonoBehaviour:
@@ -1226,25 +1226,6 @@ MonoBehaviour:
   isInputFieldFocused: {fileID: 11400000, guid: 7958c71ccf936994aa4ea1f6f86a3833,
     type: 2}
   isLoadingScene: {fileID: 11400000, guid: 71f4580ec0467024daf6ed1c69b4c82e, type: 2}
---- !u!114 &8937129821655775713
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4461274153183352764}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fbf5c7704787a7d44bde83817bfe3ab8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveAction: {fileID: -8105684611239297102, guid: d1922f8dbfee69c43b48934c1c604812,
-    type: 3}
-  controller: {fileID: 5280162163099371832}
-  mouseLook: {fileID: 965419840}
-  speedChangeRate: 30
-  moveSpeed: 12
-  isGrounded: 0
 --- !u!1 &4568312785888129817
 GameObject:
   m_ObjectHideFlags: 0
@@ -1317,21 +1298,21 @@ MonoBehaviour:
   m_EnableXRInput: 1
   m_EnableMouseInput: 1
   m_EnableTouchInput: 1
-  m_PointAction: {fileID: -517477668397821181, guid: d1922f8dbfee69c43b48934c1c604812,
+  m_PointAction: {fileID: -8153919833407645626, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
-  m_LeftClickAction: {fileID: -4877727905054723090, guid: d1922f8dbfee69c43b48934c1c604812,
+  m_LeftClickAction: {fileID: 1855836014308820768, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
-  m_MiddleClickAction: {fileID: -2705941251607018545, guid: d1922f8dbfee69c43b48934c1c604812,
+  m_MiddleClickAction: {fileID: -6289560987278519447, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
-  m_RightClickAction: {fileID: -4350958923520037481, guid: d1922f8dbfee69c43b48934c1c604812,
+  m_RightClickAction: {fileID: -2562941478296515153, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
-  m_ScrollWheelAction: {fileID: -3417539931679581234, guid: d1922f8dbfee69c43b48934c1c604812,
+  m_ScrollWheelAction: {fileID: 5825226938762934180, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
-  m_NavigateAction: {fileID: 5969705719676270318, guid: d1922f8dbfee69c43b48934c1c604812,
+  m_NavigateAction: {fileID: -7967456002180160679, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
-  m_SubmitAction: {fileID: 3597222552495637731, guid: d1922f8dbfee69c43b48934c1c604812,
+  m_SubmitAction: {fileID: 3994978066732806534, guid: c348712bda248c246b8c49b3db54643f,
     type: 3}
-  m_CancelAction: {fileID: 4055454201792993906, guid: d1922f8dbfee69c43b48934c1c604812,
+  m_CancelAction: {fileID: 2387711382375263438, guid: c348712bda248c246b8c49b3db54643f,
     type: 3}
   m_EnableBuiltinActionsAsFallback: 1
   m_EnableGamepadInput: 1
@@ -2703,7 +2684,6 @@ GameObject:
   - component: {fileID: 4061889393909512434}
   - component: {fileID: 8181721135841574653}
   - component: {fileID: 891806810656328775}
-  - component: {fileID: 6693059999648577018}
   m_Layer: 2
   m_Name: Player
   m_TagString: Player
@@ -2728,7 +2708,7 @@ Transform:
   - {fileID: 5781580102001219749}
   - {fileID: 4128668795761766398}
   m_Father: {fileID: 0}
-  m_RootOrder: -2
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5246354473374005088
 MonoBehaviour:
@@ -2803,7 +2783,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isDebug: 0
   _inputActionList: []
-  m_InputActionAsset: {fileID: -944628639613478452, guid: d1922f8dbfee69c43b48934c1c604812,
+  m_InputActionAsset: {fileID: -944628639613478452, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   _actionContainer: {fileID: 11400000, guid: b5b1fec7d21b69145a675d01177823e2, type: 2}
   actionRebindedListener: {fileID: 11400000, guid: 6a5f2ae95d02ea1458fca4946f54c37b,
@@ -2820,7 +2800,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c2f9075ca65da643b6dae83cd28e320, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputActionAsset: {fileID: -944628639613478452, guid: d1922f8dbfee69c43b48934c1c604812,
+  inputActionAsset: {fileID: -944628639613478452, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   continuousMoveProvider: {fileID: 3787747753465050079}
   mouseLook: {fileID: 965419840}
@@ -2841,393 +2821,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80ae9bca6617e104096d39288abffe29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &6693059999648577018
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8694773027870397994}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Actions: {fileID: -944628639613478452, guid: d1922f8dbfee69c43b48934c1c604812,
-    type: 3}
-  m_NotificationBehavior: 2
-  m_UIInputModule: {fileID: 0}
-  m_DeviceLostEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_DeviceRegainedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ControlsChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ActionEvents:
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: a74d7200-fac8-409b-bf64-67d146e6a568
-    m_ActionName: XRI Head/Position
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 08428c8e-1e36-4ece-a4dd-f97a5538c595
-    m_ActionName: XRI Head/Rotation
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 54f71f63-1c46-4ffc-841a-7a120aef7209
-    m_ActionName: XRI Head/Is Tracked
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: e0b7ac99-7af8-4451-b7c0-7fd843d5e154
-    m_ActionName: XRI Head/Tracking State
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 7b06b234-087f-4db3-b7d9-15bcbc275571
-    m_ActionName: XRI Head/Eye Gaze Position
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: db0ac9ed-5b09-48cd-b8ec-e4f1379c7d2a
-    m_ActionName: XRI Head/Eye Gaze Rotation
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: b04160ca-aa4e-4b12-b3e8-82756efe7067
-    m_ActionName: XRI Head/Eye Gaze Tracking State
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 563ce766-b3e3-4187-ad73-c57f9848962f
-    m_ActionName: XRI Head/UserPresence
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 02808d69-4df9-4ec5-984d-17a104091569
-    m_ActionName: XRI LeftHand/Position
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: c9b71faf-077a-4485-9746-8ae64c59095c
-    m_ActionName: XRI LeftHand/Rotation
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: f81ddbfd-d808-42bd-9358-bcee54c0496c
-    m_ActionName: XRI LeftHand/Is Tracked
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: a25df592-a5bc-4bbd-bc88-dc9becb056dd
-    m_ActionName: XRI LeftHand/Tracking State
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: c6ed82fb-b29e-4ddf-9c87-5e549f1f376f
-    m_ActionName: XRI LeftHand/Haptic Device
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: f280dd68-35e4-41e4-b74c-62324c5434e1
-    m_ActionName: XRI LeftHand/Aim Position
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 30e5ba82-d5ea-4126-91c1-8f7e8daec02e
-    m_ActionName: XRI LeftHand/Aim Rotation
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 12797afe-15a7-48ad-8742-4668863865fb
-    m_ActionName: XRI LeftHand/Pinch Position
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 6f3b0698-31cf-44d2-be5e-17a98848080a
-    m_ActionName: XRI LeftHand/Poke Position
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 3780dddc-5157-46d4-8e6d-f98dfc623fd9
-    m_ActionName: XRI LeftHand/Poke Rotation
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: e3f211db-4eba-40ea-9a7e-71b8624a0b77
-    m_ActionName: XRI LeftHand/DrawPrimaryItem
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 88f78f67-ec02-47c5-a546-e11848e45987
-    m_ActionName: XRI LeftHand/Preview Raycast
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 0bb98edc-02d8-48a8-920e-c5284799f861
-    m_ActionName: XRI LeftHand/Translate Anchor
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 07c05939-12e4-48bc-8f2d-9634d37f002f
-    m_ActionName: XRI LeftHand/Rotate Anchor
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 7eabc452-336d-45ca-9e3a-60e8e38602cf
-    m_ActionName: XRI LeftHand/UI Press Value
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: cffba0e8-8e41-4bf9-80cc-036f30605911
-    m_ActionName: XRI LeftHand/UI Press
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: ccc102b9-9a38-49c5-91e8-70901a598d53
-    m_ActionName: XRI LeftHand/Activate Value
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: dbc5074b-5da5-4e09-af36-8c55b3f9a005
-    m_ActionName: XRI LeftHand/Activate
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 4c8f0757-72c5-4ce7-b576-f68c8f27f500
-    m_ActionName: XRI LeftHand/Select Value
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 5eb3255c-da8a-494e-8772-755c4f5d0c06
-    m_ActionName: XRI LeftHand/Select
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: bda58cf9-b709-42dc-93e6-857fe0857773
-    m_ActionName: XRI LeftHand/Teleport Select
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 42c1b553-40c4-4e52-a187-24e232306c31
-    m_ActionName: XRI LeftHand/Teleport Mode Activate
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 5732199b-e971-4d0a-8d80-7d7732a18498
-    m_ActionName: XRI LeftHand/Teleport Mode Cancel
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: d8f2c078-6b8d-47b7-b720-9928b115ab22
-    m_ActionName: XRI LeftHand/Teleport Direction
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: d0ddfd14-bef6-4153-891f-bd5c697b67eb
-    m_ActionName: XRI LeftHand/Turn
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 9f997692-8df7-4c2d-a067-b7299fae4b2d
-    m_ActionName: XRI LeftHand/Move
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: c3738058-97b6-4370-b30e-4173b908d8af
-    m_ActionName: XRI LeftHand/Grab Move
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 0d56f132-912d-41af-a513-ede88aa894d5
-    m_ActionName: XRI LeftHand/Snap Turn
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 8c0405f3-912f-47e4-92e2-05bffa64a0c9
-    m_ActionName: XRI RightHand/Position
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: e6674610-6f88-4755-8970-e42c9bf281eb
-    m_ActionName: XRI RightHand/Rotation
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 8aebe32e-2680-4dcc-ae0b-051f3e58e76e
-    m_ActionName: XRI RightHand/Is Tracked
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 0f52eea3-f022-4553-a5cd-e80a3bfdeb8f
-    m_ActionName: XRI RightHand/Tracking State
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 037dd3e2-e188-41c2-8d91-7992f4dc7a3a
-    m_ActionName: XRI RightHand/Haptic Device
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 80d9a485-e100-47d8-9bb4-67880a3423c2
-    m_ActionName: XRI RightHand/Aim Position
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: c4e7f3c4-1e4a-4370-98c4-31956be122e5
-    m_ActionName: XRI RightHand/Aim Rotation
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 7a4744c2-44b9-48ce-a0bf-345b7abb5d0c
-    m_ActionName: XRI RightHand/Pinch Position
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 5a958aa7-54a1-439d-82b7-aa63f8802b40
-    m_ActionName: XRI RightHand/Preview Raycast
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: bd7ce4c7-c78a-4b06-b844-b98df4b3f463
-    m_ActionName: XRI RightHand/Translate Anchor
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 5e8bf735-4de7-4493-80b0-fd50483aa044
-    m_ActionName: XRI RightHand/Rotate Anchor
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 4ec4b746-df35-4b9d-862d-949c656fddb2
-    m_ActionName: XRI RightHand/UI Press Value
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: a3913a31-cd19-435c-8cb9-56b6da5c6620
-    m_ActionName: XRI RightHand/UI Press
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 6f214b8a-ba28-498d-b777-7cf4b5d777de
-    m_ActionName: XRI RightHand/Activate Value
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 700ea035-0a73-4cd9-92eb-50faf546f0d3
-    m_ActionName: XRI RightHand/Activate
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 3314a250-49b7-4a2b-8e99-772dffbdbb0a
-    m_ActionName: XRI RightHand/Select Value
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 0a95b8cc-ed04-43da-9e76-32d19e67d79b
-    m_ActionName: XRI RightHand/Select
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: f2d97ef5-18a4-4486-952a-c9c461fe92b0
-    m_ActionName: XRI RightHand/Poke Position
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 9cab7ac5-e261-4d23-a968-d4f6e41c9b43
-    m_ActionName: XRI RightHand/Poke Rotation
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: e8231b65-3712-4b4b-82f8-d4c0a4d312c3
-    m_ActionName: XRI RightHand/DrawPrimaryItem
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: c1e7b9b6-f86d-4d7e-b04c-e40581fb4633
-    m_ActionName: XRI RightHand/Teleport Select
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 296abf45-c854-4337-b152-a739b01b1fb0
-    m_ActionName: XRI RightHand/Teleport Mode Activate
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 2163b7dd-9d4d-4bb5-ba88-498c4d1f421f
-    m_ActionName: XRI RightHand/Teleport Mode Cancel
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 19583220-9d4d-4fbf-81ba-539e54ecfee4
-    m_ActionName: XRI RightHand/Teleport Direction
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 1953bbb2-421a-43d3-ab2c-cb4ccbe436de
-    m_ActionName: XRI RightHand/Turn
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 51b8fbc4-86a2-4fac-b1b8-570720df8fad
-    m_ActionName: XRI RightHand/Move
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: e0e18684-f38a-426c-a500-444f7ac5e6b1
-    m_ActionName: XRI RightHand/Grab Move
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: a04c9bea-b67d-4806-a47b-e6e37d177c42
-    m_ActionName: XRI RightHand/Snap Turn
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: df3d350f-e61a-43e0-a7bd-12566c5c53f6
-    m_ActionName: XRI UI/Navigate[/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 259fca19-6dbf-4ac5-b221-20c6e67ded30
-    m_ActionName: XRI UI/Submit[/Keyboard/enter]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 9a73c98b-ef14-4b2a-8518-6bb69adf35a3
-    m_ActionName: XRI UI/Cancel[/Keyboard/escape]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 6b3ea9ff-6ef2-4fb3-b651-4ccbbf99f4d4
-    m_ActionName: XRI UI/Point[/Mouse/position]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: bbba2370-1fd6-4551-8ae5-60f293511f61
-    m_ActionName: XRI UI/Click[/Mouse/leftButton]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: b5bd797b-f4c2-4bcb-92f6-d7db2e87397f
-    m_ActionName: XRI UI/ScrollWheel[/Mouse/scroll]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 58d84ffe-9cc5-4259-bcd2-179b97e412b9
-    m_ActionName: XRI UI/MiddleClick[/Mouse/middleButton]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: d4d727c9-b140-4917-9787-f62a6d9981ff
-    m_ActionName: XRI UI/RightClick[/Mouse/rightButton]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: b6f59c08-0466-4f06-92ea-0a594846ce35
-    m_ActionName: XRI UI/TrackedDevicePosition
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 94167960-2593-4d1c-8fe5-05468872f057
-    m_ActionName: XRI UI/TrackedDeviceOrientation
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: d8547038-c88b-428b-aa43-af8c6a6fad03
-    m_ActionName: FPS/DrawPrimaryItem[/Keyboard/1]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 09dc189a-f0c8-4c23-ac7c-f0f0cd3634e2
-    m_ActionName: FPS/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d,/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: e2e2761b-c323-4154-94f4-251470f07441
-    m_ActionName: FPS/LookAround[/Mouse/delta]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: ee8e3450-ec6b-4c3f-af14-a81333d63260
-    m_ActionName: FPS/TakeObject[/Keyboard/e,/Mouse/leftButton]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: b8a45439-ed16-4550-b6aa-788f52bf0ac7
-    m_ActionName: FPS/MainMenu[/Keyboard/escape]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 056e1f4f-bd4c-48e8-99b5-e3b7de82002a
-    m_ActionName: FPS/PauseGame[/Keyboard/p]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: fe46f103-0d39-49dd-a597-423fb394a354
-    m_ActionName: FPS/Scroll[/Mouse/scroll/y]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: b2b23bdd-35b9-4804-bc19-279359759fd6
-    m_ActionName: UI/Navigate[/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: b5a1490f-5a98-46f9-b9ae-7095940ab3d6
-    m_ActionName: UI/Submit[/Keyboard/enter]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 10f58534-2723-447b-8bbe-b3da30f7fedf
-    m_ActionName: UI/Cancel[/Keyboard/escape]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 3051d434-08ab-4f3a-95c3-fb7c19bbff92
-    m_ActionName: UI/Point[/Mouse/position]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: b16ed0b5-3278-4265-90d0-194d447a4290
-    m_ActionName: UI/Click[/Mouse/leftButton,/Keyboard/e]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: c9b69291-2f63-4a91-bd0d-c3fe3feb2fd6
-    m_ActionName: UI/ScrollWheel[/Mouse/scroll]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 1ffae076-795f-437d-8e4a-46cde14107f0
-    m_ActionName: UI/MiddleClick[/Mouse/middleButton]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 64e72a35-edb0-412d-821b-75f4a13764af
-    m_ActionName: UI/RightClick[/Mouse/rightButton]
-  m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: Gamepad
-  m_DefaultActionMap: XRI Head
-  m_SplitScreenIndex: -1
-  m_Camera: {fileID: 0}
 --- !u!1001 &53461677430660841
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4475,7 +4068,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: 6904534856572437243, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: -2706128282752906596, guid: c348712bda248c246b8c49b3db54643f,
       type: 3}
   m_RotationAction:
     m_UseReference: 1
@@ -4488,7 +4081,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: -5226614476928581663, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: 8248158260566104461, guid: c348712bda248c246b8c49b3db54643f,
       type: 3}
   m_IsTrackedAction:
     m_UseReference: 0
@@ -4513,7 +4106,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: 1375121845126283612, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: 684395432459739428, guid: c348712bda248c246b8c49b3db54643f,
       type: 3}
   m_SelectAction:
     m_UseReference: 1
@@ -4526,7 +4119,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: 4750810104601793607, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: 187161793506945269, guid: c348712bda248c246b8c49b3db54643f,
       type: 3}
   m_SelectActionValue:
     m_UseReference: 1
@@ -4539,7 +4132,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: -5375233276804982729, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: -1758520528963094988, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
   m_ActivateAction:
     m_UseReference: 1
@@ -4552,7 +4145,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: 3197920667674445453, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: 83097790271614945, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
   m_ActivateActionValue:
     m_UseReference: 1
@@ -4565,7 +4158,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: -4133708073828147611, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: 7904272356298805229, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
   m_UIPressAction:
     m_UseReference: 1
@@ -4578,7 +4171,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: -8172210570430677073, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: 3279264004350380116, guid: c348712bda248c246b8c49b3db54643f,
       type: 3}
   m_UIPressActionValue:
     m_UseReference: 1
@@ -4591,7 +4184,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: -6118837686944609174, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: -5908353012961274365, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
   m_UIScrollAction:
     m_UseReference: 0
@@ -4616,7 +4209,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: 4444096766568985107, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: -8222252007134549311, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
   m_RotateAnchorAction:
     m_UseReference: 1
@@ -4629,7 +4222,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: 5037809645771586019, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: -5913262927076077117, guid: c348712bda248c246b8c49b3db54643f,
       type: 3}
   m_DirectionalAnchorRotationAction:
     m_UseReference: 1
@@ -4642,7 +4235,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: -1588140940067143948, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: -440298646266941818, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
   m_TranslateAnchorAction:
     m_UseReference: 1
@@ -4655,7 +4248,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: 1884301591066320417, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: 875253871413052681, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
   m_ScaleToggleAction:
     m_UseReference: 0

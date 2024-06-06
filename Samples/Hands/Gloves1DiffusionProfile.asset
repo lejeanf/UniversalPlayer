@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: Gloves1DiffusionProfile
   m_EditorClassIdentifier: 
   profile:
-    scatteringDistance: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    scatteringDistance: {r: 0.7490196, g: 0.7490196, b: 0.7490196, a: 1}
+    scatteringDistanceMultiplier: 0.66753924
     transmissionTint: {r: 1, g: 1, b: 1, a: 1}
     texturingMode: 0
     transmissionMode: 1
     thicknessRemap: {x: 0, y: 5}
     worldScale: 1
     ior: 1.4
-    hash: 1074366273
-  m_Version: 1
+    hash: 1076312996
+  m_Version: 2
