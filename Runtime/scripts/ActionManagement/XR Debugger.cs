@@ -9,7 +9,7 @@ namespace jeanf.vrplayer
     {
         [SerializeField] InputActionReference moveAction;
         [SerializeField] InputActionReference snapTurnAction;
-
+        [SerializeField] PlayerInput PlayerInput;
 
 
 
@@ -30,12 +30,12 @@ namespace jeanf.vrplayer
 
         private void Move(Vector2 value)
         {
-            Debug.Log("moving on " + value);
+            Debug.Log($"Moving on {value}, the playerInput's active controlScheme is {PlayerInput.currentControlScheme} and the current action maps are {PlayerInput.currentActionMap}");
         }
 
         private void SnapTurn(Vector2 value)
         {
-            Debug.Log("snap turn on " + value);
+            Debug.Log($"Snap Turn {value}, the playerInput's active controlScheme is {PlayerInput.currentControlScheme} and the current action maps are {PlayerInput.currentActionMap}");
         }
     }
 }
