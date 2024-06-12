@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useInputAction: 1
-  drawPrimaryItem: {fileID: 5689770770937974823, guid: d1922f8dbfee69c43b48934c1c604812,
+  drawPrimaryItem: {fileID: -879462523816536454, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   loginFieldIsOpened: {fileID: 11400000, guid: 18a5405adeda6b6469dc7393511504a2, type: 2}
   _PrimaryItemStateChannel: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6,
@@ -4819,7 +4819,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6270270c255c8574d95453b3da7e4ccd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectAction: {fileID: -8590482233425078774, guid: d1922f8dbfee69c43b48934c1c604812,
+  selectAction: {fileID: 3075997668390639591, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   _white:
     serializedVersion: 2
