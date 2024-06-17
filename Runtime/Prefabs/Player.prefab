@@ -605,7 +605,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: -3370557094243899983, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: -5047793395621685597, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
   m_RotationAction:
     m_UseReference: 1
@@ -618,7 +618,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: 4941973132018738113, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: -7238054957285046403, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
   m_IsTrackedAction:
     m_UseReference: 0
@@ -643,7 +643,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: 1973295735273397992, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: -436511789509698634, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
   m_SelectAction:
     m_UseReference: 1
@@ -656,7 +656,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: 5308680225879908264, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: 1335804337504186848, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
   m_SelectActionValue:
     m_UseReference: 1
@@ -669,7 +669,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: -1077138068775875695, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: 4382169345059012903, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
   m_ActivateAction:
     m_UseReference: 1
@@ -682,7 +682,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: -5584402360010706879, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: 8791870679242404937, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
   m_ActivateActionValue:
     m_UseReference: 1
@@ -695,7 +695,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: 5873925624959407372, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: 8065840262423613310, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
   m_UIPressAction:
     m_UseReference: 1
@@ -708,7 +708,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: -244709071515144538, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: -4309220014851016331, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
   m_UIPressActionValue:
     m_UseReference: 1
@@ -721,7 +721,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: 6700670348844481455, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: -4614791170101098914, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
   m_UIScrollAction:
     m_UseReference: 0
@@ -746,7 +746,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: 2048419231199536837, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: -6090848481660181652, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
   m_RotateAnchorAction:
     m_UseReference: 1
@@ -759,7 +759,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: 695085035004767284, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: -6412180638562121659, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
   m_DirectionalAnchorRotationAction:
     m_UseReference: 1
@@ -772,7 +772,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: 3519077565775856720, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: 7412197411086764454, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
   m_TranslateAnchorAction:
     m_UseReference: 1
@@ -785,7 +785,7 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: 5792913706164916960, guid: d1922f8dbfee69c43b48934c1c604812,
+    m_Reference: {fileID: -133444749553795432, guid: 110d9016d6486d84697b9d7a66a57d45,
       type: 3}
   m_ScaleToggleAction:
     m_UseReference: 0
@@ -1223,7 +1223,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isDebug: 1
-  inputActionAsset: {fileID: -944628639613478452, guid: d1922f8dbfee69c43b48934c1c604812,
+  inputActionAsset: {fileID: -944628639613478452, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   isInputFieldFocused: {fileID: 11400000, guid: 7958c71ccf936994aa4ea1f6f86a3833,
     type: 2}
@@ -1240,7 +1240,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbf5c7704787a7d44bde83817bfe3ab8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveAction: {fileID: -8105684611239297102, guid: d1922f8dbfee69c43b48934c1c604812,
+  moveAction: {fileID: 4837329596722531451, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   controller: {fileID: 5280162163099371832}
   mouseLook: {fileID: 965419840}
@@ -2805,7 +2805,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isDebug: 0
   _inputActionList: []
-  m_InputActionAsset: {fileID: -944628639613478452, guid: d1922f8dbfee69c43b48934c1c604812,
+  m_InputActionAsset: {fileID: -944628639613478452, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   _actionContainer: {fileID: 11400000, guid: b5b1fec7d21b69145a675d01177823e2, type: 2}
   actionRebindedListener: {fileID: 11400000, guid: 6a5f2ae95d02ea1458fca4946f54c37b,
@@ -2822,7 +2822,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c2f9075ca65da643b6dae83cd28e320, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputActionAsset: {fileID: -944628639613478452, guid: d1922f8dbfee69c43b48934c1c604812,
+  inputActionAsset: {fileID: -944628639613478452, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   continuousMoveProvider: {fileID: 3787747753465050079}
   mouseLook: {fileID: 965419840}
