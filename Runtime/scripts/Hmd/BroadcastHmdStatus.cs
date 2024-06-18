@@ -33,6 +33,10 @@ namespace jeanf.vrplayer
         private void OnDisable() => Unsubscribe();
         private void OnDestroy() => Unsubscribe();
 
+        private void Start()
+        {
+            hmdStateChannel.RaiseEvent(hmdCurrentState);
+        }
         private void Unsubscribe()
         {
             userPresenceInput.action.started -= null;

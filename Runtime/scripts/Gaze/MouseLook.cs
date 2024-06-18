@@ -52,7 +52,7 @@ namespace jeanf.vrplayer
 
         private Vector2 _rotation = Vector2.zero;
         private bool _cameraOffsetReset = false;
-        
+        private int numberOfCalls = 0;
         /*
         [Header("Broadcasting on:")]
         [SerializeField] private BoolEventChannelSO _canLookStateChannel;
@@ -63,14 +63,13 @@ namespace jeanf.vrplayer
         [SerializeField] private BoolEventChannelSO mouselookStateChannel;
         [SerializeField] private VoidEventChannelSO mouselookCameraReset;
         [SerializeField] private TeleportEventChannelSO teleportEventChannel;
-
+        
         private void Awake()
         {
             _originalCameraOffset = cameraOffset;
-            //_useInputAction = useInputAction;
             Init();
         }
-
+        
         private void OnEnable()
         {
             mouseXY.action.performed += ctx => LookAround(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * .25f);
@@ -89,21 +88,16 @@ namespace jeanf.vrplayer
             mouselookCameraReset.OnEventRaised -= ResetCameraSettings;
             teleportEventChannel.OnEventRaised -= _ => ResetCameraSettings();
         }
-        private void Update()
-        {
 
-            //var targetMouseDelta = Mouse.current.delta.ReadValue() * Time.smoothDeltaTime;
-            //LookAround(targetMouseDelta);
-        }
 
         public void Init()
         {
             _canLook = !_isHmdActive;
-            //_canLookStateChannel.RaiseEvent(_canLook);
             
             ResetCameraSettings();
         }
-
+        
+        
         public void ResetCameraSettings()
         {
             if(!BroadcastHmdStatus.hmdCurrentState) SetMouseState(true);
@@ -119,11 +113,14 @@ namespace jeanf.vrplayer
             _isHmdActive = state;
         }
 
+
         private void LookAround(Vector2 inputView)
         {
             if(BroadcastHmdStatus.hmdCurrentState) return;
             if (!_canLook) return;
-            
+
+            numberOfCalls++;
+            if (numberOfCalls <= 2) return; 
             if(isDebug) Debug.Log($"Mouse inputView value : ({inputView.x}:{inputView.y})");
             _rotation.y += inputView.x * _mouseSensitivity;
             _rotation.x += -inputView.y * _mouseSensitivity;
@@ -138,6 +135,7 @@ namespace jeanf.vrplayer
             _canLook = state;
             //_canLookStateChannel.RaiseEvent(!state);
         }
+
 
         public void InvertMouseLookState()
         {
