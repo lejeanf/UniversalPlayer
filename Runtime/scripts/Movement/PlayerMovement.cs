@@ -50,7 +50,6 @@ namespace jeanf.vrplayer
         }
         private void Move(Vector2 move)
         {
-            Debug.Log("Movin'");
             float targetSpeed = moveSpeed;
 
 

@@ -166,7 +166,7 @@ namespace jeanf.vrplayer
                 ActionSO actionSO = Resources.Load<ActionSO>($"Player/Actions/{action.actionMap.name}_{action.name}");
                 if (actionSO == null)
                 {
-                    Debug.LogError("Did not found actionSO. Press the \"Create Player Actions\" button in the PlayerActionManager component on the Player prefab ");
+                    Debug.LogWarning("Did not found actionSO. Press the \"Create Player Actions\" button in the PlayerActionManager component on the Player prefab ");
                 }
                 if (!_actionContainer._actions.ContainsKey(action))
                 {
