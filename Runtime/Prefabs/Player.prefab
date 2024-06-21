@@ -163,6 +163,7 @@ MonoBehaviour:
     type: 2}
   teleportEventChannel: {fileID: 11400000, guid: a03c9fca588e41848abdc740acc54aeb,
     type: 2}
+  hmdStateChannel: {fileID: 11400000, guid: 386d301c089a7c545adcdce484194ba9, type: 2}
 --- !u!1 &1263127692
 GameObject:
   m_ObjectHideFlags: 0
