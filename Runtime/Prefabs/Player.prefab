@@ -103,6 +103,8 @@ MonoBehaviour:
   layerMask:
     serializedVersion: 2
     m_Bits: 64
+  dropItemEventChannel: {fileID: 11400000, guid: a440d5cda993d4745820617db6e5d19d,
+    type: 2}
   sliderMotionDuration: 0.05
 --- !u!1 &965419837
 GameObject:
@@ -163,7 +165,6 @@ MonoBehaviour:
     type: 2}
   teleportEventChannel: {fileID: 11400000, guid: a03c9fca588e41848abdc740acc54aeb,
     type: 2}
-  hmdStateChannel: {fileID: 11400000, guid: 386d301c089a7c545adcdce484194ba9, type: 2}
 --- !u!1 &1263127692
 GameObject:
   m_ObjectHideFlags: 0
