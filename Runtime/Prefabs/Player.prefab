@@ -103,6 +103,8 @@ MonoBehaviour:
   layerMask:
     serializedVersion: 2
     m_Bits: 64
+  dropItemEventChannel: {fileID: 11400000, guid: a440d5cda993d4745820617db6e5d19d,
+    type: 2}
   sliderMotionDuration: 0.05
 --- !u!1 &965419837
 GameObject:
