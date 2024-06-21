@@ -1246,9 +1246,9 @@ MonoBehaviour:
     type: 3}
   controller: {fileID: 5280162163099371832}
   mouseLook: {fileID: 965419840}
+  distToGround: 0
   speedChangeRate: 30
   moveSpeed: 12
-  isGrounded: 0
 --- !u!1 &4568312785888129817
 GameObject:
   m_ObjectHideFlags: 0

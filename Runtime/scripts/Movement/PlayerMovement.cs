@@ -12,12 +12,16 @@ namespace jeanf.vrplayer
         [SerializeField] MouseLook mouseLook;
 
         float speed;
+        float gravity = 9.81f;
+        [SerializeField] float distToGround;
         [SerializeField] float speedChangeRate;
         [SerializeField] float moveSpeed;
-        [SerializeField] bool isGrounded;
+
 
         bool isMoving;
         Vector2 moveValue;
+
+
         private void OnEnable()
         {
             moveAction.action.performed += ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50f, true);
@@ -42,15 +46,28 @@ namespace jeanf.vrplayer
             {
                 Move(moveValue);
             }
+
+            
+            if (!IsGrounded())
+            {
+                controller.Move(new Vector3(0.0f, -gravity, 0.0f).normalized * Time.deltaTime * 10f);
+            }
+
         }
         private void SetMoveValue(Vector2 move, bool isMoving)
         {
             moveValue = move;
             this.isMoving = isMoving;
         }
+
+        private bool IsGrounded()
+        {
+            return Physics.Raycast(transform.position, -Vector3.up, distToGround);
+        }
         private void Move(Vector2 move)
         {
             float targetSpeed = moveSpeed;
+            float verticalSpeed;
 
 
             if(move == Vector2.zero) targetSpeed = 0;
@@ -78,6 +95,7 @@ namespace jeanf.vrplayer
                 inputDirection = mouseLook.CameraOffset.transform.right * move.x + mouseLook.CameraOffset.transform.forward * move.y;
             }
 
+            
             controller.Move(new Vector3(inputDirection.x, 0.0f, inputDirection.z).normalized * (speed * Time.deltaTime));
         }
     }
