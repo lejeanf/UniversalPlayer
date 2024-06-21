@@ -53,9 +53,6 @@ namespace jeanf.vrplayer
         private MotionHandle _rotationHandle;
         [SerializeField] private LayerMask layerMask;
 
-        [Header("Listening ON")]
-        [SerializeField] VoidEventChannelSO dropItemEventChannel;
-
         [Range(0.01f, 0.5f)]
         [SerializeField] private float sliderMotionDuration;
 
@@ -73,7 +70,6 @@ namespace jeanf.vrplayer
         {
             takeAction.action.performed += ctx => DispatchAction();
             scrollAction.action.performed += ctx => UpdateObjectDistance(ctx.ReadValue<float>());
-            dropItemEventChannel.OnEventRaised += Release;
         }
 
         private void OnDisable() => Unsubscribe();
@@ -87,8 +83,6 @@ namespace jeanf.vrplayer
             scrollAction.action.performed -= ctx => UpdateObjectDistance(ctx.ReadValue<float>());
             DisablePositionHandle();
             DisableRotationHandle();
-            dropItemEventChannel.OnEventRaised -= Release;
-
 
         }
 

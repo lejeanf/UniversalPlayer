@@ -19,7 +19,7 @@ namespace jeanf.vrplayer
         private float _blendValue = 100.0f;
         [Range(0,100)]
         [SerializeField] private float gender = 100.0f;
-        PlayerInput playerInput;
+
         public float Gender
         {
             get => gender;
@@ -98,21 +98,11 @@ namespace jeanf.vrplayer
             hmdStateChannel.OnEventRaised -= SetUpdateState;
         }
 
-        private void Awake()
-        {
-            playerInput = GetComponentInParent<PlayerInput>();
-        }
+
 
         private void Update()
         {
-            if(playerInput.currentControlScheme == "XR")
-            {
-                SetHandsVisibility(true);
-            }
-            else
-            {
-                SetHandsVisibility(false);
-            }
+            if(lastHandVisibility != isHandVisible) SetHandsVisibility(isHandVisible);
             if(!canUpdate)return;
             //SetBlendValueFromGender(gender);
             SetHandMaterials(_hands, gender * 0.01f);
@@ -127,7 +117,6 @@ namespace jeanf.vrplayer
             {
                 _hands.Add(hand);
                 SetGender(_hands, gender);
-                if(isDebug) Debug.Log("CALLED AddHand");
                 SetHandsVisibility(isHandVisible);
             }
 
@@ -205,14 +194,12 @@ namespace jeanf.vrplayer
 
         public void SetUpdateState(bool updateState)
         {
-            if (isDebug) Debug.Log($"HMD state is {updateState}");
             isHandVisible = updateState;
             canUpdate = updateState;
         }
 
         public void SetHandsVisibility(bool state)
         {
-            if (isDebug) Debug.Log($"Hands visibility is {state}");
             foreach (var hand in _hands)
             {
                 hand.enabled = state;
