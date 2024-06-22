@@ -146,6 +146,10 @@ namespace jeanf.vrplayer
             objectInHand = null;
         }
 
+        public GameObject GetObjectInHand()
+        {
+            return objectInHand.gameObject;
+        }
         private void UpdateObjectDistance(float value)
         {
             value *= scrollStep;
