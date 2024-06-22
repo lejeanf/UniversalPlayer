@@ -148,7 +148,8 @@ namespace jeanf.vrplayer
 
         public GameObject GetObjectInHand()
         {
-            return objectInHand.gameObject;
+            if(objectInHand) return objectInHand.gameObject;
+            return null;
         }
         private void UpdateObjectDistance(float value)
         {
