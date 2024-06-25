@@ -17,6 +17,7 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour, IValidatable
         set => _isDebug = value; 
     }
     [SerializeField] private bool _isDebug = false;
+
     public bool IsValid { get; private set; }
 
     [Validation("A reference to InputActionAsset is required.")]
@@ -90,7 +91,7 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour, IValidatable
         {
             foreach (var actionMap in inputActionAsset.actionMaps)
             {
-                if (actionMap == inputActionAsset.FindActionMap("XRI LeftHand Locomotion"))
+                if (actionMap == inputActionAsset.FindActionMap("FPS"))
                 {
                     actionMap.Disable();
                 }
@@ -101,7 +102,7 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour, IValidatable
         {
             foreach (var actionMap in inputActionAsset.actionMaps)
             {
-                if (actionMap == inputActionAsset.FindActionMap("XRI LeftHand Locomotion"))
+                if (actionMap == inputActionAsset.FindActionMap("FPS"))
                 {
                     actionMap.Enable();
                 }
