@@ -69,17 +69,6 @@ namespace jeanf.vrplayer
             
         }
 
-        private void Update()
-        {
-            if (objectInHand)
-            {
-                Debug.Log(objectInHand);
-            }
-            else
-            {
-                Debug.Log("Nothing in hand");
-            }
-        }
 
         private void OnEnable()
         {
