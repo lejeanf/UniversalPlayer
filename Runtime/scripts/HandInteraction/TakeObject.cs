@@ -27,6 +27,7 @@ namespace jeanf.vrplayer
         //TakeObject
         Transform objectInHandTransform;
         PickableObject objectInHand;
+        public PickableObject _objectInHand { get { return objectInHand; } set { objectInHand = value; } }
         //InputActions
         [SerializeField] InputActionReference takeAction;
         [SerializeField] InputActionReference scrollAction;
@@ -64,8 +65,21 @@ namespace jeanf.vrplayer
                 var goal = mainCamera.transform.position + mainCamera.transform.forward * objectDistance;
                 SetObjectPosition(objectInHandTransform, goal);
             }
+
+            
         }
 
+        private void Update()
+        {
+            if (objectInHand)
+            {
+                Debug.Log(objectInHand);
+            }
+            else
+            {
+                Debug.Log("Nothing in hand");
+            }
+        }
 
         private void OnEnable()
         {
@@ -142,11 +156,11 @@ namespace jeanf.vrplayer
             objectInHand = null;
         }
 
-        public GameObject GetObjectInHand()
-        {
-            if(objectInHand) return objectInHand.gameObject;
-            return null;
-        }
+        //public GameObject GetObjectInHand()
+        //{
+        //    if(objectInHand) return objectInHand.gameObject;
+        //    return null;
+        //}
         private void UpdateObjectDistance(float value)
         {
             value *= scrollStep;
