@@ -38,7 +38,7 @@ namespace jeanf.vrplayer
             moveAction.action.canceled -= ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50f, false);
         }
 
-        private void LateUpdate()
+        private void FixedUpdate()
         {
             if (isMoving)
             {
