@@ -71,14 +71,9 @@ namespace jeanf.vrplayer
 
             Vector3 moveDirection = (forward * speed * move.y) + (right * speed * move.x);
 
-            Debug.Log("speed" + speed);
-            Debug.Log("forward" + forward);
-            Debug.Log("right" + right);
-            Debug.Log("move X" + move.x);
-            Debug.Log("move y" + move.y);
+
             
             Vector3 finalMoveDirection = new Vector3(moveDirection.x, 0.0f, moveDirection.z);
-            Debug.Log("move direction" + finalMoveDirection);
             controller.Move(finalMoveDirection.normalized * speed * Time.deltaTime);
         }
     }
