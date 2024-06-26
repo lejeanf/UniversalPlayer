@@ -57,6 +57,7 @@ namespace jeanf.vrplayer
         [ReadOnly] [SerializeField] private bool lastHandVisibility = true;
         [ReadOnly] [SerializeField] private bool canUpdate = false;
 
+        PlayerInput playerInput;
         private float tolerance = 0.01f;
 
         [Header("Action binding")]
@@ -98,11 +99,21 @@ namespace jeanf.vrplayer
             hmdStateChannel.OnEventRaised -= SetUpdateState;
         }
 
-
+        private void Awake()
+        {
+            playerInput = GetComponentInParent<PlayerInput>();
+        }
 
         private void Update()
         {
-            if(lastHandVisibility != isHandVisible) SetHandsVisibility(isHandVisible);
+            if(playerInput.currentControlScheme == "XR")
+            {
+                SetHandsVisibility(true);
+            }
+            else
+            {
+                SetHandsVisibility(false);
+            }
             if(!canUpdate)return;
             //SetBlendValueFromGender(gender);
             SetHandMaterials(_hands, gender * 0.01f);
