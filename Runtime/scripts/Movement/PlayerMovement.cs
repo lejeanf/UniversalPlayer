@@ -11,11 +11,11 @@ namespace jeanf.vrplayer
         [SerializeField] CharacterController controller;
         [SerializeField] MouseLook mouseLook;
 
-        float speed;
+        [SerializeField] float speed;
         float gravity = 9.81f;
         [SerializeField] float distToGround;
         [SerializeField] float speedChangeRate;
-        [SerializeField] float moveSpeed;
+
 
 
         bool isMoving;
@@ -38,7 +38,7 @@ namespace jeanf.vrplayer
             moveAction.action.canceled -= ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50f, false);
         }
 
-        private void FixedUpdate()
+        private void LateUpdate()
         {
             if (isMoving)
             {
@@ -64,37 +64,22 @@ namespace jeanf.vrplayer
         }
         private void Move(Vector2 move)
         {
-            float targetSpeed = moveSpeed;
-            float verticalSpeed;
 
 
-            if(move == Vector2.zero) targetSpeed = 0;
+            Vector3 forward = Camera.main.transform.forward;
+            Vector3 right = Camera.main.transform.right;
 
-            float currentHorizontalSpeed = new Vector3(controller.velocity.x, 0.0f, controller.velocity.z).magnitude;
+            Vector3 moveDirection = (forward * speed * move.y) + (right * speed * move.x);
 
-            float speedOffset = 0.1f;
-
-            if (currentHorizontalSpeed < targetSpeed - speedOffset || currentHorizontalSpeed > targetSpeed + speedOffset)
-            {
-                speed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed * move.magnitude, Time.deltaTime * speedChangeRate);
-
-                speed = Mathf.Round(speed * 1000f) / 1000f;
-            }
-            else
-            {
-                speed = targetSpeed;
-            }
-
-            Vector3 inputDirection = new Vector3(move.x, 0.0f, move.y).normalized;
+            Debug.Log("speed" + speed);
+            Debug.Log("forward" + forward);
+            Debug.Log("right" + right);
+            Debug.Log("move X" + move.x);
+            Debug.Log("move y" + move.y);
             
-            
-            if (move != Vector2.zero)
-            {
-                inputDirection = mouseLook.CameraOffset.transform.right * move.x + mouseLook.CameraOffset.transform.forward * move.y;
-            }
-
-            
-            controller.Move(new Vector3(inputDirection.x, 0.0f, inputDirection.z).normalized * (speed * Time.deltaTime));
+            Vector3 finalMoveDirection = new Vector3(moveDirection.x, 0.0f, moveDirection.z);
+            Debug.Log("move direction" + finalMoveDirection);
+            controller.Move(finalMoveDirection.normalized * speed * Time.deltaTime);
         }
     }
 }
