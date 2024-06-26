@@ -18,21 +18,21 @@ public class XRTakeObject : MonoBehaviour
 
     public void AssignGameObjectInRightHand()
     {
-        takeObject._objectInXrRightHand = rightInteractor.selectTarget.gameObject.GetComponent<PickableObject>();
+        takeObject._objectInHand = rightInteractor.selectTarget.gameObject.GetComponent<PickableObject>();
     }
 
     public void RemoveGameObjectInRightHand()
     {
-        takeObject._objectInXrRightHand = null;
+        takeObject._objectInHand = null;
     }
 
     public void AssignGameObjectInLeftHand()
     {
-        takeObject._objectInXrLeftHand = rightInteractor.selectTarget.gameObject.GetComponent<PickableObject>();
+        takeObject._objectInHand = leftInteractor.selectTarget.gameObject.GetComponent<PickableObject>();
     }
 
     public void RemoveGameObjectInLeftHand()
     {
-        takeObject._objectInXrLeftHand = null;
+        takeObject._objectInHand = null;
     }
 }

@@ -27,11 +27,8 @@ namespace jeanf.vrplayer
         //TakeObject
         Transform objectInHandTransform;
         PickableObject objectInHand;
-        PickableObject objectInRightHand;
-        PickableObject objectInLeftHand;
+
         public PickableObject _objectInHand { get { return objectInHand; } set { objectInHand = value; } }
-        public PickableObject _objectInXrRightHand { get { return objectInRightHand; } set { objectInRightHand = value; } }
-        public PickableObject _objectInXrLeftHand { get { return objectInLeftHand; } set { objectInLeftHand = value; } }
 
         //InputActions
         [SerializeField] InputActionReference takeAction;
@@ -69,9 +66,7 @@ namespace jeanf.vrplayer
             {
                 var goal = mainCamera.transform.position + mainCamera.transform.forward * objectDistance;
                 SetObjectPosition(objectInHandTransform, goal);
-            }
-
-            
+            }  
         }
 
 
