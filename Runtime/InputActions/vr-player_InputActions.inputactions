@@ -2192,6 +2192,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Interact",
+                    "type": "Button",
+                    "id": "73dbf225-b2bb-4a31-aac9-7d6ae3805e1d",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "MainMenu",
                     "type": "Button",
                     "id": "1e7e73b8-f08f-4823-9f58-537be8b1bdb0",
@@ -2459,6 +2468,28 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "Scroll",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9227468a-fa99-4f04-b182-db5bb23e37b7",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a695cf28-e2f7-4f96-b3ff-9af26190826a",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Interact",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
