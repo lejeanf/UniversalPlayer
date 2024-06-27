@@ -337,6 +337,7 @@ MonoBehaviour:
   isHandVisible: 0
   lastHandVisibility: 0
   canUpdate: 0
+  playerInput: {fileID: 6693059999648577018}
   shiftTypeHandAction: {fileID: -6974777946573060807, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   gloveStateChannel: {fileID: 11400000, guid: 44afa38efccaafb40b05699ac6bd3740, type: 2}

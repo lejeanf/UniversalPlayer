@@ -57,7 +57,7 @@ namespace jeanf.vrplayer
         [ReadOnly] [SerializeField] private bool lastHandVisibility = true;
         [ReadOnly] [SerializeField] private bool canUpdate = false;
 
-        PlayerInput playerInput;
+        [SerializeField] PlayerInput playerInput;
         private float tolerance = 0.01f;
 
         [Header("Action binding")]
@@ -97,11 +97,6 @@ namespace jeanf.vrplayer
             BlendableHand.RemoveHand -= RemoveHand;
             gloveStateChannel.OnEventRaised -= SetGloveState;
             hmdStateChannel.OnEventRaised -= SetUpdateState;
-        }
-
-        private void Awake()
-        {
-            playerInput = GetComponentInParent<PlayerInput>();
         }
 
         private void Update()
