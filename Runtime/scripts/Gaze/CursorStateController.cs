@@ -1,7 +1,7 @@
 using jeanf.EventSystem;
 using Unity.VectorGraphics;
 using UnityEngine;
-
+using UnityEngine.InputSystem;
 namespace jeanf.vrplayer
 {
     public class CursorStateController : MonoBehaviour
@@ -15,8 +15,9 @@ namespace jeanf.vrplayer
         //[SerializeField] private IntEventChannelSO cursorStateChannel;
         [SerializeField] private BoolEventChannelSO mouselookStateChannel;
 
+        [SerializeField] private PlayerInput playerInput;
+
         [Header("Listening on:")] 
-        [SerializeField] private BoolEventChannelSO HmdState;
         [SerializeField] private BoolEventChannelSO PrimaryItemState;
         [SerializeField] private BoolEventChannelSO MainMenuState;
         
@@ -32,7 +33,6 @@ namespace jeanf.vrplayer
 
         private void OnEnable()
         {
-            HmdState.OnEventRaised += SetCursorAccordingToHmdState;
             PrimaryItemState.OnEventRaised += SetCursorAccordingToPrimaryItemState;
             MainMenuState.OnEventRaised += SetCursorAccordingToMainMenuState;
         }
@@ -42,7 +42,6 @@ namespace jeanf.vrplayer
 
         private void Unsubscribe()
         {
-            HmdState.OnEventRaised -= SetCursorAccordingToHmdState;
             PrimaryItemState.OnEventRaised -= SetCursorAccordingToPrimaryItemState;
             MainMenuState.OnEventRaised -= SetCursorAccordingToMainMenuState;
         }
@@ -57,11 +56,15 @@ namespace jeanf.vrplayer
             SetCursorState(_cursorState);
         }
 
-        public void SetCursorAccordingToHmdState(bool state)
+        private void Update()
         {
-            SetCursorState(state ? CursorState.Off : CursorState.OnLocked);
+            if(playerInput.currentControlScheme == "XR")
+            {
+                SetCursorState(CursorState.Off);
+
+            }
         }
-        
+
         public void SetCursorAccordingToPrimaryItemState(bool state)
         {
             SetCursorState(state ? CursorState.OnConstrained : CursorState.OnLocked);

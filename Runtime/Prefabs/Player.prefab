@@ -225,7 +225,7 @@ MonoBehaviour:
   cursorImage: {fileID: 6018571504813308516}
   mouselookStateChannel: {fileID: 11400000, guid: 12b53e1a3498ada41a3dcc8b4edd9b35,
     type: 2}
-  HmdState: {fileID: 11400000, guid: 386d301c089a7c545adcdce484194ba9, type: 2}
+  playerInput: {fileID: 0}
   PrimaryItemState: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6, type: 2}
   MainMenuState: {fileID: 11400000, guid: ff0093fdb7d83c9449485ee73150fa72, type: 2}
 --- !u!1 &1768687715

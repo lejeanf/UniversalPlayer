@@ -261,7 +261,7 @@
                     "path": "<XRHMD>/userPresence",
                     "interactions": "",
                     "processors": "",
-                    "groups": "XR",
+                    "groups": "XR;Gamepad;Keyboard&Mouse",
                     "action": "UserPresence",
                     "isComposite": false,
                     "isPartOfComposite": false
