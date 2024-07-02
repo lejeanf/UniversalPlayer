@@ -20,7 +20,7 @@ namespace jeanf.vrplayer
         [Header("Listening on:")] 
         [SerializeField] private BoolEventChannelSO PrimaryItemState;
         [SerializeField] private BoolEventChannelSO MainMenuState;
-        
+        [SerializeField] private StringEventChannelSO currentControlSchemeChannelSO;
 
         public enum CursorState
         {
@@ -35,6 +35,7 @@ namespace jeanf.vrplayer
         {
             PrimaryItemState.OnEventRaised += SetCursorAccordingToPrimaryItemState;
             MainMenuState.OnEventRaised += SetCursorAccordingToMainMenuState;
+            currentControlSchemeChannelSO.OnEventRaised += SetCursorAccordingToControlScheme;
         }
 
         private void OnDisable() => Unsubscribe();
@@ -44,6 +45,8 @@ namespace jeanf.vrplayer
         {
             PrimaryItemState.OnEventRaised -= SetCursorAccordingToPrimaryItemState;
             MainMenuState.OnEventRaised -= SetCursorAccordingToMainMenuState;
+            currentControlSchemeChannelSO.OnEventRaised -= SetCursorAccordingToControlScheme;
+
         }
 
         public void Init()
@@ -56,15 +59,22 @@ namespace jeanf.vrplayer
             SetCursorState(_cursorState);
         }
 
-        private void Update()
-        {
-            if(playerInput.currentControlScheme == "XR")
-            {
-                SetCursorState(CursorState.Off);
 
+        public void SetCursorAccordingToControlScheme(string activeControlScheme)
+        {
+            switch(activeControlScheme)
+            {
+                case "XR":
+                    SetCursor(CursorState.Off);
+                    break;
+                case "Keyboard&Mouse":
+                    SetCursor(CursorState.OnLocked);
+                    break;
+                case "Gamepad":
+                    SetCursor(CursorState.OnLocked);
+                    break;
             }
         }
-
         public void SetCursorAccordingToPrimaryItemState(bool state)
         {
             SetCursorState(state ? CursorState.OnConstrained : CursorState.OnLocked);

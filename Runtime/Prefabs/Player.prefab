@@ -169,6 +169,7 @@ MonoBehaviour:
     type: 3}
   playerCamera: {fileID: 0}
   cameraOffset: {fileID: 7264267533532500776}
+  playerInput: {fileID: 0}
   _isHmdActive: 0
   min: -60
   max: 75
@@ -178,6 +179,7 @@ MonoBehaviour:
     type: 2}
   teleportEventChannel: {fileID: 11400000, guid: a03c9fca588e41848abdc740acc54aeb,
     type: 2}
+  controlSchemeChangeEventChannel: {fileID: 0}
 --- !u!1 &1263127692
 GameObject:
   m_ObjectHideFlags: 0
@@ -228,6 +230,7 @@ MonoBehaviour:
   playerInput: {fileID: 0}
   PrimaryItemState: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6, type: 2}
   MainMenuState: {fileID: 11400000, guid: ff0093fdb7d83c9449485ee73150fa72, type: 2}
+  currentControlSchemeChannelSO: {fileID: 0}
 --- !u!1 &1768687715
 GameObject:
   m_ObjectHideFlags: 0
@@ -2722,6 +2725,7 @@ GameObject:
   - component: {fileID: 8181721135841574653}
   - component: {fileID: 891806810656328775}
   - component: {fileID: 6693059999648577018}
+  - component: {fileID: 6899944348556243870}
   m_Layer: 2
   m_Name: Player
   m_TagString: Player
@@ -3246,6 +3250,21 @@ MonoBehaviour:
   m_DefaultActionMap: XRI Head
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &6899944348556243870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8694773027870397994}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 254c8eedf24513547b23691b3c25015f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _isDebug: 0
+  activeControlSchemeChannel: {fileID: 11400000, guid: 7df23e819601e364bb8cbbfff33db1ac,
+    type: 2}
 --- !u!1001 &53461677430660841
 PrefabInstance:
   m_ObjectHideFlags: 0

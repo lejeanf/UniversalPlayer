@@ -6,9 +6,15 @@ using jeanf.EventSystem;
 
 namespace jeanf.vrplayer
 {
-    public class HandleControlSchemeChangeAndSendEvents : MonoBehaviour
+    public class ControlSchemeBroadcaster : MonoBehaviour, IDebugBehaviour
     {
         PlayerInput playerInput;
+        public bool isDebug
+        {
+            get => _isDebug;
+            set => _isDebug = value;
+        }
+        [SerializeField] private bool _isDebug = false;
 
         [Header("Broadcasting On")]
         [SerializeField] StringEventChannelSO activeControlSchemeChannel;
@@ -35,6 +41,10 @@ namespace jeanf.vrplayer
         private void SendCurrentControlSchemeOnSwitch()
         {
             activeControlSchemeChannel.RaiseEvent(playerInput.currentControlScheme);
+            if (isDebug)
+            {
+                Debug.Log($"Current Contrl Scheme is {playerInput.currentControlScheme}");
+            }
         }
     }
 }

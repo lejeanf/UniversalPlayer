@@ -44,11 +44,14 @@ namespace jeanf.vrplayer
         public Camera playerCamera;
         [SerializeField] [Validation("A reference to the cameraOffset is required.")]
         private Transform cameraOffset;
+        [SerializeField][Validation("A reference to the player input component is required")] private PlayerInput playerInput;
+
         public Transform CameraOffset { get { return cameraOffset; }}
         private Transform _originalCameraOffset;
         [SerializeField] private bool _isHmdActive = false;
         [SerializeField] private float min = -60.0f;
         [SerializeField] private float max = 75.0f;
+
 
         private Vector2 _rotation = Vector2.zero;
         private bool _cameraOffsetReset = false;
@@ -63,6 +66,7 @@ namespace jeanf.vrplayer
         [SerializeField] private BoolEventChannelSO mouselookStateChannel;
         [SerializeField] private VoidEventChannelSO mouselookCameraReset;
         [SerializeField] private TeleportEventChannelSO teleportEventChannel;
+        [SerializeField] private StringEventChannelSO controlSchemeChangeEventChannel;
         
         private void Awake()
         {
@@ -76,6 +80,8 @@ namespace jeanf.vrplayer
             mouselookStateChannel.OnEventRaised += SetMouseState;
             mouselookCameraReset.OnEventRaised += ResetCameraSettings;
             teleportEventChannel.OnEventRaised += _ => ResetCameraSettings();
+            controlSchemeChangeEventChannel.OnEventRaised += ResetCameraOffset;
+
         }
 
         private void OnDisable() => Unsubscribe();
@@ -87,6 +93,8 @@ namespace jeanf.vrplayer
             mouselookStateChannel.OnEventRaised -= SetMouseState;
             mouselookCameraReset.OnEventRaised -= ResetCameraSettings;
             teleportEventChannel.OnEventRaised -= _ => ResetCameraSettings();
+            controlSchemeChangeEventChannel.OnEventRaised -= ResetCameraOffset;
+
         }
 
 
@@ -95,9 +103,11 @@ namespace jeanf.vrplayer
             _canLook = !_isHmdActive;
             
             ResetCameraSettings();
+
         }
-        
-        
+
+
+
         public void ResetCameraSettings()
         {
             if(!BroadcastHmdStatus.hmdCurrentState) SetMouseState(true);
@@ -105,6 +115,15 @@ namespace jeanf.vrplayer
             _rotation = Vector2.zero;
             cameraOffset.localPosition = _originalCameraOffset.localPosition;
             cameraOffset.localRotation = _originalCameraOffset.localRotation;
+        }
+
+        public void ResetCameraOffset(string controlScheme)
+        {
+            if (controlScheme == "XR")
+            {
+                cameraOffset.localPosition = Vector3.zero;
+                cameraOffset.localRotation = Quaternion.identity;
+            }
         }
 
         private void SetCursor(bool state)
@@ -116,11 +135,10 @@ namespace jeanf.vrplayer
 
         private void LookAround(Vector2 inputView)
         {
-            if(BroadcastHmdStatus.hmdCurrentState) return;
+
+            if (playerInput.currentControlScheme == "XR") return;
             if (!_canLook) return;
 
-            numberOfCalls++;
-            if (numberOfCalls <= 2) return; 
             if(isDebug) Debug.Log($"Mouse inputView value : ({inputView.x}:{inputView.y})");
             _rotation.y += inputView.x * _mouseSensitivity;
             _rotation.x += -inputView.y * _mouseSensitivity;
@@ -161,6 +179,13 @@ namespace jeanf.vrplayer
             {
                 invalidObjects.Add(cameraOffset);
                 errorMessages.Add("No CameraOffset set");
+                validityCheck = false;
+            }
+            
+            if (playerInput == null)
+            {
+                invalidObjects.Add(playerInput);
+                errorMessages.Add("No player input set");
                 validityCheck = false;
             }
 
