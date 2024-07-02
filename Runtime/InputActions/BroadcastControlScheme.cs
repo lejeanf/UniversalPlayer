@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 
 namespace jeanf.vrplayer
 {
-    public class ControlSchemeBroadcaster : MonoBehaviour
+    public class BroadcastControlScheme : MonoBehaviour, IDebugBehaviour
     {
         PlayerInput playerInput;
         public bool isDebug
@@ -43,9 +43,9 @@ namespace jeanf.vrplayer
             activeControlSchemeChannel.RaiseEvent(playerInput.currentControlScheme);
             if (isDebug)
             {
-                Debug.Log($"Current Contrl Scheme is {playerInput.currentControlScheme}");
+                Debug.Log($"Current Control Scheme is {playerInput.currentControlScheme}");
             }
         }
-    }
 
+    }
 }
