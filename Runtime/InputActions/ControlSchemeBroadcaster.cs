@@ -1,12 +1,12 @@
+using jeanf.EventSystem;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using jeanf.EventSystem;
 
 namespace jeanf.vrplayer
 {
-    public class ControlSchemeBroadcaster : MonoBehaviour, IDebugBehaviour
+    public class ControlSchemeBroadcaster : MonoBehaviour
     {
         PlayerInput playerInput;
         public bool isDebug
@@ -47,4 +47,5 @@ namespace jeanf.vrplayer
             }
         }
     }
+
 }

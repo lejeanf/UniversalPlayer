@@ -2726,7 +2726,7 @@ GameObject:
   - component: {fileID: 8181721135841574653}
   - component: {fileID: 891806810656328775}
   - component: {fileID: 6693059999648577018}
-  - component: {fileID: 6899944348556243870}
+  - component: {fileID: 2283887008440431880}
   m_Layer: 2
   m_Name: Player
   m_TagString: Player
@@ -2751,7 +2751,7 @@ Transform:
   - {fileID: 5781580102001219749}
   - {fileID: 4128668795761766398}
   m_Father: {fileID: 0}
-  m_RootOrder: -2
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5246354473374005088
 MonoBehaviour:
@@ -3216,42 +3216,14 @@ MonoBehaviour:
     m_ActionName: FPS/Scroll[/Mouse/scroll/y]
   - m_PersistentCalls:
       m_Calls: []
-    m_ActionId: f19c47e5-5ad3-49e4-ab42-185c3cb4ee68
-    m_ActionName: UI/Navigate[/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 77dbd9b8-a38e-4f93-8169-eef357cb8abc
-    m_ActionName: UI/Submit[/Keyboard/enter]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: c8f2132b-37fc-4165-ba91-11bd76f81db2
-    m_ActionName: UI/Cancel[/Keyboard/escape]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 4921ec5e-cc18-4187-bcd7-300bffd72230
-    m_ActionName: UI/Point[/Mouse/position,/Touchscreen/touch0/position,/Touchscreen/touch1/position,/Touchscreen/touch2/position,/Touchscreen/touch3/position,/Touchscreen/touch4/position,/Touchscreen/touch5/position,/Touchscreen/touch6/position,/Touchscreen/touch7/position,/Touchscreen/touch8/position,/Touchscreen/touch9/position]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 24cc6b18-00bf-4cde-befc-650ef3b9a5b2
-    m_ActionName: UI/Click[/Mouse/leftButton,/Touchscreen/touch0/press,/Touchscreen/touch1/press,/Touchscreen/touch2/press,/Touchscreen/touch3/press,/Touchscreen/touch4/press,/Touchscreen/touch5/press,/Touchscreen/touch6/press,/Touchscreen/touch7/press,/Touchscreen/touch8/press,/Touchscreen/touch9/press,/Keyboard/e]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 90840364-e978-4a31-a370-af63fe945d76
-    m_ActionName: UI/ScrollWheel[/Mouse/scroll]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 7dd99d18-bf98-4b6d-bbec-7df914337bc6
-    m_ActionName: UI/MiddleClick[/Mouse/middleButton]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 983823e4-3093-4b3e-bca2-f8a22bb8a419
-    m_ActionName: UI/RightClick[/Mouse/rightButton]
+    m_ActionId: 73dbf225-b2bb-4a31-aac9-7d6ae3805e1d
+    m_ActionName: FPS/Interact[/Keyboard/e,/Mouse/leftButton]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: Gamepad
   m_DefaultActionMap: XRI Head
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &6899944348556243870
+--- !u!114 &2283887008440431880
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3260,7 +3232,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8694773027870397994}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 254c8eedf24513547b23691b3c25015f, type: 3}
+  m_Script: {fileID: 11500000, guid: 932304c98be2f0a4f9b12017deb3f4d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _isDebug: 0
@@ -5999,6 +5971,11 @@ PrefabInstance:
         type: 3}
       propertyPath: _isDebug
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6396918521967132763, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6505540036005765285, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d,
         type: 3}
