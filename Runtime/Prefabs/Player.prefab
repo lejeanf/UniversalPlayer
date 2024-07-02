@@ -231,7 +231,8 @@ MonoBehaviour:
   playerInput: {fileID: 0}
   PrimaryItemState: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6, type: 2}
   MainMenuState: {fileID: 11400000, guid: ff0093fdb7d83c9449485ee73150fa72, type: 2}
-  currentControlSchemeChannelSO: {fileID: 0}
+  currentControlSchemeChannelSO: {fileID: 11400000, guid: 7df23e819601e364bb8cbbfff33db1ac,
+    type: 2}
 --- !u!1 &1768687715
 GameObject:
   m_ObjectHideFlags: 0

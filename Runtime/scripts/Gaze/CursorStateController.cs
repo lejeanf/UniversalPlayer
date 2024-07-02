@@ -57,24 +57,23 @@ namespace jeanf.vrplayer
             _isCursorOn = true;
 
             SetCursorState(_cursorState);
+            SetCursorAccordingToControlScheme(playerInput.currentControlScheme);
         }
 
 
         public void SetCursorAccordingToControlScheme(string activeControlScheme)
         {
-            switch(activeControlScheme)
+            if (activeControlScheme == "XR")
             {
-                case "XR":
-                    SetCursor(CursorState.Off);
-                    break;
-                case "Keyboard&Mouse":
-                    SetCursor(CursorState.OnLocked);
-                    break;
-                case "Gamepad":
-                    SetCursor(CursorState.OnLocked);
-                    break;
+                SetCursorState(CursorState.Off);
+            }
+            else
+            {
+                SetCursorState(CursorState.OnLocked);
             }
         }
+
+
         public void SetCursorAccordingToPrimaryItemState(bool state)
         {
             SetCursorState(state ? CursorState.OnConstrained : CursorState.OnLocked);
