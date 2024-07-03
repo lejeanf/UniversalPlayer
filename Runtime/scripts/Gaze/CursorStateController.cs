@@ -4,8 +4,15 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 namespace jeanf.vrplayer
 {
-    public class CursorStateController : MonoBehaviour
+    public class CursorStateController : MonoBehaviour, IDebugBehaviour
     {
+        public bool isDebug
+        {
+            get => _isDebug;
+            set => _isDebug = value;
+        }
+        [SerializeField] private bool _isDebug = false;
+
         private bool _isCursorOn = false;
         private bool _isIpadOn = false;
         [SerializeField] private SVGImage cursorImage;
@@ -55,14 +62,21 @@ namespace jeanf.vrplayer
             _cursorState = CursorState.OnLocked;
             _isIpadOn = false;
             _isCursorOn = true;
-            Debug.Log("Changing cursor in init");
+
+            if (isDebug)
+            {
+                Debug.Log("Changing cursor in init");
+            }
             SetCursorAccordingToControlScheme(playerInput.currentControlScheme);
         }
 
 
         public void SetCursorAccordingToControlScheme(string activeControlScheme)
         {
-            Debug.Log("Changing cursor because of Control Scheme " + activeControlScheme);
+            if (isDebug)
+            {
+                Debug.Log("Changing cursor because of Control Scheme " + activeControlScheme);
+            }
             if (activeControlScheme == "XR")
             {
                 SetCursorState(CursorState.Off);
@@ -76,13 +90,19 @@ namespace jeanf.vrplayer
 
         public void SetCursorAccordingToPrimaryItemState(bool state)
         {
-            Debug.Log("Changing cursor because of primary item state ");
+            if (isDebug)
+            {
+                Debug.Log("Changing cursor because of primary item state ");
+            }
             SetCursorState(state ? CursorState.OnConstrained : CursorState.OnLocked);
         }
         
         public void SetCursorAccordingToMainMenuState(bool state)
         {
-            Debug.Log("Changing cursor because of main menu state ");
+            if (isDebug)
+            {
+                Debug.Log("Changing cursor because of main menu state ");
+            }
 
             SetCursorState(state ? CursorState.OnConstrained : CursorState.OnLocked);
         }
@@ -98,8 +118,11 @@ namespace jeanf.vrplayer
 
         private void SetCursor(CursorState state)
         {
-            Debug.Log("Setting cursor to " + state.ToString());
-            if (BroadcastHmdStatus.hmdCurrentState) state = CursorState.Off;
+            if (isDebug)
+            {
+                Debug.Log("Setting cursor to " + state.ToString());
+            }
+            if (playerInput.currentControlScheme == "XR") state = CursorState.Off;
             switch (state)
             {
                 case CursorState.OnConstrained:
