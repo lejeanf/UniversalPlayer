@@ -60,6 +60,7 @@ namespace jeanf.vrplayer
             {
                 return;
             }
+            Debug.Log("Current control scheme in primary item controller is" + playerInput.currentControlScheme);
             primaryItemState = state;
         }
 

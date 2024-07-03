@@ -50,6 +50,7 @@ MonoBehaviour:
   useInputAction: 1
   drawPrimaryItem: {fileID: -879462523816536454, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
+  playerInput: {fileID: 6693059999648577018}
   loginFieldIsOpened: {fileID: 11400000, guid: 18a5405adeda6b6469dc7393511504a2, type: 2}
   _PrimaryItemStateChannel: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6,
     type: 2}
