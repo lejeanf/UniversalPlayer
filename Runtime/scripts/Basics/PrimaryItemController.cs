@@ -8,7 +8,7 @@ namespace jeanf.vrplayer
         [SerializeField] private bool useInputAction = true; 
         [SerializeField] private InputActionReference drawPrimaryItem;
         //[SerializeField] private VoidEventChannelSO _invertMouselookStateChannel;
-
+        [SerializeField] public PlayerInput playerInput;
         [Header("Listening On")]
         [SerializeField] private BoolEventChannelSO loginFieldIsOpened;
 
@@ -56,6 +56,10 @@ namespace jeanf.vrplayer
 
         private void StateOverride(bool state)
         {
+            if (playerInput.currentControlScheme == "XR")
+            {
+                return;
+            }
             primaryItemState = state;
         }
 
