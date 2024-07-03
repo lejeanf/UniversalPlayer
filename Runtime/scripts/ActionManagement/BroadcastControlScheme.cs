@@ -38,10 +38,7 @@ namespace jeanf.vrplayer
             playerInput.onControlsChanged -= ctx => SendCurrentControlSchemeOnSwitch();
         }
 
-        private void Update()
-        {
-            Debug.Log("active control scheme is :" + playerInput.currentControlScheme);
-        }
+
         private void SendCurrentControlSchemeOnSwitch()
         {
             activeControlSchemeChannel.RaiseEvent(playerInput.currentControlScheme);

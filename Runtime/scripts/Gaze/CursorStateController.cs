@@ -55,14 +55,14 @@ namespace jeanf.vrplayer
             _cursorState = CursorState.OnLocked;
             _isIpadOn = false;
             _isCursorOn = true;
-
+            Debug.Log("Changing cursor in init");
             SetCursorAccordingToControlScheme(playerInput.currentControlScheme);
         }
 
 
         public void SetCursorAccordingToControlScheme(string activeControlScheme)
         {
-            Debug.Log("Control scheme on set cursor is " + activeControlScheme);
+            Debug.Log("Changing cursor because of Control Scheme ");
             if (activeControlScheme == "XR")
             {
                 SetCursorState(CursorState.Off);
@@ -76,11 +76,14 @@ namespace jeanf.vrplayer
 
         public void SetCursorAccordingToPrimaryItemState(bool state)
         {
+            Debug.Log("Changing cursor because of primary item state ");
             SetCursorState(state ? CursorState.OnConstrained : CursorState.OnLocked);
         }
         
         public void SetCursorAccordingToMainMenuState(bool state)
         {
+            Debug.Log("Changing cursor because of main menu state ");
+
             SetCursorState(state ? CursorState.OnConstrained : CursorState.OnLocked);
         }
 
@@ -95,6 +98,7 @@ namespace jeanf.vrplayer
 
         private void SetCursor(CursorState state)
         {
+            Debug.Log("Setting cursor to " + state.ToString());
             if (BroadcastHmdStatus.hmdCurrentState) state = CursorState.Off;
             switch (state)
             {

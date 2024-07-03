@@ -233,7 +233,6 @@ MonoBehaviour:
   MainMenuState: {fileID: 11400000, guid: ff0093fdb7d83c9449485ee73150fa72, type: 2}
   currentControlSchemeChannelSO: {fileID: 11400000, guid: 7df23e819601e364bb8cbbfff33db1ac,
     type: 2}
-  _cursorState: 0
 --- !u!1 &1768687715
 GameObject:
   m_ObjectHideFlags: 0
@@ -2880,7 +2879,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Actions: {fileID: -944628639613478452, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
-  m_NotificationBehavior: 2
+  m_NotificationBehavior: 3
   m_UIInputModule: {fileID: 0}
   m_DeviceLostEvent:
     m_PersistentCalls:
