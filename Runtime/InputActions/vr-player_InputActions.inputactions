@@ -2118,6 +2118,28 @@
                 },
                 {
                     "name": "",
+                    "id": "74ff3b32-5347-4fdb-b2f0-f4439a6ebb40",
+                    "path": "<XRController>{RightHand}/{TriggerButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "Click",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "db0b0173-1b35-4c1d-a80b-54ea32ad9920",
+                    "path": "<XRController>{LeftHand}/{TriggerButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "Click",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "cfbac085-d762-4c90-a0db-63c92d80e47c",
                     "path": "<Mouse>/scroll",
                     "interactions": "",
