@@ -924,6 +924,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isDebug: 0
+  activeControlScheme: {fileID: 11400000, guid: 7df23e819601e364bb8cbbfff33db1ac,
+    type: 2}
+  playerInput: {fileID: 6693059999648577018}
   userPresenceInput: {fileID: -9150428701345644203, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   userPresence: 0

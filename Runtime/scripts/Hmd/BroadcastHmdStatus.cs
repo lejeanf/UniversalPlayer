@@ -12,22 +12,24 @@ namespace jeanf.vrplayer
             set => _isDebug = value; 
         }
         [SerializeField] private bool _isDebug = false;
-        
+
+        [SerializeField] StringEventChannelSO activeControlScheme;
+        [SerializeField] public PlayerInput playerInput;
+
+
         //public delegate void HmdStatus(bool status);
         //public static HmdStatus hmdStatus;
-        
+
         [SerializeField] private InputActionReference userPresenceInput;
         public static bool hmdCurrentState = false;
         [SerializeField] private bool userPresence = false; // just us
-        
+
         [Header("Broadcasting on:")]
         [SerializeField] private BoolEventChannelSO hmdStateChannel;
-        
+
         private void OnEnable()
         {
-            userPresenceInput.action.Enable();
-            userPresenceInput.action.started += (ctx) => UpdateHmdState(true);
-            userPresenceInput.action.canceled += (ctx) => UpdateHmdState(false);
+            activeControlScheme.OnEventRaised += ctx => UpdateHmdState(ctx);
         }
 
         private void OnDisable() => Unsubscribe();
@@ -35,22 +37,37 @@ namespace jeanf.vrplayer
 
         private void Start()
         {
-            hmdStateChannel.RaiseEvent(hmdCurrentState);
-        }
-        private void Unsubscribe()
-        {
-            userPresenceInput.action.started -= null;
-            userPresenceInput.action.canceled -= null;
-            userPresenceInput.action.Disable();
+            hmdStateChannel.RaiseEvent(GetHMDState());
         }
 
-        private void UpdateHmdState(bool state)
+        private void Unsubscribe()
         {
-            if(_isDebug) Debug.Log($"UserPresence: {state}");
-            hmdCurrentState = state;
-            userPresence = state;
-            //hmdStatus?.Invoke(state);
-            hmdStateChannel.RaiseEvent(state);
+            activeControlScheme.OnEventRaised -= ctx => UpdateHmdState(ctx);
+
+        }
+
+        private void UpdateHmdState(string controlScheme)
+        {
+            if (controlScheme == "XR")
+            {
+                hmdCurrentState = true;
+                hmdStateChannel.RaiseEvent(hmdCurrentState);
+            }
+            else
+            {
+                hmdCurrentState = false;
+                hmdStateChannel.RaiseEvent(hmdCurrentState);
+
+            }
+        }
+
+        private bool GetHMDState()
+        {
+            if (playerInput.currentControlScheme == "XR")
+            {
+                return true;
+            }
+            else { return false; }
         }
 
     }
