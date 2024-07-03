@@ -62,7 +62,7 @@ namespace jeanf.vrplayer
 
         public void SetCursorAccordingToControlScheme(string activeControlScheme)
         {
-            Debug.Log("Changing cursor because of Control Scheme ");
+            Debug.Log("Changing cursor because of Control Scheme " + activeControlScheme);
             if (activeControlScheme == "XR")
             {
                 SetCursorState(CursorState.Off);
