@@ -28,7 +28,7 @@ namespace jeanf.vrplayer
             OnConstrained,
             Off,
         }
-        public CursorState _cursorState;
+        private CursorState _cursorState;
         private  void Awake() => Init();
 
         private void OnEnable()
@@ -56,13 +56,13 @@ namespace jeanf.vrplayer
             _isIpadOn = false;
             _isCursorOn = true;
 
-            SetCursorState(_cursorState);
             SetCursorAccordingToControlScheme(playerInput.currentControlScheme);
         }
 
 
         public void SetCursorAccordingToControlScheme(string activeControlScheme)
         {
+            Debug.Log("Control scheme on set cursor is " + activeControlScheme);
             if (activeControlScheme == "XR")
             {
                 SetCursorState(CursorState.Off);
