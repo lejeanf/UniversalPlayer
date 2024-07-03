@@ -28,7 +28,7 @@ namespace jeanf.vrplayer
             OnConstrained,
             Off,
         }
-        public CursorState _cursorState = CursorState.OnLocked;
+        public CursorState _cursorState;
         private  void Awake() => Init();
 
         private void OnEnable()
