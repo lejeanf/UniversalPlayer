@@ -44,24 +44,29 @@ namespace jeanf.vrplayer
 
         public void InvertState()
         {
+            Debug.Log("primary item called InvertState");
             primaryItemState = !primaryItemState;
             SetPrimaryItemState(primaryItemState);
         }
 
         private void SetPrimaryItemState(bool state)
         {
+            Debug.Log("primary item called SetPrimaryItemState");
             primaryItemState = state;
             _PrimaryItemStateChannel.RaiseEvent(state);
         }
 
         private void StateOverride(bool state)
         {
+            Debug.Log("primary item called StateOverride");
+            Debug.Log("primaryItemstate " + primaryItemState);
             if (playerInput.currentControlScheme == "XR")
             {
                 return;
             }
             Debug.Log("Current control scheme in primary item controller is" + playerInput.currentControlScheme);
             primaryItemState = state;
+           
         }
 
         private void SetDrawPrimaryItemActionState(bool state)
