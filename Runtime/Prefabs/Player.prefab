@@ -75,6 +75,8 @@ MonoBehaviour:
   primaryItem: {fileID: 0}
   _PrimaryItemStateChannel: {fileID: 11400000, guid: 7958c71ccf936994aa4ea1f6f86a3833,
     type: 2}
+  _primaryItemStateWithUsedHandChannel: {fileID: 11400000, guid: a75340a736e03214882a9df083e27d09,
+    type: 2}
   _leftGrab: {fileID: 11400000, guid: 3ee38a5004a83534b954968c729c71c1, type: 2}
   _rightGrab: {fileID: 11400000, guid: be6ea7ff04e4c4b40aff5a5fb9e1ade6, type: 2}
   _noGrab: {fileID: 11400000, guid: 21ae158d418b6b3459089b17603970c2, type: 2}

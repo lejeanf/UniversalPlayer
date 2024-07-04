@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using jeanf.EventSystem;
+using PlasticPipe.PlasticProtocol.Messages;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Debug = UnityEngine.Debug;
@@ -18,6 +19,7 @@ namespace jeanf.vrplayer
         [Header("Inputs")]
         [SerializeField] private InputActionReference drawPrimaryItem_LeftHand;
         [SerializeField] private InputActionReference drawPrimaryItem_RightHand;
+        
 
         [Header("Hands Information")]
         private Transform _leftHand, _rightHand;
@@ -27,6 +29,7 @@ namespace jeanf.vrplayer
         [Header("PrimaryItem")] 
         public Transform primaryItem;
         [SerializeField] private BoolEventChannelSO _PrimaryItemStateChannel;
+        [SerializeField] private StringEventChannelSO _primaryItemStateWithUsedHandChannel;
         [SerializeField] private VoidEventChannelSO _leftGrab;
         [SerializeField] private VoidEventChannelSO _rightGrab;
         [SerializeField] private VoidEventChannelSO _noGrab;
@@ -52,6 +55,7 @@ namespace jeanf.vrplayer
             
             drawPrimaryItem_LeftHand.action.performed += ctx=> SetIpadStateForLeftHand(primaryItemPose.leftHandInfo);
             drawPrimaryItem_RightHand.action.performed += ctx=> SetIpadStateForRightHand(primaryItemPose.rightHandInfo);
+            _primaryItemStateWithUsedHandChannel.OnEventRaised += ctx => SetIpadStateForASpecificHand(ctx);
         }
 
         private void OnDestroy() => Unsubscribe();
@@ -66,8 +70,10 @@ namespace jeanf.vrplayer
             BlendableHand.RemoveHand -= null;
             drawPrimaryItem_LeftHand.action.performed -= null;
             drawPrimaryItem_RightHand.action.performed -= null;
+            _primaryItemStateWithUsedHandChannel.OnEventRaised -= ctx => SetIpadStateForASpecificHand(ctx);
+
         }
-        
+
         private void AddHand(SkinnedMeshRenderer hand)
         {
             if (_hands.Contains(hand)) return;
@@ -163,6 +169,20 @@ namespace jeanf.vrplayer
             primaryItem.SetParent(parent);
             primaryItem.localPosition = handInfo.attachPosition;
             primaryItem.localRotation = handInfo.attachRotation;
+        }
+
+        public void SetIpadStateForASpecificHand(string hand)
+        {
+            if (!primaryItem) return;
+            if (hand.Contains("LeftHand"))
+            {
+                SetIpadStateForRightHand(primaryItemPose.rightHandInfo);
+            }
+            else if (hand.Contains("RightHand"))
+            {
+                SetIpadStateForLeftHand(primaryItemPose.leftHandInfo);
+            }
+
         }
     }
 }
