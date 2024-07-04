@@ -1710,7 +1710,7 @@
                 },
                 {
                     "name": "Click",
-                    "type": "PassThrough",
+                    "type": "Button",
                     "id": "3cdc51a4-550e-40f7-abd2-984a1d345a4e",
                     "expectedControlType": "Button",
                     "processors": "",
