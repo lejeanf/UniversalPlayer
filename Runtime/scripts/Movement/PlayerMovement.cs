@@ -9,7 +9,7 @@ namespace jeanf.vrplayer
     {
         [SerializeField] InputActionReference moveAction;
         [SerializeField] CharacterController controller;
-        [SerializeField] MouseLook mouseLook;
+        [SerializeField] FPSCameraMovement mouseLook;
 
         [SerializeField] float speed;
         float gravity = 9.81f;

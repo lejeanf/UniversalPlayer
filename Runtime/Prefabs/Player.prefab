@@ -168,6 +168,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isDebug: 0
   _mouseSensitivity: 75
+  _gamepadSensitivity: 45
   mouseXY: {fileID: -4093205024048774046, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   playerCamera: {fileID: 0}

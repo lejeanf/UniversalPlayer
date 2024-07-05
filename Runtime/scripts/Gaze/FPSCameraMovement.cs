@@ -9,12 +9,12 @@ using jeanf.validationTools;
 
 namespace jeanf.vrplayer
 {
-    public class MouseLook : MonoBehaviour, IDebugBehaviour, IValidatable
+    public class FPSCameraMovement : MonoBehaviour, IDebugBehaviour, IValidatable
     {
         public bool isDebug
-        { 
+        {
             get => _isDebug;
-            set => _isDebug = value; 
+            set => _isDebug = value;
         }
         [SerializeField] private bool _isDebug = false;
 
@@ -22,31 +22,33 @@ namespace jeanf.vrplayer
 
         private Vector2 _inputView;
 
-        public float mouseSensitivity 
-        { 
+        public float mouseSensitivity
+        {
             get { return _mouseSensitivity; }
             set
             {
-                if(isDebug) Debug.Log($"Mouse sensitivity set to {value}");
+                if (isDebug) Debug.Log($"Mouse sensitivity set to {value}");
                 _mouseSensitivity = value;
             }
         }
 
-        [Range(0,100.0f)] [SerializeField] private float _mouseSensitivity = 45.0f;
+        [Range(0, 100.0f)][SerializeField] private float _mouseSensitivity = 45.0f;
+        [Range(0, 500.0f)][SerializeField] private float _gamepadSensitivity = 45.0f;
+        float sensitivity;
         [SerializeField] private InputActionReference mouseXY;
         public InputActionReference mouseXYInputAction {
             get { return mouseXY; }
-            set {mouseXY = value; }
+            set { mouseXY = value; }
         }
         private static bool _canLook = true;
         [Space(10)]
-        [SerializeField] [Validation("A reference to the Player's Camera is required.")]
+        [SerializeField][Validation("A reference to the Player's Camera is required.")]
         public Camera playerCamera;
-        [SerializeField] [Validation("A reference to the cameraOffset is required.")]
+        [SerializeField][Validation("A reference to the cameraOffset is required.")]
         private Transform cameraOffset;
         [SerializeField][Validation("A reference to the player input component is required")] private PlayerInput playerInput;
 
-        public Transform CameraOffset { get { return cameraOffset; }}
+        public Transform CameraOffset { get { return cameraOffset; } }
         private Transform _originalCameraOffset;
         [SerializeField] private bool _isHmdActive = false;
         [SerializeField] private float min = -60.0f;
@@ -55,28 +57,30 @@ namespace jeanf.vrplayer
 
         private Vector2 _rotation = Vector2.zero;
         private bool _cameraOffsetReset = false;
-        private int numberOfCalls = 0;
         /*
         [Header("Broadcasting on:")]
         [SerializeField] private BoolEventChannelSO _canLookStateChannel;
         //[SerializeField] private VoidEventChannelSO _invertPrimaryItemStateChannel;
         */
 
-        [Header("Listening on:")] 
+        [Header("Listening on:")]
         [SerializeField] private BoolEventChannelSO mouselookStateChannel;
         [SerializeField] private VoidEventChannelSO mouselookCameraReset;
         [SerializeField] private TeleportEventChannelSO teleportEventChannel;
         [SerializeField] private StringEventChannelSO controlSchemeChangeEventChannel;
-        
+        private bool cameraIsMoving;
+        private Vector2 moveValue;
+
         private void Awake()
         {
             _originalCameraOffset = cameraOffset;
             Init();
         }
-        
+
         private void OnEnable()
         {
-            mouseXY.action.performed += ctx => LookAround(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * .25f);
+            mouseXY.action.performed += ctx => SetCameraMovement(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * .25f, true);
+            mouseXY.action.canceled += ctx => SetCameraMovement(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * .25f, false);
             mouselookStateChannel.OnEventRaised += SetMouseState;
             mouselookCameraReset.OnEventRaised += ResetCameraSettings;
             teleportEventChannel.OnEventRaised += _ => ResetCameraSettings();
@@ -84,12 +88,19 @@ namespace jeanf.vrplayer
 
         }
 
+        private void SetCameraMovement(Vector2 movement, bool cameraIsMoving)
+        {
+            moveValue = movement;
+            this.cameraIsMoving = cameraIsMoving;
+        }
+
         private void OnDisable() => Unsubscribe();
         private void OnDestroy() => Unsubscribe();
 
         private void Unsubscribe()
         {
-            mouseXY.action.performed -= ctx => LookAround(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * .25f);
+            mouseXY.action.performed += ctx => SetCameraMovement(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * .25f, true);
+            mouseXY.action.canceled += ctx => SetCameraMovement(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * .25f, false);
             mouselookStateChannel.OnEventRaised -= SetMouseState;
             mouselookCameraReset.OnEventRaised -= ResetCameraSettings;
             teleportEventChannel.OnEventRaised -= _ => ResetCameraSettings();
@@ -101,7 +112,7 @@ namespace jeanf.vrplayer
         public void Init()
         {
             _canLook = !_isHmdActive;
-            
+
             ResetCameraSettings();
 
         }
@@ -110,7 +121,7 @@ namespace jeanf.vrplayer
 
         public void ResetCameraSettings()
         {
-            if(!BroadcastHmdStatus.hmdCurrentState) SetMouseState(true);
+            if (!BroadcastHmdStatus.hmdCurrentState) SetMouseState(true);
             playerCamera.fieldOfView = 60f;
             _rotation = Vector2.zero;
             cameraOffset.localPosition = _originalCameraOffset.localPosition;
@@ -132,16 +143,29 @@ namespace jeanf.vrplayer
             _isHmdActive = state;
         }
 
-
-        private void LookAround(Vector2 inputView)
+        private void LateUpdate()
         {
 
-            if (playerInput.currentControlScheme == "XR") return;
-            if (!_canLook) return;
+            if (cameraIsMoving && (moveValue.x != 0 || moveValue.y != 0))
+            {
+                LookAround(moveValue);
+            }
+        }
+        private void LookAround(Vector2 inputView)
+        {
+            if (playerInput.currentControlScheme == "Gamepad")
+            {
+                sensitivity = _gamepadSensitivity;
+            }
+            if (playerInput.currentControlScheme == "Keyboard&Mouse")
+            {
+                sensitivity = _mouseSensitivity;
+            }
+            else if (playerInput.currentControlScheme == "XR" || !_canLook) return;
 
             if(isDebug) Debug.Log($"Mouse inputView value : ({inputView.x}:{inputView.y})");
-            _rotation.y += inputView.x * _mouseSensitivity;
-            _rotation.x += -inputView.y * _mouseSensitivity;
+            _rotation.y += inputView.x * sensitivity;
+            _rotation.x += -inputView.y * sensitivity;
             _rotation.x = Mathf.Clamp(_rotation.x, min, max);
 
             cameraOffset.transform.localRotation = Quaternion.Euler(_rotation.x, _rotation.y, 0);

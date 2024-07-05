@@ -21,7 +21,7 @@ namespace jeanf.vrplayer
         [Validation("A reference to ContinuousMoveProvider is required.")]
         [SerializeField] private ActionBasedContinuousMoveProvider continuousMoveProvider;
         [Validation("A reference to mouseLook is required.")]
-        [SerializeField] private MouseLook mouseLook;
+        [SerializeField] private FPSCameraMovement mouseLook;
         [Validation("A reference to ActionBasedSnapTurnProvider is required.")]
         [SerializeField] private ActionBasedSnapTurnProvider snapTurnProvider;
         [Validation("A reference to GetPrimaryInHandItemWithVRController is required.")]

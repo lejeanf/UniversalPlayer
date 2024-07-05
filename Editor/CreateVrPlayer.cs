@@ -31,12 +31,12 @@ namespace jeanf.vrplayer {
             var cameraComponent = mainCameraTarget.AddComponent<Camera>();
             cameraComponent.nearClipPlane = 0.1f;
 
-            var mouseLook = prefab.GetComponentInChildren<MouseLook>();
+            var mouseLook = prefab.GetComponentInChildren<FPSCameraMovement>();
             mouseLook.playerCamera = cameraComponent;
 
 
             prefab.GetComponent<XROrigin>().Camera = cameraComponent;
-            prefab.gameObject.GetComponentInChildren<MouseLook>().playerCamera = cameraComponent;
+            prefab.gameObject.GetComponentInChildren<FPSCameraMovement>().playerCamera = cameraComponent;
             mainCameraTarget.GetComponentInChildren<Canvas>().worldCamera = cameraComponent;
         }
     }
