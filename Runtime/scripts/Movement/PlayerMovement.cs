@@ -15,9 +15,6 @@ namespace jeanf.vrplayer
         float gravity = 9.81f;
         [SerializeField] float distToGround;
         [SerializeField] float speedChangeRate;
-
-
-
         bool isMoving;
         Vector2 moveValue;
 

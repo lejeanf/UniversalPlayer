@@ -46,7 +46,6 @@ namespace jeanf.vrplayer
         public Camera playerCamera;
         [SerializeField][Validation("A reference to the cameraOffset is required.")]
         private Transform cameraOffset;
-        [SerializeField][Validation("A reference to the player input component is required")] private PlayerInput playerInput;
 
         public Transform CameraOffset { get { return cameraOffset; } }
         private Transform _originalCameraOffset;
@@ -67,7 +66,7 @@ namespace jeanf.vrplayer
         [SerializeField] private BoolEventChannelSO mouselookStateChannel;
         [SerializeField] private VoidEventChannelSO mouselookCameraReset;
         [SerializeField] private TeleportEventChannelSO teleportEventChannel;
-        [SerializeField] private StringEventChannelSO controlSchemeChangeEventChannel;
+        [SerializeField] private VoidEventChannelSO controlSchemeChangeEventChannel;
         private bool cameraIsMoving;
         private Vector2 moveValue;
 
@@ -121,16 +120,16 @@ namespace jeanf.vrplayer
 
         public void ResetCameraSettings()
         {
-            if (!BroadcastHmdStatus.hmdCurrentState) SetMouseState(true);
+            if (BroadcastControlsStatus.controlScheme != BroadcastControlsStatus.ControlScheme.XR) SetMouseState(true);
             playerCamera.fieldOfView = 60f;
             _rotation = Vector2.zero;
             cameraOffset.localPosition = _originalCameraOffset.localPosition;
             cameraOffset.localRotation = _originalCameraOffset.localRotation;
         }
 
-        public void ResetCameraOffset(string controlScheme)
+        public void ResetCameraOffset()
         {
-            if (controlScheme == "XR")
+            if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR)
             {
                 cameraOffset.localPosition = Vector3.zero;
                 cameraOffset.localRotation = Quaternion.identity;
@@ -153,15 +152,18 @@ namespace jeanf.vrplayer
         }
         private void LookAround(Vector2 inputView)
         {
-            if (playerInput.currentControlScheme == "Gamepad")
+            if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.Gamepad)
             {
                 sensitivity = _gamepadSensitivity;
+                
             }
-            if (playerInput.currentControlScheme == "Keyboard&Mouse")
+            if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.KeyboardMouse)
             {
                 sensitivity = _mouseSensitivity;
+                
+
             }
-            else if (playerInput.currentControlScheme == "XR" || !_canLook) return;
+            else if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR) return;
 
             if(isDebug) Debug.Log($"Mouse inputView value : ({inputView.x}:{inputView.y})");
             _rotation.y += inputView.x * sensitivity;
@@ -206,12 +208,6 @@ namespace jeanf.vrplayer
                 validityCheck = false;
             }
             
-            if (playerInput == null)
-            {
-                invalidObjects.Add(playerInput);
-                errorMessages.Add("No player input set");
-                validityCheck = false;
-            }
 
             IsValid = validityCheck;
             if(!IsValid) return;

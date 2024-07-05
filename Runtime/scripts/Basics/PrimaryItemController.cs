@@ -7,7 +7,6 @@ namespace jeanf.vrplayer
     {
         [SerializeField] private bool useInputAction = true; 
         [SerializeField] private InputActionReference drawPrimaryItem;
-        //[SerializeField] private VoidEventChannelSO _invertMouselookStateChannel;
         [SerializeField] public PlayerInput playerInput;
         [Header("Listening On")]
         [SerializeField] private BoolEventChannelSO loginFieldIsOpened;
@@ -15,7 +14,7 @@ namespace jeanf.vrplayer
         [Header("Broadcasting on:")]
         [SerializeField] private BoolEventChannelSO _PrimaryItemStateChannel;
         private bool primaryItemState = false;
-        private bool canDrawItem = true;
+
         private void OnEnable()
         {
             if(useInputAction) drawPrimaryItem.action.performed += ctx=> InvertState();

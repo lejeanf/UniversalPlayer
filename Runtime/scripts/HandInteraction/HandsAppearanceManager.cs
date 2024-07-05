@@ -57,7 +57,7 @@ namespace jeanf.vrplayer
         [ReadOnly] [SerializeField] private bool lastHandVisibility = true;
         [ReadOnly] [SerializeField] private bool canUpdate = false;
 
-        [SerializeField] PlayerInput playerInput;
+
         private float tolerance = 0.01f;
 
         [Header("Action binding")]
@@ -101,7 +101,7 @@ namespace jeanf.vrplayer
 
         private void Update()
         {
-            if(playerInput.currentControlScheme == "XR")
+            if(BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR)
             {
                 SetHandsVisibility(true);
             }

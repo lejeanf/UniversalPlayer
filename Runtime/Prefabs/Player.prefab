@@ -133,7 +133,7 @@ GameObject:
   - component: {fileID: 965419838}
   - component: {fileID: 965419840}
   m_Layer: 2
-  m_Name: MouseLook
+  m_Name: FPSCameraMovement
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -168,12 +168,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isDebug: 0
   _mouseSensitivity: 75
-  _gamepadSensitivity: 45
+  _gamepadSensitivity: 300
   mouseXY: {fileID: -4093205024048774046, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   playerCamera: {fileID: 0}
   cameraOffset: {fileID: 7264267533532500776}
-  playerInput: {fileID: 6693059999648577018}
   _isHmdActive: 0
   min: -60
   max: 75
@@ -183,7 +182,7 @@ MonoBehaviour:
     type: 2}
   teleportEventChannel: {fileID: 11400000, guid: a03c9fca588e41848abdc740acc54aeb,
     type: 2}
-  controlSchemeChangeEventChannel: {fileID: 11400000, guid: 7df23e819601e364bb8cbbfff33db1ac,
+  controlSchemeChangeEventChannel: {fileID: 11400000, guid: 969e13ba914f5bb44811da904de9d4bc,
     type: 2}
 --- !u!1 &1263127692
 GameObject:
@@ -233,7 +232,6 @@ MonoBehaviour:
   cursorImage: {fileID: 6018571504813308516}
   mouselookStateChannel: {fileID: 11400000, guid: 12b53e1a3498ada41a3dcc8b4edd9b35,
     type: 2}
-  playerInput: {fileID: 0}
   PrimaryItemState: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6, type: 2}
   MainMenuState: {fileID: 11400000, guid: ff0093fdb7d83c9449485ee73150fa72, type: 2}
   currentControlSchemeChannelSO: {fileID: 11400000, guid: 7df23e819601e364bb8cbbfff33db1ac,
@@ -347,7 +345,6 @@ MonoBehaviour:
   isHandVisible: 0
   lastHandVisibility: 0
   canUpdate: 0
-  playerInput: {fileID: 6693059999648577018}
   shiftTypeHandAction: {fileID: -6974777946573060807, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   gloveStateChannel: {fileID: 11400000, guid: 44afa38efccaafb40b05699ac6bd3740, type: 2}
@@ -928,13 +925,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isDebug: 0
-  activeControlScheme: {fileID: 11400000, guid: 7df23e819601e364bb8cbbfff33db1ac,
-    type: 2}
   playerInput: {fileID: 6693059999648577018}
-  userPresenceInput: {fileID: -9150428701345644203, guid: 110d9016d6486d84697b9d7a66a57d45,
-    type: 3}
-  userPresence: 0
   hmdStateChannel: {fileID: 11400000, guid: 386d301c089a7c545adcdce484194ba9, type: 2}
+  activeControlScheme: {fileID: 11400000, guid: 969e13ba914f5bb44811da904de9d4bc,
+    type: 2}
 --- !u!1 &2739228493864874897
 GameObject:
   m_ObjectHideFlags: 0
@@ -2735,7 +2729,6 @@ GameObject:
   - component: {fileID: 8181721135841574653}
   - component: {fileID: 891806810656328775}
   - component: {fileID: 6693059999648577018}
-  - component: {fileID: 6117527426157713725}
   m_Layer: 2
   m_Name: Player
   m_TagString: Player
@@ -3232,21 +3225,6 @@ MonoBehaviour:
   m_DefaultActionMap: XRI Head
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &6117527426157713725
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8694773027870397994}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0cd3c220104729742b1bed3e9c137b25, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _isDebug: 0
-  activeControlSchemeChannel: {fileID: 11400000, guid: 7df23e819601e364bb8cbbfff33db1ac,
-    type: 2}
 --- !u!1001 &53461677430660841
 PrefabInstance:
   m_ObjectHideFlags: 0

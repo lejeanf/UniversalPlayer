@@ -112,7 +112,7 @@ namespace jeanf.vrplayer
 
         private void LateUpdate()
         {
-            if (BroadcastHmdStatus.hmdCurrentState) return;
+            if (BroadcastControlsStatus.hmdCurrentState) return;
             if (!isThisObjectHeld) return;
             if (!_currentObjectHeld) return;
 
@@ -151,7 +151,7 @@ namespace jeanf.vrplayer
             if (_isDebug) Debug.Log("take attempt");
             if (_currentObjectHeld) return;
             if (_isDebug) Debug.Log("take success");
-            if (BroadcastHmdStatus.hmdCurrentState) return;
+            if (BroadcastControlsStatus.hmdCurrentState) return;
             if (!cameraTransform) cameraTransform = Camera.main.transform;
 
             var ray = new Ray(cameraTransform.position, cameraTransform.forward);
@@ -199,7 +199,7 @@ namespace jeanf.vrplayer
             }
 
             if (_isDebug) Debug.Log("release");
-            if (BroadcastHmdStatus.hmdCurrentState) return;
+            if (BroadcastControlsStatus.hmdCurrentState) return;
 
             if (_currentObjectHeld.gameObject != this.transform.gameObject)
             {

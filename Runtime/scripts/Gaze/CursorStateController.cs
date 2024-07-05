@@ -22,12 +22,10 @@ namespace jeanf.vrplayer
         //[SerializeField] private IntEventChannelSO cursorStateChannel;
         [SerializeField] private BoolEventChannelSO mouselookStateChannel;
 
-        [SerializeField] private PlayerInput playerInput;
-
         [Header("Listening on:")] 
         [SerializeField] private BoolEventChannelSO PrimaryItemState;
         [SerializeField] private BoolEventChannelSO MainMenuState;
-        [SerializeField] private StringEventChannelSO currentControlSchemeChannelSO;
+        [SerializeField] private VoidEventChannelSO currentControlSchemeChannelSO;
 
         public enum CursorState
         {
@@ -67,17 +65,14 @@ namespace jeanf.vrplayer
             {
                 Debug.Log("Changing cursor in init");
             }
-            SetCursorAccordingToControlScheme(playerInput.currentControlScheme);
+            SetCursorAccordingToControlScheme();
         }
 
 
-        public void SetCursorAccordingToControlScheme(string activeControlScheme)
+        public void SetCursorAccordingToControlScheme()
         {
-            if (isDebug)
-            {
-                Debug.Log("Changing cursor because of Control Scheme " + activeControlScheme);
-            }
-            if (activeControlScheme == "XR")
+
+            if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR)
             {
                 SetCursorState(CursorState.Off);
             }
@@ -122,7 +117,7 @@ namespace jeanf.vrplayer
             {
                 Debug.Log("Setting cursor to " + state.ToString());
             }
-            if (playerInput.currentControlScheme == "XR") state = CursorState.Off;
+            if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR) state = CursorState.Off;
             switch (state)
             {
                 case CursorState.OnConstrained:
