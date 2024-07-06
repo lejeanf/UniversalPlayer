@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using jeanf.EventSystem;
-using PlasticPipe.PlasticProtocol.Messages;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Debug = UnityEngine.Debug;
