@@ -17,6 +17,7 @@ namespace jeanf.vrplayer
         private bool _isIpadOn = false;
         [SerializeField] private SVGImage cursorImage;
         private static SVGImage _cursorImage;
+        [SerializeField] private SVGImage validationFeedbackImage;
 
         [Header("Broadcasting on:")]
         //[SerializeField] private IntEventChannelSO cursorStateChannel;
@@ -124,23 +125,39 @@ namespace jeanf.vrplayer
                     Cursor.visible = true;
                     Cursor.lockState = CursorLockMode.Confined;
                     _cursorImage.enabled = false;
+                    if (validationFeedbackImage != null)
+                    {
+                        validationFeedbackImage.enabled = false;
+                    }
                     mouselookStateChannel.RaiseEvent(false);
                     break;
                 case CursorState.OnLocked:
                     Cursor.lockState = CursorLockMode.Locked;
                     _cursorImage.enabled = true;
+                    if (validationFeedbackImage != null)
+                    {
+                        validationFeedbackImage.enabled = true;
+                    }
                     mouselookStateChannel.RaiseEvent(true);
                     break;
                 case CursorState.Off:
                     Cursor.visible = false;
                     Cursor.lockState = CursorLockMode.Locked;
                     _cursorImage.enabled = false;
+                    if (validationFeedbackImage != null)
+                    {
+                        validationFeedbackImage.enabled = false;
+                    }
                     mouselookStateChannel.RaiseEvent(false);
                     break;
                 default:
                     Cursor.visible = false;
                     Cursor.lockState = CursorLockMode.Locked;
                     _cursorImage.enabled = true;
+                    if (validationFeedbackImage != null)
+                    {
+                        validationFeedbackImage.enabled = true;
+                    }
                     mouselookStateChannel.RaiseEvent(true);
                     break;
             }

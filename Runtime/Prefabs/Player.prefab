@@ -125,7 +125,7 @@ MonoBehaviour:
   objectRightHand: {fileID: 0}
   objectLeftHand: {fileID: 0}
   objectDropped: {fileID: 0}
-  uiClick: {fileID: 1855836014308820768, guid: c348712bda248c246b8c49b3db54643f, type: 3}
+  uiClick: {fileID: -703207714648265865, guid: 110d9016d6486d84697b9d7a66a57d45, type: 3}
 --- !u!1 &965419837
 GameObject:
   m_ObjectHideFlags: 0
