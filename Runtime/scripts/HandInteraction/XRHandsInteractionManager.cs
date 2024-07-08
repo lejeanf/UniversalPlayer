@@ -16,7 +16,7 @@ namespace jeanf.vrplayer
         [SerializeField] PickableObject objectLeftHand;
         [SerializeField] GameObjectEventChannelSO objectDropped;
         TakeObject takeObject;
-        InputActionReference uiClick;
+        [SerializeField] InputActionReference uiClick;
         public static LastUsedHand hand;
         public enum LastUsedHand
         {
