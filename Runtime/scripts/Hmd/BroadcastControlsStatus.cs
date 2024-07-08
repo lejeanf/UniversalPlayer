@@ -3,14 +3,14 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace jeanf.vrplayer 
+namespace jeanf.vrplayer
 {
     public class BroadcastControlsStatus : MonoBehaviour, IDebugBehaviour
     {
         public bool isDebug
-        { 
+        {
             get => _isDebug;
-            set => _isDebug = value; 
+            set => _isDebug = value;
         }
         [SerializeField] private bool _isDebug = false;
 
