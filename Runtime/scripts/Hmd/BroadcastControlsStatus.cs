@@ -22,7 +22,6 @@ namespace jeanf.vrplayer
         }
 
         public static ControlScheme controlScheme;
-        public static bool hmdCurrentState = false;
 
         [SerializeField] public PlayerInput playerInput;
 

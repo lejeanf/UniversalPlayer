@@ -45,7 +45,7 @@ public class PerformAction : MonoBehaviour, IDebugBehaviour
     private void AttemptAction()
     {
         if (_isDebug) Debug.Log("trying to interact with object");
-        if (BroadcastControlsStatus.hmdCurrentState) return;
+        if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR) return;
         if (!cameraTransform) cameraTransform = Camera.main.transform;
 
         var ray = new Ray(cameraTransform.position, cameraTransform.forward);
