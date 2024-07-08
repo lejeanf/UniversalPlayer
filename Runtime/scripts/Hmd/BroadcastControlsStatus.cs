@@ -50,9 +50,11 @@ namespace jeanf.vrplayer
                     break;
                 case "Gamepad":
                     controlScheme = ControlScheme.Gamepad;
+                    activeControlScheme.RaiseEvent();
                     break;
                 case "XR":
                     controlScheme = ControlScheme.XR;
+                    activeControlScheme.RaiseEvent();
                     break;
             }
 
