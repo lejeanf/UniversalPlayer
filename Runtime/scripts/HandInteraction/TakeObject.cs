@@ -26,7 +26,6 @@ namespace jeanf.vrplayer
 
         //TakeObject
         Transform objectInHandTransform;
-        PickableObject objectInHand;
 
         public PickableObject _objectInHand { get { return objectInHand; } set { objectInHand = value; } }
 
@@ -59,6 +58,18 @@ namespace jeanf.vrplayer
 
         [Range(0.01f, 0.5f)]
         [SerializeField] private float sliderMotionDuration;
+
+        [Header("Broadcasting On")]
+        [SerializeField] GameObjectEventChannelSO objectDropped;
+
+        [Header("XR")]
+        [SerializeField] XRDirectInteractor rightInteractor;
+        [SerializeField] XRDirectInteractor leftInteractor;
+
+        [Header("Objects in players's hand")]
+        PickableObject objectRightHand;
+        PickableObject objectLeftHand;
+        PickableObject objectInHand;
 
         private void LateUpdate()
         {
@@ -136,6 +147,7 @@ namespace jeanf.vrplayer
                 var goalRotation = objectInHand.InitialRotation;
                 SetObjectRotation(objectInHandTransform, goalRotation);
             }
+            objectDropped?.RaiseEvent(objectInHand.gameObject);
             objectInHand.Rigidbody.useGravity = objectInHand.InitialUseGravity;
             objectInHand.Rigidbody.drag = objectInHand.InitialDrag;
             objectInHand.Rigidbody.angularDrag = objectInHand.InitialAngularDrag;
@@ -143,6 +155,7 @@ namespace jeanf.vrplayer
             objectInHandTransform.SetParent(null);
             objectInHandTransform = null;
             objectInHand = null;
+
         }
 
         //public GameObject GetObjectInHand()
@@ -208,6 +221,36 @@ namespace jeanf.vrplayer
 
             //objectToMove.transform.rotation = goal;
             
+        }
+
+        public void AssignGameObjectInRightHand()
+        {
+            objectRightHand = rightInteractor.selectTarget.gameObject.GetComponent<PickableObject>();
+        }
+
+        public void AssignGameObjectInLeftHand()
+        {
+            objectLeftHand = leftInteractor.selectTarget.gameObject.GetComponent<PickableObject>();
+        }
+
+        public void RemoveGameObjectInRightHand()
+        {
+            objectDropped?.RaiseEvent(objectRightHand.gameObject);
+
+            objectRightHand = null;
+        }
+
+        public void RemoveGameObjectInLeftHand()
+        {
+            objectDropped?.RaiseEvent(objectLeftHand.gameObject);
+
+            objectLeftHand = null;
+        }
+
+        public bool GetObjectInHandStatus()
+        {
+            if (objectLeftHand == null || objectRightHand == null || objectInHand == null) return false;
+            else { return true; }
         }
     }
 }

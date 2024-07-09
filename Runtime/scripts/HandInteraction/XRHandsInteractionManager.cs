@@ -10,12 +10,6 @@ namespace jeanf.vrplayer
 {
     public class XRHandsInteractionManager : MonoBehaviour
     {
-        [SerializeField] XRDirectInteractor rightInteractor;
-        [SerializeField] XRDirectInteractor leftInteractor;
-        [SerializeField] PickableObject objectRightHand;
-        [SerializeField] PickableObject objectLeftHand;
-        [SerializeField] GameObjectEventChannelSO objectDropped;
-        TakeObject takeObject;
         [SerializeField] InputActionReference uiClick;
         public static LastUsedHand hand;
         public enum LastUsedHand
@@ -24,10 +18,7 @@ namespace jeanf.vrplayer
             RightHand
         }
 
-        private void Awake()
-        {
-            takeObject = GetComponent<TakeObject>();
-        }
+
 
         private void OnEnable()
         {
@@ -43,25 +34,6 @@ namespace jeanf.vrplayer
             uiClick.action.performed -= ctx => AssignLastUsedHand(ctx.action, ctx.control);
         }
 
-        public void AssignGameObjectInRightHand()
-        {
-            takeObject._objectInHand = rightInteractor.selectTarget.gameObject.GetComponent<PickableObject>();
-        }
-
-        public void AssignGameObjectInLeftHand()
-        {
-            takeObject._objectInHand = leftInteractor.selectTarget.gameObject.GetComponent<PickableObject>();
-        }
-
-        public void RemoveGameObjectInRightHand()
-        {
-            takeObject._objectInHand = null;
-        }
-
-        public void RemoveGameObjectInLeftHand()
-        {
-            takeObject._objectInHand = null;
-        }
 
         public void AssignLastUsedHand(InputAction action, InputControl control)
         {
