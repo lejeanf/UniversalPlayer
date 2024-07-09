@@ -249,7 +249,7 @@ namespace jeanf.vrplayer
 
         public bool GetObjectInHandStatus()
         {
-            if (objectLeftHand == null || objectRightHand == null || objectInHand == null) return false;
+            if (objectLeftHand == null && objectRightHand == null && objectInHand == null) return false;
             else { return true; }
         }
     }
