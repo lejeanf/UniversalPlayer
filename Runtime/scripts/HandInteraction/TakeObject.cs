@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -247,10 +248,31 @@ namespace jeanf.vrplayer
             objectLeftHand = null;
         }
 
-        public bool GetObjectInHandStatus()
+        public bool GetObjectsInHandStatus()
         {
-            if (objectLeftHand == null && objectRightHand == null && objectInHand == null) return false;
+            if (objectInHand == null && objectRightHand == null && objectLeftHand == null) return false;
             else { return true; }
+        }
+        public List<GameObject> GetObjectsInHand()
+        {
+            List<GameObject> objectsInHand = new List<GameObject> ();
+
+            if(objectLeftHand != null)
+            {
+                objectsInHand.Add(objectLeftHand.gameObject);
+            }
+
+            if (objectRightHand != null)
+            {
+                objectsInHand.Add (objectRightHand.gameObject);
+            }
+
+            if (objectInHand != null)
+            {
+                objectsInHand.Add(objectInHand.gameObject);
+            }
+
+            return objectsInHand;
         }
     }
 }
