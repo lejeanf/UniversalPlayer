@@ -69,5 +69,5 @@ Credits:
 - This repo was started during a artist residency called fantomas that happended at <a href="https://www.medrar.org/">Medrar</a> in Cairo From October to December 2022. The aim of this workshop was to teach artists create artworks in VR.
 - Since then this repo is being supported by a research group based in Canada at UQAR univeristy : Laboratoire Onirique and more specifically by the project UVS (Unitée virtuelle de soins = Virtual Health Unit) initiated by Daniel Milhomme and Frédrérique Banville
 - [3D] <a href="https://www.linkedin.com/in/jonathan-l%C3%A9pinay/?originalSubdomain=ca">Jonathan Lepinay</a>
-- [Code] Nicolas Chouin & <a href="https://jeanfrancoisrobin.art">Jean-François Robin</a>
+- [Code] Nicolas Chouin, Félix Côtes-Charlebois <a href="https://github.com/Percevent13"> & <a href="https://jeanfrancoisrobin.art">Jean-François Robin</a>
 - partly inspired by: https://github.com/UnityTechnologies/open-project-1/tree/devlogs/2-scriptable-objects for the event system

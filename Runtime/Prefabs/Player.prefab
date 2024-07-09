@@ -234,6 +234,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isDebug: 0
   cursorImage: {fileID: 6018571504813308516}
+  validationFeedbackImage: {fileID: 0}
   mouselookStateChannel: {fileID: 11400000, guid: 12b53e1a3498ada41a3dcc8b4edd9b35,
     type: 2}
   PrimaryItemState: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6, type: 2}
