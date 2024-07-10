@@ -227,11 +227,14 @@ namespace jeanf.vrplayer
         public void AssignGameObjectInRightHand()
         {
             objectRightHand = rightInteractor.selectTarget.gameObject.GetComponent<PickableObject>();
+            Debug.Log("adding " + rightInteractor.selectTarget.gameObject.GetComponent<PickableObject>() + "to right hand");
         }
 
         public void AssignGameObjectInLeftHand()
         {
             objectLeftHand = leftInteractor.selectTarget.gameObject.GetComponent<PickableObject>();
+            Debug.Log("adding " + leftInteractor.selectTarget.gameObject.GetComponent<PickableObject>() + "to left hand");
+
         }
 
         public void RemoveGameObjectInRightHand()
@@ -250,31 +253,17 @@ namespace jeanf.vrplayer
 
         public bool GetObjectsInHandStatus()
         {
-            try
+            if (objectInHand != null)
             {
-                Debug.Log("Object in hand" + objectInHand);
+                Debug.Log("object in hand: " + objectInHand);
             }
-            catch
+            if (objectRightHand != null)
             {
-                Debug.Log("No object in hand");
+                Debug.Log("object in hand: " + objectRightHand);
             }
-
-            try
+            if (objectLeftHand != null)
             {
-                Debug.Log("Object in left hand VR" + objectLeftHand);
-            }
-            catch
-            {
-                Debug.Log("No object in left hand VR");
-            }
-
-            try
-            {
-                Debug.Log("Object in right hand VR" + objectRightHand);
-            }
-            catch
-            {
-                Debug.Log("No object in right hand");
+                Debug.Log("object in hand: " + objectLeftHand);
             }
             if (objectInHand == null && objectRightHand == null && objectLeftHand == null) return false;
             else { return true; }
