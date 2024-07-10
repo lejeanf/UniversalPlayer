@@ -250,6 +250,32 @@ namespace jeanf.vrplayer
 
         public bool GetObjectsInHandStatus()
         {
+            try
+            {
+                Debug.Log("Object in hand" + objectInHand);
+            }
+            catch
+            {
+                Debug.Log("No object in hand");
+            }
+
+            try
+            {
+                Debug.Log("Object in left hand VR" + objectLeftHand);
+            }
+            catch
+            {
+                Debug.Log("No object in left hand VR");
+            }
+
+            try
+            {
+                Debug.Log("Object in right hand VR" + objectRightHand);
+            }
+            catch
+            {
+                Debug.Log("No object in right hand");
+            }
             if (objectInHand == null && objectRightHand == null && objectLeftHand == null) return false;
             else { return true; }
         }
