@@ -152,6 +152,7 @@ namespace jeanf.vrplayer
         }
         private void LookAround(Vector2 inputView)
         {
+            if (!_canLook) return;
             if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.Gamepad)
             {
                 sensitivity = _gamepadSensitivity;
