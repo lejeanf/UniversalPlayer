@@ -55,13 +55,17 @@ namespace jeanf.vrplayer
         private MotionHandle _positionHandle;
         private MotionHandle _rotationHandle;
         [SerializeField] private LayerMask layerMask;
-
+        int roomId;
 
         [Range(0.01f, 0.5f)]
         [SerializeField] private float sliderMotionDuration;
 
         [Header("Broadcasting On")]
         [SerializeField] GameObjectEventChannelSO objectDropped;
+        [SerializeField] IntBoolEventChannelSO objectTakenChannel;
+        
+        [Header("Listening On")]
+        [SerializeField] IntEventChannelSO roomIdChannelSO;
 
         [Header("XR")]
         [SerializeField] XRDirectInteractor rightInteractor;
@@ -86,6 +90,11 @@ namespace jeanf.vrplayer
         {
             takeAction.action.performed += ctx => DispatchAction();
             scrollAction.action.performed += ctx => UpdateObjectDistance(ctx.ReadValue<float>());
+            try
+            {
+                roomIdChannelSO.OnEventRaised += AssignRoomId;
+            }
+            catch { }
         }
 
         private void OnDisable() => Unsubscribe();
@@ -97,6 +106,11 @@ namespace jeanf.vrplayer
         {
             takeAction.action.performed -= ctx => DispatchAction();
             scrollAction.action.performed -= ctx => UpdateObjectDistance(ctx.ReadValue<float>());
+            try
+            {
+                roomIdChannelSO.OnEventRaised -= AssignRoomId;
+            }
+            catch { }
             DisablePositionHandle();
             DisableRotationHandle();
 
@@ -132,6 +146,7 @@ namespace jeanf.vrplayer
                     //objectInHandTransform.SetParent(this.gameObject.transform);
                     objectInHand.Rigidbody.freezeRotation = true;
                     objectInHand.Rigidbody.useGravity = false;
+                    objectTakenChannel?.RaiseEvent(roomId, true);
                 }
             }
         }
@@ -156,6 +171,7 @@ namespace jeanf.vrplayer
             objectInHandTransform.SetParent(null);
             objectInHandTransform = null;
             objectInHand = null;
+            objectTakenChannel?.RaiseEvent(roomId, false);
 
         }
 
@@ -275,6 +291,11 @@ namespace jeanf.vrplayer
             }
 
             return objectsInHand;
+        }
+
+        private void AssignRoomId(int roomId)
+        {
+            this.roomId = roomId;
         }
     }
 }
