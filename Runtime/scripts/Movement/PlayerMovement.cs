@@ -1,3 +1,4 @@
+using jeanf.EventSystem;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,9 +8,11 @@ namespace jeanf.vrplayer
 {
     public class PlayerMovement : MonoBehaviour
     {
-        [SerializeField] InputActionReference moveAction;
+        [SerializeField] InputActionReference fpsMoveAction;
+        [SerializeField] InputActionReference xrMoveAction;
         [SerializeField] CharacterController controller;
         [SerializeField] FPSCameraMovement mouseLook;
+        [SerializeField] BoolEventChannelSO playerIsMovingEvent;
 
         [SerializeField] float speed;
         float gravity = 9.81f;
@@ -21,8 +24,12 @@ namespace jeanf.vrplayer
 
         private void OnEnable()
         {
-            moveAction.action.performed += ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50f, true);
-            moveAction.action.canceled += ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50f, false);
+            fpsMoveAction.action.performed += ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50f);
+            fpsMoveAction.action.performed += ctx => SetIsMoving(true);
+            xrMoveAction.action.performed += ctx => SetIsMoving(true);
+            fpsMoveAction.action.canceled += ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50);
+            fpsMoveAction.action.canceled += ctx => SetIsMoving(false);
+            xrMoveAction.action.canceled += ctx => SetIsMoving(false);
 
         }
 
@@ -31,8 +38,13 @@ namespace jeanf.vrplayer
 
         private void Unsubscribe()
         {
-            moveAction.action.performed -= ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50f, true);
-            moveAction.action.canceled -= ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50f, false);
+            fpsMoveAction.action.performed -= ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50f);
+            fpsMoveAction.action.performed -= ctx => SetIsMoving(true);
+            xrMoveAction.action.performed -= ctx => SetIsMoving(false);
+            fpsMoveAction.action.canceled -= ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50f);
+            fpsMoveAction.action.canceled -= ctx => SetIsMoving(false);
+            xrMoveAction.action.canceled -= ctx => SetIsMoving(false);
+
         }
 
         private void LateUpdate()
@@ -49,10 +61,10 @@ namespace jeanf.vrplayer
             }
 
         }
-        private void SetMoveValue(Vector2 move, bool isMoving)
+        private void SetMoveValue(Vector2 move)
         {
             moveValue = move;
-            this.isMoving = isMoving;
+            
         }
 
         private bool IsGrounded()
@@ -72,6 +84,12 @@ namespace jeanf.vrplayer
             
             Vector3 finalMoveDirection = new Vector3(moveDirection.x, 0.0f, moveDirection.z);
             controller.Move(finalMoveDirection.normalized * speed * Time.deltaTime);
+        }
+
+        private void SetIsMoving(bool isMoving)
+        {
+            this.isMoving = isMoving;
+            playerIsMovingEvent.RaiseEvent(isMoving);
         }
     }
 }
