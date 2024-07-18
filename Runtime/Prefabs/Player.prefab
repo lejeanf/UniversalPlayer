@@ -109,6 +109,8 @@ MonoBehaviour:
     m_Bits: 64
   sliderMotionDuration: 0.05
   objectDropped: {fileID: 11400000, guid: 28a737308a97ad74b9d32f9879cb84d0, type: 2}
+  objectTakenChannel: {fileID: 0}
+  roomIdChannelSO: {fileID: 0}
   rightInteractor: {fileID: 4931788783090079221}
   leftInteractor: {fileID: 686045676980936107}
 --- !u!114 &2451714478803513558
