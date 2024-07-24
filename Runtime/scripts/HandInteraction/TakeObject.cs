@@ -62,7 +62,7 @@ namespace jeanf.vrplayer
 
         [Header("Broadcasting On")]
         [SerializeField] GameObjectEventChannelSO objectDropped;
-        [SerializeField] IntBoolEventChannelSO objectTakenChannel;
+        [SerializeField] GameObjectIntBoolEventChannelSO objectTakenChannel;
         
         [Header("Listening On")]
         [SerializeField] IntEventChannelSO roomIdChannelSO;
@@ -146,7 +146,7 @@ namespace jeanf.vrplayer
                     //objectInHandTransform.SetParent(this.gameObject.transform);
                     objectInHand.Rigidbody.freezeRotation = true;
                     objectInHand.Rigidbody.useGravity = false;
-                    objectTakenChannel?.RaiseEvent(roomId, true);
+                    objectTakenChannel?.RaiseEvent(hit.transform.gameObject, roomId, true);
                 }
             }
         }
@@ -171,7 +171,7 @@ namespace jeanf.vrplayer
             objectInHandTransform.SetParent(null);
             objectInHandTransform = null;
             objectInHand = null;
-            objectTakenChannel?.RaiseEvent(roomId, false);
+
 
         }
 
