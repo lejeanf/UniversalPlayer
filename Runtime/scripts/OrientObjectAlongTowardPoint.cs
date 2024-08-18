@@ -15,7 +15,7 @@ namespace jeanf.vrplayer
         }
         [SerializeField] private bool _isDebug = false;
 
-        [SerializeField] private GameObject targetPoint;
+        public GameObject targetPoint;
         [SerializeField] private LayerMask layerMask;
         [Range(0,1f)][SerializeField] private float transitionTime = .2f;
 
