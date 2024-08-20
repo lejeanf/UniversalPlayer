@@ -215,8 +215,15 @@ namespace jeanf.vrplayer
                 return;
             }
 
+            Debug.Log("GOAL IS " + goal);
 
             if (objectToMove.transform.position == goal) return;
+
+            if (objectToMove.GetComponent<PickableObject>().IsSnapping)
+            {
+                return;
+            }
+
 
             _positionHandle = LMotion.Create(objectToMove.transform.position, goal, sliderMotionDuration)
                 .Bind(x => objectToMove.transform.position = x)

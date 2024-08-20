@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using jeanf.EventSystem;
 namespace jeanf.vrplayer
 {
     [DefaultExecutionOrder(1)]
@@ -10,7 +10,9 @@ namespace jeanf.vrplayer
         private List<SnapZone> zones = new List<SnapZone>();
         private SnapZone nearestZone;
         private Quaternion startingRotation;
-
+        
+        [Header("Broadcasting On")]
+        [SerializeField] private BoolEventChannelSO objectIsInSnapZone;
         private void OnEnable()
         {
             SnapZone.OnEnableSnapZone += AddZoneToList;
@@ -54,6 +56,7 @@ namespace jeanf.vrplayer
 
         private void OnTriggerExit(Collider other)
         {
+            objectIsInSnapZone.RaiseEvent(false);
             this.transform.rotation = startingRotation;
         }
 
@@ -65,7 +68,7 @@ namespace jeanf.vrplayer
 
         private void SnapObjectToZone()
         {
-
+            objectIsInSnapZone.RaiseEvent(true);
             Debug.Log("SNAP - Snapping to zone");
             Debug.Log($"SNAP - rotation is {this.transform.rotation} before");
             Debug.Log($"SNAP - Position is {this.transform.position} before");
