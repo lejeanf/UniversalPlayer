@@ -54,6 +54,8 @@ MonoBehaviour:
   loginFieldIsOpened: {fileID: 11400000, guid: 18a5405adeda6b6469dc7393511504a2, type: 2}
   _PrimaryItemStateChannel: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6,
     type: 2}
+  _primaryItemStateWithUsedHandChannel: {fileID: 11400000, guid: a75340a736e03214882a9df083e27d09,
+    type: 2}
 --- !u!114 &1445164021152325472
 MonoBehaviour:
   m_ObjectHideFlags: 0
