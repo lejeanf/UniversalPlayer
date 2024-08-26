@@ -1,8 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using jeanf.propertyDrawer;
-using jeanf.EventSystem;
+
 namespace jeanf.vrplayer
 {
     public class PickableObject : MonoBehaviour
@@ -25,16 +24,14 @@ namespace jeanf.vrplayer
         bool initialUseGravity;
         public Rigidbody Rigidbody { get { return rb; } set { rb = value; } }
 
-        [Header("Listening On")]
-        [SerializeField] BoolEventChannelSO isInSnapZone;
+
+
         public float InitialDrag { get { return initialDrag; } }
         public float InitialAngularDrag { get { return initialAngularDrag; } }
         public bool InitialUseGravity { get { return initialUseGravity; } }
 
         public bool canBeRejected;
-        [SerializeField] private bool canSnap;
-        [DrawIf("canSnap", true, ComparisonType.Equals), SerializeField] private bool isSnapping;
-        public bool IsSnapping { get { return isSnapping; } private set { } }
+
         private void Awake()
         {
             initialPosition = this.gameObject.transform.position;
@@ -44,29 +41,13 @@ namespace jeanf.vrplayer
 
         }
 
-        private void OnEnable()
-        {
-            isInSnapZone.OnEventRaised += SetSnapState;
-        }
 
-        private void OnDisable() => Unsubscribe();
-        private void OnDestroy() => Unsubscribe();
-
-        private void Unsubscribe()
-        {
-            isInSnapZone.OnEventRaised -= SetSnapState;
-        }
         private void InitialSaveFromRigidbodySettings()
         {
             initialPosition = this.gameObject.transform.position;
             initialDrag = rb.drag;
             initialAngularDrag = rb.angularDrag;
             initialUseGravity = rb.useGravity;
-        }
-
-        private void SetSnapState(bool value)
-        {
-            isSnapping = value;
         }
     }
 }
