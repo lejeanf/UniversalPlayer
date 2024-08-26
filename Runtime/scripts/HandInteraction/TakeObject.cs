@@ -24,6 +24,7 @@ namespace jeanf.vrplayer
 
         //Camera
         [SerializeField] Camera mainCamera;
+        [SerializeField] FPSCameraMovement cameraMover;
 
         //TakeObject
         Transform objectInHandTransform;
@@ -75,13 +76,15 @@ namespace jeanf.vrplayer
         PickableObject objectRightHand;
         PickableObject objectLeftHand;
         PickableObject objectInHand;
-
         private void LateUpdate()
         {
             if (objectInHand)
             {
+                
                 var goal = mainCamera.transform.position + mainCamera.transform.forward * objectDistance;
                 SetObjectPosition(objectInHandTransform, goal);
+
+                
             }  
         }
 
@@ -207,6 +210,7 @@ namespace jeanf.vrplayer
 
         private void SetObjectPosition(Transform objectToMove, Vector3 goal)
         {
+
             if (!objectToMove)
             {
                 if (_isDebug) Debug.Log($"objectToMove is null");
@@ -215,11 +219,10 @@ namespace jeanf.vrplayer
                 return;
             }
 
-            Debug.Log("GOAL IS " + goal);
 
             if (objectToMove.transform.position == goal) return;
 
-            if (objectToMove.GetComponent<PickableObject>().IsSnapping)
+            if (objectToMove.GetComponent<PickableObject>().IsSnapping && (Mathf.Abs(cameraMover.MoveValue.x) < 0.01 && Mathf.Abs(cameraMover.MoveValue.y) < 0.01))
             {
                 return;
             }

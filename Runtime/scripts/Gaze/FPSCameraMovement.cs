@@ -69,6 +69,7 @@ namespace jeanf.vrplayer
         [SerializeField] private VoidEventChannelSO controlSchemeChangeEventChannel;
         private bool cameraIsMoving;
         private Vector2 moveValue;
+        public Vector2 MoveValue { get { return moveValue; }}
 
         private void Awake()
         {
@@ -87,11 +88,6 @@ namespace jeanf.vrplayer
 
         }
 
-        private void SetCameraMovement(Vector2 movement, bool cameraIsMoving)
-        {
-            moveValue = movement;
-            this.cameraIsMoving = cameraIsMoving;
-        }
 
         private void OnDisable() => Unsubscribe();
         private void OnDestroy() => Unsubscribe();
@@ -107,6 +103,11 @@ namespace jeanf.vrplayer
 
         }
 
+        private void SetCameraMovement(Vector2 movement, bool cameraIsMoving)
+        {
+            moveValue = movement;
+            this.cameraIsMoving = cameraIsMoving;
+        }
 
         public void Init()
         {

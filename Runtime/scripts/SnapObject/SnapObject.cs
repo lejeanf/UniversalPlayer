@@ -69,13 +69,14 @@ namespace jeanf.vrplayer
         private void SnapObjectToZone()
         {
             objectIsInSnapZone.RaiseEvent(true);
-            Debug.Log("SNAP - Snapping to zone");
-            Debug.Log($"SNAP - rotation is {this.transform.rotation} before");
-            Debug.Log($"SNAP - Position is {this.transform.position} before");
+            //Debug.Log("SNAP - Snapping to zone");
+            //Debug.Log($"SNAP - rotation is {this.transform.rotation} before");
+            //Debug.Log($"SNAP - Position is {this.transform.position} before");
             this.transform.rotation = nearestZone.SnapObjectRotationValue;
-            this.transform.position = nearestZone.transform.position;
-            Debug.Log($"SNAP - rotation is {this.transform.rotation} after");
-            Debug.Log($"SNAP - Position is {this.transform.position} after");
+            this.transform.position = nearestZone.SnapObjectPositionValue;
+            this.GetComponent<Rigidbody>().isKinematic = true;
+            //Debug.Log($"SNAP - rotation is {this.transform.rotation} after");
+            //Debug.Log($"SNAP - Position is {this.transform.position} after");
 
         }
     }
