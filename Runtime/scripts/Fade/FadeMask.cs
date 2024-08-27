@@ -97,7 +97,6 @@ namespace jeanf.vrplayer
         public static void FadeValue(bool value, float fadeTime)
         {
             if(_isDebugSTATIC) Debug.Log($"Fading to: {value}, in {fadeTime}s");
-            Debug.Log("DEBUG - Setting FADE VALUE");
             float alpha = value ? 1 : 0;
             
             _fadeHandle = LMotion.Create(staticPostProcessVolume.weight,alpha,fadeTime)

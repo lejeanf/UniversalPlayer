@@ -46,7 +46,6 @@ namespace jeanf.vrplayer
 
         public void SetCanFadeOutValue(bool value)
         {
-            Debug.Log("DEBUG - Setting Can Fade Out Value");
             isSceneLoading = value;
         }
     }
