@@ -32,7 +32,7 @@ namespace jeanf.vrplayer
                 isHeadInWall = false;
             }
             
-            FadeMask.FadeValue(isHeadInWall);
+            //FadeMask.FadeValue(isHeadInWall);
             if(isDebug) Debug.Log($"isHeadInWall: {isHeadInWall}");
         }
 
