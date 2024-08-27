@@ -1695,6 +1695,7 @@ MonoBehaviour:
   HDRPVolumeProfile: {fileID: 11400000, guid: ebc5f30c794e40c45a699e74a1b1d92f, type: 2}
   URPVolumeProfile: {fileID: 11400000, guid: ab06ed5ee4fe73548b3c4829b155a02d, type: 2}
   postProcessVolume: {fileID: 1989632603716548249}
+  fadeOutChannelSO: {fileID: 0}
 --- !u!135 &3359612486687220250
 SphereCollider:
   m_ObjectHideFlags: 0
