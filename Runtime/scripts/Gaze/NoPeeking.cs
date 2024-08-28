@@ -22,7 +22,8 @@ namespace jeanf.vrplayer
         [SerializeField] private bool isSceneLoading = false;
         private void FixedUpdate()
         {
-            if(isSceneLoading) return;
+            if (isSceneLoading) return;
+            if (isDebug) Debug.Log("NoPeeking - made it through the return");
             if (Physics.CheckSphere(transform.position, sphereCheckSize, collisionLayer, QueryTriggerInteraction.Ignore))
             {
                 isHeadInWall = true;
@@ -47,6 +48,7 @@ namespace jeanf.vrplayer
         public void SetCanFadeOutValue(bool value)
         {
             isSceneLoading = value;
+            if (isDebug) Debug.Log($"SetCanFadeOutValue - isSceneLoading: {isSceneLoading}");
         }
     }
 }
