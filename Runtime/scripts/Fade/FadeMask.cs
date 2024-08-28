@@ -73,7 +73,7 @@ namespace jeanf.vrplayer
         {
             if (_shaderMaterial)_shaderMaterial.SetColor(FadeColor, new Color(color.r, color.g, color.b, 0));
             inputBinding.performed -= null;
-            fadeOutChannelSO.OnEventRaised += FadeValue;
+            fadeOutChannelSO.OnEventRaised -= FadeValue;
             inputBinding.Disable();
             DisableFadeHandle();
         }
