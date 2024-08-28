@@ -91,6 +91,7 @@ namespace jeanf.vrplayer
         }
         public static void FadeValue(bool value)
         {
+            if (_isDebugSTATIC) Debug.Log($"Fading to: {value}, in {_fadeTime}");
             FadeValue(value, _fadeTime);
         }
 

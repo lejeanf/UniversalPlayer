@@ -22,15 +22,21 @@ namespace jeanf.vrplayer
         [SerializeField] private bool isSceneLoading = false;
         private void FixedUpdate()
         {
-            if (isSceneLoading) return;
-            if (isDebug) Debug.Log("NoPeeking - made it through the return");
-            if (Physics.CheckSphere(transform.position, sphereCheckSize, collisionLayer, QueryTriggerInteraction.Ignore))
+            if (isSceneLoading)
             {
                 isHeadInWall = true;
             }
             else
             {
-                isHeadInWall = false;
+                if (isDebug) Debug.Log("NoPeeking - made it through the return");
+                if (Physics.CheckSphere(transform.position, sphereCheckSize, collisionLayer, QueryTriggerInteraction.Ignore))
+                {
+                    isHeadInWall = true;
+                }
+                else
+                {
+                    isHeadInWall = false;
+                }
             }
             
             FadeMask.FadeValue(isHeadInWall);
