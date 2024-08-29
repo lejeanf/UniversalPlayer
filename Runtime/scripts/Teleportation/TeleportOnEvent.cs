@@ -43,6 +43,7 @@ namespace jeanf.vrplayer
                 ? player.transform
                 : teleportInformation.objectToTeleport.transform;
             teleportSubject.position = teleportInformation.targetDestination.position;
+            Debug.Log($"TELEPORT - player position = {teleportSubject.position} && targetDestination.position = {teleportInformation.targetDestination.position}");
             teleportSubject.rotation = teleportInformation.targetDestination.rotation;
 
             if ( teleportInformation.objectIsPlayer ) cameraResetChannel.RaiseEvent();
