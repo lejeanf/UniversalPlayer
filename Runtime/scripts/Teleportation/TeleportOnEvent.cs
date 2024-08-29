@@ -39,9 +39,9 @@ namespace jeanf.vrplayer
                 Debug.Log($"ObjectToTeleport : {teleportInformation.objectToTeleport.name}");
             }             
             
-            var teleportSubject = teleportInformation.objectIsPlayer
-                ? player.transform
-                : teleportInformation.objectToTeleport.transform;
+            GameObject teleportSubject = teleportInformation.objectIsPlayer
+                ? player
+                : teleportInformation.objectToTeleport.gameObject;
             try
             {
                 teleportSubject.GetComponent<PlayerMovement>().gameObject.SetActive(false);
@@ -50,9 +50,9 @@ namespace jeanf.vrplayer
             {
                 if (isDebug) Debug.Log("teleportation subject is not player - cannot disable player locomotion for teleportation");
             }
-            teleportSubject.position = teleportInformation.targetDestination.position;
-            Debug.Log($"TELEPORT - player position = {teleportSubject.position} && targetDestination.position = {teleportInformation.targetDestination.position}");
-            teleportSubject.rotation = teleportInformation.targetDestination.rotation;
+            teleportSubject.transform.position = teleportInformation.targetDestination.position;
+            Debug.Log($"TELEPORT - player position = {teleportSubject.transform.position} && targetDestination.position = {teleportInformation.targetDestination.position}");
+            teleportSubject.transform.rotation = teleportInformation.targetDestination.rotation;
             //try
             //{
             //    teleportSubject.GetComponent<PlayerMovement>().gameObject.SetActive(true);
