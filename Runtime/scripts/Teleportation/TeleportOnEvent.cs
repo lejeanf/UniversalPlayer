@@ -44,7 +44,7 @@ namespace jeanf.vrplayer
                 : teleportInformation.objectToTeleport.gameObject;
             try
             {
-                teleportSubject.GetComponent<PlayerMovement>().gameObject.SetActive(false);
+                teleportSubject.GetComponentInChildren<PlayerMovement>().gameObject.SetActive(false);
             }
             catch
             {
