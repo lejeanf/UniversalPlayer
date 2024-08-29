@@ -44,7 +44,7 @@ namespace jeanf.vrplayer
                 : teleportInformation.objectToTeleport.gameObject;
             try
             {
-                teleportSubject.GetComponentInChildren<PlayerMovement>().gameObject.SetActive(false);
+                teleportSubject.GetComponent<CharacterController>().enabled = false;
             }
             catch
             {
@@ -55,7 +55,7 @@ namespace jeanf.vrplayer
             teleportSubject.transform.rotation = teleportInformation.targetDestination.rotation;
             try
             {
-                teleportSubject.GetComponentInChildren<PlayerMovement>(true).gameObject.SetActive(true);
+                teleportSubject.GetComponent<CharacterController>().enabled = true;
             }
             catch
             {
