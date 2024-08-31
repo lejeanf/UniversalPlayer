@@ -56,10 +56,10 @@ namespace jeanf.vrplayer
 
         private void StateOverride(bool state)
         {
-            if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR)
-            {
-                _primaryItemStateWithUsedHandChannel.RaiseEvent("RightHand");
-            }
+            //if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR)
+            //{
+            //    _primaryItemStateWithUsedHandChannel.RaiseEvent("RightHand");
+            //}
             primaryItemState = state;
         }
 
