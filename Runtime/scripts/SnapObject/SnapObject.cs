@@ -32,10 +32,8 @@ namespace jeanf.vrplayer
         }
         private void OnTriggerEnter(Collider other)
         {
-            Debug.Log("SNAP - Entered trigger");
             if (other.GetComponent<SnapZone>() != null)
             {
-                Debug.Log("SNAP - Searching which is nearest zone");
                 float minDistance = Mathf.Infinity;
                 foreach (SnapZone snapZone in zones)
                 {
@@ -47,7 +45,6 @@ namespace jeanf.vrplayer
                         nearestZone = snapZone;
                     }
                 }
-                Debug.Log($"Nearest zone is {nearestZone.name}");
                 SnapObjectToZone();
             }
 

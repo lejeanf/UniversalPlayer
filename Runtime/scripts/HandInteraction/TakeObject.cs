@@ -222,6 +222,8 @@ namespace jeanf.vrplayer
 
             if (objectToMove.transform.position == goal) return;
 
+            Debug.Log($"x:{Mathf.Abs(cameraMover.MoveValue.x)}, y: {Mathf.Abs(cameraMover.MoveValue.y)}");
+            Debug.Log(objectToMove.GetComponent<PickableObject>().IsSnapping);
             if (objectToMove.GetComponent<PickableObject>().IsSnapping && (Mathf.Abs(cameraMover.MoveValue.x) < 0.01 && Mathf.Abs(cameraMover.MoveValue.y) < 0.01))
             {
                 return;
