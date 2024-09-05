@@ -10,6 +10,7 @@ namespace jeanf.vrplayer
     {
         delegate void SendZone();
         public static event Action<SnapZone> OnEnableSnapZone;
+        public GameObject body;
         [SerializeField] private Quaternion snapObjectRotationValue;
         public Quaternion SnapObjectRotationValue { get { return snapObjectRotationValue; } private set { }}
         [SerializeField] private Vector3 snapObjectPositionValue;

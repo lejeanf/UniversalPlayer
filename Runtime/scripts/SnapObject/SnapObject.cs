@@ -10,7 +10,7 @@ namespace jeanf.vrplayer
         private List<SnapZone> zones = new List<SnapZone>();
         private SnapZone nearestZone;
         private Quaternion startingRotation;
-        
+        [SerializeField] LayerMask auscultationPoint;
         [Header("Broadcasting On")]
         [SerializeField] private BoolEventChannelSO objectIsInSnapZone;
         private void OnEnable()
@@ -47,8 +47,6 @@ namespace jeanf.vrplayer
                 }
                 SnapObjectToZone();
             }
-
-
         }
 
         private void OnTriggerExit(Collider other)
@@ -65,16 +63,27 @@ namespace jeanf.vrplayer
 
         private void SnapObjectToZone()
         {
-            objectIsInSnapZone.RaiseEvent(true);
-            //Debug.Log("SNAP - Snapping to zone");
-            //Debug.Log($"SNAP - rotation is {this.transform.rotation} before");
-            //Debug.Log($"SNAP - Position is {this.transform.position} before");
-            this.transform.rotation = nearestZone.SnapObjectRotationValue;
-            this.transform.position = nearestZone.SnapObjectPositionValue;
-            this.GetComponent<Rigidbody>().isKinematic = true;
-            //Debug.Log($"SNAP - rotation is {this.transform.rotation} after");
-            //Debug.Log($"SNAP - Position is {this.transform.position} after");
+            //objectIsInSnapZone.RaiseEvent(true);
+            ////Debug.Log("SNAP - Snapping to zone");
+            ////Debug.Log($"SNAP - rotation is {this.transform.rotation} before");
+            ////Debug.Log($"SNAP - Position is {this.transform.position} before");
+            //this.transform.rotation = nearestZone.SnapObjectRotationValue;
+            //this.transform.position = nearestZone.SnapObjectPositionValue;
+            //this.GetComponent<Rigidbody>().isKinematic = true;
+            ////Debug.Log($"SNAP - rotation is {this.transform.rotation} after");
+            ////Debug.Log($"SNAP - Position is {this.transform.position} after");
+            ///
 
+            try
+            {
+                Ray ray = new Ray(transform.position, nearestZone.body.transform.position);
+                RaycastHit info = new RaycastHit();
+                if (Physics.Linecast(transform.position, nearestZone.body.transform.position, out info, auscultationPoint))
+                {
+                    transform.rotation = Quaternion.FromToRotation(Vector3.forward, info.normal);
+                }
+            }
+            catch { }
         }
     }
 }
