@@ -13,6 +13,7 @@ namespace jeanf.vrplayer
 
         [Header("Broadcasting on:")]
         [SerializeField] private BoolEventChannelSO _PrimaryItemStateChannel;
+        [SerializeField] private StringEventChannelSO _primaryItemStateWithUsedHandChannel;
         private bool primaryItemState = false;
 
         private void OnEnable()
@@ -55,6 +56,10 @@ namespace jeanf.vrplayer
 
         private void StateOverride(bool state)
         {
+            if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR)
+            {
+                _primaryItemStateWithUsedHandChannel.RaiseEvent("RightHand");
+            }
             primaryItemState = state;
         }
 

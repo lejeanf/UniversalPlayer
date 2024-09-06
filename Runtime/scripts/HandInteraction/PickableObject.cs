@@ -1,8 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using jeanf.propertyDrawer;
-using jeanf.EventSystem;
+
 namespace jeanf.vrplayer
 {
     public class PickableObject : MonoBehaviour

@@ -31,7 +31,7 @@ public class PerformAction : MonoBehaviour, IDebugBehaviour
 
     private void OnEnable()
     {
-        performAction.action.performed += _ => AttemptAction();
+        if(performAction) performAction.action.performed += _ => AttemptAction();
     }
 
     private void OnDisable() => Unsubscribe();
@@ -39,7 +39,7 @@ public class PerformAction : MonoBehaviour, IDebugBehaviour
 
     private void Unsubscribe()
     {
-        performAction.action.performed -= null;
+        if(performAction) performAction.action.performed -= null;
     }
 
     private void AttemptAction()

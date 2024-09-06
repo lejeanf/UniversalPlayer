@@ -37,9 +37,12 @@ namespace jeanf.vrplayer
         [SerializeField] private VolumeProfile URPVolumeProfile;
         [SerializeField] private Volume postProcessVolume;
         private static Volume staticPostProcessVolume;
-        
-            
+
+
         private static MotionHandle _fadeHandle;
+
+        [Header("Listening On")]
+        [SerializeField] private BoolFloatEventChannelSO fadeOutChannelSO;
         
 
         private void Awake()
@@ -60,6 +63,7 @@ namespace jeanf.vrplayer
         {   
             inputBinding.Enable();
             inputBinding.performed += _ => SwitchFadeState();
+            fadeOutChannelSO.OnEventRaised += FadeValue;
         }
 
         private void OnDisable() => Unsubscribe();
@@ -69,6 +73,7 @@ namespace jeanf.vrplayer
         {
             if (_shaderMaterial)_shaderMaterial.SetColor(FadeColor, new Color(color.r, color.g, color.b, 0));
             inputBinding.performed -= null;
+            fadeOutChannelSO.OnEventRaised -= FadeValue;
             inputBinding.Disable();
             DisableFadeHandle();
         }
@@ -86,6 +91,7 @@ namespace jeanf.vrplayer
         }
         public static void FadeValue(bool value)
         {
+            if (_isDebugSTATIC) Debug.Log($"Fading to: {value}, in {_fadeTime}");
             FadeValue(value, _fadeTime);
         }
 

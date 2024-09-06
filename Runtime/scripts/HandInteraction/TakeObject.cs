@@ -24,7 +24,6 @@ namespace jeanf.vrplayer
 
         //Camera
         [SerializeField] Camera mainCamera;
-        [SerializeField] FPSCameraMovement cameraMover;
 
         //TakeObject
         Transform objectInHandTransform;
@@ -90,7 +89,6 @@ namespace jeanf.vrplayer
         {
             if (objectInHand)
             {
-                
                 var goal = mainCamera.transform.position + mainCamera.transform.forward * objectDistance;
                 SetObjectPosition(objectInHandTransform, goal);
             }  

@@ -54,6 +54,8 @@ MonoBehaviour:
   loginFieldIsOpened: {fileID: 11400000, guid: 18a5405adeda6b6469dc7393511504a2, type: 2}
   _PrimaryItemStateChannel: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6,
     type: 2}
+  _primaryItemStateWithUsedHandChannel: {fileID: 11400000, guid: a75340a736e03214882a9df083e27d09,
+    type: 2}
 --- !u!114 &1445164021152325472
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -95,7 +97,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isDebug: 0
   mainCamera: {fileID: 0}
-  cameraMover: {fileID: 965419840}
   takeAction: {fileID: 873782351341311617, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   scrollAction: {fileID: 753532330581409958, guid: 110d9016d6486d84697b9d7a66a57d45,
@@ -1695,6 +1696,7 @@ MonoBehaviour:
   HDRPVolumeProfile: {fileID: 11400000, guid: ebc5f30c794e40c45a699e74a1b1d92f, type: 2}
   URPVolumeProfile: {fileID: 11400000, guid: ab06ed5ee4fe73548b3c4829b155a02d, type: 2}
   postProcessVolume: {fileID: 1989632603716548249}
+  fadeOutChannelSO: {fileID: 0}
 --- !u!135 &3359612486687220250
 SphereCollider:
   m_ObjectHideFlags: 0
