@@ -112,6 +112,7 @@ MonoBehaviour:
   objectDropped: {fileID: 11400000, guid: 28a737308a97ad74b9d32f9879cb84d0, type: 2}
   objectTakenChannel: {fileID: 0}
   roomIdChannelSO: {fileID: 0}
+  snapEventChannelSO: {fileID: 11400000, guid: 2093de23760d6ef4d88b079ebea99969, type: 2}
   rightInteractor: {fileID: 4931788783090079221}
   leftInteractor: {fileID: 686045676980936107}
 --- !u!114 &2451714478803513558

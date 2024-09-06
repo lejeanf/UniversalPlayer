@@ -67,6 +67,7 @@ namespace jeanf.vrplayer
         
         [Header("Listening On")]
         [SerializeField] IntEventChannelSO roomIdChannelSO;
+        [SerializeField] GameObjectEventChannelSO snapEventChannelSO;
 
         [Header("XR")]
         [SerializeField] XRDirectInteractor rightInteractor;
@@ -76,6 +77,15 @@ namespace jeanf.vrplayer
         PickableObject objectRightHand;
         PickableObject objectLeftHand;
         PickableObject objectInHand;
+        bool objectIsSnapping;
+
+        private void Update()
+        {
+            if (objectInHand && objectIsSnapping)
+            {
+                Snap(objectInHand.gameObject);
+            }
+        }
         private void LateUpdate()
         {
             if (objectInHand)
@@ -83,8 +93,6 @@ namespace jeanf.vrplayer
                 
                 var goal = mainCamera.transform.position + mainCamera.transform.forward * objectDistance;
                 SetObjectPosition(objectInHandTransform, goal);
-
-                
             }  
         }
 
@@ -98,6 +106,8 @@ namespace jeanf.vrplayer
                 roomIdChannelSO.OnEventRaised += AssignRoomId;
             }
             catch { }
+
+            snapEventChannelSO.OnEventRaised += ctx => Snap(ctx);
         }
 
         private void OnDisable() => Unsubscribe();
@@ -116,8 +126,7 @@ namespace jeanf.vrplayer
             catch { }
             DisablePositionHandle();
             DisableRotationHandle();
-
-
+            snapEventChannelSO.OnEventRaised -= ctx => Snap(ctx);
         }
 
         //Check, when received input action for take, if there's already an object in hand or not
@@ -174,8 +183,38 @@ namespace jeanf.vrplayer
             objectInHandTransform.SetParent(null);
             objectInHandTransform = null;
             objectInHand = null;
+        }
 
+        private void Snap(GameObject objectToSnap)
+        {
+            if (objectToSnap.GetComponent<SnapObject>() == null) return;
+            SnapObject snapObject = objectToSnap.GetComponent<SnapObject>();
+            RaycastHit hit;
 
+            if (Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity, layerMask: snapObject.GetLayerMask()))
+            {
+                float minDistance = Mathf.Infinity;
+
+                foreach(GameObject snapPoint in snapObject.SnapPoints)
+                {
+                    Debug.Log(hit.transform.position);
+                    Debug.Log(snapPoint.transform.position);
+                    float distance = Vector3.Distance(hit.point, snapPoint.transform.position);
+
+                    if (distance < minDistance)
+                    {
+                        minDistance = distance;
+                        snapObject.NearestSnapPoint = snapPoint;
+                    }
+                }
+                snapObject.transform.position = snapObject.NearestSnapPoint.transform.position;
+                objectIsSnapping = true;
+                Debug.Log("nearest zone" + snapObject.NearestSnapPoint.name);
+            }
+            else
+            {
+                objectIsSnapping = false;
+            }
         }
 
         //public GameObject GetObjectInHand()
@@ -185,6 +224,7 @@ namespace jeanf.vrplayer
         //}
         private void UpdateObjectDistance(float value)
         {
+            if (objectIsSnapping) return;
             value *= scrollStep;
             if (_isDebug) Debug.Log($"scroll reading: {value}");
             objectDistance += value;
@@ -210,7 +250,7 @@ namespace jeanf.vrplayer
 
         private void SetObjectPosition(Transform objectToMove, Vector3 goal)
         {
-
+            if (objectIsSnapping) return;
             if (!objectToMove)
             {
                 if (_isDebug) Debug.Log($"objectToMove is null");
@@ -222,12 +262,6 @@ namespace jeanf.vrplayer
 
             if (objectToMove.transform.position == goal) return;
 
-            if (objectToMove.GetComponent<PickableObject>().IsSnapping && (Mathf.Abs(cameraMover.MoveValue.x) < 0.01 && Mathf.Abs(cameraMover.MoveValue.y) < 0.01))
-            {
-                return;
-            }
-
-
             _positionHandle = LMotion.Create(objectToMove.transform.position, goal, sliderMotionDuration)
                 .Bind(x => objectToMove.transform.position = x)
                 .AddTo(objectToMove.gameObject);
@@ -235,6 +269,7 @@ namespace jeanf.vrplayer
         }
         private void SetObjectRotation(Transform objectToMove, Quaternion goal)
         {
+            if (objectIsSnapping) return;
             if (!objectToMove)
             {
                 DisableRotationHandle();
@@ -247,7 +282,6 @@ namespace jeanf.vrplayer
                 .AddTo(objectToMove.gameObject);
 
             //objectToMove.transform.rotation = goal;
-            
         }
 
         public void AssignGameObjectInRightHand()
