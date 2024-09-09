@@ -11,6 +11,7 @@ namespace jeanf.vrplayer
         public SnapPoint NearestSnapPoint { get { return nearestSnapPoint; } set { nearestSnapPoint = value; } }
         [SerializeField] private GameObjectEventChannelSO snapEventChannelSO;
         [SerializeField] LayerMask snapTargetLayer;
+        public LayerMask SnapTargetLayer { get { return snapTargetLayer; }}
         private List<SnapPoint> snapPoints = new List<SnapPoint>();
         public List<SnapPoint> SnapPoints { get {  return snapPoints; } }
         private void OnTriggerEnter(Collider other)
@@ -24,11 +25,6 @@ namespace jeanf.vrplayer
                 }
                 snapEventChannelSO.RaiseEvent(this.gameObject);
             }
-        }
-
-        public LayerMask GetLayerMask()
-        {
-            return snapTargetLayer;
         }
     }
 }
