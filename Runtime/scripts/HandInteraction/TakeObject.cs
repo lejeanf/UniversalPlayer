@@ -54,6 +54,7 @@ namespace jeanf.vrplayer
         [SerializeField] private float maxDistanceCheck = 2f;
         private MotionHandle _positionHandle;
         private MotionHandle _rotationHandle;
+        
         [SerializeField] private LayerMask layerMask;
         int roomId;
 
@@ -77,6 +78,7 @@ namespace jeanf.vrplayer
         PickableObject objectLeftHand;
         PickableObject objectInHand;
         bool objectIsSnapping;
+
 
         private void Update()
         {
@@ -193,10 +195,8 @@ namespace jeanf.vrplayer
             {
                 float minDistance = Mathf.Infinity;
 
-                foreach(GameObject snapPoint in snapObject.SnapPoints)
+                foreach(SnapPoint snapPoint in snapObject.SnapPoints)
                 {
-                    Debug.Log(hit.transform.position);
-                    Debug.Log(snapPoint.transform.position);
                     float distance = Vector3.Distance(hit.point, snapPoint.transform.position);
 
                     if (distance < minDistance)
@@ -205,21 +205,19 @@ namespace jeanf.vrplayer
                         snapObject.NearestSnapPoint = snapPoint;
                     }
                 }
-                snapObject.transform.position = snapObject.NearestSnapPoint.transform.position;
+                objectToSnap.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+                snapObject.transform.rotation = snapObject.NearestSnapPoint.DesiredSnapRotation;
+                SetObjectSnappingPosition(snapObject.transform, snapObject.NearestSnapPoint.transform.position);
                 objectIsSnapping = true;
-                Debug.Log("nearest zone" + snapObject.NearestSnapPoint.name);
             }
             else
             {
+                objectToSnap.GetComponent<Rigidbody>().constraints = ~RigidbodyConstraints.FreezePosition;
                 objectIsSnapping = false;
             }
         }
 
-        //public GameObject GetObjectInHand()
-        //{
-        //    if(objectInHand) return objectInHand.gameObject;
-        //    return null;
-        //}
+
         private void UpdateObjectDistance(float value)
         {
             if (objectIsSnapping) return;
@@ -259,7 +257,28 @@ namespace jeanf.vrplayer
 
 
             if (objectToMove.transform.position == goal) return;
+            _positionHandle = LMotion.Create(objectToMove.transform.position, goal, sliderMotionDuration)
+                .Bind(x => objectToMove.transform.position = x)
+                .AddTo(objectToMove.gameObject);
+            //objectToMove.transform.position = goal;
+        }
 
+        private void SetObjectSnappingPosition(Transform objectToMove, Vector3 goal)
+        {
+            if (!objectToMove)
+            {
+                if (_isDebug) Debug.Log($"objectToMove is null");
+
+                DisablePositionHandle();
+                return;
+            }
+
+
+            if (objectToMove.transform.position == goal)
+            {
+                DisablePositionHandle();
+                return;
+            }
             _positionHandle = LMotion.Create(objectToMove.transform.position, goal, sliderMotionDuration)
                 .Bind(x => objectToMove.transform.position = x)
                 .AddTo(objectToMove.gameObject);
