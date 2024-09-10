@@ -4,7 +4,6 @@ using UnityEngine;
 using jeanf.EventSystem;
 namespace jeanf.vrplayer
 {
-    [DefaultExecutionOrder(1)]
    public class SnapObject : PickableObject
     {
         private SnapPoint nearestSnapPoint;
