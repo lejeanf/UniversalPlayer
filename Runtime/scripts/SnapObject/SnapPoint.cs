@@ -8,5 +8,7 @@ namespace jeanf.vrplayer
     {
         [SerializeField] private Quaternion desiredSnapRotation;
         public Quaternion DesiredSnapRotation { get { return desiredSnapRotation;}}
+
+        public SnapZone Parent { get { return GetComponentInParent<SnapZone>(); } }
     }
 }

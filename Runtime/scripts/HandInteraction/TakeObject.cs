@@ -274,13 +274,13 @@ namespace jeanf.vrplayer
                     {
                         minDistance = distance;
                         snapObject.NearestSnapPoint = snapPoint;
-                        objectToSnap.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-                        //snapObject.transform.rotation = snapObject.NearestSnapPoint.DesiredSnapRotation;
-                        AlignToSurface(snapObject);
-                        SetObjectPosition(snapObject.transform, snapObject.NearestSnapPoint.transform.position, true);
-                        objectIsSnapping = true;
+
                     }
                 }
+                objectToSnap.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+                snapObject.transform.LookAt(snapObject.NearestSnapPoint.Parent.transform.position);
+                SetObjectPosition(snapObject.transform, snapObject.NearestSnapPoint.transform.position, true);
+                objectIsSnapping = true;
             }
             else
             {
@@ -334,15 +334,6 @@ namespace jeanf.vrplayer
             if (!_rotationHandle.IsActive()) return;
             _rotationHandle.Complete();
             _rotationHandle.Cancel();
-        }
-
-        private void AlignToSurface(SnapObject snapObject)
-        {
-            RaycastHit info = new RaycastHit();
-            if(Physics.Raycast(snapObject.transform.position, -Vector3.up, out info, maxDistance:10f, snapObject.SnapTargetLayer))
-            {
-                snapObject.transform.rotation = Quaternion.FromToRotation(Vector3.up, info.normal);
-            }
         }
         #endregion
 

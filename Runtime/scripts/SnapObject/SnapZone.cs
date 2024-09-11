@@ -9,7 +9,5 @@ namespace jeanf.vrplayer
     {
         [SerializeField] private List<SnapPoint> snapPoints = new List<SnapPoint>();
         public List<SnapPoint> SnapPoints { get { return snapPoints;}}
-
-        
     }
 }
