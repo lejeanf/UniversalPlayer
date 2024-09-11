@@ -266,7 +266,7 @@ namespace jeanf.vrplayer
             {
                 float minDistance = Mathf.Infinity;
 
-                foreach (SnapPoint snapPoint in snapObject.SnapPoints)
+                foreach (GameObject snapPoint in snapObject.SnapPoints)
                 {
                     float distance = Vector3.Distance(hit.point, snapPoint.transform.position);
 
@@ -278,7 +278,7 @@ namespace jeanf.vrplayer
                     }
                 }
                 objectToSnap.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-                snapObject.transform.LookAt(snapObject.NearestSnapPoint.Parent.transform.position);
+                snapObject.transform.LookAt(snapObject.AttachedSnapZone.gameObject.transform.position);
                 SetObjectPosition(snapObject.transform, snapObject.NearestSnapPoint.transform.position, true);
                 objectIsSnapping = true;
             }
