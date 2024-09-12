@@ -278,7 +278,7 @@ namespace jeanf.vrplayer
                     }
                 }
                 objectToSnap.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-                snapObject.transform.LookAt(snapObject.AttachedSnapZone.gameObject.transform.position);
+                snapObject.transform.LookAt(snapObject.AttachedSnapZone.LookTarget.transform.position);
                 SetObjectPosition(snapObject.transform, snapObject.NearestSnapPoint.transform.position, true);
                 objectIsSnapping = true;
             }
