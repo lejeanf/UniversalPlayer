@@ -1,6 +1,4 @@
 using jeanf.EventSystem;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,7 +12,12 @@ namespace jeanf.vrplayer
         [SerializeField] FPSCameraMovement mouseLook;
         [SerializeField] BoolEventChannelSO playerIsMovingEvent;
 
-        [SerializeField] float speed;
+        [SerializeField] private float speed;
+        public float Speed
+        {
+            get => speed;
+            set => speed = value;
+        }
         float gravity = 9.81f;
         [SerializeField] float distToGround;
         [SerializeField] float speedChangeRate;
