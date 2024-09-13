@@ -266,41 +266,43 @@ namespace jeanf.vrplayer
             {
                 float minDistance = Mathf.Infinity;
 
-                foreach (SnapPoint snapPoint in snapObject.SnapPoints)
+                foreach (GameObject snapPoint in snapObject.SnapPoints)
                 {
                     float distance = Vector3.Distance(hit.point, snapPoint.transform.position);
 
                     if (distance < minDistance)
                     {
                         minDistance = distance;
-                        snapObject.NearestSnapPoint = snapPoint;
-                        //lastSnapPoint = snapPoint;
 
-                        //if (snapObject.ShouldOrientOnSnap)
-                        //{
-                        //    SnapZoneAuscultation snapZoneAuscultation = null;
-                        //    try
-                        //    {
-                        //        snapZoneAuscultation = snapObject.AttachedSnapZone.GetComponent<SnapZoneAuscultation>();
-                        //    }
-                        //    catch { return; }
-                        //    switch (snapObject.NearestSnapPoint.tag)
-                        //    {
-                        //        case "Pulmonaire droit":
-                        //            snapObject.transform.LookAt(snapZoneAuscultation.PoumonDroit.transform);
-                        //            break;
-                        //        case "Pulmonaire gauche":
-                        //            snapObject.transform.LookAt(snapZoneAuscultation.PoumonGauche.transform);
-                        //            break;
-                        //        case "Cardiaque":
-                        //            snapObject.transform.LookAt(snapZoneAuscultation.Coeur.transform);
-                        //            break;
-                        //    }
-                        //}
+                        if (snapObject.NearestSnapPoint == snapPoint) return;
+
+                        snapObject.NearestSnapPoint = snapPoint;
+
+                        if (snapObject.ShouldOrientOnSnap)
+                        {
+                            SnapZoneAuscultation snapZoneAuscultation = null;
+                            try
+                            {
+                                snapZoneAuscultation = snapObject.AttachedSnapZone.GetComponent<SnapZoneAuscultation>();
+                            }
+                            catch { return; }
+                            switch (snapObject.NearestSnapPoint.tag)
+                            {
+                                case "Pulmonaire droit":
+                                    snapObject.transform.LookAt(snapZoneAuscultation.PoumonDroit.transform);
+                                    break;
+                                case "Pulmonaire gauche":
+                                    snapObject.transform.LookAt(snapZoneAuscultation.PoumonGauche.transform);
+                                    break;
+                                case "Cardiaque":
+                                    snapObject.transform.LookAt(snapZoneAuscultation.Coeur.transform);
+                                    break;
+                            }
+                        }
                     }
                 }
                 objectToSnap.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-                snapObject.transform.rotation = snapObject.NearestSnapPoint.DesiredSnapRotation;
+                //snapObject.transform.LookAt(snapObject.AttachedSnapZone.LookTarget.transform.position);
                 SetObjectPosition(snapObject.transform, snapObject.NearestSnapPoint.transform.position, true);
                 objectIsSnapping = true;
             }
