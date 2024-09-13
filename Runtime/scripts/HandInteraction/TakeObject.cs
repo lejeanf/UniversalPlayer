@@ -79,7 +79,7 @@ namespace jeanf.vrplayer
         PickableObject objectRightHand;
         PickableObject objectLeftHand;
         PickableObject objectInHand;
-
+        GameObject lastSnapPoint;
         //Snap variable(s)
         bool objectIsSnapping;
         #endregion
@@ -274,6 +274,29 @@ namespace jeanf.vrplayer
                     {
                         minDistance = distance;
                         snapObject.NearestSnapPoint = snapPoint;
+                        //lastSnapPoint = snapPoint;
+
+                        //if (snapObject.ShouldOrientOnSnap)
+                        //{
+                        //    SnapZoneAuscultation snapZoneAuscultation = null;
+                        //    try
+                        //    {
+                        //        snapZoneAuscultation = snapObject.AttachedSnapZone.GetComponent<SnapZoneAuscultation>();
+                        //    }
+                        //    catch { return; }
+                        //    switch (snapObject.NearestSnapPoint.tag)
+                        //    {
+                        //        case "Pulmonaire droit":
+                        //            snapObject.transform.LookAt(snapZoneAuscultation.PoumonDroit.transform);
+                        //            break;
+                        //        case "Pulmonaire gauche":
+                        //            snapObject.transform.LookAt(snapZoneAuscultation.PoumonGauche.transform);
+                        //            break;
+                        //        case "Cardiaque":
+                        //            snapObject.transform.LookAt(snapZoneAuscultation.Coeur.transform);
+                        //            break;
+                        //    }
+                        //}
                     }
                 }
                 objectToSnap.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
