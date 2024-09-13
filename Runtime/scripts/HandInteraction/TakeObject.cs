@@ -273,32 +273,35 @@ namespace jeanf.vrplayer
                     if (distance < minDistance)
                     {
                         minDistance = distance;
+
+                        if (snapObject.NearestSnapPoint == snapPoint) return;
+
                         snapObject.NearestSnapPoint = snapPoint;
 
+                        if (snapObject.ShouldOrientOnSnap)
+                        {
+                            SnapZoneAuscultation snapZoneAuscultation = null;
+                            try
+                            {
+                                snapZoneAuscultation = snapObject.AttachedSnapZone.GetComponent<SnapZoneAuscultation>();
+                            }
+                            catch { return; }
+                            switch (snapObject.NearestSnapPoint.tag)
+                            {
+                                case "Pulmonaire droit":
+                                    snapObject.transform.LookAt(snapZoneAuscultation.PoumonDroit.transform);
+                                    break;
+                                case "Pulmonaire gauche":
+                                    snapObject.transform.LookAt(snapZoneAuscultation.PoumonGauche.transform);
+                                    break;
+                                case "Cardiaque":
+                                    snapObject.transform.LookAt(snapZoneAuscultation.Coeur.transform);
+                                    break;
+                            }
+                        }
                     }
                 }
                 objectToSnap.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-                if (snapObject.ShouldOrientOnSnap)
-                {
-                    SnapZoneAuscultation snapZoneAuscultation = null;
-                    try
-                    {
-                        snapZoneAuscultation = snapObject.AttachedSnapZone.GetComponent<SnapZoneAuscultation>();
-                    }
-                    catch { return; }
-                    switch (snapObject.NearestSnapPoint.tag)
-                    {
-                        case "Pulmonaire droit":
-                            snapObject.transform.LookAt(snapZoneAuscultation.PoumonDroit.transform);
-                            break;
-                        case "Pulmonaire gauche":
-                            snapObject.transform.LookAt(snapZoneAuscultation.PoumonGauche.transform);
-                            break;
-                        case "Cardiaque":
-                            snapObject.transform.LookAt(snapZoneAuscultation.Coeur.transform);
-                            break;
-                    }
-                }
                 //snapObject.transform.LookAt(snapObject.AttachedSnapZone.LookTarget.transform.position);
                 SetObjectPosition(snapObject.transform, snapObject.NearestSnapPoint.transform.position, true);
                 objectIsSnapping = true;

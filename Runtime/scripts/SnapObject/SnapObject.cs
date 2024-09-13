@@ -22,11 +22,13 @@ namespace jeanf.vrplayer
             if (other.gameObject.GetComponent<SnapZone>() != null)
             {
                 attachedSnapZone = other.gameObject.GetComponent<SnapZone>();
-                foreach (GameObject snapPoint in attachedSnapZone.SnapPoints)
+                //Ray r = new Ray(transform.position, attachedSnapZone.SnapColliders);
+
+                /*foreach (GameObject snapPoint in attachedSnapZone.SnapPoints)
                 {
                     snapPoints.Add(snapPoint);
                 }
-                snapEventChannelSO.RaiseEvent(this.gameObject);
+                snapEventChannelSO.RaiseEvent(this.gameObject);*/
             }
         }
 
