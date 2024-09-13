@@ -37,6 +37,7 @@ namespace jeanf.vrplayer
             if (other.gameObject.GetComponent<SnapZone>() != null)
             {
                 attachedSnapZone = null;
+                nearestSnapPoint = null;
             }
         }
     }
