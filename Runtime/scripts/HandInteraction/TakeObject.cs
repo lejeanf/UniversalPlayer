@@ -278,7 +278,6 @@ namespace jeanf.vrplayer
                     }
                 }
                 objectToSnap.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-
                 if (snapObject.ShouldOrientOnSnap)
                 {
                     SnapZoneAuscultation snapZoneAuscultation = null;
@@ -287,12 +286,12 @@ namespace jeanf.vrplayer
                         snapZoneAuscultation = snapObject.AttachedSnapZone.GetComponent<SnapZoneAuscultation>();
                     }
                     catch { return; }
-                    switch(snapObject.NearestSnapPoint.tag)
+                    switch (snapObject.NearestSnapPoint.tag)
                     {
-                        case "Pulmonaire Droit":
+                        case "Pulmonaire droit":
                             snapObject.transform.LookAt(snapZoneAuscultation.PoumonDroit.transform);
                             break;
-                        case "Pulmonaire Gauche":
+                        case "Pulmonaire gauche":
                             snapObject.transform.LookAt(snapZoneAuscultation.PoumonGauche.transform);
                             break;
                         case "Cardiaque":
