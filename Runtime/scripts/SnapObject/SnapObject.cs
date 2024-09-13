@@ -15,7 +15,9 @@ namespace jeanf.vrplayer
         public List<GameObject> SnapPoints { get {  return snapPoints; } }
         private SnapZone attachedSnapZone;
         public SnapZone AttachedSnapZone {  get { return attachedSnapZone; }}
-        private void OnTriggerEnter(Collider other)
+        [SerializeField] bool shouldOrientOnSnap;
+        public bool ShouldOrientOnSnap { get { return shouldOrientOnSnap; } }
+        private void OnTriggerStay(Collider other)
         {
             if (other.gameObject.GetComponent<SnapZone>() != null)
             {

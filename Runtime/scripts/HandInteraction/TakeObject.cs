@@ -278,7 +278,29 @@ namespace jeanf.vrplayer
                     }
                 }
                 objectToSnap.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-                snapObject.transform.LookAt(snapObject.AttachedSnapZone.LookTarget.transform.position);
+
+                if (snapObject.ShouldOrientOnSnap)
+                {
+                    SnapZoneAuscultation snapZoneAuscultation = null;
+                    try
+                    {
+                        snapZoneAuscultation = snapObject.AttachedSnapZone.GetComponent<SnapZoneAuscultation>();
+                    }
+                    catch { return; }
+                    switch(snapObject.NearestSnapPoint.tag)
+                    {
+                        case "Pulmonaire Droit":
+                            snapObject.transform.LookAt(snapZoneAuscultation.PoumonDroit.transform);
+                            break;
+                        case "Pulmonaire Gauche":
+                            snapObject.transform.LookAt(snapZoneAuscultation.PoumonGauche.transform);
+                            break;
+                        case "Cardiaque":
+                            snapObject.transform.LookAt(snapZoneAuscultation.Coeur.transform);
+                            break;
+                    }
+                }
+                //snapObject.transform.LookAt(snapObject.AttachedSnapZone.LookTarget.transform.position);
                 SetObjectPosition(snapObject.transform, snapObject.NearestSnapPoint.transform.position, true);
                 objectIsSnapping = true;
             }

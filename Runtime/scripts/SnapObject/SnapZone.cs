@@ -9,9 +9,5 @@ namespace jeanf.vrplayer
     {
         [SerializeField] private List<GameObject> snapPoints = new List<GameObject>();
         public List<GameObject> SnapPoints { get { return snapPoints;}}
-
-        [SerializeField] private GameObject lookTarget;
-
-        public GameObject LookTarget { get { return lookTarget; } }
     }
 }
