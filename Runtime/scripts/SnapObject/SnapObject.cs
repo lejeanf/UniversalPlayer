@@ -17,7 +17,10 @@ namespace jeanf.vrplayer
         public SnapZone AttachedSnapZone {  get { return attachedSnapZone; }}
         [SerializeField] bool shouldOrientOnSnap;
         public bool ShouldOrientOnSnap { get { return shouldOrientOnSnap; } }
-        private void OnTriggerStay(Collider other)
+
+
+        //On assigne
+        private void OnTriggerEnter(Collider other)
         {
             if (other.gameObject.GetComponent<SnapZone>() != null)
             {
@@ -27,17 +30,52 @@ namespace jeanf.vrplayer
                 {
                     snapPoints.Add(snapPoint);
                 }
-                snapEventChannelSO.RaiseEvent(this.gameObject);
             }
         }
 
+        //On call le snap
+        private void OnTriggerStay(Collider other)
+        {
+            Snap();
+        }
 
+        //On désassigne
         private void OnTriggerExit(Collider other)
         {
             if (other.gameObject.GetComponent<SnapZone>() != null)
             {
                 attachedSnapZone = null;
                 nearestSnapPoint = null;
+            }
+        }
+
+        private void Snap()
+        {
+            RaycastHit hit;
+            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity, layerMask: snapTargetLayer))
+            {
+                float minDistance = Mathf.Infinity;
+
+                foreach (GameObject snapPoint in SnapPoints)
+                {
+                    float distance = Vector3.Distance(hit.point, snapPoint.transform.position);
+
+                    if (distance < minDistance)
+                    {
+                        minDistance = distance;
+
+                        nearestSnapPoint = snapPoint;
+                    }
+                }
+                this.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+                /*SetRotation*/   //snapObject.transform.LookAt(snapObject.AttachedSnapZone.LookTarget.transform.position);
+                /*SetPosition*/   //SetObjectPosition(snapObject.transform, snapObject.NearestSnapPoint.transform.position, true);
+
+            }
+            else
+            {
+                this.GetComponent<Rigidbody>().constraints = ~RigidbodyConstraints.FreezePosition;
+
             }
         }
     }
