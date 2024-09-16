@@ -1,4 +1,5 @@
 using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using jeanf.EventSystem;
@@ -17,7 +18,9 @@ namespace jeanf.vrplayer
         public SnapZone AttachedSnapZone {  get { return attachedSnapZone; }}
         [SerializeField] bool shouldOrientOnSnap;
         public bool ShouldOrientOnSnap { get { return shouldOrientOnSnap; } }
-
+        public static event Action<Transform, Vector3> OnSnapMove;
+        public static event Action<Transform, Quaternion> OnSnapRotate;
+        public static event Action<bool> OnSnap;
 
         //On assigne
         private void OnTriggerEnter(Collider other)
@@ -54,8 +57,9 @@ namespace jeanf.vrplayer
             RaycastHit hit;
             if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity, layerMask: snapTargetLayer))
             {
+                OnSnap.Invoke(true);
                 float minDistance = Mathf.Infinity;
-
+                GameObject refSnapPoint = null;
                 foreach (GameObject snapPoint in SnapPoints)
                 {
                     float distance = Vector3.Distance(hit.point, snapPoint.transform.position);
@@ -64,18 +68,36 @@ namespace jeanf.vrplayer
                     {
                         minDistance = distance;
 
-                        nearestSnapPoint = snapPoint;
+                        refSnapPoint = snapPoint;
                     }
                 }
-                this.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-                /*SetRotation*/   //snapObject.transform.LookAt(snapObject.AttachedSnapZone.LookTarget.transform.position);
-                /*SetPosition*/   //SetObjectPosition(snapObject.transform, snapObject.NearestSnapPoint.transform.position, true);
 
+                if (refSnapPoint != nearestSnapPoint)
+                {
+                    nearestSnapPoint = refSnapPoint;
+                    this.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+
+                    if (shouldOrientOnSnap)
+                    {
+                        try
+                        {
+                            SnapZoneAuscultation snapZone = attachedSnapZone.GetComponent<SnapZoneAuscultation>();
+
+                            OnSnapRotate.Invoke(transform, nearestSnapPoint.transform.rotation);
+
+                        }
+                        catch
+                        {
+                            Debug.LogWarning("Cannot orient towards organ, not an auscultation zone");
+                        }
+                    }
+                    OnSnapMove.Invoke(transform, nearestSnapPoint.transform.position);
+                }
             }
             else
             {
                 this.GetComponent<Rigidbody>().constraints = ~RigidbodyConstraints.FreezePosition;
-
+                OnSnap.Invoke(false);
             }
         }
     }

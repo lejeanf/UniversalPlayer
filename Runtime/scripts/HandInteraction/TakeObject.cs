@@ -79,6 +79,8 @@ namespace jeanf.vrplayer
         PickableObject objectRightHand;
         PickableObject objectLeftHand;
         PickableObject objectInHand;
+
+        bool objectIsSnapping;
         #endregion
 
         #region Default MonoBehaviour Methods
@@ -91,6 +93,9 @@ namespace jeanf.vrplayer
                 roomIdChannelSO.OnEventRaised += AssignRoomId;
             }
             catch { }
+            SnapObject.OnSnapMove += SetObjectPosition;
+            SnapObject.OnSnap += UpdateSnapStatus;
+            SnapObject.OnSnapRotate += SetObjectRotation;
         }
 
         private void OnDisable() => Unsubscribe();
@@ -109,14 +114,18 @@ namespace jeanf.vrplayer
             catch { }
             DisablePositionHandle();
             DisableRotationHandle();
+            SnapObject.OnSnapMove -= SetObjectPosition;
+            SnapObject.OnSnap -= UpdateSnapStatus;
+            SnapObject.OnSnapRotate -= SetObjectRotation;
+
         }
 
         private void LateUpdate()
         {
-            if (objectInHand)
+            if (objectInHand && !objectIsSnapping)
             {
                 var goal = mainCamera.transform.position + mainCamera.transform.forward * objectDistance;
-                SetObjectPosition(objectInHandTransform, goal, false);
+                SetObjectPosition(objectInHandTransform, goal);
             }  
         }
         #endregion
@@ -163,7 +172,7 @@ namespace jeanf.vrplayer
             {
                 DisablePositionHandle();
                 var goalPosition = objectInHand.InitialPosition;
-                SetObjectPosition(objectInHandTransform, goalPosition, false);
+                SetObjectPosition(objectInHandTransform, goalPosition);
 
                 var goalRotation = objectInHand.InitialRotation;
                 SetObjectRotation(objectInHandTransform, goalRotation);
@@ -233,6 +242,7 @@ namespace jeanf.vrplayer
         #region Object movemement methods
         private void UpdateObjectDistance(float value)
         {
+            if (objectIsSnapping) return;
             value *= scrollStep;
             if (_isDebug) Debug.Log($"scroll reading: {value}");
             objectDistance += value;
@@ -240,12 +250,15 @@ namespace jeanf.vrplayer
             if (objectDistance < minDistance) objectDistance = minDistance;
 
             var goalPosition = mainCamera.transform.position + mainCamera.transform.forward * objectDistance;
-            SetObjectPosition(objectInHandTransform, goalPosition, false);
+            SetObjectPosition(objectInHandTransform, goalPosition);
         }
 
-        private void SetObjectPosition(Transform objectToMove, Vector3 goal, bool snapState)
+        private void UpdateSnapStatus(bool snapState)
         {
-            
+            objectIsSnapping = snapState;
+        }
+        private void SetObjectPosition(Transform objectToMove, Vector3 goal)
+        {
             if (!objectToMove)
             {
                 if (_isDebug) Debug.Log($"objectToMove is null");
@@ -270,7 +283,7 @@ namespace jeanf.vrplayer
 
         private void SetObjectRotation(Transform objectToMove, Quaternion goal)
         {
-            
+            //if (objectIsSnapping) return;
             if (!objectToMove)
             {
                 DisableRotationHandle();
