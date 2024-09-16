@@ -185,6 +185,7 @@ namespace jeanf.vrplayer
             objectInHandTransform.SetParent(null);
             objectInHandTransform = null;
             objectInHand = null;
+            objectIsSnapping = false;
         }
         public void AssignGameObjectInRightHand()
         {

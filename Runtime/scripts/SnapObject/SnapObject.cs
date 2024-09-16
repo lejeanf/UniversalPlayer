@@ -70,8 +70,8 @@ namespace jeanf.vrplayer
 
                         refSnapPoint = snapPoint;
                     }
-                }
 
+                }
                 if (refSnapPoint != nearestSnapPoint)
                 {
                     nearestSnapPoint = refSnapPoint;
@@ -84,7 +84,6 @@ namespace jeanf.vrplayer
                             SnapZoneAuscultation snapZone = attachedSnapZone.GetComponent<SnapZoneAuscultation>();
 
                             OnSnapRotate.Invoke(transform, nearestSnapPoint.transform.rotation);
-
                         }
                         catch
                         {
