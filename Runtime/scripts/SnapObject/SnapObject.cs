@@ -25,6 +25,8 @@ namespace jeanf.vrplayer
         //On assigne
         private void OnTriggerEnter(Collider other)
         {
+            Debug.Log("ENTERING TRIGGER" + other.name);
+
             if (other.gameObject.GetComponent<SnapZone>() != null)
             {
                 attachedSnapZone = other.gameObject.GetComponent<SnapZone>();
@@ -45,6 +47,8 @@ namespace jeanf.vrplayer
         //On désassigne
         private void OnTriggerExit(Collider other)
         {
+            Debug.Log("LEAVING TRIGGER" + other.name);
+
             if (other.gameObject.GetComponent<SnapZone>() != null)
             {
                 attachedSnapZone = null;
@@ -54,6 +58,7 @@ namespace jeanf.vrplayer
 
         private void Snap()
         {
+            Debug.Log("WE ARE SNAPPING");
             RaycastHit hit;
             if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity, layerMask: snapTargetLayer))
             {
