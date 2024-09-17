@@ -25,7 +25,7 @@ namespace jeanf.vrplayer
         //On assigne
         private void OnTriggerEnter(Collider other)
         {
-            Debug.Log("ENTERING TRIGGER" + other.name);
+            //Debug.Log("ENTERING TRIGGER" + other.name);
 
             if (other.gameObject.GetComponent<SnapZone>())
             {
@@ -43,7 +43,7 @@ namespace jeanf.vrplayer
         {
             if (other.gameObject.GetComponent<SnapZone>())
             {
-                Debug.Log("STAYING IN TRIGGER" + other.name);
+                //Debug.Log("STAYING IN TRIGGER" + other.name);
                 Snap();
             }
         }
@@ -64,7 +64,7 @@ namespace jeanf.vrplayer
             RaycastHit hit;
             if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity, layerMask: snapTargetLayer))
             {
-                Debug.Log("RAYCAST WORKED");
+                //Debug.Log("RAYCAST WORKED");
                 OnSnap.Invoke(true);
                 float minDistance = Mathf.Infinity;
                 GameObject refSnapPoint = null;
@@ -100,10 +100,13 @@ namespace jeanf.vrplayer
                     }
                     OnSnapMove.Invoke(transform, nearestSnapPoint.transform.position);
                 }
+                else
+                {
+                    this.GetComponent<Rigidbody>().constraints = ~RigidbodyConstraints.FreezePosition;
+                }
             }
             else
             {
-                this.GetComponent<Rigidbody>().constraints = ~RigidbodyConstraints.FreezePosition;
                 OnSnap.Invoke(false);
             }
         }
