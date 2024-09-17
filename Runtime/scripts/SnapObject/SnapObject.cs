@@ -43,6 +43,7 @@ namespace jeanf.vrplayer
         {
             if (other.gameObject.GetComponent<SnapZone>())
             {
+                Debug.Log("STAYING IN TRIGGER" + other.name);
                 Snap();
             }
         }
@@ -50,7 +51,6 @@ namespace jeanf.vrplayer
         //On désassigne
         private void OnTriggerExit(Collider other)
         {
-            Debug.Log("LEAVING TRIGGER" + other.name);
 
             if (other.gameObject.GetComponent<SnapZone>())
             {
@@ -64,6 +64,7 @@ namespace jeanf.vrplayer
             RaycastHit hit;
             if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity, layerMask: snapTargetLayer))
             {
+                Debug.Log("RAYCAST WORKED");
                 OnSnap.Invoke(true);
                 float minDistance = Mathf.Infinity;
                 GameObject refSnapPoint = null;
@@ -76,7 +77,6 @@ namespace jeanf.vrplayer
                         minDistance = distance;
 
                         refSnapPoint = snapPoint;
-                        Debug.Log("Should snap to" + snapPoint.name);
                     }
 
                 }
