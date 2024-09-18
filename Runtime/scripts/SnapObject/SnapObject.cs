@@ -103,10 +103,10 @@ namespace jeanf.vrplayer
                     OnSnapMove.Invoke(transform, nearestSnapPoint.transform.position);
                     Debug.Log("Snapping to " + nearestSnapPoint.gameObject.name);
                 }
-                else
-                {
-                    this.GetComponent<Rigidbody>().constraints = ~RigidbodyConstraints.FreezePosition;
-                }
+                //else
+                //{
+                //    this.GetComponent<Rigidbody>().constraints = ~RigidbodyConstraints.FreezePosition;
+                //}
             }
             else
             {
