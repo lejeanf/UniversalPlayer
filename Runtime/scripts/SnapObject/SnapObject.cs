@@ -107,6 +107,7 @@ namespace jeanf.vrplayer
             else
             {
                 OnSnap.Invoke(false);
+                Debug.Log("RAYCAST FAILED");
             }
         }
     }
