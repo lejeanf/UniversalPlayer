@@ -85,7 +85,6 @@ namespace jeanf.vrplayer
                 if (refSnapPoint != nearestSnapPoint)
                 {
                     nearestSnapPoint = refSnapPoint;
-                    this.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
 
                     if (shouldOrientOnSnap)
                     {
@@ -103,10 +102,7 @@ namespace jeanf.vrplayer
                     OnSnapMove.Invoke(transform, nearestSnapPoint.transform.position);
                     Debug.Log("Snapping to " + nearestSnapPoint.gameObject.name);
                 }
-                //else
-                //{
-                //    this.GetComponent<Rigidbody>().constraints = ~RigidbodyConstraints.FreezePosition;
-                //}
+
             }
             else
             {
