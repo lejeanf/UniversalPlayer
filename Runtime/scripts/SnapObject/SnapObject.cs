@@ -80,6 +80,8 @@ namespace jeanf.vrplayer
                     }
 
                 }
+
+                Debug.Log("ref" + refSnapPoint + ", nearest" + nearestSnapPoint);
                 if (refSnapPoint != nearestSnapPoint)
                 {
                     nearestSnapPoint = refSnapPoint;

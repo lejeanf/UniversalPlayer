@@ -284,7 +284,6 @@ namespace jeanf.vrplayer
 
         private void SetObjectRotation(Transform objectToMove, Quaternion goal)
         {
-            //if (objectIsSnapping) return;
             if (!objectToMove)
             {
                 DisableRotationHandle();
