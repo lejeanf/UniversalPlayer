@@ -122,6 +122,10 @@ namespace jeanf.vrplayer
 
         private void LateUpdate()
         {
+            if (objectInHand)
+            {
+                Debug.Log("object " + objectInHand.name + ",Is snapping ?" + objectIsSnapping.ToString());
+            }
             if (objectInHand && !objectIsSnapping)
             {
                 var goal = mainCamera.transform.position + mainCamera.transform.forward * objectDistance;
@@ -262,11 +266,11 @@ namespace jeanf.vrplayer
         {
             if (objectIsSnapping)
             {
-                Debug.Log("SETTING POSITION");
+                //Debug.Log("SETTING POSITION");
             }
             else
             {
-                Debug.Log("SETTING POSITION NOT SNAPPING");
+                //Debug.Log("SETTING POSITION NOT SNAPPING");
             }
             if (!objectToMove)
             {
