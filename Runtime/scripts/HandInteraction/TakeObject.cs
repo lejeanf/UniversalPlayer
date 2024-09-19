@@ -260,6 +260,10 @@ namespace jeanf.vrplayer
         }
         private void SetObjectPosition(Transform objectToMove, Vector3 goal)
         {
+            if (objectToMove.position == goal)
+            {
+                return;
+            }
             if (!objectToMove)
             {
                 if (_isDebug) Debug.Log($"objectToMove is null");

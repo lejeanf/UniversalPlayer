@@ -9,7 +9,6 @@ namespace jeanf.vrplayer
     {
         private GameObject nearestSnapPoint;
         public GameObject NearestSnapPoint { get { return nearestSnapPoint; } set { nearestSnapPoint = value; } }
-        private GameObject pointAttachedTo;
         [SerializeField] private GameObjectEventChannelSO snapEventChannelSO;
         [SerializeField] LayerMask snapTargetLayer;
         public LayerMask SnapTargetLayer { get { return snapTargetLayer; }}
@@ -54,7 +53,6 @@ namespace jeanf.vrplayer
             {
                 attachedSnapZone = null;
                 nearestSnapPoint = null;
-                pointAttachedTo = null;
             }
         }
 
@@ -77,13 +75,9 @@ namespace jeanf.vrplayer
                     }
 
                 }
+                OnSnapRotate.Invoke(transform, nearestSnapPoint.transform.rotation);
+                OnSnapMove.Invoke(transform, nearestSnapPoint.transform.position);
 
-                if (pointAttachedTo != nearestSnapPoint)
-                {
-                    OnSnapRotate.Invoke(transform, nearestSnapPoint.transform.rotation);
-                    OnSnapMove.Invoke(transform, nearestSnapPoint.transform.position);
-                    pointAttachedTo = nearestSnapPoint;
-                }
             }
             else
             {
