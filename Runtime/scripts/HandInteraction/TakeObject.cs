@@ -264,6 +264,10 @@ namespace jeanf.vrplayer
             {
                 Debug.Log("SETTING POSITION");
             }
+            else
+            {
+                Debug.Log("SETTING POSITION NOT SNAPPING");
+            }
             if (!objectToMove)
             {
                 if (_isDebug) Debug.Log($"objectToMove is null");
