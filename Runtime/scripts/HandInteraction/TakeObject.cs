@@ -264,14 +264,6 @@ namespace jeanf.vrplayer
         }
         private void SetObjectPosition(Transform objectToMove, Vector3 goal)
         {
-            if (objectIsSnapping)
-            {
-                //Debug.Log("SETTING POSITION");
-            }
-            else
-            {
-                //Debug.Log("SETTING POSITION NOT SNAPPING");
-            }
             if (!objectToMove)
             {
                 if (_isDebug) Debug.Log($"objectToMove is null");

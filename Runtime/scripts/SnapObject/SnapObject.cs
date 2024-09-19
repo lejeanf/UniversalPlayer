@@ -25,8 +25,6 @@ namespace jeanf.vrplayer
         //On assigne
         private void OnTriggerEnter(Collider other)
         {
-            Debug.Log("ENTERING TRIGGER" + other.name);
-
             if (other.gameObject.GetComponent<SnapZone>())
             {
                 attachedSnapZone = other.gameObject.GetComponent<SnapZone>();
@@ -43,7 +41,6 @@ namespace jeanf.vrplayer
         {
             if (other.gameObject.GetComponent<SnapZone>())
             {
-                Debug.Log("STAYING IN TRIGGER" + other.name);
                 Snap();
             }
         }
@@ -64,10 +61,8 @@ namespace jeanf.vrplayer
             RaycastHit hit;
             if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity, layerMask: snapTargetLayer))
             {
-                Debug.Log("RAYCAST WORKED");
                 OnSnap.Invoke(true);
                 float minDistance = Mathf.Infinity;
-                GameObject refSnapPoint = null;
                 foreach (GameObject snapPoint in SnapPoints)
                 {
                     float distance = Vector3.Distance(hit.point, snapPoint.transform.position);
@@ -76,38 +71,16 @@ namespace jeanf.vrplayer
                     {
                         minDistance = distance;
 
-                        refSnapPoint = snapPoint;
+                        nearestSnapPoint = snapPoint;
                     }
 
                 }
-
-                Debug.Log("ref" + refSnapPoint + ", nearest" + nearestSnapPoint);
-                //if (refSnapPoint != nearestSnapPoint)
-                //{
-                    nearestSnapPoint = refSnapPoint;
-
-                    if (shouldOrientOnSnap)
-                    {
-                        try
-                        {
-                            SnapZone snapZone = attachedSnapZone.GetComponent<SnapZone>();
-
-                            OnSnapRotate.Invoke(transform, nearestSnapPoint.transform.rotation);
-                        }
-                        catch
-                        {
-                            Debug.LogWarning("Cannot orient towards organ, not an auscultation zone");
-                        }
-                    }
-                    OnSnapMove.Invoke(transform, nearestSnapPoint.transform.position);
-                    Debug.Log("Snapping to " + nearestSnapPoint.gameObject.name);
-                //}
-
+                OnSnapRotate.Invoke(transform, nearestSnapPoint.transform.rotation);
+                OnSnapMove.Invoke(transform, nearestSnapPoint.transform.position);
             }
             else
             {
                 OnSnap.Invoke(false);
-                Debug.Log("RAYCAST FAILED");
             }
         }
     }
