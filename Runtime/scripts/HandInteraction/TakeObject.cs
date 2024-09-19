@@ -122,10 +122,6 @@ namespace jeanf.vrplayer
 
         private void LateUpdate()
         {
-            if (objectInHand)
-            {
-                Debug.Log("object " + objectInHand.name + ",Is snapping ?" + objectIsSnapping.ToString());
-            }
             if (objectInHand && !objectIsSnapping)
             {
                 var goal = mainCamera.transform.position + mainCamera.transform.forward * objectDistance;
