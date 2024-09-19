@@ -128,12 +128,12 @@ namespace jeanf.vrplayer
         {
             if (_ipadState is IpadState.Disabled or IpadState.InRightHand)
             {
-                //SetIpadStateForASpecificHand(handInfo, _leftHand);
+                SetIpadStateForASpecificHand(handInfo, _leftHand);
                 _ipadState = IpadState.InLeftHand;
                 _PrimaryItemStateChannel.RaiseEvent(true);
                 _leftGrab.RaiseEvent();
-                //if(_leftHandPoseManager) _leftHandPoseManager.ApplyPose(primaryItemPose);
-                _poseContainer.SetAttachTransform_Left();
+                if(_leftHandPoseManager) _leftHandPoseManager.ApplyPose(primaryItemPose);
+                //_poseContainer.SetAttachTransform_Left();
                 if(_rightHandPoseManager) _rightHandPoseManager.ApplyDefaultPose();
             }
             else
@@ -149,12 +149,12 @@ namespace jeanf.vrplayer
         {
             if (_ipadState is IpadState.Disabled or IpadState.InLeftHand)
             {
-                //SetIpadStateForASpecificHand(handInfo, _rightHand.transform);
+                SetIpadStateForASpecificHand(handInfo, _rightHand.transform);
                 _ipadState = IpadState.InRightHand;
                 _PrimaryItemStateChannel.RaiseEvent(true);
                 _rightGrab.RaiseEvent();
-                //if(_rightHandPoseManager) _rightHandPoseManager.ApplyPose(primaryItemPose);
-                _poseContainer.SetAttachTransform_Right();
+                if(_rightHandPoseManager) _rightHandPoseManager.ApplyPose(primaryItemPose);
+                //_poseContainer.SetAttachTransform_Right();
                 if (!_leftHandPoseManager) return;
                 _leftHandPoseManager.ApplyDefaultPose();
                 _noGrab.RaiseEvent();
