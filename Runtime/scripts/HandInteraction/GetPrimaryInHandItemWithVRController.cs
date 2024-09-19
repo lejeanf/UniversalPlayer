@@ -128,7 +128,7 @@ namespace jeanf.vrplayer
         {
             if (_ipadState is IpadState.Disabled or IpadState.InRightHand)
             {
-                SetIpadStateForASpecificHand(handInfo, _leftHand);
+                //SetIpadStateForASpecificHand(handInfo, _leftHand);
                 _ipadState = IpadState.InLeftHand;
                 _PrimaryItemStateChannel.RaiseEvent(true);
                 _leftGrab.RaiseEvent();
@@ -149,7 +149,7 @@ namespace jeanf.vrplayer
         {
             if (_ipadState is IpadState.Disabled or IpadState.InLeftHand)
             {
-                SetIpadStateForASpecificHand(handInfo, _rightHand.transform);
+                //SetIpadStateForASpecificHand(handInfo, _rightHand.transform);
                 _ipadState = IpadState.InRightHand;
                 _PrimaryItemStateChannel.RaiseEvent(true);
                 _rightGrab.RaiseEvent();
