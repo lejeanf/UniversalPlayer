@@ -33,8 +33,9 @@ namespace jeanf.vrplayer
         [SerializeField] private VoidEventChannelSO _leftGrab;
         [SerializeField] private VoidEventChannelSO _rightGrab;
         [SerializeField] private VoidEventChannelSO _noGrab;
-        
-        
+
+        [Header("Hands Positions")] 
+        [SerializeField] private PoseContainer _poseContainer;
         
         [SerializeField] private List<SkinnedMeshRenderer> _hands = new List<SkinnedMeshRenderer>();
 
@@ -131,7 +132,8 @@ namespace jeanf.vrplayer
                 _ipadState = IpadState.InLeftHand;
                 _PrimaryItemStateChannel.RaiseEvent(true);
                 _leftGrab.RaiseEvent();
-                if(_leftHandPoseManager) _leftHandPoseManager.ApplyPose(primaryItemPose);
+                //if(_leftHandPoseManager) _leftHandPoseManager.ApplyPose(primaryItemPose);
+                _poseContainer.SetAttachTransform_Left();
                 if(_rightHandPoseManager) _rightHandPoseManager.ApplyDefaultPose();
             }
             else
@@ -151,7 +153,8 @@ namespace jeanf.vrplayer
                 _ipadState = IpadState.InRightHand;
                 _PrimaryItemStateChannel.RaiseEvent(true);
                 _rightGrab.RaiseEvent();
-                if(_rightHandPoseManager) _rightHandPoseManager.ApplyPose(primaryItemPose);
+                //if(_rightHandPoseManager) _rightHandPoseManager.ApplyPose(primaryItemPose);
+                _poseContainer.SetAttachTransform_Right();
                 if (!_leftHandPoseManager) return;
                 _leftHandPoseManager.ApplyDefaultPose();
                 _noGrab.RaiseEvent();
