@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using jeanf.EventSystem;
+using jeanf.propertyDrawer;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Debug = UnityEngine.Debug;
@@ -22,7 +23,7 @@ namespace jeanf.vrplayer
 
         [Header("Hands Information")]
         private Transform _leftHand, _rightHand;
-        private HandPoseManager _leftHandPoseManager, _rightHandPoseManager;
+        [ReadOnly][SerializeField] private HandPoseManager _leftHandPoseManager, _rightHandPoseManager;
         [SerializeField] private Pose primaryItemPose;
         
         [Header("PrimaryItem")] 
