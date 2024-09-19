@@ -82,8 +82,8 @@ namespace jeanf.vrplayer
                 }
 
                 Debug.Log("ref" + refSnapPoint + ", nearest" + nearestSnapPoint);
-                if (refSnapPoint != nearestSnapPoint)
-                {
+                //if (refSnapPoint != nearestSnapPoint)
+                //{
                     nearestSnapPoint = refSnapPoint;
 
                     if (shouldOrientOnSnap)
@@ -101,7 +101,7 @@ namespace jeanf.vrplayer
                     }
                     OnSnapMove.Invoke(transform, nearestSnapPoint.transform.position);
                     Debug.Log("Snapping to " + nearestSnapPoint.gameObject.name);
-                }
+                //}
 
             }
             else
