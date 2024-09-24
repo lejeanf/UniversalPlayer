@@ -11,30 +11,33 @@ namespace jeanf.vrplayer
     private void OnEnable()
     {
         // Subscribe to selected events
-        targetInteractor.onSelectEntered.AddListener(TryApplyObjectPose);
-        targetInteractor.onSelectExited.AddListener(TryApplyDefaultPose);
+        targetInteractor.selectEntered.AddListener(TryApplyObjectPose);
+        targetInteractor.selectExited.AddListener(TryApplyDefaultPose);
     }
 
     private void OnDisable()
     {
         // Unsubscribe to selected events
-        targetInteractor.onSelectEntered.RemoveListener(TryApplyObjectPose);
-        targetInteractor.onSelectExited.RemoveListener(TryApplyDefaultPose);
+        targetInteractor.selectEntered.RemoveListener(TryApplyObjectPose);
+        targetInteractor.selectExited.RemoveListener(TryApplyDefaultPose);
     }
 
-    private void TryApplyObjectPose(XRBaseInteractable interactable)
+    private void TryApplyObjectPose(SelectEnterEventArgs args)
     {
+        var interactable = args.interactableObject as XRBaseInteractable;
         // Try and get pose container, and apply
-        if (interactable.TryGetComponent(out PoseContainer poseContainer))
+        if (interactable != null && interactable.TryGetComponent(out PoseContainer poseContainer))
         {
             ApplyPose(poseContainer.pose);
         }
     }
 
-    private void TryApplyDefaultPose(XRBaseInteractable interactable)
+    private void TryApplyDefaultPose(SelectExitEventArgs args)
     {
+        var interactable = args.interactableObject as XRBaseInteractable;
+    
         // Try and get pose container, and apply
-        if (interactable.TryGetComponent(out PoseContainer poseContainer))
+        if (interactable != null && interactable.TryGetComponent(out PoseContainer poseContainer))
         {
             ApplyDefaultPose();
         }

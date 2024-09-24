@@ -28,8 +28,10 @@ namespace  jeanf.vrplayer
             //getDirectInteractor?.Invoke(handType,ref targetInteractor);
             if(_isDebug) Debug.Log($"targetInteractor : {targetInteractor.name}");
             if (!targetInteractor) return;
-            targetInteractor.onSelectEntered.AddListener(TryApplyObjectPose);
-            targetInteractor.onSelectExited.AddListener(TryApplyDefaultPose);
+            //targetInteractor.onSelectEntered.AddListener(TryApplyObjectPose);
+            //targetInteractor.onSelectExited.AddListener(TryApplyDefaultPose);
+            targetInteractor.selectEntered.AddListener(TryApplyObjectPose);
+            targetInteractor.selectExited.AddListener(TryApplyDefaultPose);
 
             wasInitialized = true;
         }
@@ -38,12 +40,13 @@ namespace  jeanf.vrplayer
         {
             if (!wasInitialized) return;
             if (!targetInteractor) return;
-            targetInteractor.onSelectEntered.RemoveListener(TryApplyObjectPose);
-            targetInteractor.onSelectExited.RemoveListener(TryApplyDefaultPose);
+            targetInteractor.selectEntered.RemoveListener(TryApplyObjectPose);
+            targetInteractor.selectExited.RemoveListener(TryApplyDefaultPose);
         }
 
-        private void TryApplyObjectPose(XRBaseInteractable interactable)
+        private void TryApplyObjectPose(SelectEnterEventArgs args)
         {
+            var interactable = args.interactableObject as XRBaseInteractable;
             if(_isDebug) Debug.Log($"interactable : {interactable}");
             // Try and get pose container, and apply
             if (!interactable.TryGetComponent(out PoseContainer poseContainer)) return;
@@ -54,15 +57,16 @@ namespace  jeanf.vrplayer
             ApplyPose(poseContainer.pose);
         }
 
-        private void TryApplyDefaultPose(XRBaseInteractable interactable)
+        private void TryApplyDefaultPose(SelectExitEventArgs args)
         {
-            if(_isDebug) Debug.Log($"Default pose, interactable : {interactable}");
+            var interactable = args.interactableObject as XRBaseInteractable;
+    
+            if (_isDebug) Debug.Log($"Default pose, interactable : {interactable}");
+    
             // Try and get pose container, and apply
-            if (interactable.TryGetComponent(out PoseContainer poseContainer))
-            {
-                ungrabAction.Invoke();  
-                ApplyDefaultPose();
-            }
+            if (!interactable.TryGetComponent(out PoseContainer poseContainer)) return;
+            ungrabAction.Invoke();
+            ApplyDefaultPose();
         }
 
         public override void ApplyOffset(Vector3 position, Quaternion rotation)

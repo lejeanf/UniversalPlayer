@@ -192,12 +192,20 @@ namespace jeanf.vrplayer
         }
         public void AssignGameObjectInRightHand()
         {
-            objectRightHand = rightInteractor.selectTarget.gameObject.GetComponent<PickableObject>();
+            var selectedInteractable = rightInteractor.GetOldestInteractableSelected();
+            if (selectedInteractable != null)
+            {
+                objectRightHand = selectedInteractable.transform.gameObject.GetComponent<PickableObject>();
+            }
         }
 
         public void AssignGameObjectInLeftHand()
         {
-            objectLeftHand = leftInteractor.selectTarget.gameObject.GetComponent<PickableObject>();
+            var selectedInteractable = rightInteractor.GetOldestInteractableSelected();
+            if (selectedInteractable != null)
+            {
+                objectRightHand = selectedInteractable.transform.gameObject.GetComponent<PickableObject>();
+            }
 
         }
         public void RemoveGameObjectInRightHand()
