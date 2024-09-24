@@ -40,7 +40,6 @@ namespace  jeanf.vrplayer
         private void TryApplyObjectPose(SelectEnterEventArgs args)
         {
             var interactable = args.interactableObject as XRBaseInteractable;
-            if(_isDebug) Debug.Log($"interactable : {interactable}");
             // Try and get pose container, and apply
             if (!interactable.TryGetComponent(out PoseContainer poseContainer)) return;
             grabAction.Invoke();
@@ -53,9 +52,7 @@ namespace  jeanf.vrplayer
         private void TryApplyDefaultPose(SelectExitEventArgs args)
         {
             var interactable = args.interactableObject as XRBaseInteractable;
-    
-            if (_isDebug) Debug.Log($"Default pose, interactable : {interactable}");
-    
+            
             // Try and get pose container, and apply
             if (!interactable.TryGetComponent(out PoseContainer poseContainer)) return;
             ungrabAction.Invoke();
