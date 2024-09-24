@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using jeanf.EventSystem;
+using jeanf.propertyDrawer;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Debug = UnityEngine.Debug;
@@ -22,7 +23,7 @@ namespace jeanf.vrplayer
 
         [Header("Hands Information")]
         private Transform _leftHand, _rightHand;
-        private HandPoseManager _leftHandPoseManager, _rightHandPoseManager;
+        [ReadOnly][SerializeField] private HandPoseManager _leftHandPoseManager, _rightHandPoseManager;
         [SerializeField] private Pose primaryItemPose;
         
         [Header("PrimaryItem")] 
@@ -32,8 +33,9 @@ namespace jeanf.vrplayer
         [SerializeField] private VoidEventChannelSO _leftGrab;
         [SerializeField] private VoidEventChannelSO _rightGrab;
         [SerializeField] private VoidEventChannelSO _noGrab;
-        
-        
+
+        [Header("Hands Positions")] 
+        [SerializeField] private PoseContainer _poseContainer;
         
         [SerializeField] private List<SkinnedMeshRenderer> _hands = new List<SkinnedMeshRenderer>();
 
@@ -131,6 +133,7 @@ namespace jeanf.vrplayer
                 _PrimaryItemStateChannel.RaiseEvent(true);
                 _leftGrab.RaiseEvent();
                 if(_leftHandPoseManager) _leftHandPoseManager.ApplyPose(primaryItemPose);
+                //_poseContainer.SetAttachTransform_Left();
                 if(_rightHandPoseManager) _rightHandPoseManager.ApplyDefaultPose();
             }
             else
@@ -151,6 +154,7 @@ namespace jeanf.vrplayer
                 _PrimaryItemStateChannel.RaiseEvent(true);
                 _rightGrab.RaiseEvent();
                 if(_rightHandPoseManager) _rightHandPoseManager.ApplyPose(primaryItemPose);
+                //_poseContainer.SetAttachTransform_Right();
                 if (!_leftHandPoseManager) return;
                 _leftHandPoseManager.ApplyDefaultPose();
                 _noGrab.RaiseEvent();

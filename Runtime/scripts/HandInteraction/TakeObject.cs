@@ -80,7 +80,6 @@ namespace jeanf.vrplayer
         PickableObject objectLeftHand;
         PickableObject objectInHand;
 
-        //Snap variable(s)
         bool objectIsSnapping;
         #endregion
 
@@ -94,8 +93,9 @@ namespace jeanf.vrplayer
                 roomIdChannelSO.OnEventRaised += AssignRoomId;
             }
             catch { }
-
-            snapEventChannelSO.OnEventRaised += ctx => Snap(ctx);
+            SnapObject.OnSnapMove += SetObjectPosition;
+            SnapObject.OnSnap += UpdateSnapStatus;
+            SnapObject.OnSnapRotate += SetObjectRotation;
         }
 
         private void OnDisable() => Unsubscribe();
@@ -114,22 +114,18 @@ namespace jeanf.vrplayer
             catch { }
             DisablePositionHandle();
             DisableRotationHandle();
-            snapEventChannelSO.OnEventRaised -= ctx => Snap(ctx);
+            SnapObject.OnSnapMove -= SetObjectPosition;
+            SnapObject.OnSnap -= UpdateSnapStatus;
+            SnapObject.OnSnapRotate -= SetObjectRotation;
+
         }
 
-        private void Update()
-        {
-            if (objectInHand && objectIsSnapping)
-            {
-                Snap(objectInHand.gameObject);
-            }
-        }
         private void LateUpdate()
         {
-            if (objectInHand)
+            if (objectInHand && !objectIsSnapping)
             {
                 var goal = mainCamera.transform.position + mainCamera.transform.forward * objectDistance;
-                SetObjectPosition(objectInHandTransform, goal, false);
+                SetObjectPosition(objectInHandTransform, goal);
             }  
         }
         #endregion
@@ -176,7 +172,7 @@ namespace jeanf.vrplayer
             {
                 DisablePositionHandle();
                 var goalPosition = objectInHand.InitialPosition;
-                SetObjectPosition(objectInHandTransform, goalPosition, false);
+                SetObjectPosition(objectInHandTransform, goalPosition);
 
                 var goalRotation = objectInHand.InitialRotation;
                 SetObjectRotation(objectInHandTransform, goalRotation);
@@ -189,6 +185,7 @@ namespace jeanf.vrplayer
             objectInHandTransform.SetParent(null);
             objectInHandTransform = null;
             objectInHand = null;
+            objectIsSnapping = false;
         }
         public void AssignGameObjectInRightHand()
         {
@@ -262,67 +259,19 @@ namespace jeanf.vrplayer
             if (objectDistance < minDistance) objectDistance = minDistance;
 
             var goalPosition = mainCamera.transform.position + mainCamera.transform.forward * objectDistance;
-            SetObjectPosition(objectInHandTransform, goalPosition, false);
+            SetObjectPosition(objectInHandTransform, goalPosition);
         }
-        private void Snap(GameObject objectToSnap)
+
+        private void UpdateSnapStatus(bool snapState)
         {
-            if (objectToSnap.GetComponent<SnapObject>() == null) return;
-            SnapObject snapObject = objectToSnap.GetComponent<SnapObject>();
-            RaycastHit hit;
-
-            if (Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity, layerMask: snapObject.SnapTargetLayer))
-            {
-                float minDistance = Mathf.Infinity;
-
-                foreach (GameObject snapPoint in snapObject.SnapPoints)
-                {
-                    float distance = Vector3.Distance(hit.point, snapPoint.transform.position);
-
-                    if (distance < minDistance)
-                    {
-                        minDistance = distance;
-
-                        if (snapObject.NearestSnapPoint == snapPoint) return;
-
-                        snapObject.NearestSnapPoint = snapPoint;
-
-                        if (snapObject.ShouldOrientOnSnap)
-                        {
-                            SnapZoneAuscultation snapZoneAuscultation = null;
-                            try
-                            {
-                                snapZoneAuscultation = snapObject.AttachedSnapZone.GetComponent<SnapZoneAuscultation>();
-                            }
-                            catch { return; }
-                            switch (snapObject.NearestSnapPoint.tag)
-                            {
-                                case "Pulmonaire droit":
-                                    snapObject.transform.LookAt(snapZoneAuscultation.PoumonDroit.transform);
-                                    break;
-                                case "Pulmonaire gauche":
-                                    snapObject.transform.LookAt(snapZoneAuscultation.PoumonGauche.transform);
-                                    break;
-                                case "Cardiaque":
-                                    snapObject.transform.LookAt(snapZoneAuscultation.Coeur.transform);
-                                    break;
-                            }
-                        }
-                    }
-                }
-                objectToSnap.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-                //snapObject.transform.LookAt(snapObject.AttachedSnapZone.LookTarget.transform.position);
-                SetObjectPosition(snapObject.transform, snapObject.NearestSnapPoint.transform.position, true);
-                objectIsSnapping = true;
-            }
-            else
-            {
-                objectToSnap.GetComponent<Rigidbody>().constraints = ~RigidbodyConstraints.FreezePosition;
-                objectIsSnapping = false;
-            }
+            objectIsSnapping = snapState;
         }
-        private void SetObjectPosition(Transform objectToMove, Vector3 goal, bool snapState)
+        private void SetObjectPosition(Transform objectToMove, Vector3 goal)
         {
-            if (objectIsSnapping != snapState) return;
+            if (objectToMove.position == goal)
+            {
+                return;
+            }
             if (!objectToMove)
             {
                 if (_isDebug) Debug.Log($"objectToMove is null");
@@ -347,7 +296,6 @@ namespace jeanf.vrplayer
 
         private void SetObjectRotation(Transform objectToMove, Quaternion goal)
         {
-            if (objectIsSnapping) return;
             if (!objectToMove)
             {
                 DisableRotationHandle();

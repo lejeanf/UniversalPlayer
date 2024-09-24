@@ -1,14 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using jeanf.EventSystem;
 using UnityEngine;
 using LitMotion;
 
 using jeanf.propertyDrawer;
 using UnityEngine.Serialization;
 
-public abstract class BaseHand : MonoBehaviour
+public abstract class BaseHand : MonoBehaviour, IDebugBehaviour
 {
+    public bool isDebug
+    { 
+        get => _isDebug;
+        set => _isDebug = value; 
+    }
+    [SerializeField] private bool _isDebug = false;
+    
     // Neutral pose for the hand
     [SerializeField] protected Pose defaultPose = null;
 
@@ -62,6 +70,9 @@ public abstract class BaseHand : MonoBehaviour
     public void ApplyPose(Pose pose)
     {
         if (pose == null) return;
+        //Pose name
+        if(isDebug) Debug.Log($"pose.name : {pose.name}");
+        
         // Get the proper info using hand's type
         HandInfo handInfo = pose.GetHandInfo(handType);
 
