@@ -147,7 +147,6 @@ namespace jeanf.vrplayer
         //Checks for raycast hit, if object is pickable then pick it
         private void Take()
         {
-            Debug.Log("Take");
             RaycastHit hit;
             Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
             
@@ -169,7 +168,6 @@ namespace jeanf.vrplayer
         //Drops object in hand
         private void Release()
         {
-            Debug.Log("Release");
             if (objectInHand.ReturnToInitialPositionOnRelease)
             {
                 DisablePositionHandle();
@@ -178,7 +176,6 @@ namespace jeanf.vrplayer
 
                 var goalRotation = objectInHand.InitialRotation;
                 SetObjectRotation(objectInHandTransform, goalRotation);
-                Debug.Log("reset");
             }
             objectDropped?.RaiseEvent(objectInHand.gameObject);
             objectInHand.Rigidbody.useGravity = objectInHand.InitialUseGravity;
@@ -188,7 +185,7 @@ namespace jeanf.vrplayer
             objectInHandTransform.SetParent(null);
             objectInHandTransform = null;
             objectInHand = null;
-            objectIsSnapping = false;
+            UpdateSnapStatus(false);
         }
         public void AssignGameObjectInRightHand()
         {
