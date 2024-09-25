@@ -264,6 +264,8 @@ namespace jeanf.vrplayer
         }
         private void SetObjectPosition(Transform objectToMove, Vector3 goal)
         {
+            if (!objectInHand) return;
+
             if (objectToMove.position == goal)
             {
                 return;
@@ -298,6 +300,7 @@ namespace jeanf.vrplayer
                 return;
             }
             if (objectToMove.transform.rotation == goal) return;
+            if (!objectInHand) return;
 
             _rotationHandle = LMotion.Create(objectToMove.transform.rotation, goal, sliderMotionDuration)
                 .Bind(x => objectToMove.transform.rotation = x)
