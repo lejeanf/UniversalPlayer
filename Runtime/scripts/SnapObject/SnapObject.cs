@@ -53,6 +53,7 @@ namespace jeanf.vrplayer
             {
                 attachedSnapZone = null;
                 nearestSnapPoint = null;
+                OnSnap.Invoke(false);
             }
         }
 

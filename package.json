@@ -1,6 +1,6 @@
 ﻿{
   "name": "fr.jeanf.vr.player",
-  "version": "0.4.164",
+  "version": "0.4.165",
   "displayName": "Universal Player",
   "description": "This package contains a universal player working in URP & HDRP for Mouse+Keyboard or VR",
   "unity": "2021.3",
