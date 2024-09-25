@@ -247,7 +247,7 @@ namespace jeanf.vrplayer
         #region Object movemement methods
         private void UpdateObjectDistance(float value)
         {
-            if (objectIsSnapping) return;
+            if (objectIsSnapping || objectInHand == null) return;
             value *= scrollStep;
             if (_isDebug) Debug.Log($"scroll reading: {value}");
             objectDistance += value;
