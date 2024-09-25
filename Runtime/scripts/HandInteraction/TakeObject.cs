@@ -184,8 +184,8 @@ namespace jeanf.vrplayer
             objectInHand.Rigidbody.freezeRotation = false;
             objectInHandTransform.SetParent(null);
             objectInHandTransform = null;
-            objectInHand = null;
             UpdateSnapStatus(false);
+            objectInHand = null;
         }
         public void AssignGameObjectInRightHand()
         {
