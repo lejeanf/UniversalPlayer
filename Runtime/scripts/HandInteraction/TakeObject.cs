@@ -260,7 +260,6 @@ namespace jeanf.vrplayer
 
         private void UpdateSnapStatus(bool snapState)
         {
-            Debug.Log("snapState" + snapState);
             objectIsSnapping = snapState;
         }
         private void SetObjectPosition(Transform objectToMove, Vector3 goal)
