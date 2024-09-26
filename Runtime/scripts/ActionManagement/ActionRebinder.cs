@@ -20,8 +20,10 @@ namespace jeanf.vrplayer
         private const string RebindsKey = "rebinds";
 
         #region EventChannels
+        [Header("Listening On")]
         [Validation("A reference to an ActionRebindEventChannelSO is required.")]
         [SerializeField] private ActionRebindEventChannelSO rebindedActionSenderSO;
+        [Header("Broadcasting On")]
         [Validation("A reference to an ActionRebindEventChannelSO is required.")]
         [SerializeField] private ActionRebindEventChannelSO actionRebindListenerSO;
         [Validation("A reference to BoolEventChannelSO is required.")]
