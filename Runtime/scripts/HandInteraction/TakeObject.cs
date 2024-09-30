@@ -181,8 +181,8 @@ namespace jeanf.vrplayer
             objectInHand.Rigidbody.freezeRotation = false;
             objectInHandTransform.SetParent(null);
             objectInHandTransform = null;
+            UpdateSnapStatus(false);
             objectInHand = null;
-            objectIsSnapping = false;
         }
         public void AssignGameObjectInRightHand()
         {
@@ -244,7 +244,7 @@ namespace jeanf.vrplayer
         #region Object movemement methods
         private void UpdateObjectDistance(float value)
         {
-            if (objectIsSnapping) return;
+            if (objectIsSnapping || objectInHand == null) return;
             value *= scrollStep;
             if (_isDebug) Debug.Log($"scroll reading: {value}");
             objectDistance += value;
@@ -261,6 +261,8 @@ namespace jeanf.vrplayer
         }
         private void SetObjectPosition(Transform objectToMove, Vector3 goal)
         {
+            if (!objectInHand) return;
+
             if (objectToMove.position == goal)
             {
                 return;
@@ -295,6 +297,7 @@ namespace jeanf.vrplayer
                 return;
             }
             if (objectToMove.transform.rotation == goal) return;
+            if (!objectInHand) return;
 
             _rotationHandle = LMotion.Create(objectToMove.transform.rotation, goal, sliderMotionDuration)
                 .Bind(x => objectToMove.transform.rotation = x)
