@@ -73,6 +73,8 @@ MonoBehaviour:
     type: 3}
   drawPrimaryItem_RightHand: {fileID: -5048793871558903138, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
+  _leftHandPoseManager: {fileID: 0}
+  _rightHandPoseManager: {fileID: 0}
   primaryItemPose: {fileID: 11400000, guid: 90c516f6ae0768d4d908ca1335e1bc71, type: 2}
   primaryItem: {fileID: 0}
   _PrimaryItemStateChannel: {fileID: 11400000, guid: 7958c71ccf936994aa4ea1f6f86a3833,
@@ -82,6 +84,7 @@ MonoBehaviour:
   _leftGrab: {fileID: 11400000, guid: 3ee38a5004a83534b954968c729c71c1, type: 2}
   _rightGrab: {fileID: 11400000, guid: be6ea7ff04e4c4b40aff5a5fb9e1ade6, type: 2}
   _noGrab: {fileID: 11400000, guid: 21ae158d418b6b3459089b17603970c2, type: 2}
+  _poseContainer: {fileID: 0}
   _hands: []
 --- !u!114 &1144241576270380061
 MonoBehaviour:
@@ -1696,7 +1699,7 @@ MonoBehaviour:
   HDRPVolumeProfile: {fileID: 11400000, guid: ebc5f30c794e40c45a699e74a1b1d92f, type: 2}
   URPVolumeProfile: {fileID: 11400000, guid: ab06ed5ee4fe73548b3c4829b155a02d, type: 2}
   postProcessVolume: {fileID: 1989632603716548249}
-  fadeOutChannelSO: {fileID: 0}
+  fadeOutChannelSO: {fileID: 11400000, guid: 81e451f2c982d9a4bbba1960913d44b0, type: 2}
 --- !u!135 &3359612486687220250
 SphereCollider:
   m_ObjectHideFlags: 0

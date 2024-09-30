@@ -1,11 +1,8 @@
-using System;
-using System.Diagnostics;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
 using jeanf.EventSystem;
-using UnityEditor;
 using Debug = UnityEngine.Debug;
 using jeanf.propertyDrawer;
 using LitMotion;
@@ -84,10 +81,15 @@ namespace jeanf.vrplayer
         #endregion
 
         #region Default MonoBehaviour Methods
-        private void OnEnable()
+
+        private void OnEnable() => Subscribe();
+        private void OnDisable() => Unsubscribe();
+        private void OnDestroy() => Unsubscribe();
+
+        private void Subscribe()
         {
-            takeAction.action.performed += ctx => DispatchAction();
-            scrollAction.action.performed += ctx => UpdateObjectDistance(ctx.ReadValue<float>());
+            if(takeAction) takeAction.action.performed += ctx => DispatchAction();
+            if(scrollAction) scrollAction.action.performed += ctx => UpdateObjectDistance(ctx.ReadValue<float>());
             try
             {
                 roomIdChannelSO.OnEventRaised += AssignRoomId;
@@ -98,15 +100,10 @@ namespace jeanf.vrplayer
             SnapObject.OnSnapRotate += SetObjectRotation;
         }
 
-        private void OnDisable() => Unsubscribe();
-
-
-        private void OnDestroy() => Unsubscribe();
-
         private void Unsubscribe()
         {
-            takeAction.action.performed -= ctx => DispatchAction();
-            scrollAction.action.performed -= ctx => UpdateObjectDistance(ctx.ReadValue<float>());
+            if(takeAction) takeAction.action.performed -= ctx => DispatchAction();
+            if(scrollAction) scrollAction.action.performed -= ctx => UpdateObjectDistance(ctx.ReadValue<float>());
             try
             {
                 roomIdChannelSO.OnEventRaised -= AssignRoomId;

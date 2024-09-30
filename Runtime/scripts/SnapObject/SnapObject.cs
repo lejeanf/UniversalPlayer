@@ -45,7 +45,7 @@ namespace jeanf.vrplayer
             }
         }
 
-        //On désassigne
+        //On dÃ©sassigne
         private void OnTriggerExit(Collider other)
         {
 
