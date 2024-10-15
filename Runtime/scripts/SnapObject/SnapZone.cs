@@ -6,8 +6,9 @@ using System;
 namespace jeanf.vrplayer
 {
     public class SnapZone : MonoBehaviour
-    {
+    {     
         [SerializeField] private List<GameObject> snapPoints = new List<GameObject>();
         public List<GameObject> SnapPoints { get { return snapPoints; } }
     }
+
 }

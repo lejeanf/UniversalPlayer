@@ -9,7 +9,6 @@ namespace jeanf.vrplayer
     {
         private GameObject nearestSnapPoint;
         public GameObject NearestSnapPoint { get { return nearestSnapPoint; } set { nearestSnapPoint = value; } }
-        [SerializeField] private GameObjectEventChannelSO snapEventChannelSO;
         [SerializeField] LayerMask snapTargetLayer;
         public LayerMask SnapTargetLayer { get { return snapTargetLayer; }}
         private List<GameObject> snapPoints = new List<GameObject>();
@@ -25,7 +24,7 @@ namespace jeanf.vrplayer
         //On assigne
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.GetComponent<SnapZone>())
+            if (other.gameObject.GetComponent<SnapZone>() && other.gameObject.tag == this.tag)
             {
                 attachedSnapZone = other.gameObject.GetComponent<SnapZone>();
 
@@ -39,7 +38,7 @@ namespace jeanf.vrplayer
         //On call le snap
         private void OnTriggerStay(Collider other)
         {
-            if (other.gameObject.GetComponent<SnapZone>())
+            if (other.gameObject.GetComponent<SnapZone>() && other.gameObject.tag == this.tag)
             {
                 Snap();
             }
@@ -49,7 +48,7 @@ namespace jeanf.vrplayer
         private void OnTriggerExit(Collider other)
         {
 
-            if (other.gameObject.GetComponent<SnapZone>())
+            if (other.gameObject.GetComponent<SnapZone>() && other.gameObject.tag == this.tag)
             {
                 attachedSnapZone = null;
                 nearestSnapPoint = null;
