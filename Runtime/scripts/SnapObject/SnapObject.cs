@@ -20,6 +20,7 @@ namespace jeanf.vrplayer
         public static event Action<Transform, Vector3> OnSnapMove;
         public static event Action<Transform, Quaternion> OnSnapRotate;
         public static event Action<bool> OnSnap;
+        [SerializeField] Quaternion snapOffsetRotation;
 
         //On assigne
         private void OnTriggerEnter(Collider other)
@@ -75,7 +76,7 @@ namespace jeanf.vrplayer
                     }
 
                 }
-                OnSnapRotate.Invoke(transform, nearestSnapPoint.transform.rotation);
+                OnSnapRotate.Invoke(transform, nearestSnapPoint.transform.rotation * snapOffsetRotation);
                 OnSnapMove.Invoke(transform, nearestSnapPoint.transform.position);
 
             }
