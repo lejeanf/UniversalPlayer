@@ -16,6 +16,7 @@ namespace jeanf.vrplayer
         private SnapZone attachedSnapZone;
         public SnapZone AttachedSnapZone {  get { return attachedSnapZone; }}
         [SerializeField] bool shouldOrientOnSnap;
+        [SerializeField] bool shouldUseOffsetOnSnap;
         public bool ShouldOrientOnSnap { get { return shouldOrientOnSnap; } }
         public static event Action<Transform, Vector3> OnSnapMove;
         public static event Action<Transform, Quaternion> OnSnapRotate;
@@ -78,7 +79,7 @@ namespace jeanf.vrplayer
                     }
 
                 }
-                if (snapOffsetRotation != new Quaternion(0, 0, 0, 0))
+                if (shouldUseOffsetOnSnap)
                 {
                     OnSnapRotate.Invoke(transform, nearestSnapPoint.transform.rotation * snapOffsetRotation);
                 }
