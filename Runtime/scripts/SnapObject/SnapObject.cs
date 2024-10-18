@@ -21,6 +21,7 @@ namespace jeanf.vrplayer
         public static event Action<Transform, Quaternion> OnSnapRotate;
         public static event Action<bool> OnSnap;
         [SerializeField] Quaternion snapOffsetRotation;
+        [SerializeField] VoidEventChannelSO snapBegun;
 
         //On assigne
         private void OnTriggerEnter(Collider other)
@@ -42,6 +43,7 @@ namespace jeanf.vrplayer
             if (other.gameObject.GetComponent<SnapZone>() && other.gameObject.tag == this.tag)
             {
                 Snap();
+                snapBegun.RaiseEvent();
             }
         }
 
@@ -76,7 +78,14 @@ namespace jeanf.vrplayer
                     }
 
                 }
-                OnSnapRotate.Invoke(transform, nearestSnapPoint.transform.rotation * snapOffsetRotation);
+                if (snapOffsetRotation != Quaternion.identity)
+                {
+                    OnSnapRotate.Invoke(transform, nearestSnapPoint.transform.rotation * snapOffsetRotation);
+                }
+                else
+                {
+                    OnSnapRotate.Invoke(transform, nearestSnapPoint.transform.rotation);
+                }
                 OnSnapMove.Invoke(transform, nearestSnapPoint.transform.position);
 
             }
