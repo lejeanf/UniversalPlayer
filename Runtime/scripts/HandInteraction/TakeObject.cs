@@ -170,7 +170,6 @@ namespace jeanf.vrplayer
                 DisablePositionHandle();
                 var goalPosition = objectInHand.InitialPosition;
                 SetObjectPosition(objectInHandTransform, goalPosition);
-
                 var goalRotation = objectInHand.InitialRotation;
                 SetObjectRotation(objectInHandTransform, goalRotation);
             }
@@ -179,7 +178,14 @@ namespace jeanf.vrplayer
             objectInHand.Rigidbody.drag = objectInHand.InitialDrag;
             objectInHand.Rigidbody.angularDrag = objectInHand.InitialAngularDrag;
             objectInHand.Rigidbody.freezeRotation = false;
-            objectInHandTransform.SetParent(null);
+            if (objectInHand.Parent != null)
+            {
+                objectInHandTransform.SetParent(objectInHand.Parent);
+            }
+            else
+            {
+                objectInHandTransform.SetParent(null);
+            }
             objectInHandTransform = null;
             UpdateSnapStatus(false);
             objectInHand = null;
