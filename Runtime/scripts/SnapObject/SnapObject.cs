@@ -78,7 +78,7 @@ namespace jeanf.vrplayer
                     }
 
                 }
-                if (snapOffsetRotation != Quaternion.identity)
+                if (snapOffsetRotation != new Quaternion(0, 0, 0, 0))
                 {
                     OnSnapRotate.Invoke(transform, nearestSnapPoint.transform.rotation * snapOffsetRotation);
                 }
