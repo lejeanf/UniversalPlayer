@@ -26,7 +26,7 @@ namespace jeanf.vrplayer
         //On assigne
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.GetComponent<SnapZone>() && other.gameObject.tag == this.tag)
+            if (other.gameObject.GetComponent<SnapZone>())
             {
                 attachedSnapZone = other.gameObject.GetComponent<SnapZone>();
 
@@ -40,7 +40,7 @@ namespace jeanf.vrplayer
         //On call le snap
         private void OnTriggerStay(Collider other)
         {
-            if (other.gameObject.GetComponent<SnapZone>() && other.gameObject.tag == this.tag)
+            if (other.gameObject.GetComponent<SnapZone>())
             {
                 Snap();
                 snapBegun.RaiseEvent();
@@ -51,7 +51,7 @@ namespace jeanf.vrplayer
         private void OnTriggerExit(Collider other)
         {
 
-            if (other.gameObject.GetComponent<SnapZone>() && other.gameObject.tag == this.tag)
+            if (other.gameObject.GetComponent<SnapZone>())
             {
                 attachedSnapZone = null;
                 nearestSnapPoint = null;
