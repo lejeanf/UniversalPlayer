@@ -201,12 +201,11 @@ namespace jeanf.vrplayer
         {
             if (rightInteractor.interactablesSelected.Count <= 0) return;
             var selectedInteractable = leftInteractor.interactablesSelected[0]; // Get the first selected interactable
-            objectRightHand = selectedInteractable.transform.gameObject.GetComponent<PickableObject>();
+            objectLeftHand = selectedInteractable.transform.gameObject.GetComponent<PickableObject>();
 
         }
         public void RemoveGameObjectInRightHand()
         {
-            Debug.Log("TakeObject - Remove GO in right hand");
 
             objectDropped?.RaiseEvent(objectRightHand.gameObject);
 
@@ -215,7 +214,6 @@ namespace jeanf.vrplayer
 
         public void RemoveGameObjectInLeftHand()
         {
-            Debug.Log("TakeObject - Remove GO in left hand" + objectLeftHand.gameObject);
             objectDropped?.RaiseEvent(objectLeftHand.gameObject);
 
             objectLeftHand = null;
