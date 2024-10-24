@@ -199,7 +199,7 @@ namespace jeanf.vrplayer
 
         public void AssignGameObjectInLeftHand()
         {
-            if (rightInteractor.interactablesSelected.Count <= 0) return;
+            if (leftInteractor.interactablesSelected.Count <= 0) return;
             var selectedInteractable = leftInteractor.interactablesSelected[0]; // Get the first selected interactable
             objectLeftHand = selectedInteractable.transform.gameObject.GetComponent<PickableObject>();
 
