@@ -30,7 +30,7 @@ namespace jeanf.vrplayer
             if (other.gameObject.GetComponent<SnapZone>())
             {
                 attachedSnapZone = other.gameObject.GetComponent<SnapZone>();
-
+                snapBegun.RaiseEvent();
                 foreach (GameObject snapPoint in attachedSnapZone.SnapPoints)
                 {
                     snapPoints.Add(snapPoint);
@@ -44,7 +44,6 @@ namespace jeanf.vrplayer
             if (other.gameObject.GetComponent<SnapZone>())
             {
                 Snap();
-                snapBegun.RaiseEvent();
             }
         }
 
