@@ -215,10 +215,10 @@ namespace jeanf.vrplayer
 
         public void RemoveGameObjectInLeftHand()
         {
-            Debug.Log("TakeObject - Remove GO in left hand");
-            //objectDropped?.RaiseEvent(objectLeftHand.gameObject);
+            Debug.Log("TakeObject - Remove GO in left hand" + objectLeftHand.gameObject);
+            objectDropped?.RaiseEvent(objectLeftHand.gameObject);
 
-            //objectLeftHand = null;
+            objectLeftHand = null;
         }
 
         public bool GetObjectsInHandStatus()
