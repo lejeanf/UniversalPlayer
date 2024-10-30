@@ -31,6 +31,12 @@ namespace jeanf.vrplayer
         public bool InitialUseGravity { get { return initialUseGravity; } }
 
         public bool canBeRejected;
+        [SerializeField] bool printPositionOnUpdate;
+
+        private void Update()
+        {
+            if (printPositionOnUpdate) Debug.Log(this.transform.position);
+        }
 
         private void Awake()
         {

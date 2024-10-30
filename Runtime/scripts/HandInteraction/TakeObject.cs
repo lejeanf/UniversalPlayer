@@ -6,6 +6,7 @@ using jeanf.EventSystem;
 using Debug = UnityEngine.Debug;
 using jeanf.propertyDrawer;
 using LitMotion;
+using UnityEngine.UIElements;
 
 namespace jeanf.vrplayer
 {
@@ -23,7 +24,7 @@ namespace jeanf.vrplayer
         [SerializeField] Camera mainCamera;
 
         //TakeObject
-        Transform objectInHandTransform;
+        Transform objectInHandTransform; //Really useful ?
 
         public PickableObject _objectInHand { get { return objectInHand; } set { objectInHand = value; } }
 
@@ -44,7 +45,7 @@ namespace jeanf.vrplayer
         [SerializeField]
         private float maxDistance = 1.25f;
         [DrawIf("advancedSettings", true, ComparisonType.Equals)]
-        [Range(.0001f, 0.001f)]
+        [Range(.0001f, 0.1f)]
         [SerializeField]
         private float scrollStep = .001f;
         [DrawIf("advancedSettings", true, ComparisonType.Equals)]
@@ -52,7 +53,8 @@ namespace jeanf.vrplayer
         [SerializeField] private float maxDistanceCheck = 2f;
         private MotionHandle _positionHandle;
         private MotionHandle _rotationHandle;
-        
+      
+
         [SerializeField] private LayerMask layerMask;
         int roomId;
 
@@ -86,6 +88,7 @@ namespace jeanf.vrplayer
         private void OnDisable() => Unsubscribe();
         private void OnDestroy() => Unsubscribe();
 
+
         private void Subscribe()
         {
             if(takeAction) takeAction.action.performed += ctx => DispatchAction();
@@ -116,15 +119,6 @@ namespace jeanf.vrplayer
             SnapObject.OnSnapRotate -= SetObjectRotation;
 
         }
-
-        private void LateUpdate()
-        {
-            if (objectInHand && !objectIsSnapping)
-            {
-                var goal = mainCamera.transform.position + mainCamera.transform.forward * objectDistance;
-                SetObjectPosition(objectInHandTransform, goal);
-            }  
-        }
         #endregion
 
         #region Take Handling methods
@@ -151,10 +145,10 @@ namespace jeanf.vrplayer
             {
                 if (hit.transform.gameObject.GetComponent<PickableObject>())
                 {
-                    Transform objectHit = hit.transform;
-                    objectInHandTransform = objectHit;
+
                     objectInHand = hit.transform.gameObject.GetComponent<PickableObject>();
-                    //objectInHandTransform.SetParent(this.gameObject.transform);
+                    objectInHand.transform.position = mainCamera.transform.position + mainCamera.transform.forward * objectDistance;
+                    objectInHand.transform.SetParent(mainCamera.transform);
                     objectInHand.Rigidbody.freezeRotation = true;
                     objectInHand.Rigidbody.useGravity = false;
                     objectTakenChannel?.RaiseEvent(hit.transform.gameObject, roomId, true);
@@ -168,10 +162,8 @@ namespace jeanf.vrplayer
             if (objectInHand.ReturnToInitialPositionOnRelease)
             {
                 DisablePositionHandle();
-                var goalPosition = objectInHand.InitialPosition;
-                SetObjectPosition(objectInHandTransform, goalPosition);
-                var goalRotation = objectInHand.InitialRotation;
-                SetObjectRotation(objectInHandTransform, goalRotation);
+                objectInHand.transform.position = objectInHand.InitialPosition; 
+                objectInHand.transform.rotation = objectInHand.InitialRotation;
             }
             objectDropped?.RaiseEvent(objectInHand.gameObject);
             objectInHand.Rigidbody.useGravity = objectInHand.InitialUseGravity;
@@ -180,15 +172,14 @@ namespace jeanf.vrplayer
             objectInHand.Rigidbody.freezeRotation = false;
             if (objectInHand.Parent != null)
             {
-                objectInHandTransform.SetParent(objectInHand.Parent);
+                objectInHand.transform.SetParent(objectInHand.Parent);
             }
             else
             {
-                objectInHandTransform.SetParent(null);
+                objectInHand.transform.SetParent(null);
             }
-            objectInHandTransform = null;
-            UpdateSnapStatus(false);
             objectInHand = null;
+            //UpdateSnapStatus(false);
         }
         public void AssignGameObjectInRightHand()
         {
@@ -257,17 +248,20 @@ namespace jeanf.vrplayer
             objectDistance += value;
             if (objectDistance > maxDistance) objectDistance = maxDistance;
             if (objectDistance < minDistance) objectDistance = minDistance;
-
-            var goalPosition = mainCamera.transform.position + mainCamera.transform.forward * objectDistance;
-            SetObjectPosition(objectInHandTransform, goalPosition);
+            objectInHand.transform.position = mainCamera.transform.position + mainCamera.transform.forward * objectDistance;
         }
 
         private void UpdateSnapStatus(bool snapState)
         {
             objectIsSnapping = snapState;
+            if (!snapState && objectInHand != null)
+            {
+                objectInHand.transform.position = mainCamera.transform.position + mainCamera.transform.forward * objectDistance;
+            }
         }
         private void SetObjectPosition(Transform objectToMove, Vector3 goal)
         {
+            DisablePositionHandle();
             if (!objectInHand) return;
 
             if (objectToMove.position == goal)
@@ -283,7 +277,10 @@ namespace jeanf.vrplayer
             }
 
 
-            if (objectToMove.transform.position == goal) return;
+            if (objectToMove.transform.position == goal)
+            {
+                return;
+            }
             _positionHandle = LMotion.Create(objectToMove.transform.position, goal, sliderMotionDuration)
                 .Bind(x => objectToMove.transform.position = x)
                 .AddTo(objectToMove.gameObject);
@@ -294,6 +291,7 @@ namespace jeanf.vrplayer
             if (!_positionHandle.IsActive()) return;
             _positionHandle.Complete();
             _positionHandle.Cancel();
+
         }
 
         private void SetObjectRotation(Transform objectToMove, Quaternion goal)
@@ -309,8 +307,6 @@ namespace jeanf.vrplayer
             _rotationHandle = LMotion.Create(objectToMove.transform.rotation, goal, sliderMotionDuration)
                 .Bind(x => objectToMove.transform.rotation = x)
                 .AddTo(objectToMove.gameObject);
-
-            //objectToMove.transform.rotation = goal;
         }
         private void DisableRotationHandle()
         {
