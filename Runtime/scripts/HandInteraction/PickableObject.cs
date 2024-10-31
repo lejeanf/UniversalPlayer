@@ -49,8 +49,8 @@ namespace jeanf.vrplayer
         private void InitialSaveFromRigidbodySettings()
         {
             initialPosition = this.gameObject.transform.position;
-            initialDrag = rb.drag;
-            initialAngularDrag = rb.angularDrag;
+            initialDrag = rb.linearDamping;
+            initialAngularDrag = rb.angularDamping;
             initialUseGravity = rb.useGravity;
         }
     }

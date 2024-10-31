@@ -1,13 +1,13 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.XR.Interaction.Toolkit;
 
-[RequireComponent(typeof(XRInteractorLineVisual))]
+
+[RequireComponent(typeof(UnityEngine.XR.Interaction.Toolkit.Interactors.Visuals.XRInteractorLineVisual))]
 public class RayInteractorManager : MonoBehaviour
 {
     [Space(10)]
-    private XRInteractorLineVisual rayInteractor;
+    private UnityEngine.XR.Interaction.Toolkit.Interactors.Visuals.XRInteractorLineVisual rayInteractor;
     [SerializeField] private InputActionReference selectAction;
     [Space(10)]
     [SerializeField] private Gradient _white;
@@ -15,7 +15,7 @@ public class RayInteractorManager : MonoBehaviour
 
     private void Awake()
     {
-        rayInteractor = GetComponent<XRInteractorLineVisual>();
+        rayInteractor = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactors.Visuals.XRInteractorLineVisual>();
     }
 
     private void OnEnable()
@@ -33,7 +33,7 @@ public class RayInteractorManager : MonoBehaviour
         selectAction.action.Disable();
     }
 
-    public void SetPreviewRay(XRInteractorLineVisual interactorLineVisual, bool state)
+    public void SetPreviewRay(UnityEngine.XR.Interaction.Toolkit.Interactors.Visuals.XRInteractorLineVisual interactorLineVisual, bool state)
     {
         interactorLineVisual.invalidColorGradient = state ? _white : _transparent;
     }

@@ -47,8 +47,8 @@ namespace jeanf.vrplayer
 
         private void Awake()
         {
-            if (GraphicsSettings.renderPipelineAsset == null) return;
-            var renderingAssetType = GraphicsSettings.renderPipelineAsset.GetType().ToString();
+            if (GraphicsSettings.defaultRenderPipeline == null) return;
+            var renderingAssetType = GraphicsSettings.defaultRenderPipeline.GetType().ToString();
             if (renderingAssetType.Contains("HDRenderPipelineAsset")) {
                 postProcessVolume.profile = HDRPVolumeProfile;
                 postProcessVolume.blendDistance = 10.0f;

@@ -9,9 +9,9 @@ using UnityEngine.XR.Interaction.Toolkit;
 public class TeleportationManager : MonoBehaviour
 {
     [SerializeField] private InputActionAsset actionAsset;
-    [SerializeField] private XRRayInteractor rightRayInteractor;
+    [SerializeField] private UnityEngine.XR.Interaction.Toolkit.Interactors.XRRayInteractor rightRayInteractor;
     
-    private TeleportationProvider provider;
+    private UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation.TeleportationProvider provider;
     private InputAction _thumbstick;
     private bool _isActive;
 
@@ -21,7 +21,7 @@ public class TeleportationManager : MonoBehaviour
 
     private void Awake()
     {
-        provider = this.GetComponent<TeleportationProvider>();
+        provider = this.GetComponent<UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation.TeleportationProvider>();
     }
 
     private void Start()
@@ -49,7 +49,7 @@ public class TeleportationManager : MonoBehaviour
             return;
         }
 
-        var request = new TeleportRequest()
+        var request = new UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation.TeleportRequest()
         {
             destinationPosition = m_ReticlePos,
         };

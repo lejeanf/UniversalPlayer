@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.XR.Interaction.Toolkit;
+
 using jeanf.EventSystem;
 using Debug = UnityEngine.Debug;
 using jeanf.propertyDrawer;
@@ -71,8 +71,8 @@ namespace jeanf.vrplayer
         [SerializeField] GameObjectEventChannelSO snapEventChannelSO;
 
         [Header("XR")]
-        [SerializeField] XRDirectInteractor rightInteractor;
-        [SerializeField] XRDirectInteractor leftInteractor;
+        [SerializeField] UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor rightInteractor;
+        [SerializeField] UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor leftInteractor;
 
         [Header("Objects in players's hand")]
         PickableObject objectRightHand;
@@ -167,8 +167,8 @@ namespace jeanf.vrplayer
             }
             objectDropped?.RaiseEvent(objectInHand.gameObject);
             objectInHand.Rigidbody.useGravity = objectInHand.InitialUseGravity;
-            objectInHand.Rigidbody.drag = objectInHand.InitialDrag;
-            objectInHand.Rigidbody.angularDrag = objectInHand.InitialAngularDrag;
+            objectInHand.Rigidbody.linearDamping = objectInHand.InitialDrag;
+            objectInHand.Rigidbody.angularDamping = objectInHand.InitialAngularDrag;
             objectInHand.Rigidbody.freezeRotation = false;
             if (objectInHand.Parent != null)
             {

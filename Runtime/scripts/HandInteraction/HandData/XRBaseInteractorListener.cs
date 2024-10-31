@@ -1,12 +1,12 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
-using UnityEngine.XR.Interaction.Toolkit;
+
 
 namespace jeanf.vrplayer
 {
     [System.Serializable]
-    public class XRBaseInteractorEvent : UnityEvent<XRBaseInteractor>
+    public class XRBaseInteractorEvent : UnityEvent<UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor>
     {
 
     }
@@ -29,7 +29,7 @@ namespace jeanf.vrplayer
                 _channel.OnEventRaised -= Respond;
         }
 
-        private void Respond(XRBaseInteractor value)
+        private void Respond(UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor value)
         {
             OnEventRaised?.Invoke(value);
         }
