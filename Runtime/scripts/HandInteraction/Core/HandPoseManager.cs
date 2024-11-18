@@ -15,6 +15,11 @@ namespace  jeanf.vrplayer
         public UnityEvent grabAction;
         public UnityEvent ungrabAction;
 
+        private void OnEnable()
+        {
+            Init();
+        }
+
         private void Init()
         {
             // Subscribe to selected events

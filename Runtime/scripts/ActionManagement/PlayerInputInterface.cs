@@ -18,12 +18,12 @@ namespace jeanf.vrplayer
 
         [Validation("A reference to InputActionAsset is required.")]
         [SerializeField] private InputActionAsset inputActionAsset;
-        [Validation("A reference to ContinuousMoveProvider is required.")]
-        [SerializeField] private ActionBasedContinuousMoveProvider continuousMoveProvider;
+        //[Validation("A reference to ContinuousMoveProvider is required.")]
+        //[SerializeField] private ActionBasedContinuousMoveProvider continuousMoveProvider;
         [Validation("A reference to mouseLook is required.")]
         [SerializeField] private FPSCameraMovement mouseLook;
-        [Validation("A reference to ActionBasedSnapTurnProvider is required.")]
-        [SerializeField] private ActionBasedSnapTurnProvider snapTurnProvider;
+        //[Validation("A reference to ActionBasedSnapTurnProvider is required.")]
+        //[SerializeField] private ActionBasedSnapTurnProvider snapTurnProvider;
         [Validation("A reference to GetPrimaryInHandItemWithVRController is required.")]
         [SerializeField] private GetPrimaryInHandItemWithVRController controller;
         [Validation("A reference to MainMenuController is required.")]
@@ -48,12 +48,12 @@ namespace jeanf.vrplayer
                 validityCheck = false;
             }
 
-            if (continuousMoveProvider == null)
-            {
-                invalidObjects.Add(continuousMoveProvider);
-                errorMessages.Add("No continuousMoveProvider set");
-                validityCheck = false;
-            }
+            //if (continuousMoveProvider == null)
+            //{
+            //    invalidObjects.Add(continuousMoveProvider);
+            //    errorMessages.Add("No continuousMoveProvider set");
+            //    validityCheck = false;
+            //}
 
             if (mouseLook == null)
             {
@@ -62,12 +62,12 @@ namespace jeanf.vrplayer
                 validityCheck = false;
             }
 
-            if (snapTurnProvider == null)
-            {
-                invalidObjects.Add(snapTurnProvider);
-                errorMessages.Add("No snapTurnProvider set");
-                validityCheck = false;
-            }
+            //if (snapTurnProvider == null)
+            //{
+            //    invalidObjects.Add(snapTurnProvider);
+            //    errorMessages.Add("No snapTurnProvider set");
+            //    validityCheck = false;
+            //}
 
             if (controller == null)
             {
@@ -123,12 +123,12 @@ namespace jeanf.vrplayer
 
             switch (actionToRebind)
             {
-                case "Move":
-                    continuousMoveProvider.leftHandMoveAction.action.ChangeBinding(action.bindings[bindingIndex]);
-                    break;
-                case "Snap Turn":
-                    snapTurnProvider.rightHandSnapTurnAction.action.ChangeBinding(action.bindings[bindingIndex]);
-                    break;
+                //case "Move":
+                //    continuousMoveProvider.leftHandMoveAction.action.ChangeBinding(action.bindings[bindingIndex]);
+                //    break;
+                //case "Snap Turn":
+                //    snapTurnProvider.rightHandSnapTurnAction.action.ChangeBinding(action.bindings[bindingIndex]);
+                //    break;
                 case "Look Around":
                     mouseLook.mouseXYInputAction.action.ChangeBinding(action.bindings[bindingIndex]);
                     break;

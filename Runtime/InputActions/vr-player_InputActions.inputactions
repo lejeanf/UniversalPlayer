@@ -1147,7 +1147,7 @@
                     "name": "DrawPrimaryItem",
                     "type": "Button",
                     "id": "d2a4e122-d58f-456b-aaf7-58a2cede4acf",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -2181,7 +2181,7 @@
                     "name": "DrawPrimaryItem",
                     "type": "Button",
                     "id": "b2d72500-45e1-42ff-8565-fd716104d8e8",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false

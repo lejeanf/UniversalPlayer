@@ -7,6 +7,7 @@ using Debug = UnityEngine.Debug;
 using jeanf.propertyDrawer;
 using LitMotion;
 using UnityEngine.UIElements;
+using System;
 
 namespace jeanf.vrplayer
 {
@@ -65,14 +66,14 @@ namespace jeanf.vrplayer
         [Header("Broadcasting On")]
         [SerializeField] GameObjectEventChannelSO objectDropped;
         [SerializeField] GameObjectIntBoolEventChannelSO objectTakenChannel;
-        
+        public static event Action<bool> OnGrabDeactivateCollider;
         [Header("Listening On")]
         [SerializeField] IntEventChannelSO roomIdChannelSO;
         [SerializeField] GameObjectEventChannelSO snapEventChannelSO;
 
         [Header("XR")]
-        [SerializeField] UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor rightInteractor;
-        [SerializeField] UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor leftInteractor;
+        [SerializeField] UnityEngine.XR.Interaction.Toolkit.Interactors.NearFarInteractor rightInteractor;
+        [SerializeField] UnityEngine.XR.Interaction.Toolkit.Interactors.NearFarInteractor leftInteractor;
 
         [Header("Objects in players's hand")]
         PickableObject objectRightHand;
@@ -186,6 +187,7 @@ namespace jeanf.vrplayer
             if (rightInteractor.interactablesSelected.Count <= 0) return;
             var selectedInteractable = rightInteractor.interactablesSelected[0]; // Get the first selected interactable
             objectRightHand = selectedInteractable.transform.gameObject.GetComponent<PickableObject>();
+            OnGrabDeactivateCollider.Invoke(true);
         }
 
         public void AssignGameObjectInLeftHand()
@@ -193,7 +195,7 @@ namespace jeanf.vrplayer
             if (leftInteractor.interactablesSelected.Count <= 0) return;
             var selectedInteractable = leftInteractor.interactablesSelected[0]; // Get the first selected interactable
             objectLeftHand = selectedInteractable.transform.gameObject.GetComponent<PickableObject>();
-
+            OnGrabDeactivateCollider.Invoke(true);
         }
         public void RemoveGameObjectInRightHand()
         {
@@ -201,6 +203,8 @@ namespace jeanf.vrplayer
             objectDropped?.RaiseEvent(objectRightHand.gameObject);
 
             objectRightHand = null;
+            OnGrabDeactivateCollider.Invoke(false);
+
         }
 
         public void RemoveGameObjectInLeftHand()
@@ -208,6 +212,8 @@ namespace jeanf.vrplayer
             objectDropped?.RaiseEvent(objectLeftHand.gameObject);
 
             objectLeftHand = null;
+            OnGrabDeactivateCollider.Invoke(false);
+
         }
 
         public bool GetObjectsInHandStatus()

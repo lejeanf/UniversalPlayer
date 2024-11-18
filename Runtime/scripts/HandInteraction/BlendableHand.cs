@@ -13,7 +13,7 @@ namespace jeanf.vrplayer
 
         private void Awake()
         {
-            _hand = GetComponentInChildren<SkinnedMeshRenderer>();
+            _hand = GetComponent<SkinnedMeshRenderer>() == null ? GetComponentInChildren<SkinnedMeshRenderer>() : GetComponent<SkinnedMeshRenderer>();
         }
 
         private void OnEnable()

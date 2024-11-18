@@ -29,10 +29,10 @@ namespace jeanf.vrplayer
         {
             fpsMoveAction.action.performed += ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50f);
             fpsMoveAction.action.performed += ctx => SetIsMoving(true);
-            xrMoveAction.action.performed += ctx => SetIsMoving(true);
+            //xrMoveAction.action.performed += ctx => SetIsMoving(true);
             fpsMoveAction.action.canceled += ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50);
             fpsMoveAction.action.canceled += ctx => SetIsMoving(false);
-            xrMoveAction.action.canceled += ctx => SetIsMoving(false);
+            //xrMoveAction.action.canceled += ctx => SetIsMoving(false);
 
         }
 
@@ -43,10 +43,10 @@ namespace jeanf.vrplayer
         {
             fpsMoveAction.action.performed -= ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50f);
             fpsMoveAction.action.performed -= ctx => SetIsMoving(true);
-            xrMoveAction.action.performed -= ctx => SetIsMoving(false);
+            //xrMoveAction.action.performed -= ctx => SetIsMoving(false);
             fpsMoveAction.action.canceled -= ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50f);
             fpsMoveAction.action.canceled -= ctx => SetIsMoving(false);
-            xrMoveAction.action.canceled -= ctx => SetIsMoving(false);
+            //xrMoveAction.action.canceled -= ctx => SetIsMoving(false);
 
         }
 
@@ -58,7 +58,7 @@ namespace jeanf.vrplayer
             }
 
             
-            if (!IsGrounded())
+            if (!controller.isGrounded)
             {
                 controller.Move(new Vector3(0.0f, -gravity, 0.0f).normalized * Time.deltaTime * 10f);
             }
