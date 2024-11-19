@@ -1,6 +1,6 @@
 ﻿using jeanf.EventSystem;
 using UnityEngine;
-using UnityEngine.XR.Interaction.Toolkit;
+
 
 namespace jeanf.vrplayer
 {
@@ -17,11 +17,11 @@ namespace jeanf.vrplayer
         public Pose pose = null;
     
         // The interactor we react to
-        private XRGrabInteractable _grabInteractable;
+        private UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable _grabInteractable;
 
         private void Awake()
         {
-            _grabInteractable = this.GetComponent<XRGrabInteractable>();
+            _grabInteractable = this.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
         }
 
         public void SetAttachTransform(HandInfo handInfo)

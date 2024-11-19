@@ -8,7 +8,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 using jeanf.validationTools;
 
 [RequireComponent(typeof(ContinuousMoveProviderBase))]
-[RequireComponent(typeof(TeleportationProvider))]
+[RequireComponent(typeof(UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation.TeleportationProvider))]
 public class LocomotionManager : MonoBehaviour, IDebugBehaviour, IValidatable
 {
     public bool isDebug

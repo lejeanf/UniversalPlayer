@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using UnityEngine.XR.Interaction.Toolkit;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -11,12 +11,12 @@ namespace jeanf.vrplayer
     [ExecuteInEditMode]
     public class SelectionHandler : MonoBehaviour
     {
-        public XRBaseInteractable CurretInteractable { get; private set; } = null;
+        public UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable CurretInteractable { get; private set; } = null;
 
         public bool CheckForNewInteractable()
         {
             // First see if we have an interactable to use
-            XRBaseInteractable newInteractable = GetInteractable();
+            UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable newInteractable = GetInteractable();
 
             // Update if different
             bool isDifferent = IsDifferentInteractable(CurretInteractable, newInteractable);
@@ -25,10 +25,10 @@ namespace jeanf.vrplayer
             return isDifferent;
         }
 
-        private XRBaseInteractable GetInteractable()
+        private UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable GetInteractable()
         {
             // Set up the stuff now
-            XRBaseInteractable newInteractable = null;
+            UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable newInteractable = null;
             GameObject selectedObject = null;
 
             #if UNITY_EDITOR
@@ -39,14 +39,14 @@ namespace jeanf.vrplayer
             if (selectedObject)
             {
                 // Does it have an interactable component
-                if (selectedObject.TryGetComponent(out XRBaseInteractable interactable))
+                if (selectedObject.TryGetComponent(out UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable interactable))
                     newInteractable = interactable;
             }
 
             return newInteractable;
         }
 
-        private bool IsDifferentInteractable(XRBaseInteractable currentInteractable, XRBaseInteractable newInteractable)
+        private bool IsDifferentInteractable(UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable currentInteractable, UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable newInteractable)
         {
             // Assume it's the same
             bool isDifferent = false;

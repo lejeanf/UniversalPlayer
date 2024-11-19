@@ -8,12 +8,17 @@ namespace  jeanf.vrplayer
     public class HandPoseManager : BaseHand
     {
         // The interactor we react to
-        public XRBaseInteractor targetInteractor = null;
+        public UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor targetInteractor = null;
 
         private bool wasInitialized = false;
 
         public UnityEvent grabAction;
         public UnityEvent ungrabAction;
+
+        private void OnEnable()
+        {
+            Init();
+        }
 
         private void Init()
         {
@@ -39,7 +44,7 @@ namespace  jeanf.vrplayer
 
         private void TryApplyObjectPose(SelectEnterEventArgs args)
         {
-            var interactable = args.interactableObject as XRBaseInteractable;
+            var interactable = args.interactableObject as UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable;
             // Try and get pose container, and apply
             if (!interactable.TryGetComponent(out PoseContainer poseContainer)) return;
             grabAction.Invoke();
@@ -51,7 +56,7 @@ namespace  jeanf.vrplayer
 
         private void TryApplyDefaultPose(SelectExitEventArgs args)
         {
-            var interactable = args.interactableObject as XRBaseInteractable;
+            var interactable = args.interactableObject as UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable;
             
             // Try and get pose container, and apply
             if (!interactable.TryGetComponent(out PoseContainer poseContainer)) return;
@@ -81,11 +86,11 @@ namespace  jeanf.vrplayer
             // Let's have this done automatically, but not hide the requirement
             if (!targetInteractor)
             {
-                targetInteractor = GetComponentInParent<XRBaseInteractor>();
+                targetInteractor = GetComponentInParent<UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor>();
             }
         }
 
-        public void SetXRDirectInteractor(XRBaseInteractor xrBaseInteractor)
+        public void SetXRDirectInteractor(UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor xrBaseInteractor)
         {
             targetInteractor = xrBaseInteractor;
             Init();

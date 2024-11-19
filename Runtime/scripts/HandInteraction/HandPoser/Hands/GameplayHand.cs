@@ -6,7 +6,7 @@ namespace jeanf.vrplayer
     public class GameplayHand : BaseHand
 {
     // The interactor we react to
-    [SerializeField] private XRBaseInteractor targetInteractor = null;
+    [SerializeField] private UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor targetInteractor = null;
 
     private void OnEnable()
     {
@@ -24,7 +24,7 @@ namespace jeanf.vrplayer
 
     private void TryApplyObjectPose(SelectEnterEventArgs args)
     {
-        var interactable = args.interactableObject as XRBaseInteractable;
+        var interactable = args.interactableObject as UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable;
         // Try and get pose container, and apply
         if (interactable != null && interactable.TryGetComponent(out PoseContainer poseContainer))
         {
@@ -34,7 +34,7 @@ namespace jeanf.vrplayer
 
     private void TryApplyDefaultPose(SelectExitEventArgs args)
     {
-        var interactable = args.interactableObject as XRBaseInteractable;
+        var interactable = args.interactableObject as UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable;
     
         // Try and get pose container, and apply
         if (interactable != null && interactable.TryGetComponent(out PoseContainer poseContainer))
@@ -62,7 +62,7 @@ namespace jeanf.vrplayer
         // Let's have this done automatically, but not hide the requirement
         if (!targetInteractor)
         {
-            targetInteractor = GetComponentInParent<XRBaseInteractor>();
+            targetInteractor = GetComponentInParent<UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor>();
         }
     }
 }

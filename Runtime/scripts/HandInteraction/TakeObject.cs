@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.XR.Interaction.Toolkit;
+
 using jeanf.EventSystem;
 using Debug = UnityEngine.Debug;
 using jeanf.propertyDrawer;
 using LitMotion;
 using UnityEngine.UIElements;
+using System;
 
 namespace jeanf.vrplayer
 {
@@ -65,14 +66,14 @@ namespace jeanf.vrplayer
         [Header("Broadcasting On")]
         [SerializeField] GameObjectEventChannelSO objectDropped;
         [SerializeField] GameObjectIntBoolEventChannelSO objectTakenChannel;
-        
+        public static event Action<bool> OnGrabDeactivateCollider;
         [Header("Listening On")]
         [SerializeField] IntEventChannelSO roomIdChannelSO;
         [SerializeField] GameObjectEventChannelSO snapEventChannelSO;
 
         [Header("XR")]
-        [SerializeField] XRDirectInteractor rightInteractor;
-        [SerializeField] XRDirectInteractor leftInteractor;
+        [SerializeField] UnityEngine.XR.Interaction.Toolkit.Interactors.NearFarInteractor rightInteractor;
+        [SerializeField] UnityEngine.XR.Interaction.Toolkit.Interactors.NearFarInteractor leftInteractor;
 
         [Header("Objects in players's hand")]
         PickableObject objectRightHand;
@@ -167,8 +168,8 @@ namespace jeanf.vrplayer
             }
             objectDropped?.RaiseEvent(objectInHand.gameObject);
             objectInHand.Rigidbody.useGravity = objectInHand.InitialUseGravity;
-            objectInHand.Rigidbody.drag = objectInHand.InitialDrag;
-            objectInHand.Rigidbody.angularDrag = objectInHand.InitialAngularDrag;
+            objectInHand.Rigidbody.linearDamping = objectInHand.InitialDrag;
+            objectInHand.Rigidbody.angularDamping = objectInHand.InitialAngularDrag;
             objectInHand.Rigidbody.freezeRotation = false;
             if (objectInHand.Parent != null)
             {
@@ -186,6 +187,7 @@ namespace jeanf.vrplayer
             if (rightInteractor.interactablesSelected.Count <= 0) return;
             var selectedInteractable = rightInteractor.interactablesSelected[0]; // Get the first selected interactable
             objectRightHand = selectedInteractable.transform.gameObject.GetComponent<PickableObject>();
+            OnGrabDeactivateCollider.Invoke(true);
         }
 
         public void AssignGameObjectInLeftHand()
@@ -193,7 +195,7 @@ namespace jeanf.vrplayer
             if (leftInteractor.interactablesSelected.Count <= 0) return;
             var selectedInteractable = leftInteractor.interactablesSelected[0]; // Get the first selected interactable
             objectLeftHand = selectedInteractable.transform.gameObject.GetComponent<PickableObject>();
-
+            OnGrabDeactivateCollider.Invoke(true);
         }
         public void RemoveGameObjectInRightHand()
         {
@@ -201,6 +203,8 @@ namespace jeanf.vrplayer
             objectDropped?.RaiseEvent(objectRightHand.gameObject);
 
             objectRightHand = null;
+            OnGrabDeactivateCollider.Invoke(false);
+
         }
 
         public void RemoveGameObjectInLeftHand()
@@ -208,6 +212,8 @@ namespace jeanf.vrplayer
             objectDropped?.RaiseEvent(objectLeftHand.gameObject);
 
             objectLeftHand = null;
+            OnGrabDeactivateCollider.Invoke(false);
+
         }
 
         public bool GetObjectsInHandStatus()
@@ -281,9 +287,10 @@ namespace jeanf.vrplayer
             {
                 return;
             }
-            _positionHandle = LMotion.Create(objectToMove.transform.position, goal, sliderMotionDuration)
-                .Bind(x => objectToMove.transform.position = x)
-                .AddTo(objectToMove.gameObject);
+            objectToMove.position = Vector3.Lerp(objectToMove.position, goal, 1f);
+            //_positionHandle = LMotion.Create(objectToMove.transform.position, goal, sliderMotionDuration)
+            //    .Bind(x => objectToMove.transform.position = x)
+            //    .AddTo(objectToMove.gameObject);
             //objectToMove.transform.position = goal;
         }
         private void DisablePositionHandle()
@@ -304,9 +311,10 @@ namespace jeanf.vrplayer
             if (objectToMove.transform.rotation == goal) return;
             if (!objectInHand) return;
 
-            _rotationHandle = LMotion.Create(objectToMove.transform.rotation, goal, sliderMotionDuration)
-                .Bind(x => objectToMove.transform.rotation = x)
-                .AddTo(objectToMove.gameObject);
+            objectToMove.transform.rotation = Quaternion.Lerp(objectToMove.transform.rotation, goal, 1f);
+            //_rotationHandle = LMotion.Create(objectToMove.transform.rotation, goal, sliderMotionDuration)
+            //    .Bind(x => objectToMove.transform.rotation = x)
+            //    .AddTo(objectToMove.gameObject);
         }
         private void DisableRotationHandle()
         {

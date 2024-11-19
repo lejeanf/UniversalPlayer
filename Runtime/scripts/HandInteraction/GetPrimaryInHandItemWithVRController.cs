@@ -79,7 +79,7 @@ namespace jeanf.vrplayer
         {
             if (_hands.Contains(hand)) return;
             _hands.Add(hand);
-            var handPoseManager = hand.transform.parent.transform.parent.GetComponent<HandPoseManager>();
+            var handPoseManager = hand.transform.parent.transform.parent.GetComponent<HandPoseManager>() == null? hand.transform.parent.GetComponent<HandPoseManager>(): hand.transform.parent.transform.parent.GetComponent<HandPoseManager>();
             var handType = handPoseManager.HandType;
             if(isDebug) Debug.Log($"handType {handType}");
             if(isDebug && handPoseManager) Debug.Log($"handPoseManager {handPoseManager.HandType}");
