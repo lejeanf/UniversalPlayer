@@ -287,9 +287,10 @@ namespace jeanf.vrplayer
             {
                 return;
             }
-            _positionHandle = LMotion.Create(objectToMove.transform.position, goal, sliderMotionDuration)
-                .Bind(x => objectToMove.transform.position = x)
-                .AddTo(objectToMove.gameObject);
+            objectToMove.position = Vector3.Lerp(objectToMove.position, goal, 1f);
+            //_positionHandle = LMotion.Create(objectToMove.transform.position, goal, sliderMotionDuration)
+            //    .Bind(x => objectToMove.transform.position = x)
+            //    .AddTo(objectToMove.gameObject);
             //objectToMove.transform.position = goal;
         }
         private void DisablePositionHandle()
@@ -310,9 +311,10 @@ namespace jeanf.vrplayer
             if (objectToMove.transform.rotation == goal) return;
             if (!objectInHand) return;
 
-            _rotationHandle = LMotion.Create(objectToMove.transform.rotation, goal, sliderMotionDuration)
-                .Bind(x => objectToMove.transform.rotation = x)
-                .AddTo(objectToMove.gameObject);
+            objectToMove.transform.rotation = Quaternion.Lerp(objectToMove.transform.rotation, goal, 1f);
+            //_rotationHandle = LMotion.Create(objectToMove.transform.rotation, goal, sliderMotionDuration)
+            //    .Bind(x => objectToMove.transform.rotation = x)
+            //    .AddTo(objectToMove.gameObject);
         }
         private void DisableRotationHandle()
         {
