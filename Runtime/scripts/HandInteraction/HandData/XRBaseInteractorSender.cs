@@ -3,13 +3,13 @@ using jeanf.EventSystem;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
-
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 namespace jeanf.vrplayer
 {
     public class XRBaseInteractorSender : MonoBehaviour
     {
-        private UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor baseInteractor;
+        private XRBaseInteractor baseInteractor;
     
         [Header("Broadcasting on:")]
         [SerializeField] private XRBaseInteractorEventChannelSO XRBaseInteractorMessageChannel;
@@ -22,7 +22,16 @@ namespace jeanf.vrplayer
         private void Update()
         {
             if (baseInteractor) return;
-            baseInteractor = this.transform.GetComponentInChildren<UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor>();
+            try
+            {
+                baseInteractor = this.transform.GetComponent<XRDirectInteractor>();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            baseInteractor = this.transform.GetComponentInChildren<XRDirectInteractor>();
             SendXRDirectInteractor();
         }
     }
