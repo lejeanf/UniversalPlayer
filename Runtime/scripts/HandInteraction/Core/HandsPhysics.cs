@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 namespace jeanf.vrplayer
 {
@@ -10,7 +11,8 @@ namespace jeanf.vrplayer
         [SerializeField] private GameObject nonPhysicalHand;
         [SerializeField] private float showNonPhysicalHandDistance = 0.5f;
         Collider[] handColliders;
-        [SerializeField] LayerMask layersToDeactivateOnGrab;
+        [SerializeField] LayerMask ignoreTheseOnGrab;
+        GameObject pokeInteractor;
         private enum HandSide
         {
             Left,
@@ -21,6 +23,7 @@ namespace jeanf.vrplayer
         {
             rb = GetComponent<Rigidbody>();
             handColliders = GetComponentsInChildren<Collider>();
+            pokeInteractor = GetComponentInChildren<XRPokeInteractor>().gameObject;
         }
 
         private void OnEnable()
@@ -64,7 +67,8 @@ namespace jeanf.vrplayer
             switch (value)
             {
                 case IpadState.Disabled:
-                    foreach(Collider collider in handColliders)
+                    pokeInteractor.SetActive(true);
+                    foreach (Collider collider in handColliders)
                     {
                         collider.excludeLayers = 0;
                     }
@@ -74,7 +78,8 @@ namespace jeanf.vrplayer
                     {
                         foreach (Collider collider in handColliders)
                         {
-                            collider.excludeLayers = layersToDeactivateOnGrab;
+                            collider.excludeLayers = ignoreTheseOnGrab;
+                            pokeInteractor.SetActive(false);
                         }
                     }
                     break;
@@ -83,7 +88,8 @@ namespace jeanf.vrplayer
                     {
                         foreach (Collider collider in handColliders)
                         {
-                            collider.excludeLayers = layersToDeactivateOnGrab;
+                            collider.excludeLayers = ignoreTheseOnGrab;
+                            pokeInteractor.SetActive(false);
                         }
                     }
                     break;
@@ -95,7 +101,7 @@ namespace jeanf.vrplayer
             {
                 foreach(Collider collider in handColliders)
                 {
-                    collider.excludeLayers = layersToDeactivateOnGrab;
+                    collider.excludeLayers = ignoreTheseOnGrab;
                 }
             }
             else

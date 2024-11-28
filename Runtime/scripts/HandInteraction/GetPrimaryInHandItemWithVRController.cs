@@ -129,22 +129,22 @@ namespace jeanf.vrplayer
             if (_ipadState is IpadState.Disabled or IpadState.InRightHand)
             {
                 SetIpadStateForASpecificHand(handInfo, _leftHand);
-                _ipadState = IpadState.InLeftHand;
                 OnIpadStateChanged.Invoke(_ipadState);  
                 _PrimaryItemStateChannel.RaiseEvent(true);
                 _leftGrab.RaiseEvent();
                 if(_leftHandPoseManager) _leftHandPoseManager.ApplyPose(primaryItemPose);
                 //_poseContainer.SetAttachTransform_Left();
                 if(_rightHandPoseManager) _rightHandPoseManager.ApplyDefaultPose();
+                _ipadState = IpadState.InLeftHand;
             }
             else
             {
-                _ipadState = IpadState.Disabled;
                 OnIpadStateChanged.Invoke(_ipadState);
                 _PrimaryItemStateChannel.RaiseEvent(false);
                 if (!_leftHandPoseManager) return;
                 _leftHandPoseManager.ApplyDefaultPose();
                 _noGrab.RaiseEvent();
+                _ipadState = IpadState.Disabled;
             }
         }
         public void SetIpadStateForRightHand(HandInfo handInfo)
@@ -152,7 +152,6 @@ namespace jeanf.vrplayer
             if (_ipadState is IpadState.Disabled or IpadState.InLeftHand)
             {
                 SetIpadStateForASpecificHand(handInfo, _rightHand.transform);
-                _ipadState = IpadState.InRightHand;
                 OnIpadStateChanged.Invoke(_ipadState);
                 _PrimaryItemStateChannel.RaiseEvent(true);
                 _rightGrab.RaiseEvent();
@@ -161,13 +160,14 @@ namespace jeanf.vrplayer
                 if (!_leftHandPoseManager) return;
                 _leftHandPoseManager.ApplyDefaultPose();
                 _noGrab.RaiseEvent();
+                _ipadState = IpadState.InRightHand;
             }
             else
             {
-                _ipadState = IpadState.Disabled;
                 OnIpadStateChanged.Invoke(_ipadState);
                 _PrimaryItemStateChannel.RaiseEvent(false);
                 if(_rightHandPoseManager) _rightHandPoseManager.ApplyDefaultPose();
+                _ipadState = IpadState.Disabled;
             }
         }
         public void SetIpadStateForASpecificHand(HandInfo handInfo, Transform parent)
