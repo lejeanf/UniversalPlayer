@@ -15,17 +15,23 @@ namespace  jeanf.vrplayer
         public UnityEvent grabAction;
         public UnityEvent ungrabAction;
 
-        private void OnEnable()
+        private void Start()
         {
+           //Debug.Log(this.gameObject.name + " start " + targetInteractor.name);
             Init();
+
         }
+
+        
 
         private void Init()
         {
             // Subscribe to selected events
             //getDirectInteractor?.Invoke(handType,ref targetInteractor);
             if(isDebug) Debug.Log($"targetInteractor : {targetInteractor.name}");
-            if (!targetInteractor) return;
+            if (!targetInteractor)
+                return;
+
             //targetInteractor.onSelectEntered.AddListener(TryApplyObjectPose);
             //targetInteractor.onSelectExited.AddListener(TryApplyDefaultPose);
             targetInteractor.selectEntered.AddListener(TryApplyObjectPose);

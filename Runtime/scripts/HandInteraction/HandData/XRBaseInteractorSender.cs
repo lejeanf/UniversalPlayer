@@ -16,22 +16,26 @@ namespace jeanf.vrplayer
 
         public void SendXRDirectInteractor()
         {
+            if (!baseInteractor) Debug.Log("SendXRDirectInteractor, target is null");
             XRBaseInteractorMessageChannel.RaiseEvent(baseInteractor);
         }
 
         private void Update()
         {
+            if (!baseInteractor) Debug.Log("update, target is null");
+
             if (baseInteractor) return;
             try
             {
-                baseInteractor = this.transform.GetComponent<XRDirectInteractor>();
+                baseInteractor = this.transform.GetComponent<XRBaseInteractor>();
+                Debug.Log(this.transform.GetComponent<XRBaseInteractor>());
+                if (!this.transform.GetComponent<XRBaseInteractor>()) Debug.Log("try, target is null");
             }
             catch (Exception)
-            {
-
+            {   
+                baseInteractor = this.transform.GetComponentInChildren<XRBaseInteractor>();
                 throw;
             }
-            baseInteractor = this.transform.GetComponentInChildren<XRDirectInteractor>();
             SendXRDirectInteractor();
         }
     }
