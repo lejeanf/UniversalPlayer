@@ -8,6 +8,12 @@ using Debug = UnityEngine.Debug;
 
 namespace jeanf.vrplayer
 {
+        public enum IpadState
+        {
+            Disabled,
+            InLeftHand,
+            InRightHand,
+        }
     public class GetPrimaryInHandItemWithVRController : MonoBehaviour, IDebugBehaviour
     {
         public bool isDebug
@@ -33,18 +39,12 @@ namespace jeanf.vrplayer
         [SerializeField] private VoidEventChannelSO _leftGrab;
         [SerializeField] private VoidEventChannelSO _rightGrab;
         [SerializeField] private VoidEventChannelSO _noGrab;
-
+        public static event Action<IpadState> OnIpadStateChanged;
         [Header("Hands Positions")] 
         [SerializeField] private PoseContainer _poseContainer;
         
         [SerializeField] private List<SkinnedMeshRenderer> _hands = new List<SkinnedMeshRenderer>();
 
-        private enum IpadState
-        {
-            Disabled,
-            InLeftHand,
-            InRightHand,
-        }
 
         private IpadState _ipadState = IpadState.Disabled;
 
@@ -135,6 +135,7 @@ namespace jeanf.vrplayer
                 if(_leftHandPoseManager) _leftHandPoseManager.ApplyPose(primaryItemPose);
                 //_poseContainer.SetAttachTransform_Left();
                 if(_rightHandPoseManager) _rightHandPoseManager.ApplyDefaultPose();
+                OnIpadStateChanged.Invoke(_ipadState);  
             }
             else
             {
@@ -143,6 +144,7 @@ namespace jeanf.vrplayer
                 if (!_leftHandPoseManager) return;
                 _leftHandPoseManager.ApplyDefaultPose();
                 _noGrab.RaiseEvent();
+                OnIpadStateChanged.Invoke(_ipadState);
             }
         }
         public void SetIpadStateForRightHand(HandInfo handInfo)
@@ -151,19 +153,21 @@ namespace jeanf.vrplayer
             {
                 SetIpadStateForASpecificHand(handInfo, _rightHand.transform);
                 _ipadState = IpadState.InRightHand;
-                _PrimaryItemStateChannel.RaiseEvent(true);
+                OnIpadStateChanged.Invoke(_ipadState);
                 _rightGrab.RaiseEvent();
                 if(_rightHandPoseManager) _rightHandPoseManager.ApplyPose(primaryItemPose);
                 //_poseContainer.SetAttachTransform_Right();
                 if (!_leftHandPoseManager) return;
                 _leftHandPoseManager.ApplyDefaultPose();
                 _noGrab.RaiseEvent();
+                _PrimaryItemStateChannel.RaiseEvent(true);
             }
             else
             {
                 _ipadState = IpadState.Disabled;
                 _PrimaryItemStateChannel.RaiseEvent(false);
                 if(_rightHandPoseManager) _rightHandPoseManager.ApplyDefaultPose();
+                OnIpadStateChanged.Invoke(_ipadState);
             }
         }
         public void SetIpadStateForASpecificHand(HandInfo handInfo, Transform parent)

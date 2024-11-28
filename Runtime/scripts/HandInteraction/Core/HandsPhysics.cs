@@ -1,5 +1,5 @@
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 namespace jeanf.vrplayer
 {
@@ -11,20 +11,31 @@ namespace jeanf.vrplayer
         [SerializeField] private GameObject nonPhysicalHand;
         [SerializeField] private float showNonPhysicalHandDistance = 0.5f;
         Collider[] handColliders;
-        [SerializeField] LayerMask layermask;
+        [SerializeField] LayerMask ignoreTheseOnGrab;
+        GameObject pokeInteractor;
+        private enum HandSide
+        {
+            Left,
+            Right
+        }
+        [SerializeField] HandSide handSide;
         void Start()
         {
             rb = GetComponent<Rigidbody>();
             handColliders = GetComponentsInChildren<Collider>();
+            pokeInteractor = GetComponentInChildren<XRPokeInteractor>().gameObject;
         }
 
         private void OnEnable()
         {
             TakeObject.OnGrabDeactivateCollider += HandleColliders;
+            GetPrimaryInHandItemWithVRController.OnIpadStateChanged += ctx => HandleCollidersForSpecificHand(ctx);
         }        
         private void OnDisable()
         {
             TakeObject.OnGrabDeactivateCollider -= HandleColliders;
+            GetPrimaryInHandItemWithVRController.OnIpadStateChanged -= ctx => HandleCollidersForSpecificHand(ctx);
+
         }
         private void Update()
         {
@@ -51,13 +62,46 @@ namespace jeanf.vrplayer
             rb.angularVelocity = (rotationDifferenceInDegree * Mathf.Deg2Rad/Time.deltaTime);
         }
 
+        void HandleCollidersForSpecificHand(IpadState value)
+        {
+            switch (value)
+            {
+                case IpadState.Disabled:
+                    pokeInteractor.SetActive(true);
+                    foreach (Collider collider in handColliders)
+                    {
+                        collider.excludeLayers = 0;
+                    }
+                    break;
+                case IpadState.InLeftHand:
+                    if (handSide == HandSide.Left)
+                    {
+                        foreach (Collider collider in handColliders)
+                        {
+                            collider.excludeLayers = ignoreTheseOnGrab;
+                            pokeInteractor.SetActive(false);
+                        }
+                    }
+                    break;
+                case IpadState.InRightHand:
+                    if (handSide == HandSide.Right)
+                    {
+                        foreach (Collider collider in handColliders)
+                        {
+                            collider.excludeLayers = ignoreTheseOnGrab;
+                            pokeInteractor.SetActive(false);
+                        }
+                    }
+                    break;
+            }
+        }
         void HandleColliders(bool value)
         {
             if (value)
             {
                 foreach(Collider collider in handColliders)
                 {
-                    collider.excludeLayers = layermask;
+                    collider.excludeLayers = ignoreTheseOnGrab;
                 }
             }
             else
