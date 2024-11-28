@@ -10,7 +10,13 @@ namespace jeanf.vrplayer
         [SerializeField] private GameObject nonPhysicalHand;
         [SerializeField] private float showNonPhysicalHandDistance = 0.5f;
         Collider[] handColliders;
-        [SerializeField] LayerMask layermask;
+        [SerializeField] LayerMask layersToDeactivateOnGrab;
+        private enum HandSide
+        {
+            Left,
+            Right
+        }
+        [SerializeField] HandSide handSide;
         void Start()
         {
             rb = GetComponent<Rigidbody>();
@@ -20,10 +26,13 @@ namespace jeanf.vrplayer
         private void OnEnable()
         {
             TakeObject.OnGrabDeactivateCollider += HandleColliders;
+            GetPrimaryInHandItemWithVRController.OnIpadStateChanged += ctx => HandleCollidersForSpecificHand(ctx);
         }        
         private void OnDisable()
         {
             TakeObject.OnGrabDeactivateCollider -= HandleColliders;
+            GetPrimaryInHandItemWithVRController.OnIpadStateChanged -= ctx => HandleCollidersForSpecificHand(ctx);
+
         }
         private void Update()
         {
@@ -50,13 +59,43 @@ namespace jeanf.vrplayer
             rb.angularVelocity = (rotationDifferenceInDegree * Mathf.Deg2Rad/Time.deltaTime);
         }
 
+        void HandleCollidersForSpecificHand(IpadState value)
+        {
+            switch (value)
+            {
+                case IpadState.Disabled:
+                    foreach(Collider collider in handColliders)
+                    {
+                        collider.excludeLayers = 0;
+                    }
+                    break;
+                case IpadState.InLeftHand:
+                    if (handSide == HandSide.Left)
+                    {
+                        foreach (Collider collider in handColliders)
+                        {
+                            collider.excludeLayers = layersToDeactivateOnGrab;
+                        }
+                    }
+                    break;
+                case IpadState.InRightHand:
+                    if (handSide == HandSide.Right)
+                    {
+                        foreach (Collider collider in handColliders)
+                        {
+                            collider.excludeLayers = layersToDeactivateOnGrab;
+                        }
+                    }
+                    break;
+            }
+        }
         void HandleColliders(bool value)
         {
             if (value)
             {
                 foreach(Collider collider in handColliders)
                 {
-                    collider.excludeLayers = layermask;
+                    collider.excludeLayers = layersToDeactivateOnGrab;
                 }
             }
             else
