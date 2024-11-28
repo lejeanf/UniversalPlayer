@@ -8,6 +8,12 @@ using Debug = UnityEngine.Debug;
 
 namespace jeanf.vrplayer
 {
+        public enum IpadState
+        {
+            Disabled,
+            InLeftHand,
+            InRightHand,
+        }
     public class GetPrimaryInHandItemWithVRController : MonoBehaviour, IDebugBehaviour
     {
         public bool isDebug
@@ -33,18 +39,12 @@ namespace jeanf.vrplayer
         [SerializeField] private VoidEventChannelSO _leftGrab;
         [SerializeField] private VoidEventChannelSO _rightGrab;
         [SerializeField] private VoidEventChannelSO _noGrab;
-
+        public static event Action<IpadState> OnIpadStateChanged;
         [Header("Hands Positions")] 
         [SerializeField] private PoseContainer _poseContainer;
         
         [SerializeField] private List<SkinnedMeshRenderer> _hands = new List<SkinnedMeshRenderer>();
 
-        private enum IpadState
-        {
-            Disabled,
-            InLeftHand,
-            InRightHand,
-        }
 
         private IpadState _ipadState = IpadState.Disabled;
 
@@ -130,6 +130,7 @@ namespace jeanf.vrplayer
             {
                 SetIpadStateForASpecificHand(handInfo, _leftHand);
                 _ipadState = IpadState.InLeftHand;
+                OnIpadStateChanged.Invoke(_ipadState);  
                 _PrimaryItemStateChannel.RaiseEvent(true);
                 _leftGrab.RaiseEvent();
                 if(_leftHandPoseManager) _leftHandPoseManager.ApplyPose(primaryItemPose);
@@ -139,6 +140,7 @@ namespace jeanf.vrplayer
             else
             {
                 _ipadState = IpadState.Disabled;
+                OnIpadStateChanged.Invoke(_ipadState);
                 _PrimaryItemStateChannel.RaiseEvent(false);
                 if (!_leftHandPoseManager) return;
                 _leftHandPoseManager.ApplyDefaultPose();
@@ -151,6 +153,7 @@ namespace jeanf.vrplayer
             {
                 SetIpadStateForASpecificHand(handInfo, _rightHand.transform);
                 _ipadState = IpadState.InRightHand;
+                OnIpadStateChanged.Invoke(_ipadState);
                 _PrimaryItemStateChannel.RaiseEvent(true);
                 _rightGrab.RaiseEvent();
                 if(_rightHandPoseManager) _rightHandPoseManager.ApplyPose(primaryItemPose);
@@ -162,6 +165,7 @@ namespace jeanf.vrplayer
             else
             {
                 _ipadState = IpadState.Disabled;
+                OnIpadStateChanged.Invoke(_ipadState);
                 _PrimaryItemStateChannel.RaiseEvent(false);
                 if(_rightHandPoseManager) _rightHandPoseManager.ApplyDefaultPose();
             }
