@@ -73,8 +73,6 @@ namespace jeanf.vrplayer
                     {
                         collider.excludeLayers = 0;
                     }
-                    rb.isKinematic = true;
-                    rb.isKinematic = false;
                     break;
                 case IpadState.InLeftHand:
                     if (handSide == HandSide.Left)
@@ -92,9 +90,6 @@ namespace jeanf.vrplayer
                         {
                             collider.excludeLayers = 0;
                         }
-                        rb.isKinematic = true;
-                        rb.isKinematic = false;
-
                     }
                     break;
                 case IpadState.InRightHand:
@@ -113,8 +108,6 @@ namespace jeanf.vrplayer
                         {
                             collider.excludeLayers = 0;
                         }
-                        rb.isKinematic = true;
-                        rb.isKinematic = false;
                     }
                     break;
             }
