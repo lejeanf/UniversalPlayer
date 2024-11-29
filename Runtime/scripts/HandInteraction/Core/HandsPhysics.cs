@@ -68,11 +68,12 @@ namespace jeanf.vrplayer
             {
                 case IpadState.Disabled:
                     pokeInteractor.SetActive(true);
-                    rb.isKinematic = true;
+
                     foreach (Collider collider in handColliders)
                     {
                         collider.excludeLayers = 0;
                     }
+                    rb.isKinematic = true;
                     rb.isKinematic = false;
                     break;
                 case IpadState.InLeftHand:
@@ -87,12 +88,13 @@ namespace jeanf.vrplayer
                     else
                     {
                         pokeInteractor.SetActive(true);
-                        rb.isKinematic = true;
                         foreach (Collider collider in handColliders)
                         {
                             collider.excludeLayers = 0;
                         }
+                        rb.isKinematic = true;
                         rb.isKinematic = false;
+
                     }
                     break;
                 case IpadState.InRightHand:
@@ -107,11 +109,11 @@ namespace jeanf.vrplayer
                     else
                     {
                         pokeInteractor.SetActive(true);
-                        rb.isKinematic = true;
                         foreach (Collider collider in handColliders)
                         {
                             collider.excludeLayers = 0;
                         }
+                        rb.isKinematic = true;
                         rb.isKinematic = false;
                     }
                     break;
