@@ -153,7 +153,6 @@ namespace jeanf.vrplayer
             {
                 SetIpadStateForASpecificHand(handInfo, _rightHand.transform);
                 _ipadState = IpadState.InRightHand;
-                OnIpadStateChanged.Invoke(_ipadState);
                 _rightGrab.RaiseEvent();
                 if(_rightHandPoseManager) _rightHandPoseManager.ApplyPose(primaryItemPose);
                 //_poseContainer.SetAttachTransform_Right();
@@ -161,6 +160,7 @@ namespace jeanf.vrplayer
                 _leftHandPoseManager.ApplyDefaultPose();
                 _noGrab.RaiseEvent();
                 _PrimaryItemStateChannel.RaiseEvent(true);
+                OnIpadStateChanged.Invoke(_ipadState);
             }
             else
             {
