@@ -130,20 +130,20 @@ namespace jeanf.vrplayer
             {
                 SetIpadStateForASpecificHand(handInfo, _leftHand);
                 _ipadState = IpadState.InLeftHand;
-                _PrimaryItemStateChannel.RaiseEvent(true);
                 _leftGrab.RaiseEvent();
                 if(_leftHandPoseManager) _leftHandPoseManager.ApplyPose(primaryItemPose);
                 //_poseContainer.SetAttachTransform_Left();
-                if(_rightHandPoseManager) _rightHandPoseManager.ApplyDefaultPose();
+                if (!_rightHandPoseManager) return;
+                _rightHandPoseManager.ApplyDefaultPose();
+                _noGrab.RaiseEvent();
+                _PrimaryItemStateChannel.RaiseEvent(true);
                 OnIpadStateChanged.Invoke(_ipadState);  
             }
             else
             {
                 _ipadState = IpadState.Disabled;
                 _PrimaryItemStateChannel.RaiseEvent(false);
-                if (!_leftHandPoseManager) return;
-                _leftHandPoseManager.ApplyDefaultPose();
-                _noGrab.RaiseEvent();
+                if (_leftHandPoseManager) _leftHandPoseManager.ApplyDefaultPose();
                 OnIpadStateChanged.Invoke(_ipadState);
             }
         }
