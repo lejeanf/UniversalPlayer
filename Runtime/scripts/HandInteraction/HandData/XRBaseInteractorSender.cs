@@ -28,13 +28,10 @@ namespace jeanf.vrplayer
             try
             {
                 baseInteractor = this.transform.GetComponent<XRBaseInteractor>();
-                Debug.Log(this.transform.GetComponent<XRBaseInteractor>());
-                if (!this.transform.GetComponent<XRBaseInteractor>()) Debug.Log("try, target is null");
             }
             catch (Exception)
             {   
                 baseInteractor = this.transform.GetComponentInChildren<XRBaseInteractor>();
-                throw;
             }
             SendXRDirectInteractor();
         }

@@ -15,7 +15,7 @@ namespace  jeanf.vrplayer
         public UnityEvent grabAction;
         public UnityEvent ungrabAction;
 
-        private void Start()
+        private void OnEnable()
         {
            //Debug.Log(this.gameObject.name + " start " + targetInteractor.name);
             Init();
