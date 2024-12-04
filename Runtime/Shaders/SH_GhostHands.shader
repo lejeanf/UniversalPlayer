@@ -14,11 +14,11 @@ Shader "Unlit/GhostHands"
     {
         Tags { "RenderType"="Transparent" }
         LOD 100
-        Blend SrcAlpha OneMinusSrcAlpha
+      //  Blend SrcAlpha OneMinusSrcAlpha
         Pass
         {
-            ZTest Always
-            ZWrite Off
+            //ZTest LEquals
+            //ZWrite Off
             ColorMask RGB
 
             CGPROGRAM
