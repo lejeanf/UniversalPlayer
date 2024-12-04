@@ -64,7 +64,8 @@ Material:
     - _ReversedFresnelRamp: 0
     - _StencilRefGBuffer: 2
     - _SurfaceType: 1
-    - _ZTestDepthEqualForOpaque: 4
+    - _ZTestDepthEqualForOpaque: 8
+    - _ZTestTransparent: 8
     - _ZWrite: 0
     m_Colors:
     - _BaseColor: {r: 0.05231038, g: 0.72146827, b: 0.89433956, a: 1}
