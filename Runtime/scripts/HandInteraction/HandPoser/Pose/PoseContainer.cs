@@ -26,18 +26,19 @@ namespace jeanf.vrplayer
 
         public void SetAttachTransform(HandInfo handInfo)
         {
-            if (_grabInteractable == null)
+            Debug.Log("SetAttachTransform");
+            /*if (_grabInteractable == null)
             {
                 _grabInteractable = GetComponent<XRGrabInteractable>();
             }
             // in case there is no attatch transform in the Grab Interactable
             if (_grabInteractable.attachTransform == null)
                 Instantiate(new GameObject("attachTransform"), _grabInteractable.transform);
-        
+
             //_grabInteractable.attachTransform.localPosition = handInfo.attachPosition;
             //_grabInteractable.attachTransform.localRotation = handInfo.attachRotation;
-        
-            if(_isDebug) Debug.Log($"attach transform pos: [{handInfo.attachPosition}], rot: [{handInfo.attachRotation.eulerAngles}] ");
+
+            if (_isDebug) Debug.Log($"attach transform pos: [{handInfo.attachPosition}], rot: [{handInfo.attachRotation.eulerAngles}] ");*/
         }
 
         public void SetAttachTransform_Left() => SetAttachTransform(pose.leftHandInfo);
