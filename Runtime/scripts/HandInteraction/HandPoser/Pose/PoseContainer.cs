@@ -34,8 +34,8 @@ namespace jeanf.vrplayer
             if (_grabInteractable.attachTransform == null)
                 Instantiate(new GameObject("attachTransform"), _grabInteractable.transform);
         
-            _grabInteractable.attachTransform.localPosition = handInfo.attachPosition;
-            _grabInteractable.attachTransform.localRotation = handInfo.attachRotation;
+            //_grabInteractable.attachTransform.localPosition = handInfo.attachPosition;
+            //_grabInteractable.attachTransform.localRotation = handInfo.attachRotation;
         
             if(_isDebug) Debug.Log($"attach transform pos: [{handInfo.attachPosition}], rot: [{handInfo.attachRotation.eulerAngles}] ");
         }
