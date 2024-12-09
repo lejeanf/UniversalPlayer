@@ -30,13 +30,9 @@ namespace jeanf.vrplayer
         public float InitialAngularDrag { get { return initialAngularDrag; } }
         public bool InitialUseGravity { get { return initialUseGravity; } }
 
-        public bool canBeRejected;
-        [SerializeField] bool printPositionOnUpdate;
+        [SerializeField] private bool canBeRejected;
+        public bool CanBeRejected { get { return canBeRejected; } }
 
-        private void Update()
-        {
-            if (printPositionOnUpdate) Debug.Log(this.transform.position);
-        }
 
         private void Awake()
         {
