@@ -13,12 +13,7 @@ namespace jeanf.vrplayer
         Collider[] handColliders;
         [SerializeField] LayerMask ignoreTheseOnGrab;
         GameObject pokeInteractor;
-        private enum HandSide
-        {
-            Left,
-            Right
-        }
-        [SerializeField] HandSide handSide;
+        [SerializeField] HandType handType;
         void Start()
         {
             rb = GetComponent<Rigidbody>();
@@ -75,7 +70,7 @@ namespace jeanf.vrplayer
                     }
                     break;
                 case IpadState.InLeftHand:
-                    if (handSide == HandSide.Left)
+                    if (handType == HandType.Left)
                     {
                         foreach (Collider collider in handColliders)
                         {
@@ -93,7 +88,7 @@ namespace jeanf.vrplayer
                     }
                     break;
                 case IpadState.InRightHand:
-                    if (handSide == HandSide.Right)
+                    if (handType == HandType.Right)
                     {
                         foreach (Collider collider in handColliders)
                         {
@@ -112,20 +107,23 @@ namespace jeanf.vrplayer
                     break;
             }
         }
-        void HandleColliders(bool value)
+        void HandleColliders(bool value, HandType side)
         {
-            if (value)
+            if (side == handType)
             {
-                foreach(Collider collider in handColliders)
+                if (value)
                 {
-                    collider.excludeLayers = ignoreTheseOnGrab;
+                    foreach (Collider collider in handColliders)
+                    {
+                        collider.excludeLayers = ignoreTheseOnGrab;
+                    }
                 }
-            }
-            else
-            {
-                foreach(Collider collider in handColliders)
+                else
                 {
-                    collider.excludeLayers = 0;
+                    foreach (Collider collider in handColliders)
+                    {
+                        collider.excludeLayers = 0;
+                    }
                 }
             }
         }

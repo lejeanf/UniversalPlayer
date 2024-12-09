@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using jeanf.EventSystem;
 using Debug = UnityEngine.Debug;
 using jeanf.propertyDrawer;
@@ -67,14 +67,14 @@ namespace jeanf.vrplayer
         [SerializeField] GameObjectEventChannelSO objectDropped;
         [SerializeField] GameObjectIntBoolEventChannelSO objectTakenChannel;
         public static event Action<HandType> OnHandGrabbed;
-        public static event Action<bool> OnGrabDeactivateCollider;
+        public static event Action<bool, HandType> OnGrabDeactivateCollider;
         [Header("Listening On")]
         [SerializeField] IntEventChannelSO roomIdChannelSO;
         [SerializeField] GameObjectEventChannelSO snapEventChannelSO;
 
         [Header("XR")]
-        [SerializeField] UnityEngine.XR.Interaction.Toolkit.Interactors.NearFarInteractor rightInteractor;
-        [SerializeField] UnityEngine.XR.Interaction.Toolkit.Interactors.NearFarInteractor leftInteractor;
+        [SerializeField] NearFarInteractor rightInteractor;
+        [SerializeField] NearFarInteractor leftInteractor;
 
         [Header("Objects in players's hand")]
         PickableObject objectRightHand;
@@ -189,7 +189,7 @@ namespace jeanf.vrplayer
             var selectedInteractable = rightInteractor.interactablesSelected[0]; // Get the first selected interactable
             objectRightHand = selectedInteractable.transform.gameObject.GetComponent<PickableObject>();
             OnHandGrabbed.Invoke(HandType.Right);
-            OnGrabDeactivateCollider.Invoke(true);
+            OnGrabDeactivateCollider.Invoke(true, HandType.Right);
         }
 
         public void AssignGameObjectInLeftHand()
@@ -198,7 +198,7 @@ namespace jeanf.vrplayer
             var selectedInteractable = leftInteractor.interactablesSelected[0]; // Get the first selected interactable
             objectLeftHand = selectedInteractable.transform.gameObject.GetComponent<PickableObject>();
             OnHandGrabbed.Invoke(HandType.Left);
-            OnGrabDeactivateCollider.Invoke(true);
+            OnGrabDeactivateCollider.Invoke(true, HandType.Left);
         }
         public void RemoveGameObjectInRightHand()
         {
@@ -206,7 +206,7 @@ namespace jeanf.vrplayer
             objectDropped?.RaiseEvent(objectRightHand.gameObject);
 
             objectRightHand = null;
-            OnGrabDeactivateCollider.Invoke(false);
+            OnGrabDeactivateCollider.Invoke(false, HandType.Right);
 
         }
 
@@ -215,7 +215,7 @@ namespace jeanf.vrplayer
             objectDropped?.RaiseEvent(objectLeftHand.gameObject);
 
             objectLeftHand = null;
-            OnGrabDeactivateCollider.Invoke(false);
+            OnGrabDeactivateCollider.Invoke(false, HandType.Left);
 
         }
 
