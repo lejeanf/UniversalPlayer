@@ -30,8 +30,8 @@ namespace jeanf.vrplayer
         public float InitialAngularDrag { get { return initialAngularDrag; } }
         public bool InitialUseGravity { get { return initialUseGravity; } }
 
-        [SerializeField] private bool canBeRejected;
-        public bool CanBeRejected { get { return canBeRejected; } }
+        public bool canBeRejected;
+
 
 
         private void Awake()
