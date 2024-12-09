@@ -18,9 +18,13 @@ namespace jeanf.vrplayer
         // The interactor we react to
         private XRGrabInteractable _grabInteractable;
 
-        [SerializeField] Transform leftAttachTransform;
-        [SerializeField] Transform rightAttachTransform;
-
+        [Header("Left attach transform")]
+        [SerializeField] private Vector3 leftAttachPosition;
+        [SerializeField] private Quaternion leftAttachRotation;
+        
+        [Header("Right attach transform")]
+        [SerializeField] private Vector3 rightAttachPosition;
+        [SerializeField] private Quaternion rightAttachRotation;
         private void Awake()
         {
             _grabInteractable = GetComponent<XRGrabInteractable>();
@@ -35,12 +39,12 @@ namespace jeanf.vrplayer
             switch (handSide)
             {
                 case HandType.Left:
-                    if (leftAttachTransform == null) return;
-                    _grabInteractable.attachTransform = leftAttachTransform; 
+                    _grabInteractable.attachTransform.position = leftAttachPosition;
+                    _grabInteractable.attachTransform.rotation = leftAttachRotation;
                     break;
                 case HandType.Right:
-                    if (rightAttachTransform == null) return;
-                    _grabInteractable.attachTransform = rightAttachTransform;
+                    _grabInteractable.attachTransform.position = rightAttachPosition;
+                    _grabInteractable.attachTransform.rotation = rightAttachRotation;
                     break;
             }
         }
