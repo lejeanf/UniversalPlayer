@@ -188,7 +188,6 @@ namespace jeanf.vrplayer
             if (rightInteractor.interactablesSelected.Count <= 0) return;
             var selectedInteractable = rightInteractor.interactablesSelected[0]; // Get the first selected interactable
             objectRightHand = selectedInteractable.transform.gameObject.GetComponent<PickableObject>();
-            OnHandGrabbed.Invoke(HandType.Right);
             OnGrabDeactivateCollider.Invoke(true, HandType.Right);
         }
 
@@ -197,7 +196,6 @@ namespace jeanf.vrplayer
             if (leftInteractor.interactablesSelected.Count <= 0) return;
             var selectedInteractable = leftInteractor.interactablesSelected[0]; // Get the first selected interactable
             objectLeftHand = selectedInteractable.transform.gameObject.GetComponent<PickableObject>();
-            OnHandGrabbed.Invoke(HandType.Left);
             OnGrabDeactivateCollider.Invoke(true, HandType.Left);
         }
         public void RemoveGameObjectInRightHand()

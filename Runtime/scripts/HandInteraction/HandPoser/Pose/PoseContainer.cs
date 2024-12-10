@@ -1,5 +1,6 @@
 ﻿using jeanf.EventSystem;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 namespace jeanf.vrplayer
@@ -25,26 +26,28 @@ namespace jeanf.vrplayer
         [Header("Right attach transform")]
         [SerializeField] private Vector3 rightAttachPosition;
         [SerializeField] private Quaternion rightAttachRotation;
+
+        [Header("Listening On")]
+        VoidEventChannelSO leftHandHovered;
+        VoidEventChannelSO rightHandHovered;
         private void Awake()
         {
             _grabInteractable = GetComponent<XRGrabInteractable>();
         }
-        private void OnEnable()
-        {
-            TakeObject.OnHandGrabbed += SetAttachTransform;
-        }
 
-        private void SetAttachTransform(HandType handSide)
+        public void SetAttachTransform_Left() => SetAttachTransform(HandType.Left);
+        public void SetAttachTransform_Right() => SetAttachTransform(HandType.Right);
+        public void SetAttachTransform(HandType handSide)
         {
             switch (handSide)
             {
                 case HandType.Left:
-                    _grabInteractable.attachTransform.position = leftAttachPosition;
-                    _grabInteractable.attachTransform.rotation = leftAttachRotation;
+                    _grabInteractable.attachTransform.localPosition = leftAttachPosition;
+                    _grabInteractable.attachTransform.localRotation = leftAttachRotation;
                     break;
                 case HandType.Right:
-                    _grabInteractable.attachTransform.position = rightAttachPosition;
-                    _grabInteractable.attachTransform.rotation = rightAttachRotation;
+                    _grabInteractable.attachTransform.localPosition = rightAttachPosition;
+                    _grabInteractable.attachTransform.localRotation = rightAttachRotation;
                     break;
             }
         }
@@ -68,8 +71,6 @@ namespace jeanf.vrplayer
         //    //if (_isDebug) Debug.Log($"attach transform pos: [{handInfo.attachPosition}], rot: [{handInfo.attachRotation.eulerAngles}] ");
         //}
 
-        //public void SetAttachTransform_Left() => SetAttachTransform(pose.leftHandInfo);
-        //public void SetAttachTransform_Right()=> SetAttachTransform(pose.rightHandInfo);
     }
 }
 
