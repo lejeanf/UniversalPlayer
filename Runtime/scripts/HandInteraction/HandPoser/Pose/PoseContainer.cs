@@ -43,11 +43,11 @@ namespace jeanf.vrplayer
             {
                 case HandType.Left:
                     _grabInteractable.attachTransform.localPosition = leftAttachPosition;
-                    _grabInteractable.attachTransform.Rotate(leftAttachRotation);
+                    _grabInteractable.attachTransform.localEulerAngles = leftAttachRotation;
                     break;
                 case HandType.Right:
                     _grabInteractable.attachTransform.localPosition = rightAttachPosition;
-                    _grabInteractable.attachTransform.Rotate(rightAttachRotation);
+                    _grabInteractable.attachTransform.localEulerAngles = rightAttachRotation;
                     break;
             }
         }
