@@ -21,11 +21,11 @@ namespace jeanf.vrplayer
 
         [Header("Left attach transform")]
         [SerializeField] private Vector3 leftAttachPosition;
-        [SerializeField] private Quaternion leftAttachRotation;
+        [SerializeField] private Vector3 leftAttachRotation;
         
         [Header("Right attach transform")]
         [SerializeField] private Vector3 rightAttachPosition;
-        [SerializeField] private Quaternion rightAttachRotation;
+        [SerializeField] private Vector3 rightAttachRotation;
 
         [Header("Listening On")]
         VoidEventChannelSO leftHandHovered;
@@ -43,11 +43,11 @@ namespace jeanf.vrplayer
             {
                 case HandType.Left:
                     _grabInteractable.attachTransform.localPosition = leftAttachPosition;
-                    _grabInteractable.attachTransform.localRotation = leftAttachRotation;
+                    _grabInteractable.attachTransform.Rotate(leftAttachRotation);
                     break;
                 case HandType.Right:
                     _grabInteractable.attachTransform.localPosition = rightAttachPosition;
-                    _grabInteractable.attachTransform.localRotation = rightAttachRotation;
+                    _grabInteractable.attachTransform.Rotate(rightAttachRotation);
                     break;
             }
         }
