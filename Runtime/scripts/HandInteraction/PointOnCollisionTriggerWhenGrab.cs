@@ -93,7 +93,7 @@ namespace jeanf.vrplayer
         {
             handsInDetectionzone += 1;
 
-            SetPointingPose();
+            SetPointingPose(true);
         }
 
         private void HandDisappearedInPointingZone()
@@ -101,13 +101,13 @@ namespace jeanf.vrplayer
             handsInDetectionzone -= 1;
             if (handsInDetectionzone < 0) handsInDetectionzone = 0;
 
-            SetPointingPose();
+            SetPointingPose(false);
         }
 
-        private void SetPointingPose()
+        private void SetPointingPose(bool state)
         {
             if(!setPointingPoseOnOppositeHandGrab) return;
-            if (grabCount >= 1 && handsInDetectionzone > 1)
+            if (state)
             {
                 Point();
             }
