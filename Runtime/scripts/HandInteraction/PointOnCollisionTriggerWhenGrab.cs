@@ -48,6 +48,8 @@ namespace jeanf.vrplayer
                 _HandDetectedEvent.OnEventRaised += HandDetectedInPointingZone;
             if (_HandDisapearedEvent != null)
                 _HandDisapearedEvent.OnEventRaised += HandDisappearedInPointingZone;
+
+            GetPrimaryInHandItemWithVRController.OnIpadStateChanged += SetGrabState;
         }
 
         private void OnDisable()
@@ -94,6 +96,25 @@ namespace jeanf.vrplayer
             handsInDetectionzone += 1;
 
             SetPointingPose(true);
+        }
+
+        private void SetGrabState(IpadState grabState)
+        {
+            switch (grabState)
+            {
+                case IpadState.InLeftHand:
+                    leftHandGrabState = true;
+                    rightHandGrabState = false;
+                    break;
+                case IpadState.InRightHand:
+                    rightHandGrabState = true;
+                    leftHandGrabState = false;
+                    break;
+                case IpadState.Disabled:
+                    leftHandGrabState = false;
+                    rightHandGrabState = false;
+                    break;
+            }
         }
 
         private void HandDisappearedInPointingZone()
