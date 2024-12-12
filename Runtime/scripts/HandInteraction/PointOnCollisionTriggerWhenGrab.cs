@@ -63,6 +63,8 @@ namespace jeanf.vrplayer
                 _HandDetectedEvent.OnEventRaised -= null;
             if (_HandDisapearedEvent != null)
                 _HandDisapearedEvent.OnEventRaised -= null;
+
+            GetPrimaryInHandItemWithVRController.OnIpadStateChanged -= SetGrabState;
         }
 
         private void CountTotalGrabsInAction(bool value)
@@ -113,6 +115,7 @@ namespace jeanf.vrplayer
                 case IpadState.Disabled:
                     leftHandGrabState = false;
                     rightHandGrabState = false;
+                    SetDefaultPose();
                     break;
             }
         }
@@ -153,6 +156,7 @@ namespace jeanf.vrplayer
                 leftHandIsPointingChannelSO.RaiseEvent(true);
             }
         }
+
 
         private void SetDefaultPose()
         {
