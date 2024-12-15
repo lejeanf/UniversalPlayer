@@ -61,11 +61,11 @@ namespace jeanf.vrplayer
             {
                 if (XRHandsInteractionManager.hand == XRHandsInteractionManager.LastUsedHand.LeftHand)
                 {
-                    _primaryItemStateWithUsedHandChannel.RaiseEvent("RightHand");
+                    _primaryItemStateWithUsedHandChannel.RaiseEvent("LeftHand");
                 }
                 else if (XRHandsInteractionManager.hand == XRHandsInteractionManager.LastUsedHand.RightHand)
                 {
-                    _primaryItemStateWithUsedHandChannel.RaiseEvent("LeftHand");
+                    _primaryItemStateWithUsedHandChannel.RaiseEvent("RightHand");
                 }
 
             }
