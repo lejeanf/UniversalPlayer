@@ -11,6 +11,9 @@ namespace jeanf.vrplayer
     public class XRHandsInteractionManager : MonoBehaviour
     {
         [SerializeField] InputActionReference uiClick;
+        [SerializeField] InputActionReference xrLeftGrab;
+        [SerializeField] InputActionReference xrRightGrab;
+
         public static LastUsedHand hand;
         public enum LastUsedHand
         {
@@ -18,11 +21,11 @@ namespace jeanf.vrplayer
             RightHand
         }
 
-
-
         private void OnEnable()
         {
             uiClick.action.performed += ctx => AssignLastUsedHand(ctx.action, ctx.control);
+            xrLeftGrab.action.performed += ctx => AssignLastUsedHand(ctx.action, ctx.control);
+            xrRightGrab.action.performed += ctx => AssignLastUsedHand(ctx.action, ctx.control);
         }
 
         private void OnDisable() => Unsubscribe();
@@ -32,6 +35,9 @@ namespace jeanf.vrplayer
         private void Unsubscribe()
         {
             uiClick.action.performed -= ctx => AssignLastUsedHand(ctx.action, ctx.control);
+            xrLeftGrab.action.performed -= ctx => AssignLastUsedHand(ctx.action, ctx.control);
+            xrRightGrab.action.performed -= ctx => AssignLastUsedHand(ctx.action, ctx.control);
+
         }
 
 

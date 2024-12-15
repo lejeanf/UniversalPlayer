@@ -132,6 +132,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   uiClick: {fileID: -703207714648265865, guid: 110d9016d6486d84697b9d7a66a57d45, type: 3}
+  xrLeftGrab: {fileID: 1335804337504186848, guid: 110d9016d6486d84697b9d7a66a57d45,
+    type: 3}
+  xrRightGrab: {fileID: 7118009963605505441, guid: 110d9016d6486d84697b9d7a66a57d45,
+    type: 3}
 --- !u!1 &965419837
 GameObject:
   m_ObjectHideFlags: 0
