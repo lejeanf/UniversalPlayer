@@ -40,7 +40,7 @@ namespace jeanf.vrplayer
             initialRotation = this.gameObject.transform.rotation;
             rb = GetComponent<Rigidbody>();
             InitialSaveFromRigidbodySettings();
-            parent = GetComponentInParent<Transform>();
+            parent = transform.parent;
 
         }
         private void InitialSaveFromRigidbodySettings()
