@@ -3000,6 +3000,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   handType: 1
+  controlSchemeChangeEvent: {fileID: 11400000, guid: 969e13ba914f5bb44811da904de9d4bc,
+    type: 2}
 --- !u!114 &5348442847224309706
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4647,6 +4649,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   handType: 2
+  controlSchemeChangeEvent: {fileID: 11400000, guid: 969e13ba914f5bb44811da904de9d4bc,
+    type: 2}
 --- !u!114 &1148101027494425303
 MonoBehaviour:
   m_ObjectHideFlags: 0

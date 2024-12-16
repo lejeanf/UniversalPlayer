@@ -1,3 +1,4 @@
+using jeanf.EventSystem;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
@@ -14,22 +15,28 @@ namespace jeanf.vrplayer
         [SerializeField] LayerMask ignoreTheseOnGrab;
         GameObject pokeInteractor;
         [SerializeField] HandType handType;
+
+        [SerializeField] VoidEventChannelSO controlSchemeChangeEvent;
+
         void Start()
         {
             rb = GetComponent<Rigidbody>();
             handColliders = GetComponentsInChildren<Collider>();
             pokeInteractor = GetComponentInChildren<XRPokeInteractor>().gameObject;
+            CheckXRStatus();
         }
 
         private void OnEnable()
         {
             TakeObject.OnGrabDeactivateCollider += HandleColliders;
             GetPrimaryInHandItemWithVRController.OnIpadStateChanged += ctx => HandleCollidersForSpecificHand(ctx);
+            controlSchemeChangeEvent.OnEventRaised += CheckXRStatus;
         }        
         private void OnDisable()
         {
             TakeObject.OnGrabDeactivateCollider -= HandleColliders;
             GetPrimaryInHandItemWithVRController.OnIpadStateChanged -= ctx => HandleCollidersForSpecificHand(ctx);
+            controlSchemeChangeEvent.OnEventRaised -= CheckXRStatus;
 
         }
         private void Update()
@@ -57,6 +64,17 @@ namespace jeanf.vrplayer
             rb.angularVelocity = (rotationDifferenceInDegree * Mathf.Deg2Rad/Time.deltaTime);
         }
 
+        private void CheckXRStatus()
+        {
+            if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR)
+            {
+                transform.parent.gameObject.SetActive(true);
+            }
+            else
+            {
+                transform.parent.gameObject.SetActive(false);
+            }
+        }
         void HandleCollidersForSpecificHand(IpadState value)
         {
             switch (value)
