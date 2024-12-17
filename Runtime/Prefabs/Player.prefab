@@ -3548,6 +3548,7 @@ GameObject:
   - component: {fileID: 8151279016463066}
   - component: {fileID: 371142883792763444}
   - component: {fileID: 5218907698331666862}
+  - component: {fileID: 1435471926417131452}
   m_Layer: 2
   m_Name: Locomotion
   m_TagString: Untagged
@@ -3601,6 +3602,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fa7b4195685c3846be746c74f0ab2f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1435471926417131452
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6136729394139936081}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d889ad02dbd7ade468abae0cf627db48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _isDebug: 0
+  inputActionAsset: {fileID: -944628639613478452, guid: 110d9016d6486d84697b9d7a66a57d45,
+    type: 3}
+  isInputFieldFocused: {fileID: 11400000, guid: 18a5405adeda6b6469dc7393511504a2,
+    type: 2}
+  isLoadingScene: {fileID: 11400000, guid: 71f4580ec0467024daf6ed1c69b4c82e, type: 2}
 --- !u!1 &6257423915777697682
 GameObject:
   m_ObjectHideFlags: 0
