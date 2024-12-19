@@ -51,13 +51,28 @@ namespace jeanf.vrplayer
             InputBinding inputBinding;
             inputBinding = (InputBinding)action.GetBindingForControl(control);
             Debug.Log(inputBinding.effectivePath);
+            //This needs to be done properly later
             if (inputBinding.effectivePath.Contains("RightHand"))
             {
-                hand = LastUsedHand.RightHand;
+                if (action == drawPrimaryItem_RightHand.action)
+                {
+                    hand = LastUsedHand.LeftHand;
+                }
+                else
+                {
+                    hand = LastUsedHand.RightHand;
+                }
             }
             else if (inputBinding.effectivePath.Contains("LeftHand"))
             {
-                hand = LastUsedHand.LeftHand;
+                if (action == drawPrimaryItem_LeftHand.action)
+                {
+                    hand = LastUsedHand.RightHand;
+                }
+                else
+                {
+                    hand = LastUsedHand.LeftHand;
+                }
             }
         }
     }
