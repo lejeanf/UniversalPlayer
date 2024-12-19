@@ -13,7 +13,8 @@ namespace jeanf.vrplayer
         [SerializeField] InputActionReference uiClick;
         [SerializeField] InputActionReference xrLeftGrab;
         [SerializeField] InputActionReference xrRightGrab;
-
+        [SerializeField] private InputActionReference drawPrimaryItem_LeftHand;
+        [SerializeField] private InputActionReference drawPrimaryItem_RightHand;
         public static LastUsedHand hand;
         public enum LastUsedHand
         {
@@ -26,6 +27,9 @@ namespace jeanf.vrplayer
             uiClick.action.performed += ctx => AssignLastUsedHand(ctx.action, ctx.control);
             xrLeftGrab.action.performed += ctx => AssignLastUsedHand(ctx.action, ctx.control);
             xrRightGrab.action.performed += ctx => AssignLastUsedHand(ctx.action, ctx.control);
+            drawPrimaryItem_LeftHand.action.performed += ctx => AssignLastUsedHand(ctx.action, ctx.control);
+            drawPrimaryItem_RightHand.action.performed += ctx => AssignLastUsedHand(ctx.action, ctx.control);
+
         }
 
         private void OnDisable() => Unsubscribe();
@@ -37,7 +41,8 @@ namespace jeanf.vrplayer
             uiClick.action.performed -= ctx => AssignLastUsedHand(ctx.action, ctx.control);
             xrLeftGrab.action.performed -= ctx => AssignLastUsedHand(ctx.action, ctx.control);
             xrRightGrab.action.performed -= ctx => AssignLastUsedHand(ctx.action, ctx.control);
-
+            drawPrimaryItem_LeftHand.action.performed -= ctx => AssignLastUsedHand(ctx.action, ctx.control);
+            drawPrimaryItem_RightHand.action.performed -= ctx => AssignLastUsedHand(ctx.action, ctx.control);
         }
 
 
@@ -45,6 +50,7 @@ namespace jeanf.vrplayer
         {
             InputBinding inputBinding;
             inputBinding = (InputBinding)action.GetBindingForControl(control);
+            Debug.Log(inputBinding.effectivePath);
             if (inputBinding.effectivePath.Contains("RightHand"))
             {
                 hand = LastUsedHand.RightHand;

@@ -136,6 +136,10 @@ MonoBehaviour:
     type: 3}
   xrRightGrab: {fileID: 7118009963605505441, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
+  drawPrimaryItem_LeftHand: {fileID: 626804673769608649, guid: 110d9016d6486d84697b9d7a66a57d45,
+    type: 3}
+  drawPrimaryItem_RightHand: {fileID: -5048793871558903138, guid: 110d9016d6486d84697b9d7a66a57d45,
+    type: 3}
 --- !u!1 &965419837
 GameObject:
   m_ObjectHideFlags: 0
