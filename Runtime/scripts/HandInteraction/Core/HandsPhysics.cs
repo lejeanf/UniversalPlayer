@@ -154,7 +154,7 @@ namespace jeanf.vrplayer
             switch (hand)
             {
                 case XRHandsInteractionManager.LastUsedHand.LeftHand:
-                    if (handType != HandType.Left) return;
+                    if (handType != HandType.Right) return;
                     if (state)
                     {
                         foreach (Collider collider in handColliders)
@@ -171,7 +171,7 @@ namespace jeanf.vrplayer
                     }
                     break;
                 case XRHandsInteractionManager.LastUsedHand.RightHand:
-                    if (handType != HandType.Right) return;
+                    if (handType != HandType.Left) return;
                     if (state)
                     {
                         foreach (Collider collider in handColliders)
