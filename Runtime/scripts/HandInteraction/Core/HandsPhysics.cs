@@ -159,14 +159,14 @@ namespace jeanf.vrplayer
                     {
                         foreach (Collider collider in handColliders)
                         {
-                            collider.excludeLayers = ignoreTheseOnGrab;
+                            collider.excludeLayers = 0;
                         }
                     }
                     else
                     {
                         foreach (Collider collider in handColliders)
                         {
-                            collider.excludeLayers = 0;
+                            collider.excludeLayers = ignoreTheseOnGrab;
                         }
                     }
                     break;
@@ -176,14 +176,15 @@ namespace jeanf.vrplayer
                     {
                         foreach (Collider collider in handColliders)
                         {
-                            collider.excludeLayers = ignoreTheseOnGrab;
+
+                            collider.excludeLayers = 0;
                         }
                     }
                     else
                     {
                         foreach (Collider collider in handColliders)
                         {
-                            collider.excludeLayers = 0;
+                            collider.excludeLayers = ignoreTheseOnGrab;
                         }
                     }
                     break;
