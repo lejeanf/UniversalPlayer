@@ -136,15 +136,15 @@ namespace jeanf.vrplayer
                 if (!_rightHandPoseManager) return;
                 _rightHandPoseManager.ApplyDefaultPose();
                 _noGrab.RaiseEvent();
-                _PrimaryItemStateChannel.RaiseEvent(true);
                 OnIpadStateChanged.Invoke(_ipadState);  
+                _PrimaryItemStateChannel.RaiseEvent(true);
             }
             else
             {
                 _ipadState = IpadState.Disabled;
                 _PrimaryItemStateChannel.RaiseEvent(false);
-                if (_leftHandPoseManager) _leftHandPoseManager.ApplyDefaultPose();
                 OnIpadStateChanged.Invoke(_ipadState);
+                if (_leftHandPoseManager) _leftHandPoseManager.ApplyDefaultPose();
             }
         }
         public void SetIpadStateForRightHand(HandInfo handInfo)
@@ -159,15 +159,15 @@ namespace jeanf.vrplayer
                 if (!_leftHandPoseManager) return;
                 _leftHandPoseManager.ApplyDefaultPose();
                 _noGrab.RaiseEvent();
-                _PrimaryItemStateChannel.RaiseEvent(true);
                 OnIpadStateChanged.Invoke(_ipadState);
+                _PrimaryItemStateChannel.RaiseEvent(true);
             }
             else
             {
                 _ipadState = IpadState.Disabled;
                 _PrimaryItemStateChannel.RaiseEvent(false);
-                if(_rightHandPoseManager) _rightHandPoseManager.ApplyDefaultPose();
                 OnIpadStateChanged.Invoke(_ipadState);
+                if(_rightHandPoseManager) _rightHandPoseManager.ApplyDefaultPose();
             }
         }
         public void SetIpadStateForASpecificHand(HandInfo handInfo, Transform parent)
