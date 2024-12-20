@@ -31,12 +31,15 @@ namespace jeanf.vrplayer
             TakeObject.OnGrabDeactivateCollider += HandleColliders;
             GetPrimaryInHandItemWithVRController.OnIpadStateChanged += ctx => HandleCollidersForSpecificHand(ctx);
             controlSchemeChangeEvent.OnEventRaised += CheckXRStatus;
+            PrimaryItemController.TriggerLastUsedHand += HandleColliders;
         }        
         private void OnDisable()
         {
             TakeObject.OnGrabDeactivateCollider -= HandleColliders;
             GetPrimaryInHandItemWithVRController.OnIpadStateChanged -= ctx => HandleCollidersForSpecificHand(ctx);
             controlSchemeChangeEvent.OnEventRaised -= CheckXRStatus;
+            PrimaryItemController.TriggerLastUsedHand -= HandleColliders;
+
 
         }
         private void Update()
@@ -143,6 +146,48 @@ namespace jeanf.vrplayer
                         collider.excludeLayers = 0;
                     }
                 }
+            }
+        }
+
+        void HandleColliders(XRHandsInteractionManager.LastUsedHand hand, bool state)
+        {
+            switch (hand)
+            {
+                case XRHandsInteractionManager.LastUsedHand.LeftHand:
+                    if (handType != HandType.Left) return;
+                    if (state)
+                    {
+                        foreach (Collider collider in handColliders)
+                        {
+                            collider.excludeLayers = ignoreTheseOnGrab;
+                        }
+                    }
+                    else
+                    {
+                        foreach (Collider collider in handColliders)
+                        {
+                            collider.excludeLayers = 0;
+                        }
+                    }
+                    break;
+                case XRHandsInteractionManager.LastUsedHand.RightHand:
+                    if (handType != HandType.Right) return;
+                    if (state)
+                    {
+                        foreach (Collider collider in handColliders)
+                        {
+                            collider.excludeLayers = ignoreTheseOnGrab;
+                        }
+                    }
+                    else
+                    {
+                        foreach (Collider collider in handColliders)
+                        {
+                            collider.excludeLayers = 0;
+                        }
+                    }
+                    break;
+
             }
         }
     }

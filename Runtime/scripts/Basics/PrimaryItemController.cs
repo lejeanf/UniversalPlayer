@@ -14,7 +14,7 @@ namespace jeanf.vrplayer
 
         [Header("Broadcasting on:")]
         [SerializeField] private BoolEventChannelSO _PrimaryItemStateChannel;
-        public static event Action NotifyVRPrimaryItem;
+        public static event Action<XRHandsInteractionManager.LastUsedHand, bool> TriggerLastUsedHand;
         private bool primaryItemState = false;
 
         private void OnEnable()
@@ -57,9 +57,12 @@ namespace jeanf.vrplayer
 
         private void StateOverride(bool state)
         {
+            if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR)
+            {
+                TriggerLastUsedHand.Invoke(XRHandsInteractionManager.hand, state);
 
+            }
             primaryItemState = state;
-            NotifyVRPrimaryItem.Invoke();
         }
 
         private void SetDrawPrimaryItemActionState(bool state)

@@ -56,8 +56,7 @@ namespace jeanf.vrplayer
             
             drawPrimaryItem_LeftHand.action.performed += ctx=> SetIpadStateForLeftHand(primaryItemPose.leftHandInfo);
             drawPrimaryItem_RightHand.action.performed += ctx=> SetIpadStateForRightHand(primaryItemPose.rightHandInfo);
-            _primaryItemStateWithUsedHandChannel.OnEventRaised += ctx => SetIpadStateForASpecificHand(ctx);
-            PrimaryItemController.NotifyVRPrimaryItem += SendIpadState;
+            _primaryItemStateWithUsedHandChannel.OnEventRaised += ctx => SetIpadStateForASpecificHand(ctx);;
         }
 
         private void OnDestroy() => Unsubscribe();
@@ -73,14 +72,10 @@ namespace jeanf.vrplayer
             drawPrimaryItem_LeftHand.action.performed -= null;
             drawPrimaryItem_RightHand.action.performed -= null;
             _primaryItemStateWithUsedHandChannel.OnEventRaised -= ctx => SetIpadStateForASpecificHand(ctx);
-            PrimaryItemController.NotifyVRPrimaryItem -= SendIpadState;
 
         }
 
-        private void SendIpadState()
-        {
-            OnIpadStateChanged.Invoke(_ipadState);
-        }
+
         private void AddHand(SkinnedMeshRenderer hand)
         {
             if (_hands.Contains(hand)) return;
