@@ -57,18 +57,18 @@ namespace jeanf.vrplayer
 
         private void StateOverride(bool state)
         {
-            if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR)
-            {
-                if (XRHandsInteractionManager.hand == XRHandsInteractionManager.LastUsedHand.LeftHand)
-                {
-                    _primaryItemStateWithUsedHandChannel.RaiseEvent("LeftHand");
-                }
-                else if (XRHandsInteractionManager.hand == XRHandsInteractionManager.LastUsedHand.RightHand)
-                {
-                    _primaryItemStateWithUsedHandChannel.RaiseEvent("RightHand");
-                }
+            //if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR)
+            //{
+            //    if (XRHandsInteractionManager.hand == XRHandsInteractionManager.LastUsedHand.LeftHand)
+            //    {
+            //        _primaryItemStateWithUsedHandChannel.RaiseEvent("LeftHand");
+            //    }
+            //    else if (XRHandsInteractionManager.hand == XRHandsInteractionManager.LastUsedHand.RightHand)
+            //    {
+            //        _primaryItemStateWithUsedHandChannel.RaiseEvent("RightHand");
+            //    }
 
-            }
+            //}
             primaryItemState = state;
         }
 
