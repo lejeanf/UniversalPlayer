@@ -68,6 +68,7 @@ namespace jeanf.vrplayer
         [SerializeField] GameObjectIntBoolEventChannelSO objectTakenChannel;
         public static event Action<HandType> OnHandGrabbed;
         public static event Action<bool, HandType> OnGrabDeactivateCollider;
+        public static event Action<string> OnVrGrabSwapPrimaryItem;
         [Header("Listening On")]
         [SerializeField] IntEventChannelSO roomIdChannelSO;
         [SerializeField] GameObjectEventChannelSO snapEventChannelSO;
@@ -189,6 +190,7 @@ namespace jeanf.vrplayer
             var selectedInteractable = rightInteractor.interactablesSelected[0]; // Get the first selected interactable
             objectRightHand = selectedInteractable.transform.gameObject.GetComponent<PickableObject>();
             OnGrabDeactivateCollider.Invoke(true, HandType.Right);
+            OnVrGrabSwapPrimaryItem("RightHand");
         }
 
         public void AssignGameObjectInLeftHand()
@@ -197,6 +199,8 @@ namespace jeanf.vrplayer
             var selectedInteractable = leftInteractor.interactablesSelected[0]; // Get the first selected interactable
             objectLeftHand = selectedInteractable.transform.gameObject.GetComponent<PickableObject>();
             OnGrabDeactivateCollider.Invoke(true, HandType.Left);
+            OnVrGrabSwapPrimaryItem("LeftHand");
+
         }
         public void RemoveGameObjectInRightHand()
         {

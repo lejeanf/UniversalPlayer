@@ -60,7 +60,6 @@ namespace jeanf.vrplayer
             if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR)
             {
                 TriggerLastUsedHand.Invoke(XRHandsInteractionManager.hand, state);
-
             }
             primaryItemState = state;
         }

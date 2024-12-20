@@ -57,6 +57,7 @@ namespace jeanf.vrplayer
             drawPrimaryItem_LeftHand.action.performed += ctx=> SetIpadStateForLeftHand(primaryItemPose.leftHandInfo);
             drawPrimaryItem_RightHand.action.performed += ctx=> SetIpadStateForRightHand(primaryItemPose.rightHandInfo);
             _primaryItemStateWithUsedHandChannel.OnEventRaised += ctx => SetIpadStateForASpecificHand(ctx);;
+            TakeObject.OnVrGrabSwapPrimaryItem += ReceiveGrabSide;
         }
 
         private void OnDestroy() => Unsubscribe();
@@ -72,7 +73,7 @@ namespace jeanf.vrplayer
             drawPrimaryItem_LeftHand.action.performed -= null;
             drawPrimaryItem_RightHand.action.performed -= null;
             _primaryItemStateWithUsedHandChannel.OnEventRaised -= ctx => SetIpadStateForASpecificHand(ctx);
-
+            TakeObject.OnVrGrabSwapPrimaryItem -= ReceiveGrabSide;
         }
 
 
@@ -179,6 +180,18 @@ namespace jeanf.vrplayer
             primaryItem.localRotation = handInfo.attachRotation;
         }
 
+        private void ReceiveGrabSide(string str)
+        {
+            if (!primaryItem) return;
+            if (str == "LeftHand")
+            {
+                SetIpadStateForASpecificHand(primaryItemPose.leftHandInfo, _leftHand.transform);
+            }
+            else if (str == "RightHand")
+            {
+                SetIpadStateForASpecificHand(primaryItemPose.rightHandInfo, _rightHand.transform);
+            }
+        }
         public void SetIpadStateForASpecificHand(string hand)
         {
             if (!primaryItem) return;
@@ -190,7 +203,6 @@ namespace jeanf.vrplayer
             {
                 SetIpadStateForLeftHand(primaryItemPose.leftHandInfo);
             }
-
         }
     }
 }
