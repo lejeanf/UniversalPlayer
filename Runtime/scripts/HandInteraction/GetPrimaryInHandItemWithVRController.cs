@@ -183,11 +183,11 @@ namespace jeanf.vrplayer
         private void ReceiveGrabSide(string str)
         {
             if (!primaryItem) return;
-            if (str == "LeftHand")
+            if (str == "RightHand")
             {
                 SetIpadStateForASpecificHand(primaryItemPose.leftHandInfo, _leftHand.transform);
             }
-            else if (str == "RightHand")
+            else if (str == "LeftHand")
             {
                 SetIpadStateForASpecificHand(primaryItemPose.rightHandInfo, _rightHand.transform);
             }
