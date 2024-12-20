@@ -54,7 +54,7 @@ namespace jeanf.vrplayer
             //This needs to be done properly later
             if (inputBinding.effectivePath.Contains("RightHand"))
             {
-                if (action == drawPrimaryItem_RightHand.action)
+                if (action == drawPrimaryItem_RightHand.action || action == xrRightGrab.action)
                 {
                     hand = LastUsedHand.LeftHand;
                 }
@@ -65,7 +65,7 @@ namespace jeanf.vrplayer
             }
             else if (inputBinding.effectivePath.Contains("LeftHand"))
             {
-                if (action == drawPrimaryItem_LeftHand.action)
+                if (action == drawPrimaryItem_LeftHand.action || action == xrLeftGrab.action)
                 {
                     hand = LastUsedHand.RightHand;
                 }
