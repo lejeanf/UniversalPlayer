@@ -72,7 +72,7 @@ MonoBehaviour:
   drawPrimaryItem_RightHand: {fileID: -5048793871558903138, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   _leftHand: {fileID: 6369485946895531558}
-  _rightHand: {fileID: 3473113492824555342}
+  _rightHand: {fileID: 5729610004327008}
   _leftHandPoseManager: {fileID: 5348442847224309706}
   _rightHandPoseManager: {fileID: 1148101027494425303}
   primaryItemPose: {fileID: 11400000, guid: 90c516f6ae0768d4d908ca1335e1bc71, type: 2}
