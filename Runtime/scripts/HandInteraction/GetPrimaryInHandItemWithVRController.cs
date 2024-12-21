@@ -25,11 +25,14 @@ namespace jeanf.vrplayer
         [Header("Inputs")]
         [SerializeField] private InputActionReference drawPrimaryItem_LeftHand;
         [SerializeField] private InputActionReference drawPrimaryItem_RightHand;
-        
+
 
         [Header("Hands Information")]
-        private Transform _leftHand, _rightHand;
-        [ReadOnly][SerializeField] private HandPoseManager _leftHandPoseManager, _rightHandPoseManager;
+        [SerializeField] private Transform _leftHand;
+        [SerializeField] private Transform _rightHand;
+        [SerializeField] private HandPoseManager _leftHandPoseManager;
+        [SerializeField] private HandPoseManager _rightHandPoseManager;
+
         [SerializeField] private Pose primaryItemPose;
         
         [Header("PrimaryItem")] 
@@ -51,8 +54,8 @@ namespace jeanf.vrplayer
 
         private void OnEnable()
         {
-            BlendableHand.AddHand += AddHand;
-            BlendableHand.RemoveHand += RemoveHand;
+            //BlendableHand.AddHand += AddHand;
+            //BlendableHand.RemoveHand += RemoveHand;
             
             drawPrimaryItem_LeftHand.action.performed += ctx=> SetIpadStateForLeftHand(primaryItemPose.leftHandInfo);
             drawPrimaryItem_RightHand.action.performed += ctx=> SetIpadStateForRightHand(primaryItemPose.rightHandInfo);
@@ -77,38 +80,38 @@ namespace jeanf.vrplayer
         }
 
 
-        private void AddHand(SkinnedMeshRenderer hand)
-        {
-            if (_hands.Contains(hand)) return;
-            _hands.Add(hand);
-            var handPoseManager = hand.transform.parent.transform.parent.GetComponent<HandPoseManager>() == null? hand.transform.parent.GetComponent<HandPoseManager>(): hand.transform.parent.transform.parent.GetComponent<HandPoseManager>();
-            var handType = handPoseManager.HandType;
-            if(isDebug) Debug.Log($"handType {handType}");
-            if(isDebug && handPoseManager) Debug.Log($"handPoseManager {handPoseManager.HandType}");
-            switch (handType)
-            {
-                case HandType.Left:
-                    _leftHand = hand.gameObject.transform;
-                    _leftHandPoseManager = handPoseManager;
-                    break;
-                case HandType.Right:
-                    _rightHand = hand.gameObject.transform;
-                    _rightHandPoseManager = handPoseManager;
-                    break;
-                case HandType.None:
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-        private void RemoveHand(SkinnedMeshRenderer hand)
-        {
-            if(_hands.Count > 0 && _hands.Contains(hand)) _hands.Remove(hand);
-            _leftHand = null;
-            _rightHand = null;
-            _leftHandPoseManager = null;
-            _rightHandPoseManager = null;
-            _noGrab.RaiseEvent();
-        }
+        //private void AddHand(SkinnedMeshRenderer hand)
+        //{
+        //    if (_hands.Contains(hand)) return;
+        //    _hands.Add(hand);
+        //    var handPoseManager = hand.transform.parent.transform.parent.GetComponent<HandPoseManager>() == null? hand.transform.parent.GetComponent<HandPoseManager>(): hand.transform.parent.transform.parent.GetComponent<HandPoseManager>();
+        //    var handType = handPoseManager.HandType;
+        //    if(isDebug) Debug.Log($"handType {handType}");
+        //    if(isDebug && handPoseManager) Debug.Log($"handPoseManager {handPoseManager.HandType}");
+        //    switch (handType)
+        //    {
+        //        case HandType.Left:
+        //            _leftHand = hand.gameObject.transform;
+        //            _leftHandPoseManager = handPoseManager;
+        //            break;
+        //        case HandType.Right:
+        //            _rightHand = hand.gameObject.transform;
+        //            _rightHandPoseManager = handPoseManager;
+        //            break;
+        //        case HandType.None:
+        //        default:
+        //            throw new ArgumentOutOfRangeException();
+        //    }
+        //}
+        //private void RemoveHand(SkinnedMeshRenderer hand)
+        //{
+        //    if(_hands.Count > 0 && _hands.Contains(hand)) _hands.Remove(hand);
+        //    _leftHand = null;
+        //    _rightHand = null;
+        //    _leftHandPoseManager = null;
+        //    _rightHandPoseManager = null;
+        //    _noGrab.RaiseEvent();
+        //}
 
         public InputActionReference GetActiveHand()
         {

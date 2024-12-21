@@ -54,8 +54,6 @@ MonoBehaviour:
   loginFieldIsOpened: {fileID: 11400000, guid: 18a5405adeda6b6469dc7393511504a2, type: 2}
   _PrimaryItemStateChannel: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6,
     type: 2}
-  _primaryItemStateWithUsedHandChannel: {fileID: 11400000, guid: a75340a736e03214882a9df083e27d09,
-    type: 2}
 --- !u!114 &1445164021152325472
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73,8 +71,10 @@ MonoBehaviour:
     type: 3}
   drawPrimaryItem_RightHand: {fileID: -5048793871558903138, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
-  _leftHandPoseManager: {fileID: 0}
-  _rightHandPoseManager: {fileID: 0}
+  _leftHand: {fileID: 6369485946895531558}
+  _rightHand: {fileID: 3473113492824555342}
+  _leftHandPoseManager: {fileID: 5348442847224309706}
+  _rightHandPoseManager: {fileID: 1148101027494425303}
   primaryItemPose: {fileID: 11400000, guid: 90c516f6ae0768d4d908ca1335e1bc71, type: 2}
   primaryItem: {fileID: 0}
   _PrimaryItemStateChannel: {fileID: 11400000, guid: 7958c71ccf936994aa4ea1f6f86a3833,
