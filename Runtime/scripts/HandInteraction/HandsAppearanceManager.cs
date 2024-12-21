@@ -77,13 +77,13 @@ namespace jeanf.vrplayer
         [Header("Listening on:")]
         [SerializeField] private BoolEventChannelSO gloveStateChannel;
 
-        [SerializeField] private BoolEventChannelSO hmdStateChannel;
+        //[SerializeField] private BoolEventChannelSO hmdStateChannel;
         private void OnEnable()
         {
             BlendableHand.AddHand += AddHand;
             BlendableHand.RemoveHand += RemoveHand;
             gloveStateChannel.OnEventRaised += SetGloveState;
-            hmdStateChannel.OnEventRaised += SetUpdateState;
+            //hmdStateChannel.OnEventRaised += SetUpdateState;
         }
 
         private void OnDisable() => Unsubscribe();
@@ -96,7 +96,7 @@ namespace jeanf.vrplayer
             BlendableHand.AddHand -= AddHand;
             BlendableHand.RemoveHand -= RemoveHand;
             gloveStateChannel.OnEventRaised -= SetGloveState;
-            hmdStateChannel.OnEventRaised -= SetUpdateState;
+            //hmdStateChannel.OnEventRaised -= SetUpdateState;
         }
 
         private void Update()
@@ -104,18 +104,13 @@ namespace jeanf.vrplayer
             if(BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR)
             {
                 SetHandsVisibility(true);
+                SetHandMaterials(_hands, gender * 0.01f);
+                SetGloveValue(_hands, gloveValue);
+                SetGender(_hands, gender);
+                SetBodyMass(_hands, bodyMass);
+                SetSkinDarkness(_hands, skinDarkness);
             }
-            else
-            {
-                SetHandsVisibility(false);
-            }
-            if(!canUpdate)return;
             //SetBlendValueFromGender(gender);
-            SetHandMaterials(_hands, gender * 0.01f);
-            SetGloveValue(_hands, gloveValue);
-            SetGender(_hands, gender);
-            SetBodyMass(_hands, bodyMass);
-            SetSkinDarkness(_hands, skinDarkness);
         }
         private void AddHand(SkinnedMeshRenderer hand)
         {
