@@ -80,6 +80,7 @@ public abstract class BaseHand : MonoBehaviour, IDebugBehaviour
         if (handInfo == null) return;
         ApplyFingerRotations(handInfo.fingerRotations);
 
+        Debug.Log("APLLYNG POSE");
         // Position, and rotate, this differs on the type of hand
         //ApplyOffset(handInfo.attachPosition, handInfo.attachRotation);
     }

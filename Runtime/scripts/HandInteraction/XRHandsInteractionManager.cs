@@ -50,7 +50,6 @@ namespace jeanf.vrplayer
         {
             InputBinding inputBinding;
             inputBinding = (InputBinding)action.GetBindingForControl(control);
-            Debug.Log(inputBinding.effectivePath);
             //This needs to be done properly later
             if (inputBinding.effectivePath.Contains("RightHand"))
             {
