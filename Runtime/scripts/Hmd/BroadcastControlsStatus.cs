@@ -72,7 +72,7 @@ namespace jeanf.vrplayer
             playerInput.onControlsChanged -= ctx => SetCurrentControlSchemeOnSwitch();
         }
 
-        private bool GetHMDState()
+        public bool GetHMDState()
         {
             if (controlScheme == ControlScheme.XR)
             {
