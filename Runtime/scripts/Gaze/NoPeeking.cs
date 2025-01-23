@@ -38,6 +38,7 @@ namespace jeanf.vrplayer
                     isHeadInWall = false;
                 }
             }
+            Debug.Log("FADE - FixedUpdate No Peeking");
             
             FadeMask.FadeValue(isHeadInWall);
             if(isDebug) Debug.Log($"isHeadInWall: {isHeadInWall}");
