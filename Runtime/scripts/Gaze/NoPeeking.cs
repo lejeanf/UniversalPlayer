@@ -25,20 +25,20 @@ namespace jeanf.vrplayer
             if (isSceneLoading)
             {
                 isHeadInWall = true;
-                Debug.Log("Head is in wall + scene loading");
+                Debug.Log("FADE - from scene loading");
             }
             else
             {
                 if (isDebug) Debug.Log("NoPeeking - made it through the return");
                 if (Physics.CheckSphere(transform.position, sphereCheckSize, collisionLayer, QueryTriggerInteraction.Ignore))
                 {
-                    Debug.Log("Head is in wall for real");
+                    Debug.Log("FADE - from head in wall");
                     isHeadInWall = true;
                 }
                 else
                 {
                     isHeadInWall = false;
-                    Debug.Log("fade is not in wall");
+                    Debug.Log("FADE - Not in wall");
                 }
             }
             Debug.Log("FADE - FixedUpdate No Peeking");
