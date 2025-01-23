@@ -57,7 +57,6 @@ namespace jeanf.vrplayer
             }
             staticPostProcessVolume = postProcessVolume;
             FadeValue(false, .5f);
-            Debug.Log("FADE - AWAKE");
         }
         
         private void OnEnable()
@@ -87,7 +86,6 @@ namespace jeanf.vrplayer
 
         public static void SwitchFadeState()
         {
-            Debug.Log("FADE - switchFadeState");
             _isFaded = !_isFaded;
             FadeValue(_isFaded);
         }
@@ -95,12 +93,10 @@ namespace jeanf.vrplayer
         {
             FadeValue(value, _fadeTime);
             if (_isDebugSTATIC) Debug.Log($"Fading to: {value}, in {_fadeTime}");
-            Debug.Log("FADE - FadeValue1");
         }
 
         public static void FadeValue(bool value, float fadeTime)
         {
-            Debug.Log("FADE - FadeValue2");
 
             if (_isDebugSTATIC) Debug.Log($"Fading to: {value}, in {fadeTime}s");
             float alpha = value ? 1 : 0;
