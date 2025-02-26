@@ -52,6 +52,7 @@ namespace jeanf.vrplayer
 
         private void LateUpdate()
         {
+            Debug.Log("IS CHARACTER GROUNDED" + controller.isGrounded);
             if (isMoving)
             {
                 Move(moveValue);
