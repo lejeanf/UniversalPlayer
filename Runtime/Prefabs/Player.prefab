@@ -366,7 +366,6 @@ MonoBehaviour:
   shiftTypeHandAction: {fileID: -6974777946573060807, guid: 110d9016d6486d84697b9d7a66a57d45,
     type: 3}
   gloveStateChannel: {fileID: 11400000, guid: 44afa38efccaafb40b05699ac6bd3740, type: 2}
-  hmdStateChannel: {fileID: 11400000, guid: 386d301c089a7c545adcdce484194ba9, type: 2}
 --- !u!114 &5959858377094773320
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5699,6 +5698,7 @@ GameObject:
   - component: {fileID: 2559006522628317241}
   - component: {fileID: 9026189532706801214}
   - component: {fileID: 7126930088852696200}
+  - component: {fileID: 832026718078124461}
   m_Layer: 2
   m_Name: Player
   m_TagString: Player
@@ -6268,6 +6268,24 @@ MonoBehaviour:
   rightHand: {fileID: 8387425044706141412}
   leftHand: {fileID: 2278783626678670785}
   changedControlSchemeChannel: {fileID: 11400000, guid: 969e13ba914f5bb44811da904de9d4bc,
+    type: 2}
+--- !u!114 &832026718078124461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8694773027870397994}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c8b4115e1573a547b163e056a26bf0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  leftHandHapticImpulse: {fileID: 4639468132779024615}
+  rightHandHapticImpulse: {fileID: 99115431391698741}
+  amplitude: 0.5
+  duration: 0.2
+  hapticFeedbackOnSpecificHandSO: {fileID: 11400000, guid: d3e22cdb3c9760a44b85404ff348f6ee,
     type: 2}
 --- !u!1 &8761714896230907912
 GameObject:
