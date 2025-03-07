@@ -23,6 +23,7 @@ namespace jeanf.vrplayer
         public static event Action<bool> OnSnap;
         [SerializeField] Quaternion snapOffsetRotation;
         [SerializeField] VoidEventChannelSO snapBegun;
+        [SerializeField] VoidEventChannelSO snapEnded;
 
         //On assigne
         private void OnTriggerEnter(Collider other)
@@ -60,6 +61,7 @@ namespace jeanf.vrplayer
                 attachedSnapZone = null;
                 nearestSnapPoint = null;
                 OnSnap.Invoke(false);
+                snapEnded.RaiseEvent(); 
             }
         }
 
