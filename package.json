@@ -1,5 +1,5 @@
 ﻿{
-  "name": "fr.jeanf.vr.player",
+  "name": "fr.jeanf.universal.player",
 
   "version": "0.7.3",
 
@@ -9,6 +9,8 @@
   "keywords": [
     "jeanf",
     "vr",
+    "Keyboard",
+    "controller",
     "player"
   ],
   "author": {
@@ -32,7 +34,7 @@
   },
   "samples": [
     {
-      "displayName": "VR Player",
+      "displayName": "Universal Player",
       "description": "Prefab of the player",
       "path": "Samples/VRPlayer"
     },
