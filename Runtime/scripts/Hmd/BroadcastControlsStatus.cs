@@ -7,6 +7,9 @@ namespace jeanf.vrplayer
 {
     public class BroadcastControlsStatus : MonoBehaviour, IDebugBehaviour
     {
+        public delegate void SendControlSchemeDelegate(ControlScheme controlScheme);
+        public static SendControlSchemeDelegate SendControlScheme;
+        
         public bool isDebug
         {
             get => _isDebug;
@@ -56,6 +59,8 @@ namespace jeanf.vrplayer
                     activeControlScheme.RaiseEvent();
                     break;
             }
+
+            SendControlScheme?.Invoke(controlScheme);
 
         }
 
