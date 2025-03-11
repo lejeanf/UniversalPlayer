@@ -12,11 +12,13 @@ public class HandVibration : MonoBehaviour
     [SerializeField] StringEventChannelSO hapticFeedbackOnSpecificHandSO;
     public delegate void VibrateHandDelegate(string hand, float amplitude, float duration);
 
-    public VibrateHandDelegate VibrateHand;
+    public static VibrateHandDelegate VibrateHand;
     private void OnEnable()
     {
         hapticFeedbackOnSpecificHandSO.OnEventRaised += TriggerHapticFeedback;
         VibrateHand += TriggerHapticFeedback;
+        
+        HandVibration.v
     }
 
     private void OnDisable()
