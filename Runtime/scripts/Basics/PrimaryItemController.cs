@@ -16,6 +16,7 @@ namespace jeanf.vrplayer
         [SerializeField] private BoolEventChannelSO _PrimaryItemStateChannel;
         public static event Action<XRHandsInteractionManager.LastUsedHand, bool> TriggerLastUsedHand;
         private bool primaryItemState = false;
+        public bool PrimaryItemState { get { return primaryItemState; } }
 
         private void OnEnable()
         {

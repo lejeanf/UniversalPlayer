@@ -52,8 +52,7 @@ namespace jeanf.vrplayer
         [SerializeField] private bool _isHmdActive = false;
         [SerializeField] private float min = -60.0f;
         [SerializeField] private float max = 75.0f;
-
-
+        [SerializeField] private PrimaryItemController primaryItemController;
         private Vector2 _rotation = Vector2.zero;
         private bool _cameraOffsetReset = false;
         /*
@@ -120,7 +119,7 @@ namespace jeanf.vrplayer
 
         public void ResetCameraSettings()
         {
-            if (BroadcastControlsStatus.controlScheme != BroadcastControlsStatus.ControlScheme.XR) SetMouseState(true);
+            if (BroadcastControlsStatus.controlScheme != BroadcastControlsStatus.ControlScheme.XR && !primaryItemController.PrimaryItemState) SetMouseState(true);
             playerCamera.fieldOfView = 60f;
             _rotation = Vector2.zero;
             cameraOffset.localPosition = _originalCameraOffset.localPosition;
