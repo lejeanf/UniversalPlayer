@@ -1,11 +1,8 @@
 using System;
-using jeanf.EventSystem;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.Serialization;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     public class XRBaseInteractorSender : MonoBehaviour
     {

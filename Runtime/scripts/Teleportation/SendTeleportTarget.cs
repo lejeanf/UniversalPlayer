@@ -7,7 +7,7 @@ using UnityEditor;
 #endif
 using jeanf.propertyDrawer;
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     public class SendTeleportTarget : MonoBehaviour, IDebugBehaviour
     {

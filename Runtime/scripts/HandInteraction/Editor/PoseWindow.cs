@@ -6,7 +6,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
 #if !UNITY_EDITOR
 public class PoseWindow {}

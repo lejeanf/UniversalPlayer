@@ -1,7 +1,7 @@
 using UnityEngine;
 
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     [RequireComponent(typeof(UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation.TeleportationArea))]
     public class BindTeleportationAreaToInteractionManager : MonoBehaviour

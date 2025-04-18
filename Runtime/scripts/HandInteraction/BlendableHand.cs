@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     [RequireComponent(typeof(SkinnedMeshRenderer))]
     public class BlendableHand : MonoBehaviour

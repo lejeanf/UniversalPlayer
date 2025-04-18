@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace jeanf.vrplayer 
+namespace jeanf.universalplayer 
 {
     public class HandsStateController : MonoBehaviour
     {

@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using jeanf.validationTools;
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     public class FPSCameraMovement : MonoBehaviour, IDebugBehaviour, IValidatable
     {

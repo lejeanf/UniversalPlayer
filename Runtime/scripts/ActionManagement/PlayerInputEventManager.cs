@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEditor;
 using jeanf.EventSystem;
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     public class PlayerInputEventManager : MonoBehaviour
     {

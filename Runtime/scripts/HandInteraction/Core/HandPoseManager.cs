@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit;
 
-namespace  jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     public class HandPoseManager : BaseHand
     {

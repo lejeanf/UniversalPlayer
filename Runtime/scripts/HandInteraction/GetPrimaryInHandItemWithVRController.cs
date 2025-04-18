@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
 using jeanf.EventSystem;
-using jeanf.propertyDrawer;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Debug = UnityEngine.Debug;
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
         public enum IpadState
         {

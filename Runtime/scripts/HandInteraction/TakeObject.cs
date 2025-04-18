@@ -9,7 +9,7 @@ using LitMotion;
 using UnityEngine.UIElements;
 using System;
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     public class TakeObject : MonoBehaviour, IDebugBehaviour
     {

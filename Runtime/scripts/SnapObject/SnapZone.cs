@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
  
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     public class SnapZone : MonoBehaviour
     {     

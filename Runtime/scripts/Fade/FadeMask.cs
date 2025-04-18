@@ -5,7 +5,7 @@ using UnityEngine.Serialization;
 using UnityEngine.Rendering;
 using LitMotion;
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     public class FadeMask : MonoBehaviour, IDebugBehaviour
     {

@@ -1,8 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using Unity.XR.CoreUtils;
-using jeanf.EventSystem;
-namespace jeanf.vrplayer {
+namespace jeanf.universalplayer {
     public class CreateVrPlayer : MonoBehaviour
     {
         //private static VoidEventChannelSO playerCreatedEventChannel;

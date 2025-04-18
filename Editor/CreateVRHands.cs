@@ -4,7 +4,7 @@
 //using UnityEditor;
 //using UnityEngine.XR.Interaction.Toolkit.Samples.Hands;
 
-//namespace jeanf.vrplayer
+//namespace jeanf.universalplayer
 //{
 //    [CustomEditor(typeof(HandsAndControllersManager))]
 //    public class CreateVRHands : Editor

@@ -1,9 +1,8 @@
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Serialization;
 
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     [System.Serializable]
     public class XRBaseInteractorEvent : UnityEvent<UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor>

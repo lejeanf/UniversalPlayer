@@ -1,9 +1,8 @@
 ﻿using jeanf.EventSystem;
 using UnityEngine;
-using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     public class PoseContainer : MonoBehaviour, IDebugBehaviour
     {

@@ -6,7 +6,7 @@ using jeanf.EventSystem;
 using LitMotion;
 using UnityEngine.InputSystem;
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     using jeanf.propertyDrawer;
     [ExecuteAlways]

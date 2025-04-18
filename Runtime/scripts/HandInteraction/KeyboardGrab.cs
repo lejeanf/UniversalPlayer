@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     [System.Obsolete("This is an obsolete method")]
     public class KeyboardGrab : MonoBehaviour

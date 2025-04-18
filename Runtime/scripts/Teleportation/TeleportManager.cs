@@ -3,7 +3,7 @@ using jeanf.EventSystem;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace jeanf.vrplayer 
+namespace jeanf.universalplayer 
 {
     public class TeleportManager : MonoBehaviour, IDebugBehaviour
     {

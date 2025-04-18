@@ -1,9 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     public class XRDebugger : MonoBehaviour
     {

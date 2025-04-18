@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     public class BroadcastControlsStatus : MonoBehaviour, IDebugBehaviour
     {
@@ -79,11 +79,7 @@ namespace jeanf.vrplayer
 
         public bool GetHMDState()
         {
-            if (controlScheme == ControlScheme.XR)
-            {
-                return true;
-            }
-            else { return false; }
+            return controlScheme == ControlScheme.XR;
         }
 
     }

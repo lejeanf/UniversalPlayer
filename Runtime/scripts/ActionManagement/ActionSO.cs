@@ -6,7 +6,7 @@ using jeanf.propertyDrawer;
 using jeanf.EventSystem;
 
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     [CreateAssetMenu(fileName = "ActionSO", menuName = "PlayerActions/ActionSO", order = 2)]
 

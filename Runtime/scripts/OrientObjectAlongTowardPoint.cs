@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using LitMotion;
 using UnityEngine;
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     public class OrientObjectAlongTowardPoint : MonoBehaviour
     {

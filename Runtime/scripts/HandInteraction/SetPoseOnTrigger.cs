@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     [RequireComponent(typeof(Collider))]
     public class SetPoseOnTrigger : MonoBehaviour

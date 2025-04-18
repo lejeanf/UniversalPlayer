@@ -1,17 +1,14 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.XR.Interaction.Toolkit;
 using jeanf.EventSystem;
-using jeanf.vrplayer;
 using jeanf.validationTools;
 
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     public class PlayerActionManager : MonoBehaviour, IValidatable
     {

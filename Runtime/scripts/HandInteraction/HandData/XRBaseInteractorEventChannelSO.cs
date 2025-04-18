@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     [CreateAssetMenu(menuName = "Events/XRBaseInteractor Event Channel")]
     public class XRBaseInteractorEventChannelSO : DescriptionBaseSO

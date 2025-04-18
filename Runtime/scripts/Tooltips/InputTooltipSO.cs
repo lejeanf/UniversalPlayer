@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.InputSystem.Users;
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     [CreateAssetMenu(fileName = "ControlsTooltipSO", menuName = "Tooltips/ControlsTooltipSO", order = 1)]
     public class InputTooltipSO : TooltipSO

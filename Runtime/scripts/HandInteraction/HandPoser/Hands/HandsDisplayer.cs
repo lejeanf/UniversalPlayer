@@ -1,38 +1,38 @@
 using jeanf.EventSystem;
-using jeanf.vrplayer;
 using UnityEngine;
 
-public class HandsDisplayer : MonoBehaviour
+namespace jeanf.universalplayer
 {
-    [SerializeField] GameObject rightHand;
-    [SerializeField] GameObject leftHand;
-    [SerializeField] VoidEventChannelSO changedControlSchemeChannel;
-
-    private void Awake()
+    public class HandsDisplayer : MonoBehaviour
     {
-        DisplayHands();
-    }
-    private void OnEnable()
-    {
-        
-        changedControlSchemeChannel.OnEventRaised += DisplayHands; 
-    }
+        [SerializeField] GameObject rightHand;
+        [SerializeField] GameObject leftHand;
+        [SerializeField] VoidEventChannelSO changedControlSchemeChannel;
 
-
-
-    void DisplayHands()
-    {
-        if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR)
+        private void Awake()
         {
-            rightHand?.SetActive(true);
-            leftHand?.SetActive(true);
+            DisplayHands();
         }
-        else
+        private void OnEnable()
         {
-            rightHand?.SetActive(false);
-            leftHand?.SetActive(false);
+            changedControlSchemeChannel.OnEventRaised += DisplayHands; 
+        }
+
+
+
+        private void DisplayHands()
+        {
+            if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR)
+            {
+                rightHand?.SetActive(true);
+                leftHand?.SetActive(true);
+            }
+            else
+            {
+                rightHand?.SetActive(false);
+                leftHand?.SetActive(false);
+            }
         }
     }
-
-
 }
+

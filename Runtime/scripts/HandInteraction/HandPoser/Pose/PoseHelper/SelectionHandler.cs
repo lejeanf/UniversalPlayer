@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 #endif
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     [ExecuteInEditMode]
     public class SelectionHandler : MonoBehaviour

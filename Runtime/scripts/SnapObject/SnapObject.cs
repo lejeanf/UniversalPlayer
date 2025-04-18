@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using jeanf.EventSystem;
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
    public class SnapObject : PickableObject
     {

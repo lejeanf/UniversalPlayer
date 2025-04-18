@@ -2,12 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.XR.Interaction.Toolkit;
-using jeanf.vrplayer;
 using jeanf.EventSystem;
 using jeanf.validationTools;
 
-namespace jeanf.vrplayer 
+namespace jeanf.universalplayer 
 {
     public class PlayerInputInterface : MonoBehaviour, IValidatable
     {

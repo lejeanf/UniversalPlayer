@@ -4,7 +4,7 @@ using jeanf.EventSystem;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     public class TeleportOnEvent : TeleportEventListener, IDebugBehaviour
     {

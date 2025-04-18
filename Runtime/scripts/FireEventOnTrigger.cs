@@ -2,7 +2,7 @@ using jeanf.EventSystem;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     [RequireComponent(typeof(Collider))]
     public class FireEventOnTrigger : MonoBehaviour, IDebugBehaviour

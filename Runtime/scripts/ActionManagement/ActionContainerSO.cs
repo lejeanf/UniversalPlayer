@@ -1,10 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using jeanf.propertyDrawer;
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     [CreateAssetMenu(fileName = "ActionContainerSO", menuName = "PlayerActions/ActionContainerSO", order = 3)]
     [ScriptableObjectDrawer]

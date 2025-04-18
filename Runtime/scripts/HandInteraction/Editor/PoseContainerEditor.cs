@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     #if UNITY_EDITOR
 

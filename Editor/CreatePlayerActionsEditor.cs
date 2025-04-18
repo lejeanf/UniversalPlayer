@@ -1,9 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     [CustomEditor(typeof(PlayerActionManager))]
     public class CreatePlayerActionsEditor : Editor

@@ -1,12 +1,11 @@
 using jeanf.EventSystem;
-using jeanf.vrplayer;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
 
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     public class XRHandsInteractionManager : MonoBehaviour
     {

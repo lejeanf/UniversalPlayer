@@ -2,7 +2,7 @@ using jeanf.EventSystem;
 using Unity.VectorGraphics;
 using UnityEngine;
 using UnityEngine.InputSystem;
-namespace jeanf.vrplayer
+namespace jeanf.universalplayer
 {
     public class CursorStateController : MonoBehaviour, IDebugBehaviour
     {
