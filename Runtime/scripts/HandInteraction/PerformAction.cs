@@ -43,7 +43,6 @@ namespace jeanf.universalplayer
     
         private void AttemptAction()
         {
-            if (_isDebug) Debug.Log("trying to interact with object");
             if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR) return;
             if (!cameraTransform) cameraTransform = Camera.main.transform;
     
