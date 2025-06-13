@@ -38,8 +38,9 @@ namespace jeanf.universalplayer
         [SerializeField] private Volume postProcessVolume;
         private static Volume staticPostProcessVolume;
 
-
         private static MotionHandle _fadeHandle;
+        private static bool _isCurrentlyFading = false;
+        private static bool _targetState = false;
 
         [Header("Listening On")]
         [SerializeField] private BoolFloatEventChannelSO fadeOutChannelSO;
@@ -71,7 +72,7 @@ namespace jeanf.universalplayer
 
         private void Unsubscribe()
         {
-            if (_shaderMaterial)_shaderMaterial.SetColor(FadeColor, new Color(color.r, color.g, color.b, 0));
+            if (_shaderMaterial)_shaderMaterial.SetColor(FadeColor, color);
             inputBinding.performed -= null;
             fadeOutChannelSO.OnEventRaised -= FadeValue;
             inputBinding.Disable();
@@ -89,6 +90,7 @@ namespace jeanf.universalplayer
             _isFaded = !_isFaded;
             FadeValue(_isFaded);
         }
+        
         public static void FadeValue(bool value)
         {
             FadeValue(value, _fadeTime);
@@ -97,12 +99,33 @@ namespace jeanf.universalplayer
 
         public static void FadeValue(bool value, float fadeTime)
         {
+            // Check if volume is initialized
+            if (staticPostProcessVolume == null)
+            {
+                if (_isDebugSTATIC) Debug.LogWarning("FadeMask: staticPostProcessVolume is null. Make sure FadeMask.Awake() has been called.");
+                return;
+            }
+
+            // Don't start a new fade if we're already fading to the same target
+            if (_isCurrentlyFading && _targetState == value)
+                return;
 
             if (_isDebugSTATIC) Debug.Log($"Fading to: {value}, in {fadeTime}s");
-            float alpha = value ? 1 : 0;
-            
-            _fadeHandle = LMotion.Create(staticPostProcessVolume.weight,alpha,fadeTime)
-                .Bind(x => staticPostProcessVolume.weight = x);
+
+            // Only cancel if the handle is valid and active
+            if (_fadeHandle.IsActive())
+            {
+                _fadeHandle.Cancel();
+            }
+
+            _targetState = value;
+            _isCurrentlyFading = true;
+            float targetAlpha = value ? 1 : 0;
+            var volume = staticPostProcessVolume;
+
+            _fadeHandle = LMotion.Create(volume.weight, targetAlpha, fadeTime)
+                .WithOnComplete(() => _isCurrentlyFading = false)
+                .Bind(x => volume.weight = x);
         }
 
         private void DisableFadeHandle()

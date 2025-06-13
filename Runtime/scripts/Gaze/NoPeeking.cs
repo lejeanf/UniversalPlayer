@@ -15,45 +15,50 @@ namespace jeanf.universalplayer
         [SerializeField] private LayerMask collisionLayer;
         [SerializeField] private float sphereCheckSize = .15f;
 
-        private bool isHeadInWall = false;
-        private bool isHeadInWallLastValue = false;
+        [SerializeField] private bool _isHeadInWall = false;
+        private bool _isHeadInWallLastValue = false;
         
-        [SerializeField] private bool isSceneLoading = false;
+        private static bool _isSceneLoading = true;
+        
         private void FixedUpdate()
         {
-            if (isSceneLoading)
+            _isHeadInWallLastValue = _isHeadInWall;
+            
+            if (_isSceneLoading)
             {
-                isHeadInWall = true;
+                _isHeadInWall = true;
             }
             else
             {
                 if (isDebug) Debug.Log("NoPeeking - made it through the return");
                 if (Physics.CheckSphere(transform.position, sphereCheckSize, collisionLayer, QueryTriggerInteraction.Ignore))
                 {
-                    isHeadInWall = true;
+                    _isHeadInWall = true;
                 }
                 else
                 {
-                    isHeadInWall = false;
+                    _isHeadInWall = false;
                 }
             }
-            
-            FadeMask.FadeValue(isHeadInWall);
-            if(isDebug) Debug.Log($"isHeadInWall: {isHeadInWall}");
+
+            if (_isHeadInWall == _isHeadInWallLastValue) return;
+            FadeMask.FadeValue(_isHeadInWall);
+            if(isDebug) Debug.Log($"isHeadInWall changed to: {_isHeadInWall}");
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         private void OnDrawGizmos()
         {
             Gizmos.color = new Color(0f, 1f, 0f, .75f);
             Gizmos.DrawSphere(transform.position, sphereCheckSize);
         }
-        #endif
+#endif
 
-        public void SetCanFadeOutValue(bool value)
+        public static void SetIsLoadingState(bool value)
         {
-            isSceneLoading = value;
-            if (isDebug) Debug.Log($"SetCanFadeOutValue - isSceneLoading: {isSceneLoading}");
+            value = !value;
+            _isSceneLoading = value;
+            Debug.Log($"isSceneLoading: {_isSceneLoading}");
         }
     }
 }
