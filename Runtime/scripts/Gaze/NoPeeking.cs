@@ -58,7 +58,6 @@ namespace jeanf.universalplayer
         {
             value = !value;
             _isSceneLoading = value;
-            Debug.Log($"isSceneLoading: {_isSceneLoading}");
         }
     }
 }

@@ -1009,6 +1009,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 870d6a39371c636478cc8124cdbf4bcc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isDebug: 0
   tmp: {fileID: 6613360146104973944}
 --- !u!1 &1084467950943283014
 GameObject:
@@ -5953,6 +5954,7 @@ GameObject:
   - component: {fileID: 9026189532706801214}
   - component: {fileID: 7126930088852696200}
   - component: {fileID: 832026718078124461}
+  - component: {fileID: 2281943750679968935}
   m_Layer: 2
   m_Name: Player
   m_TagString: Player
@@ -6541,6 +6543,20 @@ MonoBehaviour:
   duration: 0.2
   hapticFeedbackOnSpecificHandSO: {fileID: 11400000, guid: d3e22cdb3c9760a44b85404ff348f6ee,
     type: 2}
+--- !u!114 &2281943750679968935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8694773027870397994}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 870d6a39371c636478cc8124cdbf4bcc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isDebug: 1
+  tmp: {fileID: 0}
 --- !u!1 &8761714896230907912
 GameObject:
   m_ObjectHideFlags: 0
