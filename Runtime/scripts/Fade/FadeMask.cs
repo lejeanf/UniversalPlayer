@@ -4,6 +4,8 @@ using jeanf.EventSystem;
 using UnityEngine.Serialization;
 using UnityEngine.Rendering;
 using LitMotion;
+using UnityEngine.Rendering.HighDefinition;
+using Volume = UnityEngine.Rendering.Volume;
 
 namespace jeanf.universalplayer
 {
@@ -37,6 +39,7 @@ namespace jeanf.universalplayer
         [SerializeField] private VolumeProfile URPVolumeProfile;
         [SerializeField] private Volume postProcessVolume;
         private static Volume staticPostProcessVolume;
+        private ColorAdjustments colorAdjustments;
 
         private static MotionHandle _fadeHandle;
         private static bool _isCurrentlyFading = false;
@@ -44,7 +47,10 @@ namespace jeanf.universalplayer
 
         [Header("Listening On")]
         [SerializeField] private BoolFloatEventChannelSO fadeOutChannelSO;
-        
+
+        public delegate void TogglePPEDelegatte(bool state);
+        public static TogglePPEDelegatte TogglePPE;
+
 
         private void Awake()
         {
@@ -57,6 +63,10 @@ namespace jeanf.universalplayer
                 postProcessVolume.profile = URPVolumeProfile;
             }
             staticPostProcessVolume = postProcessVolume;
+            staticPostProcessVolume.profile.TryGet<ColorAdjustments>(out colorAdjustments);
+            colorAdjustments.colorFilter.value = Color.black;
+            colorAdjustments.saturation.value = 0;
+            
             FadeValue(false, .5f);
         }
         
@@ -65,6 +75,7 @@ namespace jeanf.universalplayer
             inputBinding.Enable();
             inputBinding.performed += _ => SwitchFadeState();
             fadeOutChannelSO.OnEventRaised += FadeValue;
+            TogglePPE += ChangePostProcessing;
         }
 
         private void OnDisable() => Unsubscribe();
@@ -77,6 +88,7 @@ namespace jeanf.universalplayer
             fadeOutChannelSO.OnEventRaised -= FadeValue;
             inputBinding.Disable();
             DisableFadeHandle();
+            TogglePPE -= ChangePostProcessing;
         }
 
         private void Update()
@@ -90,7 +102,19 @@ namespace jeanf.universalplayer
             _isFaded = !_isFaded;
             FadeValue(_isFaded);
         }
+
+        private void ChangePostProcessing(bool isInitComplete)
+        {
+            colorAdjustments.colorFilter.value = Color.black;
+            colorAdjustments.saturation.value = 0;
+            
+            if(!isInitComplete)return;
+
+            colorAdjustments.colorFilter.value = Color.white;
+            colorAdjustments.saturation.value = -100;
+        }
         
+
         public static void FadeValue(bool value)
         {
             FadeValue(value, _fadeTime);
