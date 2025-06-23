@@ -48,8 +48,8 @@ namespace jeanf.universalplayer
         [Header("Listening On")]
         [SerializeField] private BoolFloatEventChannelSO fadeOutChannelSO;
 
-        public delegate void TogglePPEDelegatte(bool state);
-        public static TogglePPEDelegatte TogglePPE;
+        public delegate void TogglePpeDelegate(bool state);
+        public static TogglePpeDelegate TogglePPE;
 
 
         private void Awake()
