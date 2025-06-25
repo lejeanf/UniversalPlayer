@@ -12,21 +12,24 @@ namespace jeanf.universalplayer
     public class FadeMask : MonoBehaviour, IDebugBehaviour
     {
         public bool isDebug
-        { 
+        {
             get => _isDebug;
-            set => _isDebug = value; 
+            set => _isDebug = value;
         }
+
         [SerializeField] private bool _isDebug = false;
         private static bool _isDebugSTATIC = false;
         [SerializeField] private bool checkForDebugChangeState = false;
-        
+
         [FormerlySerializedAs("_inputBinding")]
         [Header("Manual Switch Input")]
         [Tooltip("Input to manually switch the fade state")]
-        [SerializeField] private InputAction inputBinding = new InputAction();
-        [Space(10)]
-        [Header("Fade Settings")]
-        [SerializeField] private static float _fadeTime = .2f;
+        [SerializeField]
+        private InputAction inputBinding = new InputAction();
+
+        [Space(10)] [Header("Fade Settings")] [SerializeField]
+        private static float _fadeTime = .2f;
+
         private static Color color = new Color(0, 0, 0, 0);
         private static MotionHandle motionHandle;
 
@@ -45,10 +48,14 @@ namespace jeanf.universalplayer
         private static bool _isCurrentlyFading = false;
         private static bool _targetState = false;
 
-        [Header("Listening On")]
-        [SerializeField] private BoolFloatEventChannelSO fadeOutChannelSO;
+        [Header("Listening On")] [SerializeField]
+        private BoolFloatEventChannelSO fadeOutChannelSO;
+
+        [SerializeField] private VoidEventChannelSO SetVolumeTo_InitialSetupSO;
+        [SerializeField] private VoidEventChannelSO SetVolumeTo_HeadInWallSetupSO;
 
         public delegate void TogglePpeDelegate(bool state);
+
         public static TogglePpeDelegate TogglePPE;
 
 
@@ -56,39 +63,61 @@ namespace jeanf.universalplayer
         {
             if (GraphicsSettings.defaultRenderPipeline == null) return;
             var renderingAssetType = GraphicsSettings.defaultRenderPipeline.GetType().ToString();
-            if (renderingAssetType.Contains("HDRenderPipelineAsset")) {
+            if (renderingAssetType.Contains("HDRenderPipelineAsset"))
+            {
                 postProcessVolume.profile = HDRPVolumeProfile;
                 postProcessVolume.blendDistance = 10.0f;
-            } else if (renderingAssetType.Contains("UniversalRenderPipelineAsset")) {
+            }
+            else if (renderingAssetType.Contains("UniversalRenderPipelineAsset"))
+            {
                 postProcessVolume.profile = URPVolumeProfile;
             }
+
             staticPostProcessVolume = postProcessVolume;
             staticPostProcessVolume.profile.TryGet<ColorAdjustments>(out colorAdjustments);
-            colorAdjustments.colorFilter.value = Color.black;
-            colorAdjustments.saturation.value = 0;
-            
+
+            SetVolumeTo_InitialSetup();
+
             FadeValue(false, .5f);
         }
-        
-        private void OnEnable()
-        {   
+
+        private void OnEnable() => Subscribe();
+        private void OnDisable() => Unsubscribe();
+        private void OnDestroy() => Unsubscribe();
+
+        private void Subscribe()
+        {
+            SetVolumeTo_InitialSetupSO.OnEventRaised += SetVolumeTo_InitialSetup;
+            SetVolumeTo_HeadInWallSetupSO.OnEventRaised += SetVolumeTo_HeadInWallSetup;
+            
             inputBinding.Enable();
             inputBinding.performed += _ => SwitchFadeState();
             fadeOutChannelSO.OnEventRaised += FadeValue;
             TogglePPE += ChangePostProcessing;
         }
 
-        private void OnDisable() => Unsubscribe();
-        private void OnDestroy() => Unsubscribe();
-
         private void Unsubscribe()
         {
+            SetVolumeTo_InitialSetupSO.OnEventRaised -= SetVolumeTo_InitialSetup;
+            SetVolumeTo_HeadInWallSetupSO.OnEventRaised -= SetVolumeTo_HeadInWallSetup;
+            
             if (_shaderMaterial)_shaderMaterial.SetColor(FadeColor, color);
             inputBinding.performed -= null;
             fadeOutChannelSO.OnEventRaised -= FadeValue;
             inputBinding.Disable();
             DisableFadeHandle();
             TogglePPE -= ChangePostProcessing;
+        }
+
+        public void SetVolumeTo_InitialSetup()
+        {
+            colorAdjustments.colorFilter.value = Color.black;
+            colorAdjustments.saturation.value = 0;
+        }
+        public void SetVolumeTo_HeadInWallSetup()
+        {
+            colorAdjustments.colorFilter.value = Color.white;
+            colorAdjustments.saturation.value = -100;
         }
 
         private void Update()
@@ -105,13 +134,11 @@ namespace jeanf.universalplayer
 
         private void ChangePostProcessing(bool isInitComplete)
         {
-            colorAdjustments.colorFilter.value = Color.black;
-            colorAdjustments.saturation.value = 0;
+            SetVolumeTo_InitialSetup();
             
             if(!isInitComplete)return;
 
-            colorAdjustments.colorFilter.value = Color.white;
-            colorAdjustments.saturation.value = -100;
+            SetVolumeTo_HeadInWallSetup();
         }
         
 
