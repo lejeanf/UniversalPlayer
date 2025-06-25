@@ -42,7 +42,7 @@ namespace jeanf.universalplayer
         [SerializeField] private VolumeProfile URPVolumeProfile;
         [SerializeField] private Volume postProcessVolume;
         private static Volume staticPostProcessVolume;
-        private ColorAdjustments colorAdjustments;
+        private static ColorAdjustments colorAdjustments;
 
         private static MotionHandle _fadeHandle;
         private static bool _isCurrentlyFading = false;
@@ -50,9 +50,6 @@ namespace jeanf.universalplayer
 
         [Header("Listening On")] [SerializeField]
         private BoolFloatEventChannelSO fadeOutChannelSO;
-
-        [SerializeField] private VoidEventChannelSO SetVolumeTo_InitialSetupSO;
-        [SerializeField] private VoidEventChannelSO SetVolumeTo_HeadInWallSetupSO;
 
         public delegate void TogglePpeDelegate(bool state);
 
@@ -87,9 +84,6 @@ namespace jeanf.universalplayer
 
         private void Subscribe()
         {
-            SetVolumeTo_InitialSetupSO.OnEventRaised += SetVolumeTo_InitialSetup;
-            SetVolumeTo_HeadInWallSetupSO.OnEventRaised += SetVolumeTo_HeadInWallSetup;
-            
             inputBinding.Enable();
             inputBinding.performed += _ => SwitchFadeState();
             fadeOutChannelSO.OnEventRaised += FadeValue;
@@ -98,9 +92,6 @@ namespace jeanf.universalplayer
 
         private void Unsubscribe()
         {
-            SetVolumeTo_InitialSetupSO.OnEventRaised -= SetVolumeTo_InitialSetup;
-            SetVolumeTo_HeadInWallSetupSO.OnEventRaised -= SetVolumeTo_HeadInWallSetup;
-            
             if (_shaderMaterial)_shaderMaterial.SetColor(FadeColor, color);
             inputBinding.performed -= null;
             fadeOutChannelSO.OnEventRaised -= FadeValue;
@@ -109,12 +100,12 @@ namespace jeanf.universalplayer
             TogglePPE -= ChangePostProcessing;
         }
 
-        public void SetVolumeTo_InitialSetup()
+        public static void SetVolumeTo_InitialSetup()
         {
             colorAdjustments.colorFilter.value = Color.black;
             colorAdjustments.saturation.value = 0;
         }
-        public void SetVolumeTo_HeadInWallSetup()
+        public static void SetVolumeTo_HeadInWallSetup()
         {
             colorAdjustments.colorFilter.value = Color.white;
             colorAdjustments.saturation.value = -100;
