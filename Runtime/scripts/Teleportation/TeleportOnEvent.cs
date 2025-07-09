@@ -21,9 +21,11 @@ namespace jeanf.universalplayer
 
         [Header("Broadcasting on:")]
         [SerializeField] private VoidEventChannelSO cameraResetChannel;
+        [SerializeField] private BoolFloatEventChannelSO FadeEventChannel;
 
         public void Teleport(TeleportInformation teleportInformation)
         {
+            FadeEventChannel?.RaiseEvent(false, 1.0f);
             if (teleportInformation.isUsingFilter)
             {
                 if (!listOfFilters.Contains(teleportInformation.filter))
@@ -64,7 +66,7 @@ namespace jeanf.universalplayer
 
             if ( teleportInformation.objectIsPlayer ) cameraResetChannel.RaiseEvent();
             if (_isDebug) Debug.Log( $"[{teleportInformation.targetDestination.gameObject.name}] teleported {teleportSubject.gameObject.name} to {teleportInformation.targetDestination.transform.position} with rotation: {teleportInformation.targetDestination.transform.rotation.eulerAngles}");
-
+            FadeEventChannel?.RaiseEvent(true, 1.0f);
 
         }
     }
