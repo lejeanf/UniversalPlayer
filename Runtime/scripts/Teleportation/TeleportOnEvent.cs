@@ -3,7 +3,7 @@ using System.Linq;
 using jeanf.EventSystem;
 using UnityEngine;
 using UnityEngine.Serialization;
-
+using System.Collections;
 namespace jeanf.universalplayer
 {
     public class TeleportOnEvent : TeleportEventListener, IDebugBehaviour
@@ -67,8 +67,17 @@ namespace jeanf.universalplayer
 
             if ( teleportInformation.objectIsPlayer ) cameraResetChannel.RaiseEvent();
             if (_isDebug) Debug.Log( $"[{teleportInformation.targetDestination.gameObject.name}] teleported {teleportSubject.gameObject.name} to {teleportInformation.targetDestination.transform.position} with rotation: {teleportInformation.targetDestination.transform.rotation.eulerAngles}");
-            FadeEventChannel?.RaiseEvent(false, 1.0f);
+            StartCoroutine(CheckIfPlayerInDestination(teleportSubject, teleportInformation));
 
+        }
+
+        IEnumerator CheckIfPlayerInDestination(GameObject teleportSubject, TeleportInformation teleportInformation)
+        {
+            yield return 1f;
+            if (teleportSubject.transform.position == teleportInformation.targetDestination.position)
+            {
+                FadeEventChannel.RaiseEvent(false, 1.0f);
+            }
         }
     }
 }
