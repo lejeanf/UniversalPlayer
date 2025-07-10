@@ -77,7 +77,9 @@ namespace jeanf.universalplayer
             if (teleportSubject.transform.position == teleportInformation.targetDestination.position)
             {
                 FadeEventChannel.RaiseEvent(false, 1.0f);
+                FadeMask.TogglePPE.Invoke(true);
             }
+            
         }
     }
 }
