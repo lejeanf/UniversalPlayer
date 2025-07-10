@@ -66,7 +66,7 @@ namespace jeanf.universalplayer
 
             if ( teleportInformation.objectIsPlayer ) cameraResetChannel.RaiseEvent();
             if (_isDebug) Debug.Log( $"[{teleportInformation.targetDestination.gameObject.name}] teleported {teleportSubject.gameObject.name} to {teleportInformation.targetDestination.transform.position} with rotation: {teleportInformation.targetDestination.transform.rotation.eulerAngles}");
-            FadeEventChannel?.RaiseEvent(true, 4.0f);
+            //FadeEventChannel?.RaiseEvent(true, 4.0f);
 
         }
     }
