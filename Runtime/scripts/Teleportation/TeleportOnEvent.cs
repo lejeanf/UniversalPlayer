@@ -26,7 +26,7 @@ namespace jeanf.universalplayer
         public void Teleport(TeleportInformation teleportInformation)
         {
             FadeMask.TogglePPE.Invoke(false);
-            FadeEventChannel?.RaiseEvent(false, 1.0f);
+            FadeEventChannel?.RaiseEvent(true, 1.0f);
             if (teleportInformation.isUsingFilter)
             {
                 if (!listOfFilters.Contains(teleportInformation.filter))
