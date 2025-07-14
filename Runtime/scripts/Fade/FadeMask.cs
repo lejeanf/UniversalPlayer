@@ -473,6 +473,18 @@ namespace jeanf.universalplayer
             _currentFadeType = fadeType;
         }
 
+        public static void SetVolumeWeight(float weight)
+        {
+            if (staticPostProcessVolume == null)
+            {
+                if (_isDebugSTATIC) Debug.LogWarning("FadeMask: staticPostProcessVolume is null. Cannot set volume weight.");
+                return;
+            }
+
+            staticPostProcessVolume.weight = weight;
+            if (_isDebugSTATIC) Debug.Log($"FadeMask: Volume weight set directly to {weight}");
+        }
+
         public static void SwitchFadeState()
         {
             _isFaded = !_isFaded;
