@@ -450,6 +450,28 @@ namespace jeanf.universalplayer
             if (!checkForDebugChangeState) return;
             _isDebugSTATIC = _isDebug;
         }
+        public static void PrepareVolumeProfile(FadeType fadeType)
+        {
+            if (staticPostProcessVolume == null)
+            {
+                if (_isDebugSTATIC) Debug.LogWarning("FadeMask: staticPostProcessVolume is null. Cannot prepare volume profile.");
+                return;
+            }
+
+            switch (fadeType)
+            {
+                case FadeType.Loading:
+                    SetVolumeTo_FadeToBlack(); // Black fade
+                    if (_isDebugSTATIC) Debug.Log("FadeMask: Volume profile prepared for Loading (black)");
+                    break;
+                case FadeType.HeadInWall:
+                    SetVolumeTo_FadeSaturation(); // Saturation fade
+                    if (_isDebugSTATIC) Debug.Log("FadeMask: Volume profile prepared for HeadInWall (desaturated)");
+                    break;
+            }
+
+            _currentFadeType = fadeType;
+        }
 
         public static void SwitchFadeState()
         {
@@ -484,22 +506,20 @@ namespace jeanf.universalplayer
                 return;
             }
 
-            // Always set up the volume profile for the requested fade type, even if we're not fading in
-            // This ensures the profile is correct when we do fade in later
-            switch (fadeType)
+            // Only set up the volume profile if we're changing fade types or fading in
+            if (_currentFadeType != fadeType || value)
             {
-                case FadeType.Loading:
-                    SetVolumeTo_FadeToBlack(); // Black fade
-                    if (_isDebugSTATIC) Debug.Log("FadeMask: Volume profile set to Loading (black)");
-                    break;
-                case FadeType.HeadInWall:
-                    SetVolumeTo_FadeSaturation(); // Saturation fade
-                    if (_isDebugSTATIC) Debug.Log("FadeMask: Volume profile set to HeadInWall (desaturated)");
-                    break;
+                switch (fadeType)
+                {
+                    case FadeType.Loading:
+                        SetVolumeTo_FadeToBlack(); // Black fade
+                        break;
+                    case FadeType.HeadInWall:
+                        SetVolumeTo_FadeSaturation(); // Saturation fade
+                        break;
+                }
+                _currentFadeType = fadeType;
             }
-
-            // Update the current fade type
-            _currentFadeType = fadeType;
 
             // Check if we're already transitioning to the same target state
             if (_isCurrentlyFading && _targetState == value)

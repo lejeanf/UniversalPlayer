@@ -1,6 +1,5 @@
 using jeanf.EventSystem;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace jeanf.universalplayer
 {
@@ -16,61 +15,62 @@ namespace jeanf.universalplayer
         [SerializeField] private LayerMask collisionLayer;
         [SerializeField] private float sphereCheckSize = .15f;
 
-        [FormerlySerializedAs("_isHeadInWall")] [SerializeField] private bool fadeState = false;
-        private bool _isHeadInWallLastValue = false;
+        [SerializeField] private bool _fadeState = false;
+        private bool _fadeStateLastValue = false;
         
         private static bool _isSceneLoading = true;
         private static bool _wasSceneLoadingLastFrame = true;
         
         private void FixedUpdate()
         {
-            _isHeadInWallLastValue = fadeState;
+            _fadeStateLastValue = _fadeState;
+            bool wasLoadingLastFrame = _wasSceneLoadingLastFrame;
             _wasSceneLoadingLastFrame = _isSceneLoading;
             
             if (_isSceneLoading)
             {
-                fadeState = true;
+                _fadeState = true;
             }
             else
             {
                 if (isDebug) Debug.Log("NoPeeking - made it through the return");
                 if (Physics.CheckSphere(transform.position, sphereCheckSize, collisionLayer, QueryTriggerInteraction.Ignore))
                 {
-                    fadeState = true;
+                    _fadeState = true;
                 }
                 else
                 {
-                    fadeState = false;
+                    _fadeState = false;
                 }
             }
 
             // Check if loading state changed from true to false
-            if (_wasSceneLoadingLastFrame && !_isSceneLoading)
+            if (wasLoadingLastFrame && !_isSceneLoading)
             {
-                // Scene loading just finished - ensure we set up the correct fade type for head-in-wall detection
-                if (isDebug) Debug.Log("Scene loading finished - setting up head-in-wall detection mode");
+                // Scene loading just finished - set up for head-in-wall detection
+                if (isDebug) Debug.Log("Scene loading finished - preparing head-in-wall detection mode");
                 
-                // Force a fade update with the correct type, even if the value hasn't changed
-                FadeMask.FadeValue(fadeState, FadeMask.FadeType.HeadInWall);
-                if (isDebug) Debug.Log($"Forced HeadInWall setup with value: {fadeState}");
-                return; // Exit early to avoid duplicate fade calls
+                // Just prepare the volume profile without fading, let the normal logic handle the actual fade
+                FadeMask.PrepareVolumeProfile(FadeMask.FadeType.HeadInWall);
+                
+                // Don't return early - let the normal logic below handle the fade state
             }
 
             // Normal state change detection
-            if (fadeState == _isHeadInWallLastValue) return;
+            if (_fadeState == _fadeStateLastValue) return;
             
             // Determine fade type based on whether we're loading or detecting collision
             if (_isSceneLoading)
             {
                 // Black fade for loading
-                FadeMask.FadeValue(fadeState, FadeMask.FadeType.Loading);
-                if (isDebug) Debug.Log($"Loading fade changed to: {fadeState}");
+                FadeMask.FadeValue(_fadeState, FadeMask.FadeType.Loading);
+                if (isDebug) Debug.Log($"Loading fade changed to: {_fadeState}");
             }
             else
             {
                 // Gray fade for head-in-wall collision
-                FadeMask.FadeValue(fadeState, FadeMask.FadeType.HeadInWall);
-                if (isDebug) Debug.Log($"HeadInWall collision fade changed to: {fadeState}");
+                FadeMask.FadeValue(_fadeState, FadeMask.FadeType.HeadInWall);
+                if (isDebug) Debug.Log($"HeadInWall collision fade changed to: {_fadeState}");
             }
         }
 
@@ -86,15 +86,13 @@ namespace jeanf.universalplayer
         {
             _isSceneLoading = isLoading;
         }
-        
         public static bool IsCurrentlyLoading()
         {
             return _isSceneLoading;
         }
-        
-        public bool IsHeadInWall()
+        public bool GetFadeState()
         {
-            return fadeState;
+            return _fadeState;
         }
     }
 }
