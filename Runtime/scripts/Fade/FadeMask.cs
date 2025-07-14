@@ -484,27 +484,30 @@ namespace jeanf.universalplayer
                 return;
             }
 
-            if (value)
+            // Always set up the volume profile for the requested fade type, even if we're not fading in
+            // This ensures the profile is correct when we do fade in later
+            switch (fadeType)
             {
-                _currentFadeType = fadeType;
-                switch (fadeType)
-                {
-                    case FadeType.Loading:
-                        SetVolumeTo_FadeToBlack(); // Black fade
-                        break;
-                    case FadeType.HeadInWall:
-                        SetVolumeTo_FadeSaturation(); // Saturation fade
-                        break;
-                }
-                
-                if (_isDebugSTATIC) Debug.Log($"FadeMask: Setting up {fadeType} fade");
+                case FadeType.Loading:
+                    SetVolumeTo_FadeToBlack(); // Black fade
+                    if (_isDebugSTATIC) Debug.Log("FadeMask: Volume profile set to Loading (black)");
+                    break;
+                case FadeType.HeadInWall:
+                    SetVolumeTo_FadeSaturation(); // Saturation fade
+                    if (_isDebugSTATIC) Debug.Log("FadeMask: Volume profile set to HeadInWall (desaturated)");
+                    break;
             }
 
+            // Update the current fade type
+            _currentFadeType = fadeType;
+
+            // Check if we're already transitioning to the same target state
             if (_isCurrentlyFading && _targetState == value)
                 return;
 
             if (_isDebugSTATIC) Debug.Log($"FadeMask: Fading to {value} in {fadeTime}s with {fadeType} style");
 
+            // Cancel any existing fade
             if (_fadeHandle.IsActive())
             {
                 _fadeHandle.Cancel();
