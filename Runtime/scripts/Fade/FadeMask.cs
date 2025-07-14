@@ -5,6 +5,7 @@ using UnityEngine.Serialization;
 using UnityEngine.Rendering;
 using LitMotion;
 using System;
+using System.Collections;
 using System.Linq;
 using Volume = UnityEngine.Rendering.Volume;
 
@@ -12,6 +13,12 @@ namespace jeanf.universalplayer
 {
     public class FadeMask : MonoBehaviour, IDebugBehaviour
     {
+        public enum FadeType 
+        { 
+            Loading,    // Black fade for scene loading
+            HeadInWall  // Saturation fade for collision detection
+        }
+
         public bool isDebug
         {
             get => _isDebug;
@@ -44,13 +51,13 @@ namespace jeanf.universalplayer
         [SerializeField] private Volume postProcessVolume;
         private static Volume staticPostProcessVolume;
         
-        // Use objects to handle both URP and HDRP ColorAdjustments via reflection
         private static object hdrpColorAdjustments;
         private static object urpColorAdjustments;
 
         private static MotionHandle _fadeHandle;
         private static bool _isCurrentlyFading = false;
         private static bool _targetState = false;
+        private static FadeType _currentFadeType = FadeType.Loading;
 
         [Header("Listening On")] [SerializeField]
         private BoolFloatEventChannelSO fadeOutChannelSO;
@@ -59,7 +66,6 @@ namespace jeanf.universalplayer
 
         public static TogglePpeDelegate TogglePPE;
 
-        // Pipeline detection
         private enum RenderPipeline
         {
             BuiltIn,
@@ -74,7 +80,7 @@ namespace jeanf.universalplayer
         {
             DetectRenderPipeline();
             SetupVolumeProfile();
-            SetVolumeTo_InitialSetup();
+            SetVolumeTo_FadeToBlack();
             FadeValue(false, .5f);
         }
 
@@ -112,7 +118,6 @@ namespace jeanf.universalplayer
                 return;
             }
 
-            // Use the assigned volume profile if available
             if (volumeProfile != null)
             {
                 postProcessVolume.profile = volumeProfile;
@@ -123,23 +128,18 @@ namespace jeanf.universalplayer
                 return;
             }
 
-            // Handle built-in pipeline
             if (_currentPipeline == RenderPipeline.BuiltIn)
             {
                 if (_isDebugSTATIC) Debug.LogWarning("FadeMask: Built-in pipeline detected. Volume system may not be available.");
                 return;
             }
 
-            // Set blend distance (same for all pipelines that support volumes)
             postProcessVolume.blendDistance = 10.0f;
 
             staticPostProcessVolume = postProcessVolume;
-            
-            // Try to get ColorAdjustments component based on current pipeline
-            if (!TryGetColorAdjustments())
-            {
-                if (_isDebugSTATIC) Debug.LogError("FadeMask: ColorAdjustments component not found in volume profile!");
-            }
+
+            if (TryGetColorAdjustments()) return;
+            if (_isDebugSTATIC) Debug.LogError("FadeMask: ColorAdjustments component not found in volume profile!");
         }
 
         private bool TryGetColorAdjustments()
@@ -153,7 +153,11 @@ namespace jeanf.universalplayer
                     
                     case RenderPipeline.URP:
                         return TryGetURPColorAdjustments();
-                        
+
+                    case RenderPipeline.BuiltIn:
+                        break;
+                    case RenderPipeline.Unknown:
+                        break;
                     default:
                         if (_isDebugSTATIC) Debug.LogError($"FadeMask: Unsupported pipeline: {_currentPipeline}");
                         break;
@@ -172,10 +176,8 @@ namespace jeanf.universalplayer
         {
             try
             {
-                // Find HDRP ColorAdjustments type
                 System.Type hdrpColorAdjustmentsType = System.Type.GetType("UnityEngine.Rendering.HighDefinition.ColorAdjustments, Unity.RenderPipelines.HighDefinition.Runtime");
                 
-                // Fallback: search through loaded assemblies
                 if (hdrpColorAdjustmentsType == null)
                 {
                     foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
@@ -194,7 +196,6 @@ namespace jeanf.universalplayer
                     return false;
                 }
                 
-                // Use reflection to call TryGet<T> method
                 var profileType = staticPostProcessVolume.profile.GetType();
                 var tryGetMethods = profileType.GetMethods().Where(m => m.Name == "TryGet" && m.IsGenericMethodDefinition).ToArray();
                 
@@ -231,10 +232,8 @@ namespace jeanf.universalplayer
         {
             try
             {
-                // Find URP ColorAdjustments type
                 System.Type urpColorAdjustmentsType = System.Type.GetType("UnityEngine.Rendering.Universal.ColorAdjustments, Unity.RenderPipelines.Universal.Runtime");
                 
-                // Fallback: search through loaded assemblies
                 if (urpColorAdjustmentsType == null)
                 {
                     foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
@@ -253,7 +252,6 @@ namespace jeanf.universalplayer
                     return false;
                 }
                 
-                // Use reflection to call TryGet<T> method
                 var profileType = staticPostProcessVolume.profile.GetType();
                 var tryGetMethods = profileType.GetMethods().Where(m => m.Name == "TryGet" && m.IsGenericMethodDefinition).ToArray();
                 
@@ -310,9 +308,9 @@ namespace jeanf.universalplayer
             TogglePPE -= ChangePostProcessing;
         }
 
-        public static void SetVolumeTo_InitialSetup()
+        public static void SetVolumeTo_FadeToBlack()
         {
-            if (_isDebugSTATIC) Debug.Log($"FadeMask: Setting initial setup for {_currentPipeline}");
+            if (_isDebugSTATIC) Debug.Log($"FadeMask: Setting initial setup (black) for {_currentPipeline}");
             
             switch (_currentPipeline)
             {
@@ -333,16 +331,20 @@ namespace jeanf.universalplayer
                     }
                     else if (_isDebugSTATIC) Debug.LogWarning("FadeMask: URP ColorAdjustments is null.");
                     break;
-                
+
+                case RenderPipeline.BuiltIn:
+                    break;
+                case RenderPipeline.Unknown:
+                    break;
                 default:
                     if (_isDebugSTATIC) Debug.LogWarning($"FadeMask: Cannot set initial setup for pipeline: {_currentPipeline}");
                     break;
             }
         }
 
-        public static void SetVolumeTo_HeadInWallSetup()
+        public static void SetVolumeTo_FadeSaturation()
         {
-            if (_isDebugSTATIC) Debug.Log($"FadeMask: Setting head in wall setup for {_currentPipeline}");
+            if (_isDebugSTATIC) Debug.Log($"FadeMask: Setting head in wall setup (gray) for {_currentPipeline}");
             
             switch (_currentPipeline)
             {
@@ -363,7 +365,11 @@ namespace jeanf.universalplayer
                     }
                     else if (_isDebugSTATIC) Debug.LogWarning("FadeMask: URP ColorAdjustments is null.");
                     break;
-                
+
+                case RenderPipeline.BuiltIn:
+                    break;
+                case RenderPipeline.Unknown:
+                    break;
                 default:
                     if (_isDebugSTATIC) Debug.LogWarning($"FadeMask: Cannot set head in wall setup for pipeline: {_currentPipeline}");
                     break;
@@ -379,12 +385,9 @@ namespace jeanf.universalplayer
                 var colorAdjustmentsType = colorAdjustments.GetType();
                 var parametersProperty = colorAdjustmentsType.GetProperty("parameters");
                 if (parametersProperty == null) return;
-                
                 var parameters = parametersProperty.GetValue(colorAdjustments);
-                if (parameters == null) return;
-                
-                var parametersEnumerable = parameters as System.Collections.IEnumerable;
-                if (parametersEnumerable == null) return;
+
+                if (parameters is not IEnumerable parametersEnumerable) return;
                 
                 var parametersList = new System.Collections.Generic.List<object>();
                 foreach (var param in parametersEnumerable)
@@ -394,57 +397,47 @@ namespace jeanf.universalplayer
                 
                 object targetParameter = null;
                 
-                if (propertyName == "colorFilter")
+                switch (propertyName)
                 {
-                    // Find ColorParameter
-                    foreach (var param in parametersList)
+                    case "colorFilter":
                     {
-                        if (param.GetType().Name == "ColorParameter")
+                        foreach (var param in parametersList)
                         {
+                            if (param.GetType().Name != "ColorParameter") continue;
                             targetParameter = param;
                             break;
                         }
+
+                        break;
                     }
-                }
-                else if (propertyName == "saturation")
-                {
-                    // Find saturation parameter - typically index 4 or by range check
-                    if (parametersList.Count > 4 && parametersList[4].GetType().Name == "ClampedFloatParameter")
-                    {
+                    case "saturation" when parametersList.Count > 4 && parametersList[4].GetType().Name == "ClampedFloatParameter":
                         targetParameter = parametersList[4];
-                    }
-                    else
+                        break;
+                    case "saturation":
                     {
-                        // Fallback: find ClampedFloatParameter with range -100 to 100
                         foreach (var param in parametersList)
                         {
-                            if (param.GetType().Name == "ClampedFloatParameter")
-                            {
-                                var paramType = param.GetType();
-                                var minProp = paramType.GetProperty("min");
-                                var maxProp = paramType.GetProperty("max");
-                                if (minProp?.GetValue(param)?.ToString() == "-100" && 
-                                    maxProp?.GetValue(param)?.ToString() == "100")
-                                {
-                                    targetParameter = param;
-                                    break;
-                                }
-                            }
+                            if (param.GetType().Name != "ClampedFloatParameter") continue;
+                            var paramType = param.GetType();
+                            var minProp = paramType.GetProperty("min");
+                            var maxProp = paramType.GetProperty("max");
+                            if (minProp?.GetValue(param)?.ToString() != "-100" ||
+                                maxProp?.GetValue(param)?.ToString() != "100") continue;
+                            targetParameter = param;
+                            break;
                         }
+
+                        break;
                     }
                 }
-                
-                if (targetParameter != null)
-                {
-                    var parameterType = targetParameter.GetType();
-                    var valueProperty = parameterType.GetProperty("value");
-                    
-                    if (valueProperty != null)
-                    {
-                        valueProperty.SetValue(targetParameter, value);
-                        if (_isDebugSTATIC) Debug.Log($"FadeMask: Set {propertyName} to {value}");
-                    }
-                }
+
+                if (targetParameter == null) return;
+                var parameterType = targetParameter.GetType();
+                var valueProperty = parameterType.GetProperty("value");
+
+                if (valueProperty == null) return;
+                valueProperty.SetValue(targetParameter, value);
+                if (_isDebugSTATIC) Debug.Log($"FadeMask: Set {propertyName} to {value}");
             }
             catch (Exception e)
             {
@@ -466,35 +459,52 @@ namespace jeanf.universalplayer
 
         private void ChangePostProcessing(bool isInitComplete)
         {
-            SetVolumeTo_InitialSetup();
-            
-            if (!isInitComplete) return;
-
-            SetVolumeTo_HeadInWallSetup();
+            SetVolumeTo_FadeToBlack();
         }
-
         public static void FadeValue(bool value)
         {
-            FadeValue(value, _fadeTime);
-            if (_isDebugSTATIC) Debug.Log($"FadeMask: Fading to {value} in {_fadeTime}s");
+            FadeValue(value, FadeType.Loading);
         }
 
         public static void FadeValue(bool value, float fadeTime)
         {
-            // Check if volume is initialized
+            FadeValue(value, fadeTime, FadeType.Loading);
+        }
+
+        public static void FadeValue(bool value, FadeType fadeType)
+        {
+            FadeValue(value, _fadeTime, fadeType);
+        }
+
+        public static void FadeValue(bool value, float fadeTime, FadeType fadeType)
+        {
             if (staticPostProcessVolume == null)
             {
                 if (_isDebugSTATIC) Debug.LogWarning("FadeMask: staticPostProcessVolume is null. Make sure FadeMask.Awake() has been called.");
                 return;
             }
 
-            // Don't start a new fade if we're already fading to the same target
+            if (value)
+            {
+                _currentFadeType = fadeType;
+                switch (fadeType)
+                {
+                    case FadeType.Loading:
+                        SetVolumeTo_FadeToBlack(); // Black fade
+                        break;
+                    case FadeType.HeadInWall:
+                        SetVolumeTo_FadeSaturation(); // Saturation fade
+                        break;
+                }
+                
+                if (_isDebugSTATIC) Debug.Log($"FadeMask: Setting up {fadeType} fade");
+            }
+
             if (_isCurrentlyFading && _targetState == value)
                 return;
 
-            if (_isDebugSTATIC) Debug.Log($"FadeMask: Fading to {value} in {fadeTime}s");
+            if (_isDebugSTATIC) Debug.Log($"FadeMask: Fading to {value} in {fadeTime}s with {fadeType} style");
 
-            // Only cancel if the handle is valid and active
             if (_fadeHandle.IsActive())
             {
                 _fadeHandle.Cancel();

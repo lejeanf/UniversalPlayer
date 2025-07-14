@@ -42,8 +42,20 @@ namespace jeanf.universalplayer
             }
 
             if (_isHeadInWall == _isHeadInWallLastValue) return;
-            FadeMask.FadeValue(_isHeadInWall);
-            if(isDebug) Debug.Log($"isHeadInWall changed to: {_isHeadInWall}");
+            
+            // Determine fade type based on whether we're loading or detecting collision
+            if (_isSceneLoading)
+            {
+                // Black fade for loading
+                FadeMask.FadeValue(_isHeadInWall, FadeMask.FadeType.Loading);
+                if (isDebug) Debug.Log($"Loading fade changed to: {_isHeadInWall}");
+            }
+            else
+            {
+                // Gray fade for head-in-wall collision
+                FadeMask.FadeValue(_isHeadInWall, FadeMask.FadeType.HeadInWall);
+                if (isDebug) Debug.Log($"HeadInWall collision fade changed to: {_isHeadInWall}");
+            }
         }
 
 #if UNITY_EDITOR
@@ -54,10 +66,25 @@ namespace jeanf.universalplayer
         }
 #endif
 
-        public static void SetIsLoadingState(bool value)
+        public static void SetIsLoadingState(bool isLoading)
         {
-            value = !value;
-            _isSceneLoading = value;
+            _isSceneLoading = isLoading;
+        }
+        
+        /// <summary>
+        /// Gets the current loading state
+        /// </summary>
+        public static bool IsCurrentlyLoading()
+        {
+            return _isSceneLoading;
+        }
+        
+        /// <summary>
+        /// Gets the current head-in-wall state (useful for debugging)
+        /// </summary>
+        public bool IsHeadInWall()
+        {
+            return _isHeadInWall;
         }
     }
 }
