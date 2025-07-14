@@ -168,7 +168,7 @@ namespace jeanf.universalplayer
             else
             {
                 _ipadState = IpadState.Disabled;
-                //_PrimaryItemStateChannel.RaiseEvent(false);
+                _PrimaryItemStateChannel.RaiseEvent(false);
                 OnIpadStateChanged.Invoke(_ipadState);
                 if(_rightHandPoseManager) _rightHandPoseManager.ApplyDefaultPose();
             }
