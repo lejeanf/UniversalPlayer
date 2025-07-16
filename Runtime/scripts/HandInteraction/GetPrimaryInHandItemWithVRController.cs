@@ -183,7 +183,7 @@ namespace jeanf.universalplayer
 
         private void ReceiveGrabSide(string str)
         {
-            if (!primaryItem || _ipadState != IpadState.Disabled) return;
+            if (!primaryItem) return;
             if (str == "RightHand")
             {
                 SetIpadStateForASpecificHand(primaryItemPose.leftHandInfo, _leftHand.transform);
@@ -195,7 +195,7 @@ namespace jeanf.universalplayer
         }
         public void SetIpadStateForASpecificHand(string hand)
         {
-            if (!primaryItem) return;
+            if (!primaryItem || _ipadState != IpadState.Disabled) return;
             if (hand.Contains("LeftHand"))
             {
                 SetIpadStateForRightHand(primaryItemPose.rightHandInfo);
