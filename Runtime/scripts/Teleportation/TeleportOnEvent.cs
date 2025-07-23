@@ -74,11 +74,8 @@ namespace jeanf.universalplayer
         IEnumerator CheckIfPlayerInDestination(GameObject teleportSubject, TeleportInformation teleportInformation)
         {
             yield return new WaitForSeconds(1f);
-            if (teleportSubject.transform.position == teleportInformation.targetDestination.position)
-            {
-                FadeEventChannel.RaiseEvent(false, 1.0f);
-                FadeMask.TogglePPE.Invoke(true);
-            }
+            FadeEventChannel.RaiseEvent(false, 1.0f);
+            FadeMask.TogglePPE.Invoke(true);
             
         }
     }
