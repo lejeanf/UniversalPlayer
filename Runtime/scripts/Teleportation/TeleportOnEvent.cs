@@ -25,8 +25,6 @@ namespace jeanf.universalplayer
 
         public void Teleport(TeleportInformation teleportInformation)
         {
-            FadeMask.TogglePPE.Invoke(false);
-            FadeEventChannel?.RaiseEvent(true, 0.1f);
             if (teleportInformation.isUsingFilter)
             {
                 if (!listOfFilters.Contains(teleportInformation.filter))
@@ -66,16 +64,7 @@ namespace jeanf.universalplayer
             }
             if ( teleportInformation.objectIsPlayer ) cameraResetChannel.RaiseEvent();
             if (_isDebug) Debug.Log( $"[{teleportInformation.targetDestination.gameObject.name}] teleported {teleportSubject.gameObject.name} to {teleportInformation.targetDestination.transform.position} with rotation: {teleportInformation.targetDestination.transform.rotation.eulerAngles}");
-            //StartCoroutine(CheckIfPlayerInDestination(teleportSubject, teleportInformation));
 
         }
-
-        //IEnumerator CheckIfPlayerInDestination(GameObject teleportSubject, TeleportInformation teleportInformation)
-        //{
-        //    yield return new WaitForSeconds(1f);
-        //    FadeEventChannel.RaiseEvent(false, 1.0f);
-        //    FadeMask.TogglePPE.Invoke(true);
-
-        //}
     }
 }
