@@ -64,19 +64,18 @@ namespace jeanf.universalplayer
             {
                 if (isDebug) Debug.Log("teleportation subject is not player - cannot disable player locomotion for teleportation");
             }
-
             if ( teleportInformation.objectIsPlayer ) cameraResetChannel.RaiseEvent();
             if (_isDebug) Debug.Log( $"[{teleportInformation.targetDestination.gameObject.name}] teleported {teleportSubject.gameObject.name} to {teleportInformation.targetDestination.transform.position} with rotation: {teleportInformation.targetDestination.transform.rotation.eulerAngles}");
-            StartCoroutine(CheckIfPlayerInDestination(teleportSubject, teleportInformation));
+            //StartCoroutine(CheckIfPlayerInDestination(teleportSubject, teleportInformation));
 
         }
 
-        IEnumerator CheckIfPlayerInDestination(GameObject teleportSubject, TeleportInformation teleportInformation)
-        {
-            yield return new WaitForSeconds(1f);
-            FadeEventChannel.RaiseEvent(false, 1.0f);
-            FadeMask.TogglePPE.Invoke(true);
+        //IEnumerator CheckIfPlayerInDestination(GameObject teleportSubject, TeleportInformation teleportInformation)
+        //{
+        //    yield return new WaitForSeconds(1f);
+        //    FadeEventChannel.RaiseEvent(false, 1.0f);
+        //    FadeMask.TogglePPE.Invoke(true);
 
-        }
+        //}
     }
 }
