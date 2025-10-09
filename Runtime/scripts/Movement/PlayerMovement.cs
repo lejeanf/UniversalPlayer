@@ -108,11 +108,9 @@ namespace jeanf.universalplayer
             Vector3 forward = cameraTransform.forward;
             Vector3 right = cameraTransform.right;
 
-            // Calculate move direction on XZ plane only
             Vector3 moveDirection = (forward * move.y) + (right * move.x);
             moveDirection.y = 0f;
 
-            // Move with normalized direction
             controller.Move(moveDirection.normalized * speed * Time.deltaTime);
         }
 
