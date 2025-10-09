@@ -24,18 +24,23 @@ namespace jeanf.universalplayer
         bool isMoving;
         Vector2 moveValue;
 
+        // Cache camera transform to avoid Camera.main lookups
+        private Transform cameraTransform;
+        private const float INPUT_MULTIPLIER = 50f;
+
+        private void Awake()
+        {
+            // Cache the camera transform once
+            cameraTransform = Camera.main.transform;
+        }
 
         private void OnEnable()
         {
-            fpsMoveAction.action.performed += ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50f);
-            fpsMoveAction.action.performed += ctx => SetIsMoving(true);
-            xrMoveAction.action.performed += ctx => SetIsMoving(true);
-            xrMoveAction.action.canceled += ctx => SetIsMoving(false);
-            //xrMoveAction.action.performed += ctx => SetIsMoving(true);
-            fpsMoveAction.action.canceled += ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50);
-            fpsMoveAction.action.canceled += ctx => SetIsMoving(false);
-            //xrMoveAction.action.canceled += ctx => SetIsMoving(false);
-
+            // Use proper method references instead of lambdas
+            fpsMoveAction.action.performed += OnFpsMovePerformed;
+            fpsMoveAction.action.canceled += OnFpsMoveCanceled;
+            xrMoveAction.action.performed += OnXrMovePerformed;
+            xrMoveAction.action.canceled += OnXrMoveCanceled;
         }
 
         private void OnDisable() => Unsubscribe();
@@ -43,15 +48,40 @@ namespace jeanf.universalplayer
 
         private void Unsubscribe()
         {
-            fpsMoveAction.action.performed -= ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50f);
-            fpsMoveAction.action.performed -= ctx => SetIsMoving(true);
-            xrMoveAction.action.performed -= ctx => SetIsMoving(true);
-            xrMoveAction.action.canceled -= ctx => SetIsMoving(false);
-            //xrMoveAction.action.performed -= ctx => SetIsMoving(false);
-            fpsMoveAction.action.canceled -= ctx => SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * 50f);
-            fpsMoveAction.action.canceled -= ctx => SetIsMoving(false);
-            //xrMoveAction.action.canceled -= ctx => SetIsMoving(false);
+            if (fpsMoveAction != null && fpsMoveAction.action != null)
+            {
+                fpsMoveAction.action.performed -= OnFpsMovePerformed;
+                fpsMoveAction.action.canceled -= OnFpsMoveCanceled;
+            }
+            
+            if (xrMoveAction != null && xrMoveAction.action != null)
+            {
+                xrMoveAction.action.performed -= OnXrMovePerformed;
+                xrMoveAction.action.canceled -= OnXrMoveCanceled;
+            }
+        }
 
+        // Event handler methods
+        private void OnFpsMovePerformed(InputAction.CallbackContext ctx)
+        {
+            SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * INPUT_MULTIPLIER);
+            SetIsMoving(true);
+        }
+
+        private void OnFpsMoveCanceled(InputAction.CallbackContext ctx)
+        {
+            SetMoveValue(Vector2.zero);
+            SetIsMoving(false);
+        }
+
+        private void OnXrMovePerformed(InputAction.CallbackContext ctx)
+        {
+            SetIsMoving(true);
+        }
+
+        private void OnXrMoveCanceled(InputAction.CallbackContext ctx)
+        {
+            SetIsMoving(false);
         }
 
         private void LateUpdate()
@@ -61,42 +91,35 @@ namespace jeanf.universalplayer
                 Move(moveValue);
             }
 
-            
             if (!controller.isGrounded)
             {
-                controller.Move(new Vector3(0.0f, -gravity, 0.0f).normalized * Time.deltaTime * 10f);
+                controller.Move(Vector3.down * gravity * Time.deltaTime);
             }
-
         }
+
         private void SetMoveValue(Vector2 move)
         {
             moveValue = move;
-            
         }
 
-        private bool IsGrounded()
-        {
-            return Physics.Raycast(transform.position, -Vector3.up, distToGround);
-        }
         private void Move(Vector2 move)
         {
+            // Use cached camera transform
+            Vector3 forward = cameraTransform.forward;
+            Vector3 right = cameraTransform.right;
 
+            // Calculate move direction on XZ plane only
+            Vector3 moveDirection = (forward * move.y) + (right * move.x);
+            moveDirection.y = 0f;
 
-            Vector3 forward = Camera.main.transform.forward;
-            Vector3 right = Camera.main.transform.right;
-
-            Vector3 moveDirection = (forward * speed * move.y) + (right * speed * move.x);
-
-
-            
-            Vector3 finalMoveDirection = new Vector3(moveDirection.x, 0.0f, moveDirection.z);
-            controller.Move(finalMoveDirection.normalized * speed * Time.deltaTime);
+            // Move with normalized direction
+            controller.Move(moveDirection.normalized * speed * Time.deltaTime);
         }
 
         private void SetIsMoving(bool isMoving)
         {
             this.isMoving = isMoving;
-            playerIsMovingEvent.RaiseEvent(isMoving);
+            playerIsMovingEvent?.RaiseEvent(isMoving);
         }
     }
 }
