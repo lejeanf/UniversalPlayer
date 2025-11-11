@@ -44,6 +44,7 @@ namespace jeanf.universalplayer
 
         private void SetCurrentControlSchemeOnSwitch()
         {
+            Debug.Log("PLAYER - Changing Control Scheme to"+ playerInput.currentControlScheme);
             switch (playerInput.currentControlScheme)
             {
                 case "Keyboard&Mouse":
