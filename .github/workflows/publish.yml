@@ -3,21 +3,23 @@ name: "🚀 publish"
 on:
     push:
         branches:
-          - main
+            - main
 
 jobs:
-    release:
-        name: 🚀 publish
-        runs-on: ubuntu-latest
-        steps:
-            - name: 📚 checkout
-              uses: actions/checkout@v3
-            - name: 🟢 node
-              uses: actions/setup-node@v3
-              with:
-                  node-version: 16
-                  registry-url: https://registry.npmjs.org
-            - name: 🚀 publish
-              run: npm publish --access public
-              env:
-                  NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+  release: # <- Line 8: Job name must be indented 2 spaces under 'jobs'
+    name: 🚀 publish # <- Indent 4 spaces
+    runs-on: ubuntu-latest # <- Indent 4 spaces
+    permissions: # <- Indent 4 spaces
+      contents: read # <- Indent 6 spaces
+      id-token: write # <- Indent 6 spaces
+    steps: # <- Indent 4 spaces
+      - name: 📚 checkout # <- Indent 6 spaces
+        uses: actions/checkout@v3 # <- Indent 8 spaces
+      - name: 🟢 node # <- Indent 6 spaces
+        uses: actions/setup-node@v3 # <- Indent 8 spaces
+        with: # <- Indent 8 spaces
+          node-version: 16 # <- Indent 10 spaces
+          registry-url: https://registry.npmjs.org # <- Indent 10 spaces
+          scope: '@lejeanf' # <- Indent 10 spaces
+      - name: 🚀 publish # <- Indent 6 spaces
+        run: npm publish --access public # <- Indent 8 spaces
