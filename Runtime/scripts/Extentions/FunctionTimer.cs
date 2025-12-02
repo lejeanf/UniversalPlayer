@@ -8,7 +8,6 @@ public class FunctionTimer
     private static List<FunctionTimer> activeTimerList;
     private static MonoBehaviourHook timerManager;
     
-    // ✅ Pool de timers
     private static Stack<FunctionTimer> timerPool = new Stack<FunctionTimer>(32);
     private const int INITIAL_POOL_SIZE = 16;
 
@@ -97,7 +96,6 @@ public class FunctionTimer
         activeTimerList.Clear();
     }
 
-    // ✅ MonoBehaviourHook centralize
     private class MonoBehaviourHook : MonoBehaviour
     {
         private int frameCounter = 0;
