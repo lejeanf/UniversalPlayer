@@ -55,6 +55,7 @@ namespace jeanf.universalplayer
                     activeControlScheme.RaiseEvent();
                     break;
                 case "XR":
+                    playerInput.neverAutoSwitchControlSchemes = true;
                     controlScheme = ControlScheme.XR;
                     activeControlScheme.RaiseEvent();
                     break;
