@@ -458,7 +458,7 @@ namespace jeanf.universalplayer
                 return;
             }
 
-            switch (fadeType)
+            switch (fadeType)   
             {
                 case FadeType.Loading:
                     SetVolumeTo_FadeToBlack(); // Black fade

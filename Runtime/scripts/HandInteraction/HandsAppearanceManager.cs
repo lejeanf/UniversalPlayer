@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using jeanf.EventSystem;
 using LitMotion;
@@ -57,33 +56,30 @@ namespace jeanf.universalplayer
         [ReadOnly] [SerializeField] private bool lastHandVisibility = true;
         [ReadOnly] [SerializeField] private bool canUpdate = false;
 
-
         private float tolerance = 0.01f;
+        
+        private List<int> _nullHandIndices = new List<int>(4); 
+        private int _frameCounter = 0;
+        private const int CleanupInterval = 300; 
 
         [Header("Action binding")]
         [SerializeField] private InputActionReference shiftTypeHandAction;
         
-        //[SerializeField] private Material skin;
-        //[SerializeField] private Material nail;
         private static readonly int SkinBaseColor = Shader.PropertyToID("_BaseColor");
-        //private static readonly int SkinDarness = Shader.PropertyToID("_SkinDarkness");
         private static readonly int _gloveValue = Shader.PropertyToID("_Switch_Gloves");
-
         [SerializeField] private readonly int _genderValue = Shader.PropertyToID("_Switch_Woman");
-        //[Range(0,100)]
-        //[SerializeField] private float nailDarkness = 10f;
-
 
         [Header("Listening on:")]
         [SerializeField] private BoolEventChannelSO gloveStateChannel;
 
-        //[SerializeField] private BoolEventChannelSO hmdStateChannel;
         private void OnEnable()
         {
             BlendableHand.AddHand += AddHand;
             BlendableHand.RemoveHand += RemoveHand;
-            gloveStateChannel.OnEventRaised += SetGloveState;
-            //hmdStateChannel.OnEventRaised += SetUpdateState;
+            if (gloveStateChannel != null)
+            {
+                gloveStateChannel.OnEventRaised += SetGloveState;
+            }
         }
 
         private void OnDisable() => Unsubscribe();
@@ -95,12 +91,21 @@ namespace jeanf.universalplayer
             _hands.TrimExcess();
             BlendableHand.AddHand -= AddHand;
             BlendableHand.RemoveHand -= RemoveHand;
-            gloveStateChannel.OnEventRaised -= SetGloveState;
-            //hmdStateChannel.OnEventRaised -= SetUpdateState;
+            if (gloveStateChannel != null)
+            {
+                gloveStateChannel.OnEventRaised -= SetGloveState;
+            }
         }
 
         private void Update()
         {
+            _frameCounter++;
+            if (_frameCounter >= CleanupInterval)
+            {
+                _frameCounter = 0;
+                CleanupNullHands_GCFree();
+            }
+            
             if(BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR)
             {
                 SetHandsVisibility(true);
@@ -110,84 +115,244 @@ namespace jeanf.universalplayer
                 SetBodyMass(_hands, bodyMass);
                 SetSkinDarkness(_hands, skinDarkness);
             }
-            //SetBlendValueFromGender(gender);
         }
+        
+        private void CleanupNullHands_GCFree()
+        {
+            if (_hands is null || _hands.Count is 0) return;
+            
+            _nullHandIndices.Clear();
+            
+            for (int i = 0; i < _hands.Count; i++)
+            {
+                if (_hands[i] is null)
+                {
+                    _nullHandIndices.Add(i);
+                }
+            }
+            
+            for (int i = _nullHandIndices.Count - 1; i >= 0; i--)
+            {
+                _hands.RemoveAt(_nullHandIndices[i]);
+            }
+        }
+        
         private void AddHand(SkinnedMeshRenderer hand)
         {
+            if (hand is null)
+            {
+                if (isDebug) Debug.LogWarning("[HandsAppearanceManager] Attempted to add null hand!");
+                return;
+            }
+            
+            if (hand.sharedMesh is null)
+            {
+                if (isDebug) 
+                {
+                    Debug.LogWarning("[HandsAppearanceManager] Hand has no mesh: " + hand.name);
+                }
+                return;
+            }
+
             if (!_hands.Contains(hand))
             {
                 _hands.Add(hand);
-                SetGender(_hands, gender);
+                
+                if (ValidateBlendShapes(hand))
+                {
+                    SetGender(_hands, gender);
+                }
+                else
+                {
+                    if (isDebug) 
+                    {
+                        Debug.LogWarning("[HandsAppearanceManager] Hand missing blend shapes: " + hand.name);
+                    }
+                }
+                
                 SetHandsVisibility(isHandVisible);
             }
-
         }
+        
+        private bool ValidateBlendShapes(SkinnedMeshRenderer hand)
+        {
+            if (hand is null || hand.sharedMesh is null) return false;
+            
+            int blendShapeCount = hand.sharedMesh.blendShapeCount;
+            
+            if (blendShapeCount < 1)
+            {
+                if (isDebug)
+                {
+                    Debug.LogWarning("[HandsAppearanceManager] Hand has no blend shapes: " + hand.name);
+                }
+                return false;
+            }
+            
+            if (blendShapeCount < 3)
+            {
+                if (isDebug)
+                {
+                    Debug.LogWarning("[HandsAppearanceManager] Hand missing body mass blend shape: " + hand.name);
+                }
+            }
+            
+            return true;
+        }
+        
         private void RemoveHand(SkinnedMeshRenderer hand)
         {
-            if(_hands.Count > 0 && _hands.Contains(hand)) _hands.Remove(hand);
+            if(_hands != null && _hands.Count > 0 && _hands.Contains(hand))
+            {
+                _hands.Remove(hand);
+            }
         }
 
-        
         private void SetBlendValueFromGender(bool gender)
         {
             _blendValue = gender ? 100f : 0f;
         }
 
-        
         private void SetGender(List<SkinnedMeshRenderer> hands, float value)
         {
-            foreach (var hand in hands)
+            if (hands is null || hands.Count is 0) return;
+            
+            for (int i = 0; i < hands.Count; i++)
             {
-                hand.SetBlendShapeWeight(0, value);
+                var hand = hands[i];
+                if (hand is null || hand.sharedMesh is null) continue;
+                
+                if (hand.sharedMesh.blendShapeCount < 1)
+                {
+                    if (isDebug)
+                    {
+                        Debug.LogWarning("[HandsAppearanceManager] Hand has no blend shapes for gender: " + hand.name);
+                    }
+                    continue;
+                }
+                
+                try
+                {
+                    hand.SetBlendShapeWeight(0, value);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("[HandsAppearanceManager] Error setting gender blend shape on " + hand.name + ": " + e.Message);
+                }
             }
         }
         
         private void SetBodyMass(List<SkinnedMeshRenderer> hands, float value)
         {
-            foreach (var hand in hands)
+            if (hands is null || hands.Count is 0) return;
+            
+            for (int i = 0; i < hands.Count; i++)
             {
-                hand.SetBlendShapeWeight(2, value);
+                var hand = hands[i];
+                if (hand is null || hand.sharedMesh is null) continue;
+                
+                if (hand.sharedMesh.blendShapeCount < 3)
+                {
+                    if (isDebug)
+                    {
+                        Debug.LogWarning("[HandsAppearanceManager] Hand doesn't have body mass blend shape: " + hand.name);
+                    }
+                    continue;
+                }
+                
+                try
+                {
+                    hand.SetBlendShapeWeight(2, value);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("[HandsAppearanceManager] Error setting body mass blend shape on " + hand.name + ": " + e.Message);
+                }
             }
         }
 
-
         private void SetHandMaterials(List<SkinnedMeshRenderer> hands, float value)
         {
-            if(hands.Count < 1) return;
-            foreach (var hand in hands)
+            if (hands is null || hands.Count < 1) return;
+            
+            for (int i = 0; i < hands.Count; i++)
             {
-                hand.sharedMaterial.SetFloat(_genderValue, value);
+                var hand = hands[i];
+                if (hand is null || hand.sharedMaterial is null) continue;
+                
+                try
+                {
+                    hand.sharedMaterial.SetFloat(_genderValue, value);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("[HandsAppearanceManager] Error setting material on " + hand.name + ": " + e.Message);
+                }
             }
         }
 
         private void SetSkinDarkness(List<SkinnedMeshRenderer> hands, float skinDarness)
         {
-            if(hands.Count < 1) return;
+            if (hands is null || hands.Count < 1) return;
+            
             var blend = Color.Lerp(lightSkinColor, darkSkinColor, skinDarkness);
-            foreach (var hand in hands)
+            
+            for (int i = 0; i < hands.Count; i++)
             {
-                hand.sharedMaterials[0].SetColor(SkinBaseColor, blend);
+                var hand = hands[i];
+                if (hand is null || hand.sharedMaterials is null || hand.sharedMaterials.Length is 0) continue;
+                
+                if (hand.sharedMaterials[0] is null) continue;
+                
+                try
+                {
+                    hand.sharedMaterials[0].SetColor(SkinBaseColor, blend);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("[HandsAppearanceManager] Error setting skin darkness on " + hand.name + ": " + e.Message);
+                }
             }
         }
 
         private void SetGloveValue(List<SkinnedMeshRenderer> hands, float value)
         {
-            if(hands.Count < 1) return;
-            foreach (var mat in hands.SelectMany(hand => hand.sharedMaterials))
+            if (hands is null || hands.Count < 1) return;
+            
+            for (int i = 0; i < hands.Count; i++)
             {
-                mat.SetFloat(_gloveValue, value);
+                var hand = hands[i];
+                if (hand is null || hand.sharedMaterials is null) continue;
+                
+                for (int j = 0; j < hand.sharedMaterials.Length; j++)
+                {
+                    var mat = hand.sharedMaterials[j];
+                    if (mat is null) continue;
+                    
+                    try
+                    {
+                        mat.SetFloat(_gloveValue, value);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError("[HandsAppearanceManager] Error setting glove value on " + hand.name + ": " + e.Message);
+                    }
+                }
             }
         }
         
         private void LerpGloveTowardsValue(float goalValue, float blendTime)
         {
-            _gloveHandle = LMotion.Create(gloveValue,goalValue,blendTime)
+            _gloveHandle = LMotion.Create(gloveValue, goalValue, blendTime)
                 .Bind(x => gloveValue = x);
         }
 
         public void SetGloveState(bool state)
         {
-            if(isDebug) Debug.Log($"glove state {state}");
+            if(isDebug)
+            {
+                Debug.Log("[HandsAppearanceManager] Glove state: " + state);
+            }
             isGlove = state;
             var goalValue = isGlove ? 1 : 0;
             LerpGloveTowardsValue(goalValue, blendTime);
@@ -201,9 +366,21 @@ namespace jeanf.universalplayer
 
         public void SetHandsVisibility(bool state)
         {
-            foreach (var hand in _hands)
+            if (_hands is null) return;
+            
+            for (int i = 0; i < _hands.Count; i++)
             {
-                hand.enabled = state;
+                var hand = _hands[i];
+                if (hand is null) continue;
+                
+                try
+                {
+                    hand.enabled = state;
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("[HandsAppearanceManager] Error setting hand visibility: " + e.Message);
+                }
             }
 
             lastHandVisibility = state;

@@ -24,19 +24,16 @@ namespace jeanf.universalplayer
         bool isMoving;
         Vector2 moveValue;
 
-        // Cache camera transform to avoid Camera.main lookups
         private Transform cameraTransform;
         private const float INPUT_MULTIPLIER = 50f;
 
         private void Awake()
         {
-            // Cache the camera transform once
             cameraTransform = Camera.main.transform;
         }
 
         private void OnEnable()
         {
-            // Use proper method references instead of lambdas
             fpsMoveAction.action.performed += OnFpsMovePerformed;
             fpsMoveAction.action.canceled += OnFpsMoveCanceled;
             xrMoveAction.action.performed += OnXrMovePerformed;
@@ -61,7 +58,6 @@ namespace jeanf.universalplayer
             }
         }
 
-        // Event handler methods
         private void OnFpsMovePerformed(InputAction.CallbackContext ctx)
         {
             SetMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * INPUT_MULTIPLIER);
@@ -104,7 +100,6 @@ namespace jeanf.universalplayer
 
         private void Move(Vector2 move)
         {
-            // Use cached camera transform
             Vector3 forward = cameraTransform.forward;
             Vector3 right = cameraTransform.right;
 
