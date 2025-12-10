@@ -53,7 +53,10 @@ namespace jeanf.universalplayer
             {
                 nonPhysicalHand.SetActive(false);
             }
-            rb.linearVelocity = (target.position - transform.position)/Time.deltaTime;
+        }
+        void FixedUpdate()
+        {
+            rb.linearVelocity = (target.position - transform.position)/Time.fixedDeltaTime;
         
 
             Quaternion rotationDifference = target.rotation * Quaternion.Inverse(transform.rotation*offset);
@@ -63,7 +66,6 @@ namespace jeanf.universalplayer
 
             rb.angularVelocity = (rotationDifferenceInDegree * Mathf.Deg2Rad/Time.deltaTime);
         }
-
 
         private void CheckXRStatus()
         {
