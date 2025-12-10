@@ -64,7 +64,7 @@ namespace jeanf.universalplayer
 
             Vector3 rotationDifferenceInDegree = angleInDegree * rotationAxis;
 
-            rb.angularVelocity = (rotationDifferenceInDegree * Mathf.Deg2Rad/Time.fixedDeltaTime);
+            rb.angularVelocity = (rotationDifferenceInDegree * Mathf.Deg2Rad/Time.deltaTime);
         }
 
         private void CheckXRStatus()
