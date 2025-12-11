@@ -54,9 +54,9 @@ namespace jeanf.universalplayer
                 nonPhysicalHand.SetActive(false);
             }
         }
-        void FixedUpdate()
+        void LateUpdate()
         {
-            rb.linearVelocity = (target.position - transform.position)/Time.fixedDeltaTime;
+            rb.linearVelocity = (target.position - transform.position)/Time.deltaTime;
         
 
             Quaternion rotationDifference = target.rotation * Quaternion.Inverse(transform.rotation*offset);
