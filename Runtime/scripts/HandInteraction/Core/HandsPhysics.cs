@@ -15,6 +15,8 @@ namespace jeanf.universalplayer
         [SerializeField] LayerMask ignoreTheseOnGrab;
         GameObject pokeInteractor;
         [SerializeField] HandType handType;
+        Vector3 targetPos;
+        Quaternion targetRot;
 
         [SerializeField] VoidEventChannelSO controlSchemeChangeEvent;
 
@@ -32,7 +34,7 @@ namespace jeanf.universalplayer
             GetPrimaryInHandItemWithVRController.OnIpadStateChanged += ctx => HandleCollidersForSpecificHand(ctx);
             controlSchemeChangeEvent.OnEventRaised += CheckXRStatus;
             PrimaryItemController.TriggerLastUsedHand += HandleColliders;
-        }        
+        }
         private void OnDisable()
         {
             TakeObject.OnGrabDeactivateCollider -= HandleColliders;
@@ -44,8 +46,11 @@ namespace jeanf.universalplayer
         }
         private void Update()
         {
+            targetPos = target.transform.position;
+            targetRot = target.transform.rotation;
+
             float distance = Vector3.Distance(transform.position, target.position);
-            if(distance > showNonPhysicalHandDistance)
+            if (distance > showNonPhysicalHandDistance)
             {
                 nonPhysicalHand.SetActive(true);
             }
@@ -54,17 +59,31 @@ namespace jeanf.universalplayer
                 nonPhysicalHand.SetActive(false);
             }
         }
-        void LateUpdate()
+        void FixedUpdate()
         {
-            rb.linearVelocity = (target.position - transform.position)/Time.deltaTime;
-        
 
-            Quaternion rotationDifference = target.rotation * Quaternion.Inverse(transform.rotation*offset);
-            rotationDifference.ToAngleAxis(out float angleInDegree, out Vector3 rotationAxis);
+            Vector3 posDelta = targetPos - transform.position;
+            rb.linearVelocity = posDelta / Time.fixedDeltaTime;
 
-            Vector3 rotationDifferenceInDegree = angleInDegree * rotationAxis;
+            Quaternion currentRotation = transform.rotation * offset;
+            Quaternion rotationDiff = targetRot * Quaternion.Inverse(currentRotation);
 
-            rb.angularVelocity = (rotationDifferenceInDegree * Mathf.Deg2Rad/Time.deltaTime);
+            rotationDiff.ToAngleAxis(out float angleDeg, out Vector3 axis);
+
+            if (!float.IsInfinity(axis.x))
+            {
+                float angleRad = angleDeg * Mathf.Deg2Rad;
+                rb.angularVelocity = axis * (angleRad / Time.fixedDeltaTime);
+            }
+            //rb.linearVelocity = (target.position - transform.position)/Time.fixedDeltaTime;
+
+
+            //Quaternion rotationDifference = target.rotation * Quaternion.Inverse(transform.rotation*offset);
+            //rotationDifference.ToAngleAxis(out float angleInDegree, out Vector3 rotationAxis);
+
+            //Vector3 rotationDifferenceInDegree = angleInDegree * rotationAxis;
+
+            //rb.angularVelocity = (rotationDifferenceInDegree * Mathf.Deg2Rad/Time.deltaTime);
         }
 
         private void CheckXRStatus()
