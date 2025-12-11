@@ -15,8 +15,6 @@ namespace jeanf.universalplayer
         [SerializeField] LayerMask ignoreTheseOnGrab;
         GameObject pokeInteractor;
         [SerializeField] HandType handType;
-        Vector3 targetPos;
-        Quaternion targetRot;
 
         [SerializeField] VoidEventChannelSO controlSchemeChangeEvent;
 
@@ -46,9 +44,6 @@ namespace jeanf.universalplayer
         }
         private void Update()
         {
-            targetPos = target.transform.position;
-            targetRot = target.transform.rotation;
-
             float distance = Vector3.Distance(transform.position, target.position);
             if (distance > showNonPhysicalHandDistance)
             {
@@ -61,29 +56,15 @@ namespace jeanf.universalplayer
         }
         void FixedUpdate()
         {
-
-            Vector3 posDelta = targetPos - transform.position;
-            rb.linearVelocity = posDelta / Time.fixedDeltaTime;
-
-            Quaternion currentRotation = transform.rotation * offset;
-            Quaternion rotationDiff = targetRot * Quaternion.Inverse(currentRotation);
-
-            rotationDiff.ToAngleAxis(out float angleDeg, out Vector3 axis);
-
-            if (!float.IsInfinity(axis.x))
-            {
-                float angleRad = angleDeg * Mathf.Deg2Rad;
-                rb.angularVelocity = axis * (angleRad / Time.fixedDeltaTime);
-            }
-            //rb.linearVelocity = (target.position - transform.position)/Time.fixedDeltaTime;
+            rb.linearVelocity = (target.position - transform.position) / Time.fixedDeltaTime;
 
 
-            //Quaternion rotationDifference = target.rotation * Quaternion.Inverse(transform.rotation*offset);
-            //rotationDifference.ToAngleAxis(out float angleInDegree, out Vector3 rotationAxis);
+            Quaternion rotationDifference = target.rotation * Quaternion.Inverse(transform.rotation * offset);
+            rotationDifference.ToAngleAxis(out float angleInDegree, out Vector3 rotationAxis);
 
-            //Vector3 rotationDifferenceInDegree = angleInDegree * rotationAxis;
+            Vector3 rotationDifferenceInDegree = angleInDegree * rotationAxis;
 
-            //rb.angularVelocity = (rotationDifferenceInDegree * Mathf.Deg2Rad/Time.deltaTime);
+            rb.angularVelocity = (rotationDifferenceInDegree * Mathf.Deg2Rad / Time.deltaTime);
         }
 
         private void CheckXRStatus()
