@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-[SerializeField]
+[System.Serializable]
 [CreateAssetMenu(fileName = "NewPoseData")]
 public class Pose : ScriptableObject
 {
