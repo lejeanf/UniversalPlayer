@@ -1,4 +1,5 @@
 {
+    "version": 1,
     "name": "vr-player_InputActions",
     "maps": [
         {
@@ -2187,6 +2188,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "DrawSecondaryItem",
+                    "type": "Button",
+                    "id": "6662944a-9617-4c5f-a61d-904141aa25e8",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Move",
                     "type": "Value",
                     "id": "5caa391d-6527-4fa4-9ca1-a53da1464f32",
@@ -2534,6 +2544,17 @@
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e3ad75fb-cc4e-46cd-afb3-18010b893fa8",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "DrawSecondaryItem",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
