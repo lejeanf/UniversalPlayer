@@ -21,7 +21,8 @@ namespace jeanf.universalplayer
         {
             KeyboardMouse,
             XR,
-            Gamepad
+            Gamepad,
+            Freecam
         }
 
         public static ControlScheme controlScheme;
@@ -57,6 +58,10 @@ namespace jeanf.universalplayer
                 case "XR":
                     playerInput.neverAutoSwitchControlSchemes = true;
                     controlScheme = ControlScheme.XR;
+                    activeControlScheme.RaiseEvent();
+                    break;
+                case "FreeCam":
+                    controlScheme = ControlScheme.Freecam;
                     activeControlScheme.RaiseEvent();
                     break;
             }

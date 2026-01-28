@@ -8,11 +8,15 @@ namespace jeanf.universalplayer
     {
         [SerializeField] InputActionReference fpsMoveAction;
         [SerializeField] InputActionReference xrMoveAction;
+        [SerializeField] InputActionReference fpsElevateAction;
+        [SerializeField] InputActionReference freeCamAction;
+        [SerializeField] PlayerInput playerInput;
         [SerializeField] CharacterController controller;
         [SerializeField] FPSCameraMovement mouseLook;
         [SerializeField] BoolEventChannelSO playerIsMovingEvent;
-
+        [SerializeField] bool isFreeCamOn;
         [SerializeField] private float speed;
+        BroadcastControlsStatus.ControlScheme controlScheme;
         public float Speed
         {
             get => speed;
@@ -23,7 +27,7 @@ namespace jeanf.universalplayer
         [SerializeField] float speedChangeRate;
         bool isMoving;
         Vector2 moveValue;
-
+        Vector2 verticalMoveValue;
         private Transform cameraTransform;
         private const float INPUT_MULTIPLIER = 50f;
 
@@ -34,7 +38,11 @@ namespace jeanf.universalplayer
 
         private void OnEnable()
         {
+            BroadcastControlsStatus.SendControlScheme += ctx => OnReceivedControlSchemeChange(ctx);
+            fpsElevateAction.action.performed += OnFpsElevatePerformed;
+            fpsElevateAction.action.canceled += OnFpsElevateCancelled;
             fpsMoveAction.action.performed += OnFpsMovePerformed;
+            freeCamAction.action.performed += ctx => ActivateFreeMove();
             fpsMoveAction.action.canceled += OnFpsMoveCanceled;
             xrMoveAction.action.performed += OnXrMovePerformed;
             xrMoveAction.action.canceled += OnXrMoveCanceled;
@@ -56,6 +64,45 @@ namespace jeanf.universalplayer
                 xrMoveAction.action.performed -= OnXrMovePerformed;
                 xrMoveAction.action.canceled -= OnXrMoveCanceled;
             }
+            if (fpsElevateAction != null && fpsElevateAction.action != null)
+            {
+                fpsElevateAction.action.performed -= OnFpsElevatePerformed;
+                fpsElevateAction.action.canceled -= OnFpsElevateCancelled;
+            }
+
+            BroadcastControlsStatus.SendControlScheme -= ctx => OnReceivedControlSchemeChange(ctx);
+        }
+
+        private void ActivateFreeMove()
+        {
+            if (controlScheme == BroadcastControlsStatus.ControlScheme.KeyboardMouse)
+            {
+                playerInput.SwitchCurrentControlScheme("FreeCam", Keyboard.current, Mouse.current);
+            }
+            else if (controlScheme == BroadcastControlsStatus.ControlScheme.Freecam)
+            {
+                playerInput.SwitchCurrentControlScheme("Keyboard&Mouse", Keyboard.current, Mouse.current);
+            }
+        }
+        private void OnFpsElevatePerformed(InputAction.CallbackContext ctx)
+        {
+            SetVerticalMoveValue(ctx.ReadValue<Vector2>() * Time.smoothDeltaTime * INPUT_MULTIPLIER);
+            SetIsMoving(true);
+        }
+
+        private void OnReceivedControlSchemeChange(BroadcastControlsStatus.ControlScheme controlScheme)
+        {
+            controller.enabled = false;
+            playerInput.gameObject.transform.position = new Vector3(playerInput.gameObject.transform.position.x, 0, playerInput.gameObject.transform.position.z);
+            
+            this.controlScheme = controlScheme;
+            controller.enabled = true;
+
+        }
+        private void OnFpsElevateCancelled(InputAction.CallbackContext ctx)
+        {
+            SetVerticalMoveValue(Vector2.zero);
+            SetIsMoving(false);
         }
 
         private void OnFpsMovePerformed(InputAction.CallbackContext ctx)
@@ -84,10 +131,10 @@ namespace jeanf.universalplayer
         {
             if (isMoving)
             {
-                Move(moveValue);
+                Move(moveValue, verticalMoveValue);
             }
 
-            if (!controller.isGrounded)
+            if (!controller.isGrounded && controlScheme != BroadcastControlsStatus.ControlScheme.Freecam)
             {
                 controller.Move(Vector3.down * gravity * Time.deltaTime);
             }
@@ -98,13 +145,26 @@ namespace jeanf.universalplayer
             moveValue = move;
         }
 
-        private void Move(Vector2 move)
+        private void SetVerticalMoveValue(Vector2 move)
+        {
+            verticalMoveValue = move;
+        }
+        private void Move(Vector2 move, Vector2 verticalMove)
         {
             Vector3 forward = cameraTransform.forward;
             Vector3 right = cameraTransform.right;
+            Vector3 up = cameraTransform.up;
+            Vector3 moveDirection = Vector3.zero;
+            if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.Freecam)
+            {
+                moveDirection = (forward * move.y) + (right * move.x) + (up * verticalMove.y);
+            }
+            else
+            {
+                moveDirection = (forward * move.y) + (right * move.x);
+                moveDirection.y = 0f;
 
-            Vector3 moveDirection = (forward * move.y) + (right * move.x);
-            moveDirection.y = 0f;
+            }
 
             controller.Move(moveDirection.normalized * speed * Time.deltaTime);
         }

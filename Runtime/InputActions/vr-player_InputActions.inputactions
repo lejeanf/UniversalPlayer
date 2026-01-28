@@ -2198,7 +2198,7 @@
                 },
                 {
                     "name": "Move",
-                    "type": "Value",
+                    "type": "PassThrough",
                     "id": "5caa391d-6527-4fa4-9ca1-a53da1464f32",
                     "expectedControlType": "Vector2",
                     "processors": "",
@@ -2218,7 +2218,7 @@
                     "name": "TakeObject",
                     "type": "Button",
                     "id": "2e6adfb6-875a-4933-9774-cfe744474996",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -2227,7 +2227,7 @@
                     "name": "Interact",
                     "type": "Button",
                     "id": "73dbf225-b2bb-4a31-aac9-7d6ae3805e1d",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -2236,7 +2236,7 @@
                     "name": "MainMenu",
                     "type": "Button",
                     "id": "1e7e73b8-f08f-4823-9f58-537be8b1bdb0",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -2245,7 +2245,7 @@
                     "name": "PauseGame",
                     "type": "Button",
                     "id": "9c0ffb68-6064-4dda-9867-6cafa9dd5682",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -2258,6 +2258,33 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "ActivateRotation",
+                    "type": "Button",
+                    "id": "91a043f3-1cab-470d-af4e-47880a84d17c",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Hold",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Elevate",
+                    "type": "PassThrough",
+                    "id": "2d3a814a-7377-481c-ad17-a76dd1d9ebf7",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "ActivateFreeCam",
+                    "type": "Button",
+                    "id": "c72238c9-2dbc-4e03-adad-f849210c73cb",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -2311,7 +2338,7 @@
                     "path": "<Keyboard>/w",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard&Mouse",
+                    "groups": "Keyboard&Mouse;FreeCam",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -2322,7 +2349,7 @@
                     "path": "<Keyboard>/s",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard&Mouse",
+                    "groups": "Keyboard&Mouse;FreeCam",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -2333,7 +2360,7 @@
                     "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard&Mouse",
+                    "groups": "Keyboard&Mouse;FreeCam",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -2344,7 +2371,7 @@
                     "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard&Mouse",
+                    "groups": "Keyboard&Mouse;FreeCam",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -2410,7 +2437,7 @@
                     "path": "<Mouse>/delta",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard&Mouse",
+                    "groups": "Keyboard&Mouse;FreeCam",
                     "action": "LookAround",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -2557,6 +2584,83 @@
                     "action": "DrawSecondaryItem",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1da4a732-b484-4f9b-ae7a-62e8fe9f4a9f",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";FreeCam",
+                    "action": "ActivateRotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "2D Vector",
+                    "id": "db61a9f5-6a80-4a2f-9be2-0cee3fae2994",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Elevate",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "5589dd3f-9a7a-431c-affa-0e3367cf91db",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";FreeCam",
+                    "action": "Elevate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "d434c290-eb39-471f-b005-1e524b1d9688",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";FreeCam",
+                    "action": "Elevate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "One Modifier",
+                    "id": "c2489a79-95da-4edd-9dfe-95e7ef41d969",
+                    "path": "OneModifier",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ActivateFreeCam",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "b830ef48-7ad2-41c3-ba3f-c4aca8dd09f1",
+                    "path": "<Keyboard>/shift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";FreeCam;Keyboard&Mouse",
+                    "action": "ActivateFreeCam",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "binding",
+                    "id": "b17ab2f2-c186-4d0d-96f4-081a5619d0e2",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";FreeCam;Keyboard&Mouse",
+                    "action": "ActivateFreeCam",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 }
             ]
         }
@@ -2602,6 +2706,22 @@
         {
             "name": "Keyboard&Mouse",
             "bindingGroup": "Keyboard&Mouse",
+            "devices": [
+                {
+                    "devicePath": "<Keyboard>",
+                    "isOptional": false,
+                    "isOR": false
+                },
+                {
+                    "devicePath": "<Mouse>",
+                    "isOptional": false,
+                    "isOR": false
+                }
+            ]
+        },
+        {
+            "name": "FreeCam",
+            "bindingGroup": "FreeCam",
             "devices": [
                 {
                     "devicePath": "<Keyboard>",
