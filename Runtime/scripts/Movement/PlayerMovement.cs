@@ -14,7 +14,7 @@ namespace jeanf.universalplayer
         [SerializeField] CharacterController controller;
         [SerializeField] FPSCameraMovement mouseLook;
         [SerializeField] BoolEventChannelSO playerIsMovingEvent;
-        [SerializeField] bool isFreeCamOn;
+        bool isFreeCamOn = false;
         [SerializeField] private float speed;
         BroadcastControlsStatus.ControlScheme controlScheme;
         public float Speed
@@ -79,10 +79,12 @@ namespace jeanf.universalplayer
             if (controlScheme == BroadcastControlsStatus.ControlScheme.KeyboardMouse)
             {
                 playerInput.SwitchCurrentControlScheme("FreeCam", Keyboard.current, Mouse.current);
+                isFreeCamOn = true;
             }
             else if (controlScheme == BroadcastControlsStatus.ControlScheme.Freecam)
             {
                 playerInput.SwitchCurrentControlScheme("Keyboard&Mouse", Keyboard.current, Mouse.current);
+                isFreeCamOn = false;
             }
         }
         private void OnFpsElevatePerformed(InputAction.CallbackContext ctx)
@@ -173,8 +175,10 @@ namespace jeanf.universalplayer
         private void SetIsMoving(bool isMoving)
         {
             this.isMoving = isMoving;
-            Debug.Log("Is Moving ?: " + isMoving);
-            playerIsMovingEvent?.RaiseEvent(isMoving);
+            if (!isFreeCamOn)
+            {
+                playerIsMovingEvent?.RaiseEvent(isMoving);
+            }
         }
     }
 }
