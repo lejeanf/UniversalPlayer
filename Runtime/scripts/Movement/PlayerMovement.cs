@@ -172,6 +172,7 @@ namespace jeanf.universalplayer
         private void SetIsMoving(bool isMoving)
         {
             this.isMoving = isMoving;
+            Debug.Log("Is Moving ?: " + isMoving);
             playerIsMovingEvent?.RaiseEvent(isMoving);
         }
     }
