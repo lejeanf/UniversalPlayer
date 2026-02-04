@@ -71,6 +71,7 @@ namespace jeanf.universalplayer
             }
 
             BroadcastControlsStatus.SendControlScheme -= ctx => OnReceivedControlSchemeChange(ctx);
+            freeCamAction.action.performed -= ctx => ActivateFreeMove();
         }
 
         private void ActivateFreeMove()
