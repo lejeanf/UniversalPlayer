@@ -14,6 +14,8 @@ namespace jeanf.universalplayer
         [SerializeField] CharacterController controller;
         [SerializeField] FPSCameraMovement mouseLook;
         [SerializeField] BoolEventChannelSO playerIsMovingEvent;
+        [SerializeField] TeleportEventChannelSO teleportEvent;
+        Vector3 groundLevel = Vector3.zero;
         bool isFreeCamOn = false;
         [SerializeField] private float speed;
         BroadcastControlsStatus.ControlScheme controlScheme;
@@ -46,6 +48,7 @@ namespace jeanf.universalplayer
             fpsMoveAction.action.canceled += OnFpsMoveCanceled;
             xrMoveAction.action.performed += OnXrMovePerformed;
             xrMoveAction.action.canceled += OnXrMoveCanceled;
+            if(teleportEvent != null) teleportEvent.OnEventRaised += SetGroundLevel;
         }
 
         private void OnDisable() => Unsubscribe();
@@ -70,10 +73,23 @@ namespace jeanf.universalplayer
                 fpsElevateAction.action.canceled -= OnFpsElevateCancelled;
             }
 
+            if (freeCamAction != null && freeCamAction.action != null)
+            {
+                freeCamAction.action.performed -= ctx => ActivateFreeMove();
+            }
+
+            if (teleportEvent != null)
+            {
+                teleportEvent.OnEventRaised -= SetGroundLevel;
+            }
+
             BroadcastControlsStatus.SendControlScheme -= ctx => OnReceivedControlSchemeChange(ctx);
-            freeCamAction.action.performed -= ctx => ActivateFreeMove();
         }
 
+        private void SetGroundLevel(TeleportInformation teleportInfo)
+        {
+            groundLevel = teleportInfo.targetDestination.position;
+        }
         private void ActivateFreeMove()
         {
             if (controlScheme == BroadcastControlsStatus.ControlScheme.KeyboardMouse)
@@ -96,7 +112,9 @@ namespace jeanf.universalplayer
         private void OnReceivedControlSchemeChange(BroadcastControlsStatus.ControlScheme controlScheme)
         {
             controller.enabled = false;
-            playerInput.gameObject.transform.position = new Vector3(playerInput.gameObject.transform.position.x, 0, playerInput.gameObject.transform.position.z);
+
+            playerInput.gameObject.transform.position = new Vector3(playerInput.gameObject.transform.position.x, groundLevel.y, playerInput.gameObject.transform.position.z);
+
             
             this.controlScheme = controlScheme;
             controller.enabled = true;
