@@ -437,8 +437,14 @@ namespace jeanf.universalplayer
                 if (valueProperty == null) return;
                 valueProperty.SetValue(targetParameter, value);
 
-                var overrideStateProperty = parameterType.GetProperty("overrideState");
-                overrideStateProperty?.SetValue(targetParameter, true);
+                if (_currentPipeline == RenderPipeline.URP)
+                {
+                    var overrideStateProperty = parameterType.GetProperty("overrideState");
+                    overrideStateProperty?.SetValue(targetParameter, true);
+                    
+                    var activeProperty = colorAdjustmentsType.GetProperty("active");
+                    activeProperty?.SetValue(colorAdjustments, true);
+                }
 
                 if (_isDebugSTATIC) Debug.Log($"FadeMask: Set {propertyName} to {value}");
             }
@@ -540,8 +546,8 @@ namespace jeanf.universalplayer
             if (_isCurrentlyFading && _targetState == value)
                 return;
 
-            if (_isDebugSTATIC) Debug.Log($"FadeMask: Fading to {value} in {fadeTime}s with {fadeType} style");
-
+            if (_isDebugSTATIC) Debug.Log($"FadeMask: Fading to {value} in {fadeTime}s with {fadeType}  style\n{System.Environment.StackTrace}");
+            
             // Cancel any existing fade
             if (_fadeHandle.IsActive())
             {
