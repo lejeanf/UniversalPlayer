@@ -521,7 +521,7 @@ namespace jeanf.universalplayer
             }
 
             // Only set up the volume profile if we're changing fade types or fading in
-            if (_currentFadeType != fadeType || value)
+            if (value && _currentFadeType != fadeType)
             {
                 switch (fadeType)
                 {
