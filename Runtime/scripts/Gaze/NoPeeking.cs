@@ -19,13 +19,10 @@ namespace jeanf.universalplayer
         private bool _fadeStateLastValue = false;
         
         private static bool _isSceneLoading = true;
-        private static bool _wasSceneLoadingLastFrame = true;
         
         private void FixedUpdate()
         {
             _fadeStateLastValue = _fadeState;
-            bool wasLoadingLastFrame = _wasSceneLoadingLastFrame;
-            _wasSceneLoadingLastFrame = _isSceneLoading;
             
             if (_isSceneLoading)
             {
@@ -34,20 +31,7 @@ namespace jeanf.universalplayer
             else
             {
                 if (isDebug) Debug.Log("NoPeeking - made it through the return");
-                if (Physics.CheckSphere(transform.position, sphereCheckSize, collisionLayer, QueryTriggerInteraction.Ignore))
-                {
-                    _fadeState = true;
-                }
-                else
-                {
-                    _fadeState = false;
-                }
-            }
-
-            if (wasLoadingLastFrame && !_isSceneLoading)
-            {
-                if (isDebug) Debug.Log("Scene loading finished - preparing head-in-wall detection mode");
-                FadeMask.PrepareVolumeProfile(FadeMask.FadeType.HeadInWall);
+                _fadeState = Physics.CheckSphere(transform.position, sphereCheckSize, collisionLayer, QueryTriggerInteraction.Ignore);
             }
 
             if (_fadeState == _fadeStateLastValue) return;

@@ -81,7 +81,6 @@ namespace jeanf.universalplayer
             DetectRenderPipeline();
             SetupVolumeProfile();
             SetVolumeTo_FadeToBlack();
-            FadeValue(false, .5f);
         }
 
         private void DetectRenderPipeline()
