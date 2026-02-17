@@ -342,6 +342,30 @@ namespace jeanf.universalplayer
                     break;
             }
         }
+        
+        public static void SetVolumeTo_Clear()
+        {
+            if (_isDebugSTATIC) Debug.Log($"FadeMask: Setting clear view (white) for {_currentPipeline}");
+    
+            switch (_currentPipeline)
+            {
+                case RenderPipeline.HDRP:
+                    if (hdrpColorAdjustments != null)
+                    {
+                        SetColorAdjustmentProperty(hdrpColorAdjustments, "colorFilter", Color.white);
+                        SetColorAdjustmentProperty(hdrpColorAdjustments, "saturation", 0f);
+                    }
+                    break;
+        
+                case RenderPipeline.URP:
+                    if (urpColorAdjustments != null)
+                    {
+                        SetColorAdjustmentProperty(urpColorAdjustments, "colorFilter", Color.white);
+                        SetColorAdjustmentProperty(urpColorAdjustments, "saturation", 0f);
+                    }
+                    break;
+            }
+        }
 
         public static void SetVolumeTo_FadeSaturation()
         {
@@ -523,41 +547,31 @@ namespace jeanf.universalplayer
         {
             if (staticPostProcessVolume == null)
             {
-                if (_isDebugSTATIC) Debug.LogWarning("FadeMask: staticPostProcessVolume is null. Make sure FadeMask.Awake() has been called.");
+                if (_isDebugSTATIC) Debug.LogWarning("FadeMask: staticPostProcessVolume is null.");
                 return;
             }
 
-            switch (fadeType)
+            if (_isDebugSTATIC) Debug.Log($"FadeMask: Setting fade state to {value} with {fadeType} type");
+
+            if (value)
             {
-                case FadeType.Loading:
-                    SetVolumeTo_FadeToBlack();
-                    break;
-                case FadeType.HeadInWall:
-                    SetVolumeTo_FadeSaturation();
-                    break;
+                // Fading IN - show the effect
+                switch (fadeType)
+                {
+                    case FadeType.Loading:
+                        SetVolumeTo_FadeToBlack();
+                        break;
+                    case FadeType.HeadInWall:
+                        SetVolumeTo_FadeSaturation();
+                        break;
+                }
             }
+            else
+            {
+                SetVolumeTo_Clear();
+            }
+    
             _currentFadeType = fadeType;
-
-            // Check if we're already transitioning to the same target state
-            if (_isCurrentlyFading && _targetState == value)
-                return;
-
-            if (_isDebugSTATIC) Debug.Log($"FadeMask: Fading to {value} in {fadeTime}s with {fadeType}  style\n{System.Environment.StackTrace}");
-            
-            // Cancel any existing fade
-            if (_fadeHandle.IsActive())
-            {
-                _fadeHandle.Cancel();
-            }
-
-            _targetState = value;
-            _isCurrentlyFading = true;
-            float targetAlpha = value ? 1 : 0;
-            var volume = staticPostProcessVolume;
-
-            _fadeHandle = LMotion.Create(volume.weight, targetAlpha, fadeTime)
-                .WithOnComplete(() => _isCurrentlyFading = false)
-                .Bind(x => volume.weight = x);
         }
 
         private void DisableFadeHandle()

@@ -39,7 +39,7 @@ namespace jeanf.universalplayer
 
             if (_fadeState == _fadeStateLastValue) return;
 
-            var fadeType = wasLoadingLastFrame ? FadeMask.FadeType.Loading : FadeMask.FadeType.HeadInWall;
+            var fadeType = _isSceneLoading ? FadeMask.FadeType.Loading : FadeMask.FadeType.HeadInWall;
             FadeMask.FadeValue(_fadeState, fadeType);
 
             if (isDebug) Debug.Log($"fadeType:{fadeType} fade changed to: {_fadeState}");
