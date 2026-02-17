@@ -437,11 +437,11 @@ namespace jeanf.universalplayer
                 if (valueProperty == null) return;
                 valueProperty.SetValue(targetParameter, value);
 
+                var overrideStateProperty = parameterType.GetProperty("overrideState");
+                overrideStateProperty?.SetValue(targetParameter, true);
+                
                 if (_currentPipeline == RenderPipeline.URP)
                 {
-                    var overrideStateProperty = parameterType.GetProperty("overrideState");
-                    overrideStateProperty?.SetValue(targetParameter, true);
-                    
                     var activeProperty = colorAdjustmentsType.GetProperty("active");
                     activeProperty?.SetValue(colorAdjustments, true);
                 }
@@ -527,20 +527,16 @@ namespace jeanf.universalplayer
                 return;
             }
 
-            // Only set up the volume profile if we're changing fade types or fading in
-            if (value)
+            switch (fadeType)
             {
-                switch (fadeType)
-                {
-                    case FadeType.Loading:
-                        SetVolumeTo_FadeToBlack(); // Black fade
-                        break;
-                    case FadeType.HeadInWall:
-                        SetVolumeTo_FadeSaturation(); // Saturation fade
-                        break;
-                }
-                _currentFadeType = fadeType;
+                case FadeType.Loading:
+                    SetVolumeTo_FadeToBlack();
+                    break;
+                case FadeType.HeadInWall:
+                    SetVolumeTo_FadeSaturation();
+                    break;
             }
+            _currentFadeType = fadeType;
 
             // Check if we're already transitioning to the same target state
             if (_isCurrentlyFading && _targetState == value)
