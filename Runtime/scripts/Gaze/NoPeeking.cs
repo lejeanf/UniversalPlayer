@@ -17,13 +17,16 @@ namespace jeanf.universalplayer
 
         [SerializeField] private bool _fadeState = false;
         private bool _fadeStateLastValue = false;
-        
+        private bool _wasSceneLoadingLastFrame;
+
         private static bool _isSceneLoading = true;
         
         private void FixedUpdate()
         {
             _fadeStateLastValue = _fadeState;
-            
+            bool wasLoadingLastFrame = _wasSceneLoadingLastFrame;
+            _wasSceneLoadingLastFrame = _isSceneLoading;
+    
             if (_isSceneLoading)
             {
                 _fadeState = true;
@@ -36,7 +39,7 @@ namespace jeanf.universalplayer
 
             if (_fadeState == _fadeStateLastValue) return;
 
-            var fadeType = _isSceneLoading ? FadeMask.FadeType.Loading : FadeMask.FadeType.HeadInWall;
+            var fadeType = wasLoadingLastFrame ? FadeMask.FadeType.Loading : FadeMask.FadeType.HeadInWall;
             FadeMask.FadeValue(_fadeState, fadeType);
 
             if (isDebug) Debug.Log($"fadeType:{fadeType} fade changed to: {_fadeState}");
