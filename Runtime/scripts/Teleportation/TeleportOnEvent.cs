@@ -70,10 +70,18 @@ namespace jeanf.universalplayer
 
         private IEnumerator TeleportWithFade(TeleportInformation teleportInformation)
         {
-            FadeMask.SetStateLoading();
-            if (_isDebug) Debug.Log("TeleportOnEvent: Fading to black...");
+            bool isSceneLoading = NoPeeking.IsCurrentlyLoading();
             
-            yield return new WaitForSeconds(fadeInDuration);
+            if (!isSceneLoading)
+            {
+                FadeMask.SetStateLoading();
+                if (_isDebug) Debug.Log("TeleportOnEvent: Fading to black...");
+                yield return new WaitForSeconds(fadeInDuration);
+            }
+            else
+            {
+                if (_isDebug) Debug.Log("TeleportOnEvent: Skipping fade (scene loading in progress)");
+            }
 
             GameObject teleportSubject = teleportInformation.objectIsPlayer
                 ? player
@@ -105,10 +113,12 @@ namespace jeanf.universalplayer
             if (teleportInformation.objectIsPlayer) 
                 cameraResetChannel.RaiseEvent();
 
-            yield return new WaitForSeconds(0.1f);
-
-            FadeMask.SetStateClear();
-            if (_isDebug) Debug.Log("TeleportOnEvent: Fading to clear...");
+            if (!isSceneLoading)
+            {
+                yield return new WaitForSeconds(0.1f);
+                FadeMask.SetStateClear();
+                if (_isDebug) Debug.Log("TeleportOnEvent: Fading to clear...");
+            }
             
             if (_isDebug) Debug.Log($"[{teleportInformation.targetDestination.gameObject.name}] teleported {teleportSubject.gameObject.name} to {teleportInformation.targetDestination.transform.position} with rotation: {teleportInformation.targetDestination.transform.rotation.eulerAngles}");
             
