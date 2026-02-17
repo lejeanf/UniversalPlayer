@@ -120,7 +120,7 @@ namespace jeanf.universalplayer
 
             if (volumeProfile != null)
             {
-                postProcessVolume.profile = volumeProfile;
+                postProcessVolume.profile = Instantiate(volumeProfile);;
             }
             else if (postProcessVolume.profile == null)
             {
