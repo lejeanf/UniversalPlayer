@@ -81,6 +81,8 @@ namespace jeanf.universalplayer
             DetectRenderPipeline();
             SetupVolumeProfile();
             SetVolumeTo_FadeToBlack();
+            if (staticPostProcessVolume != null)
+                staticPostProcessVolume.weight = 1f;
         }
 
         private void DetectRenderPipeline()
@@ -520,7 +522,7 @@ namespace jeanf.universalplayer
             }
 
             // Only set up the volume profile if we're changing fade types or fading in
-            if (value && _currentFadeType != fadeType)
+            if (value)
             {
                 switch (fadeType)
                 {
