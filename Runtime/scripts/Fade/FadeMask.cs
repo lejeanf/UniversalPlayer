@@ -407,7 +407,6 @@ namespace jeanf.universalplayer
                             targetParameter = param;
                             break;
                         }
-
                         break;
                     }
                     case "saturation" when parametersList.Count > 4 && parametersList[4].GetType().Name == "ClampedFloatParameter":
@@ -426,17 +425,20 @@ namespace jeanf.universalplayer
                             targetParameter = param;
                             break;
                         }
-
                         break;
                     }
                 }
 
                 if (targetParameter == null) return;
                 var parameterType = targetParameter.GetType();
-                var valueProperty = parameterType.GetProperty("value");
 
+                var valueProperty = parameterType.GetProperty("value");
                 if (valueProperty == null) return;
                 valueProperty.SetValue(targetParameter, value);
+
+                var overrideStateProperty = parameterType.GetProperty("overrideState");
+                overrideStateProperty?.SetValue(targetParameter, true);
+
                 if (_isDebugSTATIC) Debug.Log($"FadeMask: Set {propertyName} to {value}");
             }
             catch (Exception e)
