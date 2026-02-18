@@ -70,9 +70,7 @@ namespace jeanf.universalplayer
 
         private IEnumerator TeleportWithFade(TeleportInformation teleportInformation)
         {
-            bool isSceneLoading = NoPeeking.IsCurrentlyLoading();
-            
-            if (!isSceneLoading)
+            if (teleportInformation.shouldFade)
             {
                 FadeMask.SetStateLoading();
                 if (_isDebug) Debug.Log("TeleportOnEvent: Fading to black...");
@@ -80,9 +78,10 @@ namespace jeanf.universalplayer
             }
             else
             {
-                if (_isDebug) Debug.Log("TeleportOnEvent: Skipping fade (scene loading in progress)");
+                if (_isDebug) Debug.Log("TeleportOnEvent: Skipping fade (external system handling it)");
             }
 
+            // Perform the actual teleport
             GameObject teleportSubject = teleportInformation.objectIsPlayer
                 ? player
                 : teleportInformation.objectToTeleport.gameObject;
@@ -113,7 +112,7 @@ namespace jeanf.universalplayer
             if (teleportInformation.objectIsPlayer) 
                 cameraResetChannel.RaiseEvent();
 
-            if (!isSceneLoading)
+            if (teleportInformation.shouldFade)
             {
                 yield return new WaitForSeconds(0.1f);
                 FadeMask.SetStateClear();

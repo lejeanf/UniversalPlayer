@@ -56,6 +56,19 @@ namespace jeanf.universalplayer
                                    $"isUsingFilter : {teleportInformation.isUsingFilter}");
             _teleportChannel.RaiseEvent(teleportInformation);
         }
+        
+        public void Teleport(bool shouldFade)
+        {
+            var teleportInformation = new TeleportInformation(objectToTeleport, this.transform, isTeleportPlayer, _filter, isUsingFilter, shouldFade);
+            if(_isDebug) Debug.Log($"[teleportInformation ({gameObject.name})] " +
+                                   $"objectToTeleport : {teleportInformation.objectToTeleport}, " +
+                                   $"targetDestination : {teleportInformation.targetDestination}, " +
+                                   $"isTeleportPlayer : {teleportInformation.objectIsPlayer}, " +
+                                   $"_filter : {teleportInformation.filter.filters[0]}, " +
+                                   $"isUsingFilter : {teleportInformation.isUsingFilter}, " +
+                                   $"shouldFade : {teleportInformation.shouldFade}");
+            _teleportChannel.RaiseEvent(teleportInformation);
+        }
 
 #if UNITY_EDITOR
         [DrawGizmo(GizmoType.Pickable)]
