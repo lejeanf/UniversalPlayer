@@ -1,6 +1,6 @@
 {
   "name": "fr.jeanf.universal.player",
-  "version": "0.9.29",
+  "version": "0.9.30",
   "displayName": "Universal Player",
   "description": "This package contains a universal player working in URP & HDRP for Mouse+Keyboard or VR",
   "unity": "2021.3",
@@ -34,11 +34,6 @@
     "fr.jeanf.tooltipsystem": "0.0.7"
   },
   "samples": [
-    { 
-      "displayName": "Player prefab", 
-      "description": "A prefab of the player",
-      "path": "Samples~/Player"
-    },
     { "displayName": "Hand Poses",
       "description": "A set of hand poses",
       "path": "Samples~/HandPoses"
