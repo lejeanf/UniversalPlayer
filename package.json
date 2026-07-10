@@ -32,16 +32,5 @@
     "fr.jeanf.eventsystem": "0.1.124",
     "fr.jeanf.propertydrawer": "1.1.6",
     "fr.jeanf.tooltipsystem": "0.0.7"
-  },
-  "samples": [
-    { "displayName": "Hand Poses",
-      "description": "A set of hand poses",
-      "path": "Samples~/HandPoses"
-    },
-    { 
-      "displayName": "Hands",
-      "description": "A set of hands",
-      "path": "Samples~/Hands"
-    }
-  ]
+  }
 }
