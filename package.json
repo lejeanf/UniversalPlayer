@@ -20,8 +20,6 @@
     "url": "https://jeanfrancoisrobin.art"
   },
   "dependencies": {
-    "com.unity.modules.vr": "1.0.0",
-    "com.unity.modules.xr": "1.0.0",
     "com.unity.inputsystem": "1.14.2",
     "com.unity.vectorgraphics": "2.0.0-preview.25",
     "com.unity.xr.openxr": "1.15.1",
