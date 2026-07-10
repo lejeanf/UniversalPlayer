@@ -9,8 +9,8 @@ namespace jeanf.universalplayer {
         [MenuItem("GameObject/Create Universal Player")]
         private static void CreateUniversalPlayer()
         {
-            var playerInPackage = AssetDatabase.LoadAssetAtPath<Object>("Packages/fr.jeanf.vr.player/Runtime/Prefabs/Player.prefab");
-            var playerInPackageBuilder = AssetDatabase.LoadAssetAtPath<Object>("Assets/VR_Player/Runtime/Prefabs/Player.prefab");
+            var playerInPackage = AssetDatabase.LoadAssetAtPath<Object>("Packages/fr.jeanf.universal.player/Runtime/Prefabs/Player.prefab");
+            var playerInPackageBuilder = AssetDatabase.LoadAssetAtPath<Object>("Assets/UniversalPlayer/Runtime/Prefabs/Player.prefab");
             var playerPrefab = playerInPackage == null ? playerInPackageBuilder : playerInPackage;
             var prefab = (GameObject)PrefabUtility.InstantiatePrefab(playerPrefab);
 
