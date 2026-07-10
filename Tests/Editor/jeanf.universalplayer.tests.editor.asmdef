@@ -5,6 +5,7 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "jeanf.universalplayer",
+        "jeanf.universalplayer.editor",
         "Unity.RenderPipelines.Core.Runtime"
     ],
     "includePlatforms": [

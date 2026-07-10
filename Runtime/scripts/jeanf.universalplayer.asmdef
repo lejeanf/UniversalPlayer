@@ -13,7 +13,8 @@
         "GUID:e8958e6939af7314a97769de4be4ce25",
         "GUID:3b570a5146f9d4f0fa107ed4559471a3",
         "GUID:3aa1866a824b5472da50fe142777d95f",
-        "GUID:df380645f10b7bc4b97d4f5eb6303d95"
+        "GUID:df380645f10b7bc4b97d4f5eb6303d95",
+        "Unity.XR.OpenXR"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
