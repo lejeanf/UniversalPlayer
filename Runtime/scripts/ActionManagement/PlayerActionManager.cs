@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.InputSystem;
 using jeanf.EventSystem;

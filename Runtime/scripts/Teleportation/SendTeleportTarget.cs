@@ -55,6 +55,7 @@ namespace jeanf.universalplayer
                                    $"_filter : {teleportInformation.filter.filters[0]}, " +
                                    $"isUsingFilter : {teleportInformation.isUsingFilter}");
             _teleportChannel.RaiseEvent(teleportInformation);
+            WarnIfNothingHandledIt();
         }
         
         public void Teleport(bool shouldFade)
@@ -68,6 +69,23 @@ namespace jeanf.universalplayer
                                    $"isUsingFilter : {teleportInformation.isUsingFilter}, " +
                                    $"shouldFade : {teleportInformation.shouldFade}");
             _teleportChannel.RaiseEvent(teleportInformation);
+            WarnIfNothingHandledIt();
+        }
+
+        /// <summary>
+        /// TeleportOnEvent listeners run synchronously inside RaiseEvent, so if none of
+        /// them accepted this teleport by now, it went nowhere — say so instead of
+        /// letting the button do nothing silently.
+        /// </summary>
+        private void WarnIfNothingHandledIt()
+        {
+            if (TeleportOnEvent.LastHandledFrame == Time.frameCount) return;
+            Debug.LogWarning($"[UniversalPlayer.XR] Teleport requested via '{name}' but NO TeleportOnEvent accepted it — nothing moved. Checklist: " +
+                "(1) a TeleportOnEvent exists in the scene (usually on the Player variant); " +
+                "(2) its 'Receiving on channel' asset is the SAME TeleportEventChannel this target broadcasts on; " +
+                "(3) its OnEventRaised UnityEvent is wired to TeleportOnEvent.Teleport; " +
+                $"(4) filters: this target {(isUsingFilter ? $"uses filter '{(_filter != null ? _filter.name : "<none>")}' which must be in the listener's filter list" : "uses no filter")}. " +
+                "(Ignore if a custom listener handles teleports in this project.)", this);
         }
 
 #if UNITY_EDITOR

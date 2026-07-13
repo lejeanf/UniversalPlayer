@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 6766910295942714439}
   - component: {fileID: 1646405018166597243}
   - component: {fileID: 6161168854630649507}
+  - component: {fileID: 3055433562365713972}
+  - component: {fileID: 3055433562365713973}
   m_Layer: 0
   m_Name: Gaze Interactor
   m_TagString: Untagged
@@ -353,3 +355,35 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_FallbackIfEyeTrackingUnavailable: 1
+--- !u!114 &3055433562365713972
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3055433562365713971}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 373d219f715f456db6ef646d90608689, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  xrOnlyBehaviours: []
+  trackingOnlyControllers:
+  - {fileID: 1646405018166597243}
+  resetLocalPoseOutsideXr: 1
+--- !u!114 &3055433562365713973
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3055433562365713971}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d16f7fb40414334b05116cd0b552419, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uiPressBindings:
+  - <Mouse>/leftButton
+  - <Gamepad>/buttonSouth
+  - <Gamepad>/rightTrigger

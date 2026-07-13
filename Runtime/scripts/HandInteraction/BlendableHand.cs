@@ -14,6 +14,11 @@ namespace jeanf.universalplayer
         private void Awake()
         {
             _hand = GetComponent<SkinnedMeshRenderer>() == null ? GetComponentInChildren<SkinnedMeshRenderer>() : GetComponent<SkinnedMeshRenderer>();
+
+            // The authored MeshCollider stays frozen in bind pose (skinned meshes never
+            // move their collider) — swap it for per-phalanx boxes that follow the fingers.
+            if (Application.isPlaying && _hand != null)
+                HandColliderBuilder.ReplaceWithFingerBoxes(transform, _hand.rootBone != null ? _hand.rootBone : transform);
         }
 
         private void OnEnable()

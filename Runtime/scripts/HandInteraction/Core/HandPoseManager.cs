@@ -15,6 +15,15 @@ namespace jeanf.universalplayer
         public UnityEvent grabAction;
         public UnityEvent ungrabAction;
 
+        // Pose ownership: while anyone holds (a SetPoseOnTrigger zone, the primary
+        // item, ...) or an object is selected, ControllerHandPoseDriver stays out of
+        // the way. Refcounted so overlapping zones compose.
+        private int poseHoldCount;
+        public bool IsPoseHeld => poseHoldCount > 0;
+        public bool IsSelecting => targetInteractor != null && targetInteractor.hasSelection;
+        public void AcquirePoseHold() => poseHoldCount++;
+        public void ReleasePoseHold() => poseHoldCount = Mathf.Max(0, poseHoldCount - 1);
+
         private void OnEnable()
         {
            //Debug.Log(this.gameObject.name + " start " + targetInteractor.name);

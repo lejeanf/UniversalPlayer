@@ -30,9 +30,25 @@ namespace jeanf.universalplayer.tests.editor
         }
 
         [Test]
+        public void AssetAndSceneChecks_RunWithoutThrowing()
+        {
+            var assetResults = ProjectSetupChecks.RunAssetChecks();
+            Assert.That(assetResults, Is.Not.Empty,
+                "ProjectSetupChecks.RunAssetChecks returned nothing — the variant/samples checks were emptied out.");
+            Assert.That(assetResults.Any(r => r.Name.Contains("variant")), Is.True,
+                "The prefab-variant workflow check disappeared — it guards against losing customizations on package updates.");
+
+            var sceneResults = ProjectSetupChecks.RunOpenSceneChecks();
+            Assert.That(sceneResults, Is.Not.Empty,
+                "ProjectSetupChecks.RunOpenSceneChecks returned nothing — scene wiring checks were emptied out.");
+        }
+
+        [Test]
         public void EveryFailedOrWarnedCheck_HasAFixHint()
         {
             var results = SetupValidator.RunProjectConfigChecks();
+            results.AddRange(ProjectSetupChecks.RunAssetChecks());
+            results.AddRange(ProjectSetupChecks.RunOpenSceneChecks());
 
             foreach (var result in results.Where(r => r.Severity != SetupValidator.Severity.Pass))
             {

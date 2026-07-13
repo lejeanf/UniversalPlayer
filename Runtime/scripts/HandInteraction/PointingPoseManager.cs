@@ -36,7 +36,7 @@ namespace jeanf.universalplayer
         private void OnDisable()
         {
             if (handPoseEventChannelSO != null)
-                handPoseEventChannelSO.OnEventRaised -= null;
+                handPoseEventChannelSO.OnEventRaised -= SetPose;
         }
 
         private void SetPose(bool value)

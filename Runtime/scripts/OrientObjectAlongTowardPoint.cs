@@ -21,7 +21,6 @@ namespace jeanf.universalplayer
 
 
         private bool canRotate = false;
-        private bool lastCanRotateState = false;
         private Collider _collider;
         private Quaternion originalRotation;
 

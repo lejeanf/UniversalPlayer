@@ -19,6 +19,7 @@ public abstract class BaseHand : MonoBehaviour, IDebugBehaviour
     
     // Neutral pose for the hand
     [SerializeField] protected Pose defaultPose = null;
+    public Pose DefaultPose => defaultPose;
 
     // Serialized so it can be used in editor by the preview hand
     [SerializeField] protected List<Transform> fingerRoots = new List<Transform>();
@@ -28,6 +29,9 @@ public abstract class BaseHand : MonoBehaviour, IDebugBehaviour
     public HandType HandType => handType;
 
     public List<Transform> Joints { get; protected set; } = new List<Transform>();
+
+    /// <summary>The serialized finger chain roots (used by the pose editor's scene tools).</summary>
+    public IReadOnlyList<Transform> FingerRoots => fingerRoots;
 
     [FormerlySerializedAs("isLerpingOverTipe")] public bool isLerpingOverTime = true;
     [DrawIf("isLerpingOverTipe", true, ComparisonType.Equals)]
@@ -89,28 +93,36 @@ public abstract class BaseHand : MonoBehaviour, IDebugBehaviour
         // Get the proper info using hand's type
         HandInfo handInfo = pose.GetHandInfo(handType);
 
-        // Apply rotations 
+        // Apply rotations — INSTANTLY: setup is the editor path, and tools that
+        // read or save the joints right after (live save, gesture presets) must
+        // not race a 0.2s tween still moving toward the pose.
         if (handInfo == null) return;
-        ApplyFingerRotations(handInfo.fingerRotations);
+        ApplyFingerRotations(handInfo.fingerRotations, true);
 
         // Position, and rotate, this differs on the type of hand
         ApplyOffset(handInfo.attachPosition, handInfo.attachRotation);
     }
 
-    public void ApplyFingerRotations(List<Quaternion> rotations)
+    public void ApplyFingerRotations(List<Quaternion> rotations, bool instant = false)
     {
         // Make sure we have the rotations for all the joints
-        if (!HasProperCount(rotations)) return;
+        if (!HasProperCount(rotations))
+        {
+            Debug.LogWarning($"[UniversalPlayer.XR] Pose not applied on '{name}' ({handType}): it stores {rotations?.Count ?? 0} " +
+                $"joint rotations but this hand has {Joints.Count} joints. The pose was saved against a different hand rig — " +
+                "open it in Tools/UniversalPlayer/Pose Editor and re-save it.", this);
+            return;
+        }
         // Set the local rotation of each joint
 
         foreach (var (value, i) in Joints.Select((value, i) => ( value, i )))
         {
-            if (!isLerpingOverTime)
+            if (instant || !isLerpingOverTime)
             {
                 Joints[i].localRotation = rotations[i];
             }
             else
-            { 
+            {
                 var from = value.localRotation;
                 var to = rotations[i];
                 LMotion.Create(from, to, lerpTime).Bind(x => Joints[i].localRotation = x);

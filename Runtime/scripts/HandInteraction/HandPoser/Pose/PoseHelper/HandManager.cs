@@ -49,10 +49,11 @@ public class HandManager : MonoBehaviour
 
     private void DestroyHandPreviews()
     {
-        // Make sure to destroy the gameobjects
+        // Make sure to destroy the gameobjects (null-safe: a preview hand may have
+        // been deleted manually in the hierarchy)
         #if UNITY_EDITOR
-        DestroyImmediate(LeftHand.gameObject);
-        DestroyImmediate(RightHand.gameObject);
+        if (LeftHand) DestroyImmediate(LeftHand.gameObject);
+        if (RightHand) DestroyImmediate(RightHand.gameObject);
         #endif
     }
 

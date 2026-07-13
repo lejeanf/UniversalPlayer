@@ -55,14 +55,14 @@ namespace jeanf.universalplayer
         private void OnDisable()
         {
             if (_LeftHandState != null)
-                _LeftHandState.OnEventRaised -= null;
+                _LeftHandState.OnEventRaised -= RegisterLeftHandState;
             if (_RightHandState != null)
-                _RightHandState.OnEventRaised -= null;
+                _RightHandState.OnEventRaised -= RegisterRightHandState;
 
             if (_HandDetectedEvent != null)
-                _HandDetectedEvent.OnEventRaised -= null;
+                _HandDetectedEvent.OnEventRaised -= HandDetectedInPointingZone;
             if (_HandDisapearedEvent != null)
-                _HandDisapearedEvent.OnEventRaised -= null;
+                _HandDisapearedEvent.OnEventRaised -= HandDisappearedInPointingZone;
 
             GetPrimaryInHandItemWithVRController.OnIpadStateChanged -= SetGrabState;
         }

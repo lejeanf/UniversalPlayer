@@ -21,17 +21,21 @@ public class RayInteractorManager : MonoBehaviour
     private void OnEnable()
     {
         selectAction.action.Enable();
-        selectAction.action.performed += ctx => SetPreviewRay(rayInteractor, true);
-        selectAction.action.canceled += ctx => SetPreviewRay(rayInteractor, false);
+        selectAction.action.performed += OnSelectPerformed;
+        selectAction.action.canceled += OnSelectCanceled;
     }
     private void OnDisable() => Unsubscribe();
     private void OnDestroy() => Unsubscribe();
     private void Unsubscribe()
     {
-        selectAction.action.performed -= null;
-        selectAction.action.canceled -= null;
+        if (selectAction == null) return;
+        selectAction.action.performed -= OnSelectPerformed;
+        selectAction.action.canceled -= OnSelectCanceled;
         selectAction.action.Disable();
     }
+
+    private void OnSelectPerformed(InputAction.CallbackContext _) => SetPreviewRay(rayInteractor, true);
+    private void OnSelectCanceled(InputAction.CallbackContext _) => SetPreviewRay(rayInteractor, false);
 
     public void SetPreviewRay(UnityEngine.XR.Interaction.Toolkit.Interactors.Visuals.XRInteractorLineVisual interactorLineVisual, bool state)
     {

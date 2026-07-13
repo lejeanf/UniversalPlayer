@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using jeanf.EventSystem;
+using jeanf.validationTools;
 using UnityEngine;
 
 namespace jeanf.universalplayer
@@ -8,22 +9,23 @@ namespace jeanf.universalplayer
     public class TeleportOnEvent : TeleportEventListener, IDebugBehaviour
     {
         public bool isDebug
-        { 
+        {
             get => _isDebug;
-            set => _isDebug = value; 
+            set => _isDebug = value;
         }
         [SerializeField] private bool _isDebug = false;
-        
+
+        [Validation("The player root is required — teleports have nothing to move without it.")]
         [SerializeField] private GameObject player;
+        [Validation("The camera offset transform is required to keep the view height after a teleport.")]
         [SerializeField] private Transform cameraOffset;
         [SerializeField] private List<FilterSO> listOfFilters;
 
         [Header("Fade Settings")]
         [SerializeField] private float fadeInDuration = 0.2f;
-        [SerializeField] private float fadeOutDuration = 0.2f;
 
         [Header("Broadcasting on:")]
-        [SerializeField] private VoidEventChannelSO cameraResetChannel;
+        // Camera reset after a player teleport goes through PlayerEvents (bridge forwards it).
 
         private Coroutine _teleportCoroutine;
 
@@ -46,6 +48,9 @@ namespace jeanf.universalplayer
             }
         }
 
+        /// <summary>Frame index of the last teleport any TeleportOnEvent accepted — lets SendTeleportTarget warn when a teleport event found no taker.</summary>
+        public static int LastHandledFrame { get; private set; } = -1;
+
         public void Teleport(TeleportInformation teleportInformation)
         {
             if (teleportInformation.isUsingFilter)
@@ -64,7 +69,8 @@ namespace jeanf.universalplayer
             }
 
             CleanupCoroutine();
-            
+
+            LastHandledFrame = Time.frameCount;
             _teleportCoroutine = StartCoroutine(TeleportWithFade(teleportInformation));
         }
 
@@ -109,8 +115,10 @@ namespace jeanf.universalplayer
                 if (isDebug) Debug.Log("teleportation subject is not player - cannot enable player locomotion after teleportation");
             }
             
-            if (teleportInformation.objectIsPlayer) 
-                cameraResetChannel.RaiseEvent();
+            if (teleportInformation.objectIsPlayer)
+            {
+                PlayerEvents.RaiseCameraReset();
+            }
 
             if (teleportInformation.shouldFade)
             {

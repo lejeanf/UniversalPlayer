@@ -45,6 +45,8 @@ namespace jeanf.universalplayer
         public static void ValidateSetup()
         {
             var results = RunProjectConfigChecks();
+            results.AddRange(ProjectSetupChecks.RunAssetChecks());
+            results.AddRange(ProjectSetupChecks.RunOpenSceneChecks());
             LogResults(results);
         }
 
@@ -59,6 +61,7 @@ namespace jeanf.universalplayer
             results.AddRange(CheckXrManagement(buildTargetGroup));
             results.Add(CheckOpenXrInteractionProfiles(buildTargetGroup));
             results.Add(CheckRunInBackground());
+            results.Add(DiffusionProfileRegistration.RunCheck());
 
             return results;
         }

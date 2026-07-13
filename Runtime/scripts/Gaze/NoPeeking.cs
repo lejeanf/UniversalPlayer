@@ -23,6 +23,15 @@ namespace jeanf.universalplayer
         private enum SentState { None, Loading, Clear, HeadInWall }
         private SentState _lastSentState = SentState.None;
 
+        private void Awake()
+        {
+            if (collisionLayer.value == 0)
+            {
+                Debug.LogWarning($"{XrStartupDiagnostics.LogPrefix} NoPeeking on '{name}' has collisionLayer set to Nothing — " +
+                    "head-in-wall detection is disabled. Set it to your walls' layer on the Player prefab variant of this project.", this);
+            }
+        }
+
         private void FixedUpdate()
         {
             _fadeStateLastValue = _fadeState;
@@ -75,6 +84,18 @@ namespace jeanf.universalplayer
             Gizmos.DrawSphere(transform.position, sphereCheckSize);
         }
 #endif
+
+        private void OnEnable()
+        {
+            // Piped from the project's SceneIsLoading channel by the PlayerEventBridge —
+            // replaces the BoolEventListener + UnityEvent that used to sit on the prefab.
+            PlayerEvents.SceneLoadingChanged += SetIsLoadingState;
+        }
+
+        private void OnDisable()
+        {
+            PlayerEvents.SceneLoadingChanged -= SetIsLoadingState;
+        }
 
         public static void SetIsLoadingState(bool isLoading)
         {

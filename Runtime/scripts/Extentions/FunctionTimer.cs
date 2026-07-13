@@ -98,9 +98,6 @@ public class FunctionTimer
 
     private class MonoBehaviourHook : MonoBehaviour
     {
-        private int frameCounter = 0;
-        private const int CLEANUP_INTERVAL = 60;
-
         private void Update()
         {
             if (activeTimerList == null || activeTimerList.Count == 0) return;
@@ -143,7 +140,6 @@ public class FunctionTimer
     private float timer;
     private string timerName;
     private bool isDestroyed;
-    private FloatEventChannelSO validationChannel; 
     private float remainingTime;
 
     private FunctionTimer()
@@ -165,7 +161,6 @@ public class FunctionTimer
         this.timer = 0f;
         this.timerName = null;
         this.isDestroyed = true;
-        this.validationChannel = null;
     }
 
     private void DestroySelf()

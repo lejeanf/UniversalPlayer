@@ -29,11 +29,8 @@ namespace jeanf.universalplayer
         [Tooltip("How often (seconds) battery levels are polled.")]
         [SerializeField] private float batteryCheckInterval = 30f;
 
-        [Header("Broadcasting on:")]
-        [Tooltip("Optional: human-readable issue messages (e.g. for an on-screen toast).")]
-        [SerializeField] private StringEventChannelSO xrIssueMessageChannel;
-        [Tooltip("Optional: true when the HMD (re)connects, false when it disconnects.")]
-        [SerializeField] private BoolEventChannelSO hmdConnectionChannel;
+        // Issue messages + HMD connection go through PlayerEvents; the PlayerEventBridge
+        // forwards them onto the project's channels.
 
         public enum HealthEvent
         {
@@ -72,7 +69,7 @@ namespace jeanf.universalplayer
             if (IsHmd(device))
             {
                 Raise(HealthEvent.HmdConnected, $"Headset connected: {device.name}.", isError: false);
-                hmdConnectionChannel?.RaiseEvent(true);
+                PlayerEvents.RaiseHmdConnection(true);
             }
             else if (IsController(device))
             {
@@ -87,7 +84,7 @@ namespace jeanf.universalplayer
                 Raise(HealthEvent.HmdDisconnected,
                     "Headset disconnected — Link/Air Link dropped, cable unplugged, headset went to sleep, or its battery died.",
                     isError: true);
-                hmdConnectionChannel?.RaiseEvent(false);
+                PlayerEvents.RaiseHmdConnection(false);
             }
             else if (IsController(device))
             {
@@ -127,7 +124,7 @@ namespace jeanf.universalplayer
             else if (_isDebug) Debug.Log($"{XrStartupDiagnostics.LogPrefix} {message}", this);
 
             OnHealthEvent?.Invoke(healthEvent, message);
-            xrIssueMessageChannel?.RaiseEvent(message);
+            PlayerEvents.RaiseXrIssue(message);
         }
 
         private static bool IsHmd(InputDevice device) =>

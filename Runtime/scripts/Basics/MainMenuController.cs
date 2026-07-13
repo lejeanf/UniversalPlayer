@@ -4,6 +4,13 @@ using UnityEngine.InputSystem;
 
 namespace jeanf.universalplayer
 {
+    /// <summary>
+    /// Owns the main menu: Escape/Start TOGGLES it and the game pauses while it
+    /// is open. The open state is SHARED (PlayerEvents + mainMenuState channel):
+    /// the project can open/close the menu by raising the channel, and this
+    /// controller follows — menu GameObject + pause are applied from the shared
+    /// state, whoever raised it, so the toggle can never go out of sync.
+    /// </summary>
     public class MainMenuController : MonoBehaviour
     {
         [Header("Main menu settings:")]
@@ -23,7 +30,8 @@ namespace jeanf.universalplayer
         private void OnEnable()
         {
             openMainMenuAction.action.Enable();
-            openMainMenuAction.action.performed += ctx => InvertState();
+            openMainMenuAction.action.performed += OnOpenMenuPerformed;
+            PlayerEvents.MenuStateChanged += ApplyMenuState;
         }
 
         private void OnDisable() => Unsubscribe();
@@ -31,24 +39,28 @@ namespace jeanf.universalplayer
 
         private void Unsubscribe()
         {
-            openMainMenuAction.action.performed -= null;
+            openMainMenuAction.action.performed -= OnOpenMenuPerformed;
             openMainMenuAction.action.Disable();
+            PlayerEvents.MenuStateChanged -= ApplyMenuState;
         }
 
-        private void InvertState()
+        // Escape/Start: apply the toggle locally AND raise it on the shared
+        // channel so every other listener (locomotion freeze, cursor, project
+        // UIs) follows. The bridge mirrors the channel back as
+        // PlayerEvents.MenuStateChanged — ApplyMenuState is idempotent, so the
+        // echo is harmless and external raises keep this controller in sync.
+        private void OnOpenMenuPerformed(InputAction.CallbackContext _)
         {
-            _menuState = !_menuState;
-            SetMenu(_menuState);
+            var next = !_menuState;
+            ApplyMenuState(next);
+            mainMenuStateChannel.RaiseEvent(next);
         }
 
-        private void SetMenu(bool state)
+        private void ApplyMenuState(bool state)
         {
-            mainMenuStateChannel.RaiseEvent(state);
-            if (GeneralPauseEventChannel != null )
-            {
-                GeneralPauseEventChannel.RaiseEvent(state);
-            }
+            _menuState = state;
             if (mainMenu) mainMenu.SetActive(state);
+            if (GeneralPauseEventChannel != null) GeneralPauseEventChannel.RaiseEvent(state);
         }
     }
 }
