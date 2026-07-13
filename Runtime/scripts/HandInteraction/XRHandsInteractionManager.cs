@@ -1,4 +1,5 @@
 using jeanf.EventSystem;
+using jeanf.validationTools;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,10 +10,15 @@ namespace jeanf.universalplayer
 {
     public class XRHandsInteractionManager : MonoBehaviour
     {
+        [Validation("UI-click action is required — it is subscribed unguarded at startup (a null reference throws).")]
         [SerializeField] InputActionReference uiClick;
+        [Validation("Left grab action is required — it is subscribed unguarded at startup (a null reference throws).")]
         [SerializeField] InputActionReference xrLeftGrab;
+        [Validation("Right grab action is required — it is subscribed unguarded at startup (a null reference throws).")]
         [SerializeField] InputActionReference xrRightGrab;
+        [Validation("Left draw-primary-item action is required — it is subscribed unguarded at startup (a null reference throws).")]
         [SerializeField] private InputActionReference drawPrimaryItem_LeftHand;
+        [Validation("Right draw-primary-item action is required — it is subscribed unguarded at startup (a null reference throws).")]
         [SerializeField] private InputActionReference drawPrimaryItem_RightHand;
         public static LastUsedHand hand;
         public enum LastUsedHand

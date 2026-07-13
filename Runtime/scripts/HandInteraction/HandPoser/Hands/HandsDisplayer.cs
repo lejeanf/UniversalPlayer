@@ -1,4 +1,3 @@
-using jeanf.EventSystem;
 using UnityEngine;
 
 namespace jeanf.universalplayer
@@ -7,7 +6,6 @@ namespace jeanf.universalplayer
     {
         [SerializeField] GameObject rightHand;
         [SerializeField] GameObject leftHand;
-        [SerializeField] VoidEventChannelSO changedControlSchemeChannel;
 
         private void Awake()
         {
@@ -15,10 +13,25 @@ namespace jeanf.universalplayer
         }
         private void OnEnable()
         {
-            changedControlSchemeChannel.OnEventRaised += DisplayHands; 
+            BroadcastControlsStatus.SendControlScheme += OnControlSchemeChanged;
+        }
+        private void OnDisable()
+        {
+            BroadcastControlsStatus.SendControlScheme -= OnControlSchemeChanged;
         }
 
+        private void OnControlSchemeChanged(BroadcastControlsStatus.ControlScheme _) => DisplayHands();
 
+        /// <summary>
+        /// Test hook (used by Tools/UniversalPlayer/Hands Test Bench): shows or hides
+        /// the hands regardless of the current control scheme, so they can be
+        /// inspected without a headset. The next control-scheme change takes over again.
+        /// </summary>
+        public void ForceDisplay(bool show)
+        {
+            rightHand?.SetActive(show);
+            leftHand?.SetActive(show);
+        }
 
         private void DisplayHands()
         {

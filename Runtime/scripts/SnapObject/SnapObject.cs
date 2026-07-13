@@ -2,6 +2,7 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using jeanf.EventSystem;
 namespace jeanf.universalplayer
 {
@@ -68,7 +69,13 @@ namespace jeanf.universalplayer
         private void Snap()
         {
             RaycastHit hit;
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity, layerMask: snapTargetLayer))
+            // New Input System only — Input.mousePosition throws when the legacy
+            // Input Manager is disabled. No mouse (gamepad/VR) = screen centre,
+            // which is where the locked cursor sits anyway.
+            var pointer = Mouse.current != null
+                ? (Vector3)Mouse.current.position.ReadValue()
+                : new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0f);
+            if (Physics.Raycast(Camera.main.ScreenPointToRay(pointer), out hit, Mathf.Infinity, layerMask: snapTargetLayer))
             {
                 OnSnap.Invoke(true);
                 float minDistance = Mathf.Infinity;

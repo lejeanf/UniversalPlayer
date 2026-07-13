@@ -63,13 +63,25 @@ namespace jeanf.universalplayer.tests
         }
 
         [Test]
-        public void AllRuntimePrefabs_HaveNoBrokenGuidReferences()
+        public void AllRuntimeAssets_HaveNoBrokenGuidReferences()
         {
-            var failures = new List<string>();
+            // .mat included since the pink-hands bug: Hands_Skin/Hands_Nails referenced a
+            // diffusion profile whose asset had been recreated without its .meta —
+            // invisible in prefab scans, materials break just as silently.
+            var assetPaths = AllRuntimePrefabPaths()
+                .Concat(AssetDatabase.FindAssets("t:Material", new[] { PackagePaths.Runtime })
+                    .Select(AssetDatabase.GUIDToAssetPath))
+                .Concat(AssetDatabase.FindAssets("t:ScriptableObject", new[] { PackagePaths.Runtime })
+                    .Select(AssetDatabase.GUIDToAssetPath))
+                .Where(p => !string.IsNullOrEmpty(p))
+                .Distinct()
+                .OrderBy(p => p);
 
-            foreach (var prefabPath in AllRuntimePrefabPaths())
+            var failures = new List<string>();
+            foreach (var assetPath in assetPaths)
             {
-                var absolutePath = Path.GetFullPath(prefabPath);
+                var absolutePath = Path.GetFullPath(assetPath);
+                if (!File.Exists(absolutePath)) continue; // e.g. assets inside packages resolved to virtual paths
                 var unresolved = GuidPattern.Matches(File.ReadAllText(absolutePath))
                     .Select(m => m.Groups[1].Value)
                     .Distinct()
@@ -78,12 +90,12 @@ namespace jeanf.universalplayer.tests
                     .ToList();
 
                 foreach (var guid in unresolved)
-                    failures.Add($"{prefabPath}: references GUID {guid} which resolves to nothing.");
+                    failures.Add($"{assetPath}: references GUID {guid} which resolves to nothing.");
             }
 
             Assert.That(failures, Is.Empty,
                 "Broken asset references found:\n" + string.Join("\n", failures) + "\n\n" +
-                "HINT: the prefab references an asset that does not exist in this project. Usual causes: " +
+                "HINT: the asset references another asset that does not exist in this project. Usual causes: " +
                 "(a) the asset was moved or recreated WITHOUT its .meta file, so its GUID changed — find it " +
                 "and restore/re-assign; (b) the asset sits in an unimported package sample (Samples~) — " +
                 "move it into Runtime/ or import the sample; (c) the package providing it is not installed. " +

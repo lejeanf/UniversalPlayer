@@ -27,45 +27,110 @@ namespace jeanf.universalplayer.tests
             var fadeMask = RequireComponent<FadeMask>();
             RequireAssigned(fadeMask, "postProcessVolume",
                 "FadeMask cannot fade without a Volume. Assign the Volume component from the Player prefab's fade child object.");
-            RequireAssigned(fadeMask, "volumeProfile",
-                "Assign the URP or HDRP FadeGlobalVolume Profile from Runtime/scripts/Fade/.");
+
+            // FadeMask uses volumeProfile when assigned, otherwise falls back to the
+            // Volume's own sharedProfile (FadeMask.SetupVolumeProfile). The packaged
+            // default ships the URP profile on the Volume; HDRP projects override it
+            // on their Player prefab VARIANT.
+            var so = new SerializedObject(fadeMask);
+            var explicitProfile = so.FindProperty("volumeProfile").objectReferenceValue;
+            var volume = (UnityEngine.Rendering.Volume)so.FindProperty("postProcessVolume").objectReferenceValue;
+            var fallbackProfile = volume != null ? volume.sharedProfile : null;
+            Assert.That(explicitProfile != null || fallbackProfile != null, Is.True,
+                "Neither FadeMask.volumeProfile nor the Volume's sharedProfile is assigned — " +
+                "the fade has no ColorAdjustments to drive and every fade silently no-ops. " +
+                "Assign a FadeGlobalVolume Profile from Runtime/scripts/Fade/.");
         }
 
         [Test]
-        public void NoPeeking_HasCollisionLayerConfigured()
+        public void NoPeeking_CollisionLayerField_Exists()
         {
+            // Layers are project-specific, so the packaged prefab legitimately ships with
+            // collisionLayer = Nothing; each project sets its wall layer on its Player
+            // VARIANT (enforced by Tools/UniversalPlayer/ValidateSetup in the consuming
+            // project, and NoPeeking logs a one-shot warning at runtime when unset).
             var noPeeking = RequireComponent<NoPeeking>();
             var so = new SerializedObject(noPeeking);
             var layer = so.FindProperty("collisionLayer");
             Assert.That(layer, Is.Not.Null,
-                "Field 'collisionLayer' no longer exists on NoPeeking — update this test alongside the refactor.");
-            Assert.That(layer.intValue, Is.Not.EqualTo(0),
-                "NoPeeking.collisionLayer is set to Nothing: the head-in-wall fade will never trigger. " +
-                "Set it to the layer(s) your walls use (on the NoPeeking component of Player.prefab).");
+                "Field 'collisionLayer' no longer exists on NoPeeking — update this test, " +
+                "the ValidateSetup check, and NoPeeking's runtime guard alongside the refactor.");
         }
 
         [Test]
-        public void BroadcastControlsStatus_HasInputAndChannelsAssigned()
+        public void BroadcastControlsStatus_HasInputAssigned()
         {
             var broadcaster = RequireComponent<BroadcastControlsStatus>();
             RequireAssigned(broadcaster, "playerInput",
                 "Without PlayerInput, control scheme changes are never detected (no VR/keyboard switching).");
-            RequireAssigned(broadcaster, "hmdStateChannel",
-                "Listeners (hands, cursor, ...) rely on this channel to react to HMD state.");
-            RequireAssigned(broadcaster, "activeControlScheme",
-                "HandsDisplayer listens on this channel to show/hide hands on scheme change.");
         }
 
         [Test]
-        public void HandsDisplayer_HasHandsAndChannelAssigned()
+        public void HandsDisplayer_HasHandsAssigned()
         {
             var displayer = RequireComponent<HandsDisplayer>();
             RequireAssigned(displayer, "leftHand",
                 "Without this reference the left hand never appears in VR.");
             RequireAssigned(displayer, "rightHand",
                 "Without this reference the right hand never appears in VR.");
-            RequireAssigned(displayer, "changedControlSchemeChannel",
-                "Without this channel, hands don't react when the control scheme changes to/from XR.");
+        }
+
+        [Test]
+        public void PlayerEventBridge_IsTheSingleWiringPoint_AndFullyAssigned()
+        {
+            var bridge = RequireComponent<PlayerEventBridge>();
+            RequireAssigned(bridge, "channels",
+                "Without the PlayerChannelsSO, EVERY boundary event is silent (teleports in, movement/seated/XR reports out).");
+
+            var channels = (PlayerChannelsSO)new SerializedObject(bridge).FindProperty("channels").objectReferenceValue;
+            var so = new SerializedObject(channels);
+            // fallRecoveryMessage and pause are legitimately optional; everything else
+            // reproduces wiring the prefab had before the bridge existed.
+            foreach (var slot in new[]
+                     {
+                         "controlSchemeChanged", "hmdState", "hmdConnection", "xrIssueMessage",
+                         "playerIsMoving", "seatedState", "mouselookState", "sceneIsLoading",
+                         "playerTeleport", "objectTeleport", "cameraReset",
+                         "toggleMap", "toggleInventory", "mainMenuState",
+                     })
+            {
+                var property = so.FindProperty(slot);
+                Assert.That(property, Is.Not.Null,
+                    $"Slot '{slot}' no longer exists on PlayerChannelsSO — update this test alongside the refactor.");
+                Assert.That(property.objectReferenceValue, Is.Not.Null,
+                    $"PlayerChannelsSO slot '{slot}' is empty on the packaged default asset — the matching " +
+                    "boundary event goes silent for every consumer. Point it at the sample channel asset " +
+                    "the prefab used before the bridge (see the PlayerEventBridge design doc).");
+            }
+        }
+
+        [Test]
+        public void ControllerHandPoseDriver_ShipsOnThePlayer()
+        {
+            // Pose slots are legitimately empty in the package (poses are project art,
+            // authored in the Pose Editor and assigned on the Player variant); only the
+            // component's presence is packaged wiring.
+            RequireComponent<ControllerHandPoseDriver>();
+        }
+
+        [Test]
+        public void FingerPointingRay_ShipsOnThePlayer()
+        {
+            RequireComponent<FingerPointingRay>();
+        }
+
+        [Test]
+        public void StickTeleport_ShipsOnThePlayer()
+        {
+            RequireComponent<StickTeleport>();
+        }
+
+        [Test]
+        public void UiToggleInput_HasPlayerInputAssigned()
+        {
+            var toggles = RequireComponent<UiToggleInput>();
+            RequireAssigned(toggles, "playerInput",
+                "Without PlayerInput the Map/Inventory bindings (M / I, gamepad dpad left/right) never raise their channels.");
         }
 
         private T RequireComponent<T>() where T : Component

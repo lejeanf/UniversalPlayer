@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 namespace jeanf.universalplayer
 {
@@ -19,7 +21,7 @@ namespace jeanf.universalplayer
             base.OnInspectorGUI();
 
             if (GUILayout.Button("Open Pose Editor"))
-                PoseWindow.Open(poseContainer.pose);
+                PoseWindow.Open(poseContainer.pose, poseContainer.gameObject);
         }
     }
     #endif

@@ -64,11 +64,12 @@ Material:
     - _ReversedFresnelRamp: 0
     - _StencilRefGBuffer: 2
     - _SurfaceType: 1
+    - _Switch_Woman: 1
     - _ZTestDepthEqualForOpaque: 8
     - _ZTestTransparent: 8
     - _ZWrite: 0
     m_Colors:
-    - _BaseColor: {r: 0.05231038, g: 0.72146827, b: 0.89433956, a: 1}
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 0.21028829, g: 0.44499874, b: 0.62264144, a: 1}
     - _Fresnel_Color: {r: 0.13438925, g: 0.9496855, b: 0.9467165, a: 0.3294118}
     - _InsideColor: {r: 1, g: 1, b: 1, a: 1}

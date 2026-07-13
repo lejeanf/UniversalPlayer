@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using jeanf.EventSystem;
+using jeanf.validationTools;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -31,10 +32,13 @@ namespace jeanf.universalplayer
         [SerializeField] private HandPoseManager _leftHandPoseManager;
         [SerializeField] private HandPoseManager _rightHandPoseManager;
 
+        [Validation("The pose applied to the hand holding the primary item is required.")]
         [SerializeField] private Pose primaryItemPose;
-        
-        [Header("PrimaryItem")] 
+
+        [Header("PrimaryItem")]
+        [Validation("The primary item (tablet) is required — drawing the item does NOTHING without it. Reference the scene instance (or prefab) here.")]
         public Transform primaryItem;
+        [Validation("The primary item state channel is required (shared with PrimaryItemController and the cursor).")]
         [SerializeField] private BoolEventChannelSO _PrimaryItemStateChannel;
         [SerializeField] private StringEventChannelSO _primaryItemStateWithUsedHandChannel;
         [SerializeField] private VoidEventChannelSO _leftGrab;
@@ -49,15 +53,26 @@ namespace jeanf.universalplayer
 
         private IpadState _ipadState = IpadState.Disabled;
 
+        // The hand currently posed around the primary item: it holds its pose so
+        // ControllerHandPoseDriver does not open the fingers while the item sits in it.
+        private HandPoseManager _heldPoseManager;
+
+        private void HoldPose(HandPoseManager manager)
+        {
+            if (_heldPoseManager == manager) return;
+            if (_heldPoseManager != null) _heldPoseManager.ReleasePoseHold();
+            _heldPoseManager = manager;
+            if (_heldPoseManager != null) _heldPoseManager.AcquirePoseHold();
+        }
 
         private void OnEnable()
         {
             //BlendableHand.AddHand += AddHand;
             //BlendableHand.RemoveHand += RemoveHand;
-            
-            drawPrimaryItem_LeftHand.action.performed += ctx=> SetIpadStateForLeftHand(primaryItemPose.leftHandInfo);
-            drawPrimaryItem_RightHand.action.performed += ctx=> SetIpadStateForRightHand(primaryItemPose.rightHandInfo);
-            _primaryItemStateWithUsedHandChannel.OnEventRaised += ctx => SetIpadStateForASpecificHand(ctx);;
+
+            drawPrimaryItem_LeftHand.action.performed += OnDrawLeftHand;
+            drawPrimaryItem_RightHand.action.performed += OnDrawRightHand;
+            _primaryItemStateWithUsedHandChannel.OnEventRaised += SetIpadStateForASpecificHand;
             TakeObject.OnVrGrabSwapPrimaryItem += ReceiveGrabSide;
         }
 
@@ -66,16 +81,18 @@ namespace jeanf.universalplayer
 
         private void Unsubscribe()
         {
+            HoldPose(null);
             _hands.Clear();
             _hands.TrimExcess();
-            
-            BlendableHand.AddHand -= null;
-            BlendableHand.RemoveHand -= null;
-            drawPrimaryItem_LeftHand.action.performed -= null;
-            drawPrimaryItem_RightHand.action.performed -= null;
-            _primaryItemStateWithUsedHandChannel.OnEventRaised -= ctx => SetIpadStateForASpecificHand(ctx);
+
+            drawPrimaryItem_LeftHand.action.performed -= OnDrawLeftHand;
+            drawPrimaryItem_RightHand.action.performed -= OnDrawRightHand;
+            _primaryItemStateWithUsedHandChannel.OnEventRaised -= SetIpadStateForASpecificHand;
             TakeObject.OnVrGrabSwapPrimaryItem -= ReceiveGrabSide;
         }
+
+        private void OnDrawLeftHand(InputAction.CallbackContext _) => SetIpadStateForLeftHand(primaryItemPose.leftHandInfo);
+        private void OnDrawRightHand(InputAction.CallbackContext _) => SetIpadStateForRightHand(primaryItemPose.rightHandInfo);
 
 
         //private void AddHand(SkinnedMeshRenderer hand)
@@ -134,6 +151,7 @@ namespace jeanf.universalplayer
                 SetIpadStateForASpecificHand(handInfo, _leftHand);
                 _ipadState = IpadState.InLeftHand;
                 _leftGrab.RaiseEvent();
+                HoldPose(_leftHandPoseManager);
                 if(_leftHandPoseManager) _leftHandPoseManager.ApplyPose(primaryItemPose);
                 //_poseContainer.SetAttachTransform_Left();
                 if (!_rightHandPoseManager) return;
@@ -147,6 +165,7 @@ namespace jeanf.universalplayer
                 _ipadState = IpadState.Disabled;
                 _PrimaryItemStateChannel.RaiseEvent(false);
                 OnIpadStateChanged.Invoke(_ipadState);
+                HoldPose(null);
                 if (_leftHandPoseManager) _leftHandPoseManager.ApplyDefaultPose();
             }
         }
@@ -157,6 +176,7 @@ namespace jeanf.universalplayer
                 SetIpadStateForASpecificHand(handInfo, _rightHand.transform);
                 _ipadState = IpadState.InRightHand;
                 _rightGrab.RaiseEvent();
+                HoldPose(_rightHandPoseManager);
                 if(_rightHandPoseManager) _rightHandPoseManager.ApplyPose(primaryItemPose);
                 //_poseContainer.SetAttachTransform_Right();
                 if (!_leftHandPoseManager) return;
@@ -170,6 +190,7 @@ namespace jeanf.universalplayer
                 _ipadState = IpadState.Disabled;
                 _PrimaryItemStateChannel.RaiseEvent(false);
                 OnIpadStateChanged.Invoke(_ipadState);
+                HoldPose(null);
                 if(_rightHandPoseManager) _rightHandPoseManager.ApplyDefaultPose();
             }
         }

@@ -56,9 +56,7 @@ namespace jeanf.universalplayer
         [ReadOnly] [SerializeField] private bool lastHandVisibility = true;
         [ReadOnly] [SerializeField] private bool canUpdate = false;
 
-        private float tolerance = 0.01f;
-        
-        private List<int> _nullHandIndices = new List<int>(4); 
+        private List<int> _nullHandIndices = new List<int>(4);
         private int _frameCounter = 0;
         private const int CleanupInterval = 300; 
 
@@ -125,7 +123,7 @@ namespace jeanf.universalplayer
             
             for (int i = 0; i < _hands.Count; i++)
             {
-                if (_hands[i] is null)
+                if (_hands[i] == null) // == : 'is null' misses Unity's fake-null (destroyed / unassigned)
                 {
                     _nullHandIndices.Add(i);
                 }
@@ -139,13 +137,13 @@ namespace jeanf.universalplayer
         
         private void AddHand(SkinnedMeshRenderer hand)
         {
-            if (hand is null)
+            if (hand == null)
             {
                 if (isDebug) Debug.LogWarning("[HandsAppearanceManager] Attempted to add null hand!");
                 return;
             }
             
-            if (hand.sharedMesh is null)
+            if (hand.sharedMesh == null)
             {
                 if (isDebug) 
                 {
@@ -176,7 +174,7 @@ namespace jeanf.universalplayer
         
         private bool ValidateBlendShapes(SkinnedMeshRenderer hand)
         {
-            if (hand is null || hand.sharedMesh is null) return false;
+            if (hand == null || hand.sharedMesh == null) return false;
             
             int blendShapeCount = hand.sharedMesh.blendShapeCount;
             
@@ -220,7 +218,7 @@ namespace jeanf.universalplayer
             for (int i = 0; i < hands.Count; i++)
             {
                 var hand = hands[i];
-                if (hand is null || hand.sharedMesh is null) continue;
+                if (hand == null || hand.sharedMesh == null) continue;
                 
                 if (hand.sharedMesh.blendShapeCount < 1)
                 {
@@ -249,7 +247,7 @@ namespace jeanf.universalplayer
             for (int i = 0; i < hands.Count; i++)
             {
                 var hand = hands[i];
-                if (hand is null || hand.sharedMesh is null) continue;
+                if (hand == null || hand.sharedMesh == null) continue;
                 
                 if (hand.sharedMesh.blendShapeCount < 3)
                 {
@@ -278,7 +276,7 @@ namespace jeanf.universalplayer
             for (int i = 0; i < hands.Count; i++)
             {
                 var hand = hands[i];
-                if (hand is null || hand.sharedMaterial is null) continue;
+                if (hand == null || hand.sharedMaterial == null) continue;
                 
                 try
                 {
@@ -300,9 +298,9 @@ namespace jeanf.universalplayer
             for (int i = 0; i < hands.Count; i++)
             {
                 var hand = hands[i];
-                if (hand is null || hand.sharedMaterials is null || hand.sharedMaterials.Length is 0) continue;
+                if (hand == null || hand.sharedMaterials is null || hand.sharedMaterials.Length is 0) continue;
                 
-                if (hand.sharedMaterials[0] is null) continue;
+                if (hand.sharedMaterials[0] == null) continue;
                 
                 try
                 {
@@ -322,12 +320,12 @@ namespace jeanf.universalplayer
             for (int i = 0; i < hands.Count; i++)
             {
                 var hand = hands[i];
-                if (hand is null || hand.sharedMaterials is null) continue;
+                if (hand == null || hand.sharedMaterials is null) continue;
                 
                 for (int j = 0; j < hand.sharedMaterials.Length; j++)
                 {
                     var mat = hand.sharedMaterials[j];
-                    if (mat is null) continue;
+                    if (mat == null) continue;
                     
                     try
                     {
@@ -371,7 +369,7 @@ namespace jeanf.universalplayer
             for (int i = 0; i < _hands.Count; i++)
             {
                 var hand = _hands[i];
-                if (hand is null) continue;
+                if (hand == null) continue;
                 
                 try
                 {

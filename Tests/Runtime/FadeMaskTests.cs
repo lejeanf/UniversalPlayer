@@ -81,6 +81,61 @@ namespace jeanf.universalplayer.tests
                 "HeadInWall desaturates but must not darken — color filter should stay white.");
         }
 
+        [UnityTest]
+        public IEnumerator MenuOpen_FadesToBlack_AndCloseRestoresClear()
+        {
+            FadeMask.SetStateClear();
+            yield return new WaitForSeconds(FadeTestRig.SettleSeconds);
+
+            PlayerEvents.RaiseMenuState(true);
+            yield return new WaitForSeconds(FadeTestRig.SettleSeconds);
+            AssertColorNear(_rig.ReadColorFilter(), Color.black,
+                "Opening the main menu must fade the world to black (any mode).");
+
+            PlayerEvents.RaiseMenuState(false);
+            yield return new WaitForSeconds(FadeTestRig.SettleSeconds);
+            AssertColorNear(_rig.ReadColorFilter(), Color.white,
+                "Closing the main menu must fade back to clear.");
+        }
+
+        [UnityTest]
+        public IEnumerator MenuOverlay_RemembersHeadInWall_RequestedWhileOpen()
+        {
+            // The tricky NoPeeking interplay: base-state changes arriving while
+            // the menu is open must be REMEMBERED, not lost or applied early.
+            FadeMask.SetStateClear();
+            yield return new WaitForSeconds(FadeTestRig.SettleSeconds);
+
+            PlayerEvents.RaiseMenuState(true);
+            yield return new WaitForSeconds(FadeTestRig.SettleSeconds);
+
+            FadeMask.SetStateHeadInWall(); // NoPeeking fires while the menu is open
+            yield return new WaitForSeconds(FadeTestRig.SettleSeconds);
+            AssertColorNear(_rig.ReadColorFilter(), Color.black,
+                "While the menu is open the screen must STAY black, whatever NoPeeking requests.");
+
+            PlayerEvents.RaiseMenuState(false);
+            yield return new WaitForSeconds(FadeTestRig.SettleSeconds);
+            Assert.That(_rig.ReadSaturation(), Is.EqualTo(-100f).Within(1f),
+                "Closing the menu must restore the REMEMBERED base state (head-in-wall desaturation), not Clear.");
+            AssertColorNear(_rig.ReadColorFilter(), Color.white,
+                "Head-in-wall desaturates but must not darken after the menu closes.");
+        }
+
+        [UnityTest]
+        public IEnumerator MenuClose_WhileStillLoading_StaysBlack()
+        {
+            // Initial state is Loading (black). Opening and closing the menu
+            // during a load must never reveal the half-loaded world.
+            PlayerEvents.RaiseMenuState(true);
+            yield return new WaitForSeconds(FadeTestRig.SettleSeconds);
+
+            PlayerEvents.RaiseMenuState(false);
+            yield return new WaitForSeconds(FadeTestRig.SettleSeconds);
+            AssertColorNear(_rig.ReadColorFilter(), Color.black,
+                "Closing the menu while the scene is still loading must keep the screen black.");
+        }
+
         private static void AssertColorNear(Color actual, Color expected, string message)
         {
             const float tolerance = 0.02f;

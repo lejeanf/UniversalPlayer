@@ -39,27 +39,12 @@ public class SwapHands : MonoBehaviour
             SetHands(value); 
         }
     }
-    public delegate void SwapHandEvent(HandType handType);
-    public static event SwapHandEvent OnSwapHand;
-
-    private void OnEnable()
-    {
-        OnSwapHand += ctx => SetHands(ctx);
-    }
-
-    private void OnDisable() => Unsubscribe();
-    private void OnDestroy() => Unsubscribe();
-
-    private void Unsubscribe()
-    {
-        OnSwapHand -= null;
-    }
     public void OnValidate ()
     {
         _handType = handType;
     }
     
-    private void SetHands(HandType handType)
+    public void SetHands(HandType handType)
     {
         foreach (var h in handTypes)
         {

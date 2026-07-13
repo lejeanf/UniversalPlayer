@@ -5,6 +5,7 @@ using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using jeanf.EventSystem;
 using Debug = UnityEngine.Debug;
 using jeanf.propertyDrawer;
+using jeanf.validationTools;
 using LitMotion;
 using UnityEngine.UIElements;
 using System;
@@ -22,6 +23,7 @@ namespace jeanf.universalplayer
         [SerializeField] private bool _isDebug = false;
 
         //Camera
+        [Validation("Main camera is required — the desktop grab raycast is cast from it. Object pickup is dead without it.")]
         [SerializeField] Camera mainCamera;
 
         //TakeObject
@@ -30,12 +32,16 @@ namespace jeanf.universalplayer
         public PickableObject _objectInHand { get { return objectInHand; } set { objectInHand = value; } }
 
         //InputActions
+        [Validation("Take action is required — it is the desktop grab/drop button. Object pickup is dead without it.")]
         [SerializeField] InputActionReference takeAction;
         [SerializeField] InputActionReference scrollAction;
 
         //Object Movement
         [Space(20)]
+        // Read only by the DrawIf inspector attributes below, never by code.
+#pragma warning disable 0414
         [SerializeField] private bool advancedSettings = false;
+#pragma warning restore 0414
         private float objectDistance = .5f;
         [DrawIf("advancedSettings", true, ComparisonType.Equals)]
         [Range(.1f, .9f)]
@@ -66,7 +72,6 @@ namespace jeanf.universalplayer
         [Header("Broadcasting On")]
         [SerializeField] GameObjectEventChannelSO objectDropped;
         [SerializeField] GameObjectIntBoolEventChannelSO objectTakenChannel;
-        public static event Action<HandType> OnHandGrabbed;
         public static event Action<bool, HandType> OnGrabDeactivateCollider;
         public static event Action<string> OnVrGrabSwapPrimaryItem;
         [Header("Listening On")]
@@ -142,7 +147,13 @@ namespace jeanf.universalplayer
         private void Take()
         {
             RaycastHit hit;
-            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+            // New Input System only — Input.mousePosition throws when the legacy
+            // Input Manager is disabled. No mouse (gamepad/VR) = screen centre,
+            // which is where the locked cursor sits anyway.
+            var pointer = Mouse.current != null
+                ? (Vector3)Mouse.current.position.ReadValue()
+                : new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0f);
+            Ray ray = mainCamera.ScreenPointToRay(pointer);
             
             if (Physics.Raycast(ray, out hit, maxDistanceCheck, layerMask))
             {

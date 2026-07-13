@@ -367,6 +367,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3475118261464492563}
+  - component: {fileID: 3475118261464492564}
   m_Layer: 0
   m_Name: XR Controller Right
   m_TagString: Untagged
@@ -799,3 +800,16 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &3475118261464492564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4283425761326543017}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6a02df78b9a4bda9d8cb8e1209c8023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hideWhileHandsVisible: 1

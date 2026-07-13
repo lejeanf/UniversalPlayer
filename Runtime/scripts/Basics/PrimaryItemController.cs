@@ -1,4 +1,5 @@
 using jeanf.EventSystem;
+using jeanf.validationTools;
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -6,13 +7,15 @@ namespace jeanf.universalplayer
 {
     public class PrimaryItemController : MonoBehaviour
     {
-        [SerializeField] private bool useInputAction = true; 
+        [SerializeField] private bool useInputAction = true;
+        [Validation("The DrawPrimaryItem action is required — pressing 1/dpad-up does nothing without it.")]
         [SerializeField] private InputActionReference drawPrimaryItem;
         [SerializeField] public PlayerInput playerInput;
         [Header("Listening On")]
         [SerializeField] private BoolEventChannelSO loginFieldIsOpened;
 
         [Header("Broadcasting on:")]
+        [Validation("The primary item state channel is required — nothing hears the draw/holster presses without it.")]
         [SerializeField] private BoolEventChannelSO _PrimaryItemStateChannel;
         public static event Action<XRHandsInteractionManager.LastUsedHand, bool> TriggerLastUsedHand;
         private bool primaryItemState = false;
@@ -20,11 +23,9 @@ namespace jeanf.universalplayer
 
         private void OnEnable()
         {
-            if(useInputAction) drawPrimaryItem.action.performed += ctx=> InvertState();
+            if (useInputAction) drawPrimaryItem.action.performed += OnDrawPerformed;
             _PrimaryItemStateChannel.OnEventRaised += StateOverride;
-
-            loginFieldIsOpened.OnEventRaised += state => SetDrawPrimaryItemActionState(state);
-
+            loginFieldIsOpened.OnEventRaised += SetDrawPrimaryItemActionState;
         }
 
         private void OnDestroy() => Unsubscribe();
@@ -32,11 +33,14 @@ namespace jeanf.universalplayer
 
         private void Unsubscribe()
         {
-            if(useInputAction) drawPrimaryItem.action.performed -= ctx=> InvertState();
+            // Named handlers: `-= lambda` removes a fresh instance and silently
+            // leaks the subscription.
+            if (useInputAction) drawPrimaryItem.action.performed -= OnDrawPerformed;
             _PrimaryItemStateChannel.OnEventRaised -= StateOverride;
-            loginFieldIsOpened.OnEventRaised -= state => SetDrawPrimaryItemActionState(state);
-
+            loginFieldIsOpened.OnEventRaised -= SetDrawPrimaryItemActionState;
         }
+
+        private void OnDrawPerformed(InputAction.CallbackContext _) => InvertState();
 
         public void Reset()
         {

@@ -15,39 +15,51 @@ namespace jeanf.universalplayer
         [SerializeField] private bool _isDebug = false;
         
         [SerializeField] List<Transform> teleportPositions;
-        List<InputAction> inputActions = new List<InputAction>();
-        private void OnEnable()
+        readonly List<InputAction> inputActions = new List<InputAction>();
+
+        // actions are built once and enabled/disabled with the component; the old code
+        // rebuilt (and re-subscribed) fresh actions on every OnEnable and never disposed them
+        private void BuildActionsOnce()
         {
-            for (var i = 0; i < teleportPositions.Count; i++)
+            if (inputActions.Count > 0) return;
+            for (var i = 0; i < Mathf.Min(teleportPositions.Count, 10); i++)
             {
-                if (i >= 10) return;
                 var spawnId = i;
-                
-                var inputAction = new InputAction();
+                var inputAction = new InputAction($"TeleportToSpawn{spawnId}");
                 inputAction.AddBinding($"<Keyboard>/{spawnId}");
                 inputAction.AddBinding($"<Keyboard>/numpad{spawnId}");
-                if (!inputActions.Contains(inputAction)) inputActions.Add(inputAction);
-
-                inputAction.Enable();
                 inputAction.performed += ctx => TeleportTo(spawnId);
+                inputActions.Add(inputAction);
             }
         }
-        private void OnDestroy() => Unsubscribe();
-        private void OnDisable() => Unsubscribe();
 
-        private void Unsubscribe()
+        private void OnEnable()
         {
-            foreach (var t in inputActions)
-            {
-                t.performed -= null;
-                t.Disable();
-            }
+            BuildActionsOnce();
+            foreach (var action in inputActions) action.Enable();
+        }
+
+        private void OnDisable()
+        {
+            foreach (var action in inputActions) action.Disable();
+        }
+
+        private void OnDestroy()
+        {
+            foreach (var action in inputActions) action.Dispose();
+            inputActions.Clear();
         }
 
         private void TeleportTo(int spawnId)
         {
             if(_isDebug) Debug.Log($"teleporting to spawn nr: {spawnId}");
-            teleportPositions[spawnId].GetComponent<SendTeleportTarget>().Teleport();
+            var target = teleportPositions[spawnId] != null ? teleportPositions[spawnId].GetComponent<SendTeleportTarget>() : null;
+            if (target == null)
+            {
+                Debug.LogWarning($"{XrStartupDiagnostics.LogPrefix} TeleportManager: spawn {spawnId} has no SendTeleportTarget — nothing to teleport to.", this);
+                return;
+            }
+            target.Teleport();
         }
 
     }

@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_DiffusionProfileReferences:
-  - {fileID: 11400000, guid: d37f399deae0cd348b798972c013329d, type: 2}
+  - {fileID: 11400000, guid: 275a4a3d34a1b544da48cda300c3d272, type: 2}
+  - {fileID: 11400000, guid: 48e911a1e337b44e2b85dbc65b47a594, type: 2}
+  - {fileID: 11400000, guid: 50d46101184bc384f8c0e190405f2166, type: 2}
   m_MaterialReferences: []
 --- !u!21 &2100000
 Material:
@@ -67,7 +69,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Base_Map_Gloves1:
-        m_Texture: {fileID: 2800000, guid: 95030b6570dba1a4f80754d3962d66de, type: 3}
+        m_Texture: {fileID: 2800000, guid: 761bd445378ea3145ac107009311c2c5, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Base_Map_Man:
@@ -107,7 +109,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Detail_Map:
-        m_Texture: {fileID: 2800000, guid: c82340e4eda265b408db5524becd4639, type: 3}
+        m_Texture: {fileID: 2800000, guid: c0a8bf97de97e4d4db891e4d597ba92f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Detail_Mask_Map:
@@ -179,7 +181,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Normal_Map_Gloves1:
-        m_Texture: {fileID: 2800000, guid: 4e9aedfc0870f9947895e4ac23f1a0cb, type: 3}
+        m_Texture: {fileID: 2800000, guid: 4d9836f022e2bc64f929cdc3f3e55840, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Normal_Map_Man:
@@ -287,7 +289,7 @@ Material:
     - _DiffusionProfileHash: 0
     - _Diffusion_Profile: 3.3335147
     - _Diffusion_Profile_Gloves: 3.4393191
-    - _Diffusion_Profile_Gloves1: 2.1488802
+    - _Diffusion_Profile_Gloves1: 2.6130152
     - _Diffusion_Profile_Skins: 3.4393191
     - _DisplacementLockObjectScale: 1
     - _DisplacementLockTilingScale: 1
@@ -431,8 +433,7 @@ Material:
     - _DiffusionProfileAsset: {r: 0, g: 0, b: 0, a: 0}
     - _Diffusion_Profile_Asset: {r: 0.049402382, g: 1453.0376, b: -2.2256998e-17,
         a: 8.349132e+30}
-    - _Diffusion_Profile_Gloves1_Asset: {r: -2.455063e-21, g: 0.00000038347872, b: 5.445937e+30,
-        a: -2.3568314e-21}
+    - _Diffusion_Profile_Gloves1_Asset: {r: 4.14783e-38, g: -4.5913242e-36, b: -8.904417e-29, a: 1.9051451e+23}
     - _Diffusion_Profile_Gloves_Asset: {r: -4.9436656e-19, g: 1.5117807e+9, b: -28098.584,
         a: -1.6688887e-26}
     - _Diffusion_Profile_Skins_Asset: {r: -4.9436656e-19, g: 1.5117807e+9, b: -28098.584,
