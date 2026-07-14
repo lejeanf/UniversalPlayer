@@ -63,6 +63,11 @@ namespace jeanf.universalplayer
         private void OnEnable()
         {
             PlayerEvents.MouselookStateChanged += OnMouselookStateChanged;
+            // Re-assert on EVERY enable: Start only runs once per lifetime, so a
+            // disable->enable cycle of the gaze rig (scheme gates) would otherwise
+            // leave the module's mouse pointer on — locked cursor with a frozen
+            // pointer stealing presses, the exact state this component prevents.
+            OnMouselookStateChanged(Cursor.lockState == CursorLockMode.Locked);
         }
 
         private void Start()
@@ -97,13 +102,26 @@ namespace jeanf.universalplayer
         // capture UI presses ahead of the gaze ray and drags would never move.
         private void OnMouselookStateChanged(bool canLook)
         {
-            if (!moduleSearched)
+            var module = ResolveModule();
+            if (module == null) return;
+            module.enableMouseInput = !canLook;
+        }
+
+        // The LIVE module first: a scene can hold more than one EventSystem (menu
+        // prefabs, demo benches ship their own) — a cached FindFirstObjectByType
+        // that landed on an inactive one would toggle a module nobody uses while
+        // the real pointer keeps stealing presses.
+        private XRUIInputModule ResolveModule()
+        {
+            var eventSystem = UnityEngine.EventSystems.EventSystem.current;
+            if (eventSystem != null && eventSystem.currentInputModule is XRUIInputModule active)
+                return active;
+            if (uiModule == null && !moduleSearched)
             {
                 moduleSearched = true;
-                uiModule = FindFirstObjectByType<XRUIInputModule>(FindObjectsInactive.Include);
+                uiModule = FindFirstObjectByType<XRUIInputModule>();
             }
-            if (uiModule == null) return;
-            uiModule.enableMouseInput = !canLook;
+            return uiModule;
         }
     }
 }

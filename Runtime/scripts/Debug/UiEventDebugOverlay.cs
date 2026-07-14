@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit.UI;
+#pragma warning disable 0618 // ActionBasedController: deprecated in XRI 3, still what the gaze rig runs on
 
 namespace jeanf.universalplayer
 {
@@ -68,6 +69,8 @@ namespace jeanf.universalplayer
             {
                 AppendModule(eventSystem);
                 _text.AppendLine("");
+                AppendGazePressPipeline();
+                _text.AppendLine("");
                 AppendCanvasInventory();
                 _text.AppendLine("");
                 var mousePosition = mouse != null ? mouse.position.ReadValue() : Vector2.zero;
@@ -124,6 +127,37 @@ namespace jeanf.universalplayer
                 if (b.effectivePath != null && b.effectivePath.Contains("Mouse")) hasMouse = true;
             }
             _text.AppendLine($"{label}: '{action.name}'  enabled:{action.enabled}  bindings:{action.bindings.Count}  mouse:{(hasMouse ? "yes" : "no")}  gamepad:{(hasGamepad ? "yes" : "NO")}");
+        }
+
+        // ---- 1b. the gaze-ray press pipeline (the pointer in locked desktop mode) ----
+        private void AppendGazePressPipeline()
+        {
+            var moduleCount = Object.FindObjectsByType<XRUIInputModule>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length;
+            if (moduleCount > 1)
+                _text.AppendLine($"!! {moduleCount} XRUIInputModules exist (incl. inactive) — duplicate EventSystems can hijack the pointer.");
+
+            var gazeClick = Object.FindFirstObjectByType<GazeDesktopClick>(FindObjectsInactive.Include);
+            if (gazeClick == null)
+            {
+                _text.AppendLine("GazeDesktopClick: MISSING — locked-mode ray has no click/drag/scroll path (M&K falls back to the frozen mouse pointer, gamepad has nothing).");
+                return;
+            }
+            _text.AppendLine($"GazeDesktopClick: on '{gazeClick.gameObject.name}'  enabled:{gazeClick.enabled}  activeInHierarchy:{gazeClick.gameObject.activeInHierarchy}");
+
+            var controller = gazeClick.GetComponent<UnityEngine.XR.Interaction.Toolkit.ActionBasedController>();
+            if (controller == null)
+            {
+                _text.AppendLine("  (no ActionBasedController next to it — cannot inspect UI Press/Scroll)");
+                return;
+            }
+            var press = controller.uiPressAction.action;
+            var scroll = controller.uiScrollAction.action;
+            _text.AppendLine(press != null
+                ? $"  gaze UI Press: bindings:{press.bindings.Count}  enabled:{press.enabled}  PRESSED NOW: {press.IsPressed()}   (hold your click/A while reading this!)"
+                : "  gaze UI Press: <no action>");
+            _text.AppendLine(scroll != null
+                ? $"  gaze UI Scroll: bindings:{scroll.bindings.Count}  enabled:{scroll.enabled}  value: {scroll.ReadValue<Vector2>()}"
+                : "  gaze UI Scroll: <no action>");
         }
 
         // ---- 2. every canvas and whether the mouse can click it ----
