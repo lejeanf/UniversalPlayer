@@ -31,8 +31,7 @@ MonoBehaviour:
   m_RequiresSettingsUpdate: 0
   m_AutomaticLoading: 0
   m_AutomaticRunning: 0
-  m_Loaders:
-  - {fileID: 11400000, guid: 6ed025f284fab9c4d9c43b94bd3042c4, type: 2}
+  m_Loaders: []
 --- !u!114 &-2311700196129055955
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -45,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d236b7d11115f2143951f1e14045df39, type: 3}
   m_Name: Standalone Settings
   m_EditorClassIdentifier: 
-  m_LoaderManagerInstance: {fileID: -4455830838985946651}
+  m_Manager: {fileID: -4455830838985946651}
   m_InitManagerOnStart: 1
 --- !u!114 &-174455733035088795
 MonoBehaviour:
@@ -76,13 +75,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2dc886499c26824283350fa532d087d, type: 3}
   m_Name: XRGeneralSettings
   m_EditorClassIdentifier: 
-  Keys: 010000001c00000007000000040000000e000000
-  Values:
-  - {fileID: -2311700196129055955}
-  - {fileID: 1660259831620839145}
-  - {fileID: 8991177285536209095}
-  - {fileID: 3599666237599922500}
-  - {fileID: 1719271853052215256}
+  Keys: 
+  Values: []
+  m_SettingsPerBuildTarget:
+  - buildTarget: 1
+    settings: {fileID: -2311700196129055955}
+  - buildTarget: 28
+    settings: {fileID: 1660259831620839145}
+  - buildTarget: 7
+    settings: {fileID: 8991177285536209095}
+  - buildTarget: 4
+    settings: {fileID: 3599666237599922500}
+  - buildTarget: 14
+    settings: {fileID: 1719271853052215256}
 --- !u!114 &1660259831620839145
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -95,7 +100,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d236b7d11115f2143951f1e14045df39, type: 3}
   m_Name: Lumin Settings
   m_EditorClassIdentifier: 
-  m_LoaderManagerInstance: {fileID: 6029656161203890613}
+  m_Manager: {fileID: 6029656161203890613}
   m_InitManagerOnStart: 1
 --- !u!114 &1719271853052215256
 MonoBehaviour:
@@ -109,7 +114,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d236b7d11115f2143951f1e14045df39, type: 3}
   m_Name: WSA Settings
   m_EditorClassIdentifier: 
-  m_LoaderManagerInstance: {fileID: -7064110297046900450}
+  m_Manager: {fileID: -7064110297046900450}
   m_InitManagerOnStart: 1
 --- !u!114 &3599666237599922500
 MonoBehaviour:
@@ -123,7 +128,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d236b7d11115f2143951f1e14045df39, type: 3}
   m_Name: iOS Settings
   m_EditorClassIdentifier: 
-  m_LoaderManagerInstance: {fileID: 5694794249370645258}
+  m_Manager: {fileID: 5694794249370645258}
   m_InitManagerOnStart: 1
 --- !u!114 &5694794249370645258
 MonoBehaviour:
@@ -169,5 +174,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d236b7d11115f2143951f1e14045df39, type: 3}
   m_Name: Android Settings
   m_EditorClassIdentifier: 
-  m_LoaderManagerInstance: {fileID: -174455733035088795}
+  m_Manager: {fileID: -174455733035088795}
   m_InitManagerOnStart: 1
