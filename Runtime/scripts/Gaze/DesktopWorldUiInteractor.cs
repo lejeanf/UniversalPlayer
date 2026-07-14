@@ -99,6 +99,13 @@ namespace jeanf.universalplayer
         /// TakeObject / SitController early-out on it so a UI press can't also
         /// grab/sit through the canvas.</summary>
         public static bool UiHoverActive => _active != null && _active.HasUiHover;
+
+        /// <summary>
+        /// The world-UI element currently under the reticle (null when none).
+        /// Callers need this to tell "UI in front of the thing I want" from "UI that IS
+        /// the thing I want": a tablet's screen is UI, and it must still be pickable.
+        /// </summary>
+        public static GameObject UiHoverTarget => _active != null ? _active.hoverTarget : null;
         private static DesktopWorldUiInteractor _active;
 
         public bool HasUiHover => hoverTarget != null;

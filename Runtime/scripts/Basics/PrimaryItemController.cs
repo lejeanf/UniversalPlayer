@@ -54,6 +54,18 @@ namespace jeanf.universalplayer
             SetPrimaryItemState(primaryItemState);
         }
 
+        /// <summary>
+        /// Draw (true) or holster (false) the primary item. Picking up a PickableObject
+        /// whose Carry Slot is Primary calls this, so grabbing the tablet off a table
+        /// equips it — the same state every other system already listens to (cursor,
+        /// look, tooltips), not a parallel path.
+        /// </summary>
+        public void SetState(bool state)
+        {
+            if (primaryItemState == state) return;
+            SetPrimaryItemState(state);
+        }
+
         private void SetPrimaryItemState(bool state)
         {
             primaryItemState = state;

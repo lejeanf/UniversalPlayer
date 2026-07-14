@@ -86,6 +86,9 @@ namespace jeanf.universalplayer
         [Tooltip("Resolves where a held item docks (camera / right / left hand). Left empty = found on the rig. Without it, items fall back to the legacy camera hold.")]
         [SerializeField] private PlayerItemAnchors itemAnchors;
         private bool anchorsSearched;
+        [Tooltip("Used to equip a picked-up item whose Carry Slot is Primary (the tablet). Left empty = found on the rig.")]
+        [SerializeField] private PrimaryItemController primaryItemController;
+        private bool primaryItemControllerSearched;
         // Which hand the desktop-held item ended up in — the old code had no per-object
         // record of the side at all (only three separate fields that lost it).
         private HandType _heldHand = HandType.None;
@@ -147,16 +150,31 @@ namespace jeanf.universalplayer
             }
             else
             {
+                // Never drop what we are holding just because we clicked ITS screen —
+                // a held tablet's buttons must be usable without releasing it. Aim off
+                // the UI to let go.
+                if (DesktopWorldUiInteractor.UiHoverActive) return;
                 Release();
             }
+        }
+
+        /// <summary>
+        /// True when world-space UI should swallow this press. UI that IS the face of a
+        /// pickable does NOT swallow it: a tablet's screen is a world canvas, and it has
+        /// to be pickable off the table before it can ever be used. Only UI that belongs
+        /// to nothing takeable (a wall panel in front of a crate) wins over the grab.
+        /// </summary>
+        private static bool UiOwnsThePress()
+        {
+            if (!DesktopWorldUiInteractor.UiHoverActive) return false;
+            var hovered = DesktopWorldUiInteractor.UiHoverTarget;
+            return hovered == null || hovered.GetComponentInParent<PickableObject>() == null;
         }
 
         //Checks for raycast hit, if object is pickable then pick it
         private void Take()
         {
-            // The press is aimed at world-space UI — the UI owns it. Without this a
-            // click on a canvas would also grab a pickable sitting behind it.
-            if (DesktopWorldUiInteractor.UiHoverActive) return;
+            if (UiOwnsThePress()) return;
 
             RaycastHit hit;
             // New Input System only — Input.mousePosition throws when the legacy
@@ -175,6 +193,21 @@ namespace jeanf.universalplayer
             objectInHand = pickable;
             AttachHeld(pickable, HandType.None); // desktop: no grabbing hand — the item's own anchor decides
             objectTakenChannel?.RaiseEvent(hit.transform.gameObject, roomId, true);
+
+            // A slotted item STAYS WITH THE PLAYER once picked. Primary is the tablet's
+            // slot: equip it through the state every other system already listens to
+            // (cursor, look, tooltips) rather than inventing a parallel path.
+            if (pickable.Slot == CarrySlot.Primary) ResolvePrimaryItemController()?.SetState(true);
+        }
+
+        private PrimaryItemController ResolvePrimaryItemController()
+        {
+            if (primaryItemController == null && !primaryItemControllerSearched)
+            {
+                primaryItemControllerSearched = true;
+                primaryItemController = FindFirstObjectByType<PrimaryItemController>(FindObjectsInactive.Include);
+            }
+            return primaryItemController;
         }
 
         /// <summary>
@@ -238,6 +271,17 @@ namespace jeanf.universalplayer
             _heldHand = HandType.None;
 
             DisablePositionHandle();
+
+            // A slotted item stays with the player: releasing it HOLSTERS it (the draw
+            // binding brings it back) instead of dropping it back into the world. This
+            // is what makes the tablet "a pickable that stays available" rather than a
+            // special case — PrimaryItemBehaviour then puts it away.
+            if (pickable.IsCarried)
+            {
+                if (pickable.Slot == CarrySlot.Primary) ResolvePrimaryItemController()?.SetState(false);
+                return;
+            }
+
             objectDropped?.RaiseEvent(pickable.gameObject);
 
             var t = pickable.transform;
