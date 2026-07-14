@@ -14,6 +14,8 @@ namespace jeanf.universalplayer
 {
     public class TakeObject : MonoBehaviour, IDebugBehaviour
     {
+        private const string LogPrefix = "[UniversalPlayer]";
+
         #region variables
         public bool isDebug
         {
@@ -110,7 +112,10 @@ namespace jeanf.universalplayer
 
         private void Subscribe()
         {
-            if(takeAction) takeAction.action.performed += ctx => DispatchAction();
+            if (takeAction) takeAction.action.performed += ctx => DispatchAction();
+            else
+                Debug.LogWarning($"{LogPrefix} TakeObject on '{name}': the Take action is not assigned — nothing can " +
+                    "EVER be picked up (no press ever reaches this component). Wire FPS/TakeObject on the Player prefab.", this);
             if(scrollAction) scrollAction.action.performed += ctx => UpdateObjectDistance(ctx.ReadValue<float>());
             try
             {
@@ -144,6 +149,11 @@ namespace jeanf.universalplayer
         //Check, when received input action for take, if there's already an object in hand or not
         private void DispatchAction()
         {
+            // The first thing to confirm when "nothing happens": did the press even get
+            // here? If this line never prints, the problem is the ACTION (unassigned,
+            // disabled, or scheme-masked), not the pickup logic below.
+            if (_isDebug) Debug.Log($"{LogPrefix} take/drop pressed (holding: {(objectInHand != null ? objectInHand.name : "nothing")})", this);
+
             if (objectInHand == null)
             {
                 Take();
@@ -174,7 +184,19 @@ namespace jeanf.universalplayer
         //Checks for raycast hit, if object is pickable then pick it
         private void Take()
         {
-            if (UiOwnsThePress()) return;
+            if (UiOwnsThePress())
+            {
+                if (_isDebug) Debug.Log($"{LogPrefix} take blocked: the reticle is on world UI that belongs to nothing " +
+                    $"takeable ('{DesktopWorldUiInteractor.UiHoverTarget?.name}') — that press belongs to the UI.", this);
+                return;
+            }
+
+            if (mainCamera == null)
+            {
+                Debug.LogWarning($"{LogPrefix} TakeObject on '{name}': Main Camera is not assigned — the grab raycast " +
+                    "is cast from it, so pickup is dead. Wire it on the Player prefab.", this);
+                return;
+            }
 
             RaycastHit hit;
             // New Input System only — Input.mousePosition throws when the legacy
@@ -184,11 +206,26 @@ namespace jeanf.universalplayer
                 ? (Vector3)Mouse.current.position.ReadValue()
                 : new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0f);
             Ray ray = mainCamera.ScreenPointToRay(pointer);
-            
-            if (!Physics.Raycast(ray, out hit, maxDistanceCheck, layerMask)) return;
 
-            var pickable = hit.transform.gameObject.GetComponent<PickableObject>();
-            if (pickable == null) return;
+            if (!Physics.Raycast(ray, out hit, maxDistanceCheck, layerMask))
+            {
+                if (_isDebug) DiagnoseFailedTake(ray, null);
+                return;
+            }
+
+            // GetComponentInParent, NOT GetComponent: a tablet's collider usually sits on
+            // a child mesh while PickableObject lives on the root, and the old lookup then
+            // found nothing and failed silently. This also matches how ReticleHoverFeedback
+            // and FingerPointingRay detect a pickable — so what the reticle highlights is
+            // exactly what can be taken.
+            var pickable = hit.collider.GetComponentInParent<PickableObject>();
+            if (pickable == null)
+            {
+                if (_isDebug) DiagnoseFailedTake(ray, hit.collider);
+                return;
+            }
+
+            if (_isDebug) Debug.Log($"{LogPrefix} taking '{pickable.name}' (slot: {pickable.Slot}, anchor: {pickable.Anchor})", pickable);
 
             objectInHand = pickable;
             AttachHeld(pickable, HandType.None); // desktop: no grabbing hand — the item's own anchor decides
@@ -198,6 +235,47 @@ namespace jeanf.universalplayer
             // slot: equip it through the state every other system already listens to
             // (cursor, look, tooltips) rather than inventing a parallel path.
             if (pickable.Slot == CarrySlot.Primary) ResolvePrimaryItemController()?.SetState(true);
+        }
+
+        /// <summary>
+        /// Says WHY a take did nothing — every gate in Take() is otherwise silent, which
+        /// is exactly what makes "I click the tablet and nothing happens" unfalsifiable.
+        /// Tick Is Debug on TakeObject to get this in the console.
+        /// </summary>
+        private void DiagnoseFailedTake(Ray ray, Collider hitCollider)
+        {
+            if (layerMask.value == 0)
+            {
+                Debug.LogWarning($"{LogPrefix} TakeObject: the Layer Mask is 'Nothing', so the grab raycast can never " +
+                    "hit anything. Set it to the layers your pickable objects live on.", this);
+                return;
+            }
+
+            if (hitCollider != null)
+            {
+                Debug.Log($"{LogPrefix} take failed: the ray hit '{hitCollider.name}' (layer " +
+                    $"'{LayerMask.LayerToName(hitCollider.gameObject.layer)}') but there is no PickableObject on it or " +
+                    "any of its PARENTS. Put PickableObject on the object the collider belongs to (or a parent of it).", hitCollider);
+                return;
+            }
+
+            // Nothing hit within the mask+range. Re-cast unmasked to say what IS in front,
+            // which turns "nothing happens" into a specific, fixable cause.
+            if (!Physics.Raycast(ray, out var any, 25f, ~0, QueryTriggerInteraction.Collide))
+            {
+                Debug.Log($"{LogPrefix} take failed: no collider at all within 25m of the reticle. Does the tablet have " +
+                    "a Collider? (A canvas on its own is not hittable by a physics raycast.)", this);
+                return;
+            }
+
+            var pickable = any.collider.GetComponentInParent<PickableObject>();
+            var layer = any.collider.gameObject.layer;
+            var inMask = (layerMask.value & (1 << layer)) != 0;
+            Debug.Log($"{LogPrefix} take failed. Nearest collider ahead: '{any.collider.name}' at {any.distance:F2}m, " +
+                $"layer '{LayerMask.LayerToName(layer)}'. PickableObject found: {(pickable != null ? $"YES ('{pickable.name}')" : "NO")}. " +
+                $"Layer in TakeObject's mask: {(inMask ? "YES" : "NO -> ADD IT")}. " +
+                $"Within range: {(any.distance <= maxDistanceCheck ? "YES" : $"NO -> it is {any.distance:F2}m away but Max Distance Check is {maxDistanceCheck}m")}.",
+                any.collider);
         }
 
         private PrimaryItemController ResolvePrimaryItemController()
