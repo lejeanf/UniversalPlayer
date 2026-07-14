@@ -77,6 +77,15 @@ namespace jeanf.universalplayer
         /// <summary>Current roll in degrees (z rotation applied on top of the base local rotation).</summary>
         public float CurrentRoll => currentRoll;
 
+        /// <summary>
+        /// Master scale (0..1) the effects ease toward. UI drags set it to 0 while a
+        /// slider is being edited — bob/roll wiggle the camera, and with the aim ray
+        /// locked to screen center that wiggle becomes slider jitter. Eased over a
+        /// fraction of a second so zeroing never pops the view.
+        /// </summary>
+        public float TargetWeight { get; set; } = 1f;
+        private float weight = 1f;
+
         private void Awake()
         {
             baseLocalPosition = transform.localPosition;
@@ -138,9 +147,10 @@ namespace jeanf.universalplayer
             UpdateBob(effectsOff, dt);
             UpdateLandingDip(effectsOff, dt);
 
-            CurrentOffset = ComputeBobOffset() + Vector3.up * dipOffset;
+            weight = Mathf.MoveTowards(weight, Mathf.Clamp01(TargetWeight), dt * 4f); // ~0.25s fade either way
+            CurrentOffset = (ComputeBobOffset() + Vector3.up * dipOffset) * weight;
             transform.localPosition = baseLocalPosition + CurrentOffset;
-            transform.localRotation = baseLocalRotation * Quaternion.Euler(0f, 0f, currentRoll);
+            transform.localRotation = baseLocalRotation * Quaternion.Euler(0f, 0f, currentRoll * weight);
         }
 
         private float ComputeTargetRoll(float dt)

@@ -71,6 +71,8 @@ namespace jeanf.universalplayer
                 _text.AppendLine("");
                 AppendGazePressPipeline();
                 _text.AppendLine("");
+                AppendWorldUiInteractor();
+                _text.AppendLine("");
                 AppendCanvasInventory();
                 _text.AppendLine("");
                 var mousePosition = mouse != null ? mouse.position.ReadValue() : Vector2.zero;
@@ -172,6 +174,24 @@ namespace jeanf.universalplayer
             }
         }
 
+        // ---- 1c. the world-canvas click path (TrackedDeviceGraphicRaycaster canvases) ----
+        private void AppendWorldUiInteractor()
+        {
+            var interactor = Object.FindFirstObjectByType<DesktopWorldUiInteractor>(FindObjectsInactive.Include);
+            if (interactor == null)
+            {
+                _text.AppendLine("DesktopWorldUiInteractor: MISSING — world-space canvases (TrackedDevice-only) have NO desktop click/drag path.");
+                return;
+            }
+            _text.AppendLine($"DesktopWorldUiInteractor: on '{interactor.gameObject.name}'  enabled:{interactor.enabled}  "
+                + $"activeInHierarchy:{interactor.gameObject.activeInHierarchy}  scheme-active:{interactor.DebugSchemeActive}");
+            var press = interactor.DebugPressAction;
+            _text.AppendLine(press != null
+                ? $"  press: bindings:{press.bindings.Count}  enabled:{press.enabled}  PRESSED NOW: {press.IsPressed()}   (hold your click/A while reading this!)"
+                : "  press: <not created>");
+            _text.AppendLine($"  world-UI hover: {interactor.DebugHoverName}   presses: {interactor.DebugPressCount}x   clicks: {interactor.DebugClickCount}x   dragging: {interactor.DebugDragging}");
+        }
+
         // ---- 2. every canvas and whether the mouse can click it ----
         private void AppendCanvasInventory()
         {
@@ -185,10 +205,11 @@ namespace jeanf.universalplayer
 
                 var graphic = canvas.GetComponent<GraphicRaycaster>();          // mouse / screen pointer
                 var tracked = canvas.GetComponent<TrackedDeviceGraphicRaycaster>(); // XR ray / poke
-                // A TrackedDeviceGraphicRaycaster must not count as a mouse raycaster even if
-                // it were ever assignable to GraphicRaycaster — only a plain one drives the mouse.
-                var hasMouseRaycaster = graphic != null && !(graphic is TrackedDeviceGraphicRaycaster);
-                var mouseOk = hasMouseRaycaster && graphic.enabled;
+                // TrackedDeviceGraphicRaycaster derives from BaseRaycaster, NOT from
+                // GraphicRaycaster, so GetComponent<GraphicRaycaster>() can only ever
+                // return a real (mouse-driving) one. That is exactly why a TrackedDevice-
+                // only canvas is invisible to the screen pointer.
+                var mouseOk = graphic != null && graphic.enabled;
                 var verdict = mouseOk
                     ? "mouse: OK"
                     : (tracked != null ? "mouse: NO GraphicRaycaster -> desktop cursor CANNOT click (VR-only canvas)"

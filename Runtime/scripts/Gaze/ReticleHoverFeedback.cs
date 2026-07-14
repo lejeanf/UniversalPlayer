@@ -11,10 +11,12 @@ namespace jeanf.universalplayer
     /// <summary>
     /// Desktop counterpart of the VR grab preview: the center reticle tints while the
     /// player is looking at something usable, and flashes when they interact.
-    /// Three hover sources, any of which tints:
+    /// Four hover sources, any of which tints:
     ///   1. XRI interactor hover (grabbables, chairs, switches)
-    ///   2. the gaze ray's UI raycast (world-space UI elements)
-    ///   3. a plain physics raycast against <see cref="physicsHoverMask"/> — the same
+    ///   2. the gaze ray's UI raycast (world-space UI elements, camera-forward)
+    ///   3. the DesktopWorldUiInteractor's hover (world-space UI, follows the
+    ///      reticle even when the cursor is free in tablet/menu mode)
+    ///   4. a plain physics raycast against <see cref="physicsHoverMask"/> — the same
     ///      camera-forward pattern project click handlers use (e.g. uvs's
     ///      UIClickHandler → Highlight_Interactionable). Set the SAME LayerMask on the
     ///      Player variant as the project's click handler uses; layers are
@@ -52,6 +54,7 @@ namespace jeanf.universalplayer
         private Color defaultColor;
         private bool defaultCaptured;
         private CursorStateController cursorColors; // single color authority (normal/tablet/hover/click)
+        private DesktopWorldUiInteractor worldUiInteractor; // world-canvas hover (tracks the reticle even off-center in tablet mode)
         private bool currentlyTinted;
         private bool currentlyFlashing;
         private bool missingImageWarned;
@@ -61,6 +64,8 @@ namespace jeanf.universalplayer
             playerCamera = Camera.main;
             cursorColors = GetComponentInParent<CursorStateController>()
                            ?? FindFirstObjectByType<CursorStateController>();
+            worldUiInteractor = GetComponentInParent<DesktopWorldUiInteractor>()
+                                ?? FindFirstObjectByType<DesktopWorldUiInteractor>();
             foreach (var interactor in GetComponentsInChildren<XRBaseInteractor>(true))
             {
                 interactor.hoverEntered.AddListener(OnHoverEntered);
@@ -132,7 +137,11 @@ namespace jeanf.universalplayer
         {
             // Only turn gold when the press lands on something the reticle marks as
             // usable; it stays gold for as long as the press is held (drags included).
-            if (currentlyTinted) interactHeld = true;
+            if (currentlyTinted)
+            {
+                interactHeld = true;
+                if (cursorColors != null) cursorColors.PulseClick(); // punctuate the click with a brief size dip
+            }
         }
 
         private void OnInteractCanceled(InputAction.CallbackContext _) => interactHeld = false;
@@ -143,6 +152,9 @@ namespace jeanf.universalplayer
             var desktop = scheme == BroadcastControlsStatus.ControlScheme.KeyboardMouse
                           || scheme == BroadcastControlsStatus.ControlScheme.Gamepad;
             var uiHovered = desktop && gazeRay != null && gazeRay.TryGetCurrentUIRaycastResult(out _);
+            // Fourth source: the world-canvas interactor. Unlike the gaze ray (always
+            // camera-forward) it follows the reticle even when the cursor is free.
+            uiHovered |= desktop && worldUiInteractor != null && worldUiInteractor.HasUiHover;
             var physicsHovered = desktop && PhysicsHover();
             Apply(desktop && (hovered.Count > 0 || uiHovered || physicsHovered),
                 desktop && interactHeld);

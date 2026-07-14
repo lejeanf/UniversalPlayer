@@ -50,6 +50,10 @@ namespace jeanf.universalplayer
         [Tooltip("Cursor size while the primary item is drawn (lerped in and back out).")]
         [Range(0.1f, 1f)][SerializeField] private float tabletCursorScale = 0.5f;
         [SerializeField] private float cursorScaleLerpSeconds = 0.12f;
+        [Tooltip("On a click, the reticle briefly pulses to this FRACTION of its current size (a single smooth dip and back) to punctuate the click.")]
+        [Range(0.1f, 1f)][SerializeField] private float clickPulseScale = 0.75f;
+        [Tooltip("Total duration (seconds) of the click size pulse — half shrinking, half returning.")]
+        [SerializeField] private float clickPulseSeconds = 0.18f;
 
         [Header("Cursor hover / click (interactables & tooltips)")]
         [Tooltip("Reticle color while aiming at anything usable — interactables, seats, pickables and tooltip objects. ReticleHoverFeedback reads this.")]
@@ -88,6 +92,9 @@ namespace jeanf.universalplayer
         // consistent icon in M&K and gamepad, scalable and tintable.
         private bool _followPointer;
         private float _targetScale = 1f;
+        private float _baseScale = 1f;  // eased toward _targetScale (resting/tablet size)
+        private float _pulseScale = 1f; // one-shot click dip, multiplied on top of _baseScale
+        private float _pulseTime = -1f; // < 0 = not pulsing
         private Vector3 _cursorHomePosition;
         private Sprite _authoredCursorSprite; // whatever the SVGImage shipped with (fallback when no override)
         private bool _homeCaptured;
@@ -112,10 +119,12 @@ namespace jeanf.universalplayer
             else if (_wasFlashingInvalid) _cursorImage.color = RestingColor;
             _wasFlashingInvalid = flashingInvalid;
 
-            // Smooth size in/out (tablet shrinks the pointer, exiting restores it).
-            var scale = _cursorImage.rectTransform.localScale.x;
-            var lerped = Mathf.Lerp(scale, _targetScale, cursorScaleLerpSeconds <= 0f ? 1f : 1f - Mathf.Exp(-Time.unscaledDeltaTime / cursorScaleLerpSeconds));
-            _cursorImage.rectTransform.localScale = Vector3.one * lerped;
+            // Smooth size in/out (tablet shrinks the pointer, exiting restores it),
+            // composed with the one-shot click pulse. Base and pulse are tracked
+            // separately so the pulse can multiply on top without fighting the lerp.
+            _baseScale = Mathf.Lerp(_baseScale, _targetScale, cursorScaleLerpSeconds <= 0f ? 1f : 1f - Mathf.Exp(-Time.unscaledDeltaTime / cursorScaleLerpSeconds));
+            UpdateClickPulse(Time.unscaledDeltaTime);
+            _cursorImage.rectTransform.localScale = Vector3.one * (_baseScale * _pulseScale);
 
             if (!_followPointer) return;
             var mouse = UnityEngine.InputSystem.Mouse.current;
@@ -147,6 +156,31 @@ namespace jeanf.universalplayer
             _homeCaptured = true;
             _cursorHomePosition = _cursorImage.rectTransform.localPosition;
             _authoredCursorSprite = _cursorImage.sprite;
+            _baseScale = _cursorImage.rectTransform.localScale.x; // start from the authored size, no first-frame pop
+        }
+
+        /// <summary>
+        /// Punctuate a click: the reticle dips to <see cref="clickPulseScale"/> of its
+        /// current size and eases back over <see cref="clickPulseSeconds"/> (one smooth
+        /// sine hump — in and out). One-shot; calling it again restarts the pulse.
+        /// ReticleHoverFeedback fires this on the same press that turns the reticle its
+        /// click color, so it accompanies the gold flash on interactables and world UI.
+        /// </summary>
+        public void PulseClick() => _pulseTime = 0f;
+
+        private void UpdateClickPulse(float dt)
+        {
+            if (_pulseTime < 0f) { _pulseScale = 1f; return; }
+            _pulseTime += dt;
+            var duration = Mathf.Max(0.01f, clickPulseSeconds);
+            if (_pulseTime >= duration)
+            {
+                _pulseTime = -1f;
+                _pulseScale = 1f;
+                return;
+            }
+            // sin over 0..PI runs 0 -> 1 -> 0, so the scale eases 1 -> clickPulseScale -> 1.
+            _pulseScale = Mathf.Lerp(1f, clickPulseScale, Mathf.Sin(_pulseTime / duration * Mathf.PI));
         }
 
         // Free cursor: the reticle becomes the pointer. Locked: it returns to the
@@ -216,6 +250,9 @@ namespace jeanf.universalplayer
             // frees up (menu, tablet) — no prefab wiring needed.
             if (GetComponent<GamepadScreenCursor>() == null) gameObject.AddComponent<GamepadScreenCursor>();
             if (GetComponent<UiEventDebugOverlay>() == null) gameObject.AddComponent<UiEventDebugOverlay>();
+            // World-space canvases (TrackedDeviceGraphicRaycaster) are invisible to the
+            // module's screen pointer — this component is their desktop click/drag path.
+            if (GetComponent<DesktopWorldUiInteractor>() == null) gameObject.AddComponent<DesktopWorldUiInteractor>();
 
             // Locked-mode UI (click, drag, scroll) rides the gaze ray through
             // GazeDesktopClick — it is the GAMEPAD'S ONLY UI path. Player variants

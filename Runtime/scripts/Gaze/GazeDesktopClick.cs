@@ -149,9 +149,73 @@ namespace jeanf.universalplayer
                 "point/click/scroll are now scheme-mask-immune (same transport for M&K and gamepad).", this);
         }
 
+        // Desktop UI is pointer-driven ONLY. The module's UI navigation reads XRI's
+        // default ACTIONS: Navigate = left stick (walking edits whatever control is
+        // still selected, no button held) and Submit = the gamepad SOUTH button (a
+        // self-selected Toggle flips TWICE per A-press — click + OnSubmit — and looks
+        // dead). NOTE: because we wire point/click actions into the module, it runs in
+        // action mode where the enableGamepadInput/enableJoystickInput flags are
+        // IGNORED — the navigation ACTION REFERENCES themselves must be removed. They
+        // are restored under XR, where navigation is legitimate.
+        private InputActionReference navigateActionOriginal;
+        private InputActionReference submitActionOriginal;
+        private InputActionReference cancelActionOriginal;
+        private bool navigationCaptured;
+
+        private void ApplyModuleNavigationState(XRUIInputModule module)
+        {
+            if (module == null) return;
+            var wantNavigation = BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR;
+            // Also gate the device-polling flags — they matter if the module ever runs
+            // without wired actions (built-in input mode).
+            if (module.enableGamepadInput != wantNavigation) module.enableGamepadInput = wantNavigation;
+            if (module.enableJoystickInput != wantNavigation) module.enableJoystickInput = wantNavigation;
+
+            if (wantNavigation)
+            {
+                if (navigationCaptured && module.navigateAction == null)
+                {
+                    module.navigateAction = navigateActionOriginal;
+                    module.submitAction = submitActionOriginal;
+                    module.cancelAction = cancelActionOriginal;
+                }
+            }
+            else if (module.navigateAction != null || module.submitAction != null || module.cancelAction != null)
+            {
+                if (!navigationCaptured)
+                {
+                    navigationCaptured = true;
+                    navigateActionOriginal = module.navigateAction;
+                    submitActionOriginal = module.submitAction;
+                    cancelActionOriginal = module.cancelAction;
+                }
+                module.navigateAction = null;
+                module.submitAction = null;
+                module.cancelAction = null;
+                Debug.Log($"{LogPrefix} GazeDesktopClick: module UI navigation (navigate/submit/cancel) stood down for " +
+                    "desktop — pointer-driven UI only (left stick was editing the selected control, A was double-firing toggles).", this);
+            }
+        }
+
+        // While the cursor is LOCKED the pointer is pinned at screen center and every
+        // world-space canvas belongs to DesktopWorldUiInteractor (which can click AND
+        // drag there — this pointer can only click). Stand the click down or a canvas
+        // carrying both raycasters would receive the same press twice.
+        private void ApplyLockedClickState()
+        {
+            if (clickAction == null) return;
+            if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR) return; // whole asset is disabled under XR
+            var wantClick = Cursor.lockState != CursorLockMode.Locked;
+            if (wantClick && !clickAction.enabled) clickAction.Enable();
+            else if (!wantClick && clickAction.enabled) clickAction.Disable();
+        }
+
         private void Update()
         {
             if (!moduleWired) WireModule(); // EventSystem may come up after us
+
+            ApplyLockedClickState();
+            ApplyModuleNavigationState(ResolveModule());
 
             // NOTE: no cursor warping here — the package must never move the
             // user's real OS cursor. The point action's initial-state check

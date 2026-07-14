@@ -172,6 +172,10 @@ namespace jeanf.universalplayer
                 return;
             }
 
+            // The press is aimed at world-space UI — the UI owns it. Without this a
+            // click on a canvas would also sit on a chair standing behind it.
+            if (DesktopWorldUiInteractor.UiHoverActive) return;
+
             var origin = Camera.main != null ? Camera.main.transform : cameraOffset;
             if (origin == null) return;
             if (!Physics.Raycast(new Ray(origin.position, origin.forward), out var hit,
