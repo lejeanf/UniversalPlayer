@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.XR.Interaction.Toolkit.UI;
 
 namespace jeanf.universalplayer
 {
@@ -20,13 +19,11 @@ namespace jeanf.universalplayer
         private const float Deadzone = 0.15f;
 
         private bool _canLook = true;
-        private bool _clickBindingsInjected;
         private bool _noMouseWarned;
 
         private void OnEnable()
         {
             PlayerEvents.MouselookStateChanged += OnMouselookChanged;
-            InjectGamepadClickBindings();
         }
 
         private void OnDisable() => PlayerEvents.MouselookStateChanged -= OnMouselookChanged;
@@ -61,24 +58,7 @@ namespace jeanf.universalplayer
             mouse.WarpCursorPosition(position);
         }
 
-        // The UI module's pointer click is mouse-left only by default — gamepad
-        // A / right trigger must also click while driving the warped cursor.
-        private void InjectGamepadClickBindings()
-        {
-            if (_clickBindingsInjected) return;
-            var module = FindFirstObjectByType<XRUIInputModule>(FindObjectsInactive.Include);
-            var action = module != null ? module.leftClickAction.action : null;
-            if (action == null) return;
-            _clickBindingsInjected = true;
-
-            foreach (var binding in action.bindings)
-                if (binding.path.Contains("Gamepad")) return; // project wired its own
-
-            var wasEnabled = action.enabled;
-            if (wasEnabled) action.Disable();
-            action.AddBinding("<Gamepad>/buttonSouth");
-            action.AddBinding("<Gamepad>/rightTrigger");
-            if (wasEnabled) action.Enable();
-        }
+        // Gamepad A / right trigger clicking is handled by GazeDesktopClick's
+        // scheme-immune screen-pointer actions — this component only moves the cursor.
     }
 }

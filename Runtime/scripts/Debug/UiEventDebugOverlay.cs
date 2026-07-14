@@ -144,38 +144,32 @@ namespace jeanf.universalplayer
             }
             _text.AppendLine($"GazeDesktopClick: on '{gazeClick.gameObject.name}'  enabled:{gazeClick.enabled}  activeInHierarchy:{gazeClick.gameObject.activeInHierarchy}");
 
-            // XRI 3: what actually clicks is the RAY's own input readers (the
-            // deprecated controller actions fire into the void) — inspect those.
-            var ray = gazeClick.GetComponentInChildren<UnityEngine.XR.Interaction.Toolkit.Interactors.XRRayInteractor>(true);
-            if (ray == null)
-            {
-                _text.AppendLine("  (no XRRayInteractor under GazeDesktopClick — nothing to press)");
-                return;
-            }
-            // WHICH press path does this rig consume? (XRRayInteractor.UpdateUIModel:
-            // deprecated = controller's uiPressAction; modern = the ray's own reader.)
-            var deprecatedPath = ray.forceDeprecatedInput;
-            _text.AppendLine($"  ray input path: {(deprecatedPath ? "DEPRECATED — the CONTROLLER's uiPressAction drives select" : "modern — the ray's uiPressInput reader drives select")}");
-            var controllerPress = gazeClick.DebugControllerPress;
-            if (controllerPress != null)
-                _text.AppendLine($"  controller uiPress: bindings:{controllerPress.bindings.Count}  enabled:{controllerPress.enabled}  PRESSED NOW: {controllerPress.IsPressed()}");
-            _text.AppendLine($"  ray uiPressInput: mode:{ray.uiPressInput.inputSourceMode}  PRESSED NOW: {ray.uiPressInput.ReadIsPerformed()}   (hold your click/A while reading this!)");
-            _text.AppendLine($"  ray uiScrollInput: mode:{ray.uiScrollInput.inputSourceMode}  value: {ray.uiScrollInput.ReadValue()}");
-
-            // Latched telemetry — survives screenshot timing.
+            // THE transport: the module's screen pointer, driven by GazeDesktopClick's
+            // scheme-immune actions (same method for M&K and gamepad).
+            var point = gazeClick.DebugPointAction;
+            var click = gazeClick.DebugClickAction;
+            _text.AppendLine(point != null
+                ? $"  screen pointer POINT: enabled:{point.enabled}  value:{point.ReadValue<Vector2>():F0}"
+                : "  screen pointer POINT: <not created>");
+            _text.AppendLine(click != null
+                ? $"  screen pointer CLICK: bindings:{click.bindings.Count}  enabled:{click.enabled}  PRESSED NOW: {click.IsPressed()}   (hold your click/A while reading this!)"
+                : "  screen pointer CLICK: <not created>");
             var lastPress = gazeClick.DebugLastPressEventTime < 0f
                 ? "never"
                 : $"{Time.unscaledTime - gazeClick.DebugLastPressEventTime:F1}s ago";
-            _text.AppendLine($"  press action fired: {gazeClick.DebugPressEventCount}x (last {lastPress})   rayIsPointer: {gazeClick.DebugRayIsPointer}");
+            _text.AppendLine($"  click events fired: {gazeClick.DebugPressEventCount}x (last {lastPress})");
 
-            // Is this pointer even known to the EventSystem? Unregistered = hover
-            // impossible and queued presses go nowhere.
-            var xrModule = EventSystem.current != null ? EventSystem.current.currentInputModule as XRUIInputModule : null;
-            var registered = xrModule != null && xrModule.GetTrackedDeviceModel(ray, out _);
-            var uiHover = ray.TryGetCurrentUIRaycastResult(out var uiHit) && uiHit.gameObject != null
-                ? uiHit.gameObject.name
-                : "<none>";
-            _text.AppendLine($"  ray registered with module: {registered}   ray UI hover: {uiHover}");
+            // The gaze ray is hover/tint feedback only (demoted from clicking).
+            var ray = gazeClick.DebugRay;
+            if (ray != null)
+            {
+                var xrModule = EventSystem.current != null ? EventSystem.current.currentInputModule as XRUIInputModule : null;
+                var registered = xrModule != null && xrModule.GetTrackedDeviceModel(ray, out _);
+                var uiHover = ray.TryGetCurrentUIRaycastResult(out var uiHit) && uiHit.gameObject != null
+                    ? uiHit.gameObject.name
+                    : "<none>";
+                _text.AppendLine($"  gaze ray (hover feedback only): registered:{registered}  UI hover: {uiHover}");
+            }
         }
 
         // ---- 2. every canvas and whether the mouse can click it ----

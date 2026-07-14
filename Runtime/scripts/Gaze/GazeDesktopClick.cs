@@ -3,187 +3,174 @@ using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit.Inputs.Readers;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using UnityEngine.XR.Interaction.Toolkit.UI;
-#pragma warning disable 0618 // ActionBasedController: deprecated in XRI 3, still what the gaze rig runs on
+#pragma warning disable 0618 // inputCompatibilityMode: XRI 3 compat surface, needed to demote the rig's controller path
 
 namespace jeanf.universalplayer
 {
     /// <summary>
-    /// Lets the center-screen gaze ray CLICK, DRAG and SCROLL on desktop — for
-    /// M&amp;K and gamepad alike (one ray, one pointer; only the press button
-    /// differs per device).
+    /// ONE screen pointer for all desktop UI — the same method for M&amp;K and
+    /// gamepad ("same aim, same information, different mappings"): the
+    /// XRUIInputModule's screen pointer. Its position is the OS cursor —
+    /// pinned at screen center while the cursor is locked (exactly where the
+    /// reticle points), stick-warped by <see cref="GamepadScreenCursor"/> in
+    /// free-cursor modes — and its click is mouse left / gamepad A / right
+    /// trigger. This is the transport that has always worked for M&amp;K;
+    /// gamepad now rides the identical one.
     ///
-    /// XRI 3 note — there are TWO possible press paths and which one is live
-    /// depends on the rig (XRRayInteractor.UpdateUIModel):
-    ///   - deprecated path (forceDeprecatedInput, active when an
-    ///     ActionBasedController sits on the rig): select comes from the
-    ///     CONTROLLER's uiPressAction;
-    ///   - modern path: select comes from the ray's OWN uiPressInput reader.
-    /// This component drives BOTH — bindings injected into the controller action
-    /// AND ManualValue queuing on the ray's readers — so the ray clicks on any
-    /// variant regardless of which mode XRI resolves. (Each path alone was
-    /// observed dead on a rig using the other one.)
+    /// WHY a runtime-built action asset: the module's serialized point/click
+    /// actions live in the player's input asset, which PlayerInput scheme-masks
+    /// and device-pairs — under the Gamepad scheme every Mouse binding stops
+    /// matching and that pointer silently dies (the historical "works in M&amp;K,
+    /// dead on gamepad"). The replacement actions here belong to no user, no
+    /// scheme and no mask: they cannot be turned off by a scheme switch.
     ///
-    /// While the cursor is locked, the UI module's mouse pointer is turned OFF so
-    /// the moving gaze ray is the one and only pointer (a frozen center pointer
-    /// would capture presses and could never drag). The mouse pointer returns
-    /// whenever the cursor frees up (menus, tablet) — and both press paths stand
-    /// down so the ray cannot ghost-click world UI behind an open menu.
+    /// The gaze ray is demoted to hover/visual feedback (reticle tint): its UI
+    /// readers are forced to ManualValue and never queued, so it can never
+    /// double-fire a click on top of the screen pointer.
     /// </summary>
     public class GazeDesktopClick : MonoBehaviour
     {
         private const string LogPrefix = "[UniversalPlayer]";
 
-        [Tooltip("Desktop control paths that PRESS the gaze ray (click, drag).")]
-        [SerializeField] private string[] uiPressBindings =
+        [Tooltip("Control paths that CLICK the screen pointer (all devices — scheme-mask-immune).")]
+        [SerializeField] private string[] clickBindings =
         {
             "<Mouse>/leftButton",
             "<Gamepad>/buttonSouth",
             "<Gamepad>/rightTrigger",
         };
 
-        [Tooltip("Desktop control paths whose Vector2 feeds the gaze ray's UI scroll.")]
-        [SerializeField] private string[] uiScrollBindings =
+        [Tooltip("Control paths whose Vector2 scrolls the UI under the pointer.")]
+        [SerializeField] private string[] scrollBindings =
         {
             "<Mouse>/scroll",
         };
 
-        private XRRayInteractor rayInteractor;
-        private InputAction pressAction;
+        private InputActionAsset runtimeAsset;
+        private InputAction pointAction;
+        private InputAction clickAction;
         private InputAction scrollAction;
-        private InputAction controllerPressAction;  // deprecated path (rig's ActionBasedController)
-        private InputAction controllerScrollAction;
+        private XRRayInteractor rayInteractor;
         private XRUIInputModule uiModule;
         private bool moduleSearched;
-        private bool rayIsPointer; // cursor locked: the gaze ray owns UI presses
+        private bool moduleWired;
         private float nextRegistrationCheck;
         private bool registrationHealed;
+        private CursorLockMode lastLockState = (CursorLockMode)(-1);
 
         // Latched telemetry for the F9 overlay (screenshot timing can't hide events).
         internal int DebugPressEventCount;
         internal float DebugLastPressEventTime = -1f;
-        internal bool DebugRayIsPointer => rayIsPointer;
+        internal InputAction DebugClickAction => clickAction;
+        internal InputAction DebugPointAction => pointAction;
         internal XRRayInteractor DebugRay => rayInteractor;
-        internal InputAction DebugControllerPress => controllerPressAction;
 
         private void Awake()
         {
+            // Scheme-immune UI actions (see class docs). They live in their own
+            // runtime asset because InputActionReference requires asset membership —
+            // and precisely because it is NOT the player's asset, PlayerInput can
+            // never mask or device-pair them away.
+            runtimeAsset = ScriptableObject.CreateInstance<InputActionAsset>();
+            runtimeAsset.name = "GazeDesktopUI (runtime)";
+            var map = runtimeAsset.AddActionMap("UI");
+            pointAction = map.AddAction("point", InputActionType.Value, expectedControlLayout: "Vector2");
+            pointAction.AddBinding("<Mouse>/position");
+            // Code-created actions skip the initial-state check that asset actions
+            // get: with the cursor LOCKED the position control never changes, so
+            // without this the action reads (0,0) forever and every click lands in
+            // the screen corner (observed live).
+            pointAction.wantsInitialStateCheck = true;
+            clickAction = map.AddAction("click", InputActionType.Button);
+            foreach (var path in clickBindings) clickAction.AddBinding(path);
+            scrollAction = map.AddAction("scroll", InputActionType.Value, expectedControlLayout: "Vector2");
+            foreach (var path in scrollBindings) scrollAction.AddBinding(path);
+            clickAction.performed += OnClickPerformed;
+
+            // Demote the gaze ray to hover-only: ManualValue readers that are never
+            // queued cannot press, and ForceInputReaders stops the rig's (scheme-
+            // gated, desktop-suppressed) ActionBasedController from being consulted.
             rayInteractor = GetComponentInChildren<XRRayInteractor>(true);
-            if (rayInteractor == null)
+            if (rayInteractor != null)
             {
-                Debug.LogWarning($"{LogPrefix} GazeDesktopClick on '{name}': no XRRayInteractor on or under this object — " +
-                    "desktop ray click/drag/scroll stays disabled.", this);
-                enabled = false;
-                return;
+                rayInteractor.uiPressInput.inputSourceMode = XRInputButtonReader.InputSourceMode.ManualValue;
+                rayInteractor.uiScrollInput.inputSourceMode = XRInputValueReader.InputSourceMode.ManualValue;
+                rayInteractor.inputCompatibilityMode = XRBaseInputInteractor.InputCompatibilityMode.ForceInputReaders;
             }
-
-            // The ray's readers become manually driven: our press/scroll actions
-            // below are their only source on desktop. (In VR the hand rays do the
-            // clicking — nothing queues while a desktop scheme isn't active.)
-            rayInteractor.uiPressInput.inputSourceMode = XRInputButtonReader.InputSourceMode.ManualValue;
-            rayInteractor.uiScrollInput.inputSourceMode = XRInputValueReader.InputSourceMode.ManualValue;
-
-            pressAction = new InputAction("GazeDesktopUiPress", InputActionType.Button);
-            foreach (var path in uiPressBindings) pressAction.AddBinding(path);
-            pressAction.performed += OnPressPerformed;
-            pressAction.canceled += OnPressCanceled;
-
-            scrollAction = new InputAction("GazeDesktopUiScroll", InputActionType.Value, expectedControlType: "Vector2");
-            foreach (var path in uiScrollBindings) scrollAction.AddBinding(path);
-
-            // Deprecated path: with an ActionBasedController on the rig, XRI reads
-            // select from the CONTROLLER's uiPressAction and ignores the reader we
-            // queue above — inject the same desktop bindings there too.
-            var controller = GetComponent<UnityEngine.XR.Interaction.Toolkit.ActionBasedController>()
-                             ?? GetComponentInParent<UnityEngine.XR.Interaction.Toolkit.ActionBasedController>();
-            if (controller != null)
-            {
-                controllerPressAction = PrepareControllerAction(controller.uiPressAction, uiPressBindings);
-                controllerScrollAction = PrepareControllerAction(controller.uiScrollAction, uiScrollBindings);
-            }
-        }
-
-        // Injects desktop bindings into a controller action that has none of its
-        // own, and makes sure it is enabled (REFERENCED actions are enabled by
-        // nobody unless an InputActionManager lists their asset).
-        private static InputAction PrepareControllerAction(InputActionProperty property, string[] paths)
-        {
-            var action = property.action;
-            if (action == null) return null;
-            if (action.bindings.Count == 0)
-            {
-                var wasEnabled = action.enabled;
-                if (wasEnabled) action.Disable();
-                foreach (var path in paths) action.AddBinding(path);
-                if (wasEnabled) action.Enable();
-            }
-            if (property.reference != null && !action.enabled) action.Enable();
-            return action;
         }
 
         private void OnEnable()
         {
-            PlayerEvents.MouselookStateChanged += OnMouselookStateChanged;
-            pressAction?.Enable();
-            scrollAction?.Enable();
-            // Re-assert on EVERY enable: Start only runs once per lifetime, so a
-            // disable->enable cycle of the gaze rig (scheme gates) would otherwise
-            // leave the module's mouse pointer on and the ray press-less.
-            OnMouselookStateChanged(Cursor.lockState == CursorLockMode.Locked);
-        }
-
-        private void Start()
-        {
-            // Awake/OnEnable order across components is not guaranteed — by Start
-            // the CursorStateController has locked the cursor for desktop modes.
-            OnMouselookStateChanged(Cursor.lockState == CursorLockMode.Locked);
+            BroadcastControlsStatus.SendControlScheme += OnSchemeChanged;
+            ApplySchemeState(BroadcastControlsStatus.controlScheme);
+            WireModule();
         }
 
         private void OnDisable()
         {
-            PlayerEvents.MouselookStateChanged -= OnMouselookStateChanged;
-            if (rayInteractor != null) rayInteractor.uiPressInput.QueueManualState(false, 0f); // never leave a press latched
-            pressAction?.Disable();
-            scrollAction?.Disable();
-            OnMouselookStateChanged(false); // hand the pointer back to the mouse
+            BroadcastControlsStatus.SendControlScheme -= OnSchemeChanged;
+            if (runtimeAsset != null) runtimeAsset.Disable();
         }
 
         private void OnDestroy()
         {
-            pressAction?.Dispose();
-            scrollAction?.Dispose();
+            if (clickAction != null) clickAction.performed -= OnClickPerformed;
+            if (runtimeAsset != null) Destroy(runtimeAsset);
         }
 
-        private void OnPressPerformed(InputAction.CallbackContext _)
+        private void OnClickPerformed(InputAction.CallbackContext _)
         {
-            DebugPressEventCount++; // counted BEFORE gating: distinguishes "action dead" from "gated out"
+            DebugPressEventCount++;
             DebugLastPressEventTime = Time.unscaledTime;
-            if (rayIsPointer && rayInteractor != null)
-                rayInteractor.uiPressInput.QueueManualState(true, 1f);
         }
 
-        private void OnPressCanceled(InputAction.CallbackContext _)
+        private void OnSchemeChanged(BroadcastControlsStatus.ControlScheme scheme) => ApplySchemeState(scheme);
+
+        // Desktop schemes own the screen pointer. In VR the hand rays drive UI —
+        // a stray gamepad press must not click whatever sits under the parked cursor.
+        private void ApplySchemeState(BroadcastControlsStatus.ControlScheme scheme)
         {
-            // Always release, even if the pointer role changed mid-press.
-            if (rayInteractor != null)
-                rayInteractor.uiPressInput.QueueManualState(false, 0f);
+            if (runtimeAsset == null) return;
+            if (scheme == BroadcastControlsStatus.ControlScheme.XR) runtimeAsset.Disable();
+            else runtimeAsset.Enable();
+        }
+
+        // Hand the module our scheme-immune actions. The module's property setters
+        // handle unhooking the old references while running.
+        private void WireModule()
+        {
+            if (moduleWired) return;
+            var module = ResolveModule();
+            if (module == null) return;
+            moduleWired = true;
+            module.pointAction = InputActionReference.Create(pointAction);
+            module.leftClickAction = InputActionReference.Create(clickAction);
+            module.scrollWheelAction = InputActionReference.Create(scrollAction);
+            Debug.Log($"{LogPrefix} GazeDesktopClick: screen-pointer actions wired to '{module.gameObject.name}' — " +
+                "point/click/scroll are now scheme-mask-immune (same transport for M&K and gamepad).", this);
         }
 
         private void Update()
         {
-            if (rayInteractor == null) return;
-            var scroll = rayIsPointer ? scrollAction.ReadValue<Vector2>() : Vector2.zero;
-            // Hardware wheels report ±120 per notch on some platforms; UGUI scroll
-            // expects roughly ±1 "lines" per tick (thumbstick range).
-            if (Mathf.Abs(scroll.y) > 10f || Mathf.Abs(scroll.x) > 10f) scroll /= 120f;
-            rayInteractor.uiScrollInput.manualValue = scroll;
+            if (!moduleWired) WireModule(); // EventSystem may come up after us
 
-            // A ray that never REGISTERED with the module is a pointer the
-            // EventSystem has never heard of: hover impossible, presses go
-            // nowhere no matter what is queued. Registration happens in the
-            // interactor's OnEnable and silently fails when the module wasn't
-            // locatable at that moment (enable order, inactive EventSystem) —
-            // check periodically and repair.
-            if (rayIsPointer && Time.unscaledTime >= nextRegistrationCheck)
+            // On ENTERING locked mode, snap the pointer once to the exact screen
+            // center (where the reticle is) — the warp emits the one mouse-position
+            // event the point action needs. Never warp continuously: that hijacks
+            // the real OS cursor across the whole editor.
+            var lockState = Cursor.lockState;
+            if (lockState != lastLockState)
+            {
+                lastLockState = lockState;
+                if (lockState == CursorLockMode.Locked && Mouse.current != null && Application.isFocused)
+                    Mouse.current.WarpCursorPosition(new Vector2(Screen.width * 0.5f, Screen.height * 0.5f));
+            }
+
+            // The reticle tint reads the ray's UI raycast, which requires the ray
+            // to be REGISTERED with the module; registration happens in the ray's
+            // OnEnable and silently fails when the module wasn't locatable at that
+            // instant — check periodically and repair.
+            if (rayInteractor != null && Time.unscaledTime >= nextRegistrationCheck)
             {
                 nextRegistrationCheck = Time.unscaledTime + 1f;
                 var module = ResolveModule();
@@ -193,44 +180,16 @@ namespace jeanf.universalplayer
                     if (!registrationHealed)
                     {
                         registrationHealed = true;
-                        Debug.LogWarning($"{LogPrefix} GazeDesktopClick: the gaze ray was NOT registered with the " +
-                            "XRUIInputModule — registered it now. UI hover/click through the ray was impossible before this.", this);
+                        Debug.LogWarning($"{LogPrefix} GazeDesktopClick: the gaze ray was not registered with the " +
+                            "XRUIInputModule — registered it now (hover feedback needs it).", this);
                     }
                 }
             }
         }
 
-        // While mouselook is ON the cursor is locked: the gaze ray is the pointer
-        // and the module's frozen mouse pointer must stand down entirely.
-        private void OnMouselookStateChanged(bool canLook)
-        {
-            rayIsPointer = canLook
-                && BroadcastControlsStatus.controlScheme != BroadcastControlsStatus.ControlScheme.XR;
-            if (!rayIsPointer && rayInteractor != null)
-                rayInteractor.uiPressInput.QueueManualState(false, 0f);
-
-            // The deprecated (controller) path has no per-press gate — enable it
-            // only while the ray owns the pointer, or it would ghost-click world
-            // UI at screen center while a menu/tablet is open.
-            if (controllerPressAction != null)
-            {
-                if (rayIsPointer) controllerPressAction.Enable();
-                else controllerPressAction.Disable();
-            }
-            if (controllerScrollAction != null)
-            {
-                if (rayIsPointer) controllerScrollAction.Enable();
-                else controllerScrollAction.Disable();
-            }
-
-            var module = ResolveModule();
-            if (module != null) module.enableMouseInput = !canLook;
-        }
-
         // The LIVE module first: a scene can hold more than one EventSystem (menu
         // prefabs, demo benches ship their own) — a cached FindFirstObjectByType
-        // that landed on an inactive one would toggle a module nobody uses while
-        // the real pointer keeps stealing presses.
+        // that landed on an inactive one would wire actions nobody reads.
         private XRUIInputModule ResolveModule()
         {
             var eventSystem = UnityEngine.EventSystems.EventSystem.current;
