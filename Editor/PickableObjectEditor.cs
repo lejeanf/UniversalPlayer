@@ -14,14 +14,24 @@ namespace jeanf.universalplayer.editor
     ///  - A Rigidbody is required to suspend/restore physics while held.
     /// </summary>
     [CustomEditor(typeof(PickableObject))]
-    [CanEditMultipleObjects]
     public class PickableObjectEditor : UnityEditor.Editor
     {
+        private bool _previewing;
+        private Vector3 _restorePosition;
+        private Quaternion _restoreRotation;
+        private Transform _restoreParent;
+
+        private void OnDisable() => StopPreview(); // never strand the object in the preview pose
+
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
 
             var pickable = (PickableObject)target;
+
+            EditorGUILayout.Space(6);
+            DrawHeldPosePreview(pickable);
+            EditorGUILayout.Space(4);
 
             if (pickable.GetComponent<Rigidbody>() == null)
             {
@@ -43,6 +53,101 @@ namespace jeanf.universalplayer.editor
                     "PickableObject.ReleaseRequested and place it yourself (teleport event, inventory, …).",
                     MessageType.Info);
             }
+        }
+
+        /// <summary>
+        /// Puts the object exactly where it will sit when held, live, without entering
+        /// play mode — so Held Local Position / Euler (or a hand pose) can be tuned by
+        /// eye in the Scene view. Toggle it back off (or just deselect) and the object
+        /// returns to where it was; the move is Undo-able either way.
+        /// </summary>
+        private void DrawHeldPosePreview(PickableObject pickable)
+        {
+            if (Application.isPlaying)
+            {
+                EditorGUILayout.HelpBox("Held-pose preview is an edit-mode tool (in play mode, just pick the object up).", MessageType.None);
+                return;
+            }
+
+            var anchors = Object.FindFirstObjectByType<PlayerItemAnchors>(FindObjectsInactive.Include);
+            if (anchors == null || anchors.CameraTransform == null)
+            {
+                EditorGUILayout.HelpBox(
+                    "Held-pose preview needs a PlayerItemAnchors (and a camera) on the player in an open scene. " +
+                    "With additive loading the Player may live in another scene — open it to preview.",
+                    MessageType.None);
+                return;
+            }
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                var label = _previewing ? "Stop preview (restore position)" : "Preview held pose";
+                if (GUILayout.Button(label, GUILayout.Height(24)))
+                {
+                    if (_previewing) StopPreview();
+                    else StartPreview(pickable, anchors);
+                }
+
+                using (new EditorGUI.DisabledScope(!_previewing))
+                {
+                    if (GUILayout.Button("Keep", GUILayout.Width(60), GUILayout.Height(24)))
+                    {
+                        // Accept the previewed spot as the object's real position.
+                        _previewing = false;
+                        EditorApplication.update -= UpdatePreview;
+                    }
+                }
+            }
+
+            if (_previewing)
+            {
+                UpdatePreview(); // reflect edits made in this same inspector pass
+                EditorGUILayout.HelpBox(
+                    "PREVIEWING where this object will sit when held. Tweak Held Local Position / Euler (or the Hand " +
+                    "Pose) and watch it move. 'Stop preview' restores its original position; 'Keep' leaves it here.",
+                    MessageType.Info);
+            }
+        }
+
+        private void StartPreview(PickableObject pickable, PlayerItemAnchors anchors)
+        {
+            if (!anchors.TryGetHeldPose(pickable, out _, out _)) return;
+
+            var t = pickable.transform;
+            Undo.RecordObject(t, "Preview held pose");
+            _restoreParent = t.parent;
+            _restorePosition = t.position;
+            _restoreRotation = t.rotation;
+            _previewing = true;
+            EditorApplication.update += UpdatePreview;
+            UpdatePreview();
+        }
+
+        private void StopPreview()
+        {
+            EditorApplication.update -= UpdatePreview;
+            if (!_previewing) return;
+            _previewing = false;
+
+            if (target == null) return; // the object was deleted while previewing
+            var t = ((PickableObject)target).transform;
+            t.SetParent(_restoreParent);
+            t.SetPositionAndRotation(_restorePosition, _restoreRotation);
+        }
+
+        private void UpdatePreview()
+        {
+            if (!_previewing) return;
+            if (target == null) { StopPreview(); return; }
+
+            var pickable = (PickableObject)target;
+            var anchors = Object.FindFirstObjectByType<PlayerItemAnchors>(FindObjectsInactive.Include);
+            if (anchors == null || !anchors.TryGetHeldPose(pickable, out var position, out var rotation))
+            {
+                StopPreview();
+                return;
+            }
+            pickable.transform.SetPositionAndRotation(position, rotation);
         }
 
         private static void DrawAnimatedBoneStatus()

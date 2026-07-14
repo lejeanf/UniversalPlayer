@@ -152,6 +152,66 @@ namespace jeanf.universalplayer
             return dock;
         }
 
+        /// <summary>
+        /// The exact world pose an item WOULD have if it were taken right now — used by
+        /// PickableObject's inspector to preview the held pose in edit mode, so the
+        /// offsets can be tuned without entering play.
+        ///
+        /// Deliberately allocation-free: it never creates the dock GameObjects Resolve()
+        /// would, because dirtying the scene just to draw a preview is unacceptable.
+        /// </summary>
+        public bool TryGetHeldPose(PickableObject item, out Vector3 position, out Quaternion rotation)
+        {
+            position = Vector3.zero;
+            rotation = Quaternion.identity;
+            if (item == null) return false;
+
+            var camera = CameraTransform;
+            if (camera == null) return false;
+
+            var hand = AnchorToHand(item.Anchor);
+
+            // Where the anchor sits, without instantiating it.
+            Vector3 anchorPosition;
+            Quaternion anchorRotation;
+            var bone = hand != HandType.None && item.AttachMode == HandAttachMode.AnimatedBone && body != null
+                ? body.GetHandBone(hand)
+                : null;
+
+            if (bone != null)
+            {
+                anchorPosition = bone.position;
+                anchorRotation = bone.rotation;
+            }
+            else if (hand == HandType.None)
+            {
+                anchorPosition = camera.position;
+                anchorRotation = camera.rotation;
+            }
+            else
+            {
+                var dock = hand == HandType.Left ? leftHandDock : rightHandDock;
+                if (dock != null)
+                {
+                    anchorPosition = dock.position;
+                    anchorRotation = dock.rotation;
+                }
+                else
+                {
+                    // The dock does not exist yet (it is created at runtime) — compute
+                    // where it WOULD be, from the same serialized offset.
+                    var local = hand == HandType.Left ? leftHandDockLocalPosition : rightHandDockLocalPosition;
+                    anchorPosition = camera.TransformPoint(local);
+                    anchorRotation = camera.rotation;
+                }
+            }
+
+            item.GetHeldOffset(hand, out var localPosition, out var localRotation);
+            position = anchorPosition + anchorRotation * localPosition;
+            rotation = anchorRotation * localRotation;
+            return true;
+        }
+
         /// <summary>Wraps the hand around a held item (finger pose + attach offset come from the same Pose asset the primary item uses).</summary>
         public void ApplyHandPose(HandType hand, Pose pose)
         {

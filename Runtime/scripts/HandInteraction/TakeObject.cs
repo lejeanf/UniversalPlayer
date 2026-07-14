@@ -99,6 +99,9 @@ namespace jeanf.universalplayer
         PickableObject objectRightHand;
         PickableObject objectLeftHand;
         PickableObject objectInHand;
+        // The Primary-slot item we carry — remembered even while HOLSTERED, which is how
+        // the draw binding can bring it back after it has been put away.
+        PickableObject carriedPrimary;
 
         // Telemetry for the F8 overlay — pickup fails silently in four different ways,
         // so the overlay reports the whole chain instead of leaving "nothing happens".
@@ -134,6 +137,7 @@ namespace jeanf.universalplayer
             SnapObject.OnSnapMove += SetObjectPosition;
             SnapObject.OnSnap += UpdateSnapStatus;
             SnapObject.OnSnapRotate += SetObjectRotation;
+            PrimaryItemController.PrimaryItemStateChanged += OnPrimaryItemStateChanged;
         }
 
         private void Unsubscribe()
@@ -150,6 +154,7 @@ namespace jeanf.universalplayer
             SnapObject.OnSnapMove -= SetObjectPosition;
             SnapObject.OnSnap -= UpdateSnapStatus;
             SnapObject.OnSnapRotate -= SetObjectRotation;
+            PrimaryItemController.PrimaryItemStateChanged -= OnPrimaryItemStateChanged;
 
         }
         #endregion
@@ -242,8 +247,13 @@ namespace jeanf.universalplayer
 
             // A slotted item STAYS WITH THE PLAYER once picked. Primary is the tablet's
             // slot: equip it through the state every other system already listens to
-            // (cursor, look, tooltips) rather than inventing a parallel path.
-            if (pickable.Slot == CarrySlot.Primary) ResolvePrimaryItemController()?.SetState(true);
+            // (cursor, look, tooltips) rather than inventing a parallel path. Remember
+            // it, so the draw binding can stow it and bring it back later.
+            if (pickable.Slot == CarrySlot.Primary)
+            {
+                carriedPrimary = pickable;
+                ResolvePrimaryItemController()?.SetState(true);
+            }
         }
 
         /// <summary>
@@ -285,6 +295,57 @@ namespace jeanf.universalplayer
                 $"Layer in TakeObject's mask: {(inMask ? "YES" : "NO -> ADD IT")}. " +
                 $"Within range: {(any.distance <= maxDistanceCheck ? "YES" : $"NO -> it is {any.distance:F2}m away but Max Distance Check is {maxDistanceCheck}m")}.",
                 any.collider);
+        }
+
+        /// <summary>
+        /// The draw binding (1 / dpad-up) toggles the primary item — this is what makes
+        /// it actually go away and come back for a plain PickableObject. Without it, the
+        /// press flipped the state but the tablet stayed stuck to the camera.
+        ///
+        /// An item carrying a PrimaryItemBehaviour already owns its own placement and
+        /// visibility, so we do NOT touch its transform — we would only fight it.
+        /// </summary>
+        private void OnPrimaryItemStateChanged(bool drawn)
+        {
+            if (carriedPrimary == null) return;
+
+            if (carriedPrimary.GetComponent<PrimaryItemBehaviour>() != null)
+            {
+                objectInHand = drawn ? carriedPrimary : null; // it places itself; just track the hand
+                return;
+            }
+
+            if (drawn) DrawCarried(carriedPrimary);
+            else HolsterCarried(carriedPrimary);
+        }
+
+        /// <summary>Stow a carried item: send it home, hide it, and let go of it.</summary>
+        private void HolsterCarried(PickableObject pickable)
+        {
+            if (objectInHand == pickable) objectInHand = null;
+            var t = pickable.transform;
+            t.SetParent(pickable.OriginalParent);
+            t.SetPositionAndRotation(pickable.OriginalPosition, pickable.OriginalRotation);
+            RestorePhysics(pickable);
+            SetPickableVisible(pickable, false);
+            if (_isDebug) Debug.Log($"{LogPrefix} holstered '{pickable.name}'", pickable);
+        }
+
+        /// <summary>Bring a carried item back out: show it and re-dock it at its anchor.</summary>
+        private void DrawCarried(PickableObject pickable)
+        {
+            SetPickableVisible(pickable, true);
+            objectInHand = pickable;
+            AttachHeld(pickable, HandType.None);
+            if (_isDebug) Debug.Log($"{LogPrefix} drew '{pickable.name}'", pickable);
+        }
+
+        // Renderers, not the GameObject: disabling the object would kill the item's own
+        // scripts (a tablet's UI keeps running while stowed).
+        private static void SetPickableVisible(PickableObject pickable, bool visible)
+        {
+            foreach (var renderer in pickable.GetComponentsInChildren<Renderer>(true)) renderer.enabled = visible;
+            foreach (var canvas in pickable.GetComponentsInChildren<Canvas>(true)) canvas.enabled = visible;
         }
 
         private PrimaryItemController ResolvePrimaryItemController()
@@ -360,12 +421,12 @@ namespace jeanf.universalplayer
             DisablePositionHandle();
 
             // A slotted item stays with the player: releasing it HOLSTERS it (the draw
-            // binding brings it back) instead of dropping it back into the world. This
-            // is what makes the tablet "a pickable that stays available" rather than a
-            // special case — PrimaryItemBehaviour then puts it away.
+            // binding brings it back) instead of dropping it back into the world. The
+            // state change is what actually stows it — see OnPrimaryItemStateChanged.
             if (pickable.IsCarried)
             {
                 if (pickable.Slot == CarrySlot.Primary) ResolvePrimaryItemController()?.SetState(false);
+                else HolsterCarried(pickable); // no draw binding for the other slots yet
                 return;
             }
 

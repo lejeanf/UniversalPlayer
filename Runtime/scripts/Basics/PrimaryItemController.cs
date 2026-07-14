@@ -66,10 +66,20 @@ namespace jeanf.universalplayer
             SetPrimaryItemState(state);
         }
 
+        /// <summary>
+        /// Drawn (true) / holstered (false), raised on EVERY change however it was
+        /// caused — the draw binding, a scenario, or picking the item up. TakeObject
+        /// listens so a Primary carry-slot item is actually stowed and brought back,
+        /// which is what makes the draw binding work for a plain PickableObject with no
+        /// PrimaryItemBehaviour on it.
+        /// </summary>
+        public static event Action<bool> PrimaryItemStateChanged;
+
         private void SetPrimaryItemState(bool state)
         {
             primaryItemState = state;
             _PrimaryItemStateChannel.RaiseEvent(state);
+            PrimaryItemStateChanged?.Invoke(state);
         }
 
         private void StateOverride(bool state)
@@ -78,7 +88,9 @@ namespace jeanf.universalplayer
             {
                 TriggerLastUsedHand.Invoke(XRHandsInteractionManager.hand, state);
             }
+            if (primaryItemState == state) return;
             primaryItemState = state;
+            PrimaryItemStateChanged?.Invoke(state);
         }
 
         private void SetDrawPrimaryItemActionState(bool state)

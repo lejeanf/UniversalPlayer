@@ -76,7 +76,8 @@ namespace jeanf.universalplayer
         [SerializeField] private Pose handPose;
 
         [Header("Release — where it goes when dropped")]
-        [SerializeField] private ReleaseTarget releaseTarget = ReleaseTarget.DropInPlace;
+        [Tooltip("Original Spot (the default) puts it back exactly where it started. Drop In Place lets go of it where it is and lets physics take over.")]
+        [SerializeField] private ReleaseTarget releaseTarget = ReleaseTarget.OriginalSpot;
         [Tooltip("Used by Release Target = World Location. Plain coordinates, so additive loading can never break it.")]
         [SerializeField] private Vector3 releaseWorldPosition;
         [SerializeField] private Vector3 releaseWorldEuler;
@@ -191,9 +192,15 @@ namespace jeanf.universalplayer
             rotation = Quaternion.Euler(releaseWorldEuler);
         }
 
-        // One-time migration off the legacy bool. Without this, adding the enum would
-        // silently change every existing pickable that had "return to initial position"
-        // ticked (the enum's default is DropInPlace).
+        // Unity calls Reset only when the component is freshly ADDED. Stamping the
+        // version here is what separates "a new pickable" from "an asset authored
+        // before releaseTarget existed" — both otherwise deserialize with version 0,
+        // and a new one would be migrated off its own default.
+        private void Reset() => _migrationVersion = CurrentMigrationVersion;
+
+        // One-time migration off the legacy bool, for assets authored before
+        // releaseTarget existed. Without it, adding the enum would silently change
+        // every pickable that had "return to initial position" ticked.
         private void Migrate()
         {
             if (_migrationVersion >= CurrentMigrationVersion) return;
