@@ -154,6 +154,21 @@ namespace jeanf.universalplayer
             }
             _text.AppendLine($"  ray uiPressInput: mode:{ray.uiPressInput.inputSourceMode}  PRESSED NOW: {ray.uiPressInput.ReadIsPerformed()}   (hold your click/A while reading this!)");
             _text.AppendLine($"  ray uiScrollInput: mode:{ray.uiScrollInput.inputSourceMode}  value: {ray.uiScrollInput.ReadValue()}");
+
+            // Latched telemetry — survives screenshot timing.
+            var lastPress = gazeClick.DebugLastPressEventTime < 0f
+                ? "never"
+                : $"{Time.unscaledTime - gazeClick.DebugLastPressEventTime:F1}s ago";
+            _text.AppendLine($"  press action fired: {gazeClick.DebugPressEventCount}x (last {lastPress})   rayIsPointer: {gazeClick.DebugRayIsPointer}");
+
+            // Is this pointer even known to the EventSystem? Unregistered = hover
+            // impossible and queued presses go nowhere.
+            var xrModule = EventSystem.current != null ? EventSystem.current.currentInputModule as XRUIInputModule : null;
+            var registered = xrModule != null && xrModule.GetTrackedDeviceModel(ray, out _);
+            var uiHover = ray.TryGetCurrentUIRaycastResult(out var uiHit) && uiHit.gameObject != null
+                ? uiHit.gameObject.name
+                : "<none>";
+            _text.AppendLine($"  ray registered with module: {registered}   ray UI hover: {uiHover}");
         }
 
         // ---- 2. every canvas and whether the mouse can click it ----

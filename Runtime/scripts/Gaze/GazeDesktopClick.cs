@@ -47,6 +47,14 @@ namespace jeanf.universalplayer
         private XRUIInputModule uiModule;
         private bool moduleSearched;
         private bool rayIsPointer; // cursor locked: the gaze ray owns UI presses
+        private float nextRegistrationCheck;
+        private bool registrationHealed;
+
+        // Latched telemetry for the F9 overlay (screenshot timing can't hide events).
+        internal int DebugPressEventCount;
+        internal float DebugLastPressEventTime = -1f;
+        internal bool DebugRayIsPointer => rayIsPointer;
+        internal XRRayInteractor DebugRay => rayInteractor;
 
         private void Awake()
         {
@@ -109,6 +117,8 @@ namespace jeanf.universalplayer
 
         private void OnPressPerformed(InputAction.CallbackContext _)
         {
+            DebugPressEventCount++; // counted BEFORE gating: distinguishes "action dead" from "gated out"
+            DebugLastPressEventTime = Time.unscaledTime;
             if (rayIsPointer && rayInteractor != null)
                 rayInteractor.uiPressInput.QueueManualState(true, 1f);
         }
@@ -128,6 +138,28 @@ namespace jeanf.universalplayer
             // expects roughly ±1 "lines" per tick (thumbstick range).
             if (Mathf.Abs(scroll.y) > 10f || Mathf.Abs(scroll.x) > 10f) scroll /= 120f;
             rayInteractor.uiScrollInput.manualValue = scroll;
+
+            // A ray that never REGISTERED with the module is a pointer the
+            // EventSystem has never heard of: hover impossible, presses go
+            // nowhere no matter what is queued. Registration happens in the
+            // interactor's OnEnable and silently fails when the module wasn't
+            // locatable at that moment (enable order, inactive EventSystem) —
+            // check periodically and repair.
+            if (rayIsPointer && Time.unscaledTime >= nextRegistrationCheck)
+            {
+                nextRegistrationCheck = Time.unscaledTime + 1f;
+                var module = ResolveModule();
+                if (module != null && !module.GetTrackedDeviceModel(rayInteractor, out _))
+                {
+                    module.RegisterInteractor(rayInteractor);
+                    if (!registrationHealed)
+                    {
+                        registrationHealed = true;
+                        Debug.LogWarning($"{LogPrefix} GazeDesktopClick: the gaze ray was NOT registered with the " +
+                            "XRUIInputModule — registered it now. UI hover/click through the ray was impossible before this.", this);
+                    }
+                }
+            }
         }
 
         // While mouselook is ON the cursor is locked: the gaze ray is the pointer
