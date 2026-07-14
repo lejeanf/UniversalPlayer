@@ -252,6 +252,8 @@ MonoBehaviour:
   cursorScaleLerpSeconds: 0.12
   hoverCursorColor: {r: 0.3490196, g: 0.6137748, b: 0.9490196, a: 1}
   clickCursorColor: {r: 0.10466352, g: 0.31808785, b: 0.5283019, a: 1}
+  invalidCursorColor: {r: 1, g: 0.28, b: 0.38, a: 1}
+  invalidFlashSeconds: 0.35
 --- !u!1 &1768687715
 GameObject:
   m_ObjectHideFlags: 0
@@ -919,8 +921,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
@@ -2811,7 +2813,6 @@ GameObject:
   - component: {fileID: 1641143906095406954}
   - component: {fileID: 3305523478037124010}
   - component: {fileID: 2550431422591946388}
-  - component: {fileID: 7401678481808364707}
   m_Layer: 5
   m_Name: LoadingInformationCanvas
   m_TagString: Untagged
@@ -2885,23 +2886,6 @@ MonoBehaviour:
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
   m_PresetInfoIsWorld: 0
---- !u!114 &7401678481808364707
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4029824438484593722}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
-  m_BlockingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
 --- !u!1 &4568312785888129817
 GameObject:
   m_ObjectHideFlags: 0
