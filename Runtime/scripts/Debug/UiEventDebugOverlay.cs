@@ -73,6 +73,8 @@ namespace jeanf.universalplayer
                 _text.AppendLine("");
                 AppendWorldUiInteractor();
                 _text.AppendLine("");
+                AppendPickup();
+                _text.AppendLine("");
                 AppendCanvasInventory();
                 _text.AppendLine("");
                 var mousePosition = mouse != null ? mouse.position.ReadValue() : Vector2.zero;
@@ -190,6 +192,86 @@ namespace jeanf.universalplayer
                 ? $"  press: bindings:{press.bindings.Count}  enabled:{press.enabled}  PRESSED NOW: {press.IsPressed()}   (hold your click/A while reading this!)"
                 : "  press: <not created>");
             _text.AppendLine($"  world-UI hover: {interactor.DebugHoverName}   presses: {interactor.DebugPressCount}x   clicks: {interactor.DebugClickCount}x   dragging: {interactor.DebugDragging}");
+        }
+
+        // ---- 1d. the PICKUP chain (why "I click the tablet and nothing happens") ----
+        // Pickup dies silently in four places: no action, UI swallowed the press, the
+        // raycast missed (wrong layer / out of range / no collider), or the collider had
+        // no PickableObject on it or its parents. Walk the whole chain, live.
+        private void AppendPickup()
+        {
+            var take = Object.FindFirstObjectByType<TakeObject>(FindObjectsInactive.Include);
+            if (take == null)
+            {
+                _text.AppendLine("PICKUP: no TakeObject in the scene — nothing can be picked up.");
+                return;
+            }
+
+            var action = take.DebugTakeAction;
+            _text.AppendLine($"PICKUP (TakeObject on '{take.gameObject.name}')  holding: "
+                + $"{(take.DebugObjectInHand != null ? $"'{take.DebugObjectInHand.name}'" : "<nothing>")}");
+            _text.AppendLine(action != null
+                ? $"  take action: '{action.name}'  enabled:{action.enabled}  PRESSED NOW: {action.IsPressed()}   (hold your click while reading this!)"
+                : "  take action: <NOT ASSIGNED — no press can ever arrive, pickup is dead>");
+
+            var mask = take.DebugLayerMask;
+            _text.AppendLine($"  layer mask: {MaskToNames(mask)}   max distance: {take.DebugMaxDistance:0.##}m");
+            if (take.DebugUiOwnsPress)
+            {
+                _text.AppendLine("  >> BLOCKED: world UI owns this press (and it is not the face of a pickable).");
+                return;
+            }
+
+            var camera = take.DebugCamera;
+            if (camera == null) { _text.AppendLine("  >> Main Camera not assigned — the grab ray has no origin."); return; }
+
+            // The exact ray Take() casts.
+            var mouse = Mouse.current;
+            var pointer = mouse != null
+                ? (Vector3)mouse.position.ReadValue()
+                : new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0f);
+            var ray = camera.ScreenPointToRay(pointer);
+
+            if (Physics.Raycast(ray, out var masked, take.DebugMaxDistance, mask))
+            {
+                var pickable = masked.collider.GetComponentInParent<PickableObject>();
+                _text.AppendLine($"  masked ray HIT '{masked.collider.name}' at {masked.distance:0.##}m "
+                    + $"(layer '{LayerMask.LayerToName(masked.collider.gameObject.layer)}')");
+                _text.AppendLine(pickable != null
+                    ? $"  >> PickableObject: '{pickable.name}' (slot {pickable.Slot}, anchor {pickable.Anchor}) — a click SHOULD take it."
+                    : "  >> NO PickableObject on that collider or its parents — add one (or its collider belongs to something else).");
+                return;
+            }
+
+            // Missed. Say what is actually in front, which turns "nothing" into a cause.
+            if (!Physics.Raycast(ray, out var any, 25f, ~0, QueryTriggerInteraction.Collide))
+            {
+                _text.AppendLine("  >> the grab ray hits NOTHING within 25m. Does the target have a Collider? "
+                    + "(A world-space Canvas is NOT hittable by a physics raycast.)");
+                return;
+            }
+
+            var layer = any.collider.gameObject.layer;
+            var inMask = (mask.value & (1 << layer)) != 0;
+            var found = any.collider.GetComponentInParent<PickableObject>();
+            _text.AppendLine($"  masked ray MISSED. Nearest collider ahead: '{any.collider.name}' at {any.distance:0.##}m, "
+                + $"layer '{LayerMask.LayerToName(layer)}'");
+            _text.AppendLine($"  >> PickableObject on it: {(found != null ? $"YES ('{found.name}')" : "NO")}"
+                + $"   layer in mask: {(inMask ? "yes" : "NO  <-- THE PROBLEM: add this layer to TakeObject's Layer Mask")}"
+                + $"   in range: {(any.distance <= take.DebugMaxDistance ? "yes" : $"NO ({any.distance:0.##}m > {take.DebugMaxDistance:0.##}m)")}");
+        }
+
+        private static string MaskToNames(LayerMask mask)
+        {
+            if (mask.value == 0) return "<Nothing — the grab raycast can NEVER hit anything>";
+            var names = new List<string>();
+            for (var i = 0; i < 32; i++)
+            {
+                if ((mask.value & (1 << i)) == 0) continue;
+                var name = LayerMask.LayerToName(i);
+                if (!string.IsNullOrEmpty(name)) names.Add(name);
+            }
+            return names.Count > 0 ? string.Join(", ", names) : mask.value.ToString();
         }
 
         // ---- 2. every canvas and whether the mouse can click it ----

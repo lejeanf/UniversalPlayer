@@ -100,6 +100,15 @@ namespace jeanf.universalplayer
         PickableObject objectLeftHand;
         PickableObject objectInHand;
 
+        // Telemetry for the F9 overlay — pickup fails silently in four different ways,
+        // so the overlay reports the whole chain instead of leaving "nothing happens".
+        internal InputAction DebugTakeAction => takeAction != null ? takeAction.action : null;
+        internal LayerMask DebugLayerMask => layerMask;
+        internal float DebugMaxDistance => maxDistanceCheck;
+        internal Camera DebugCamera => mainCamera;
+        internal PickableObject DebugObjectInHand => objectInHand;
+        internal bool DebugUiOwnsPress => UiOwnsThePress();
+
         bool objectIsSnapping;
         #endregion
 
