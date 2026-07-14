@@ -92,6 +92,24 @@ namespace jeanf.universalplayer
         private BodyHandSupportIk _handSupportIk;
 
         /// <summary>
+        /// The real hand bone, for items held in the hand on M&amp;K/gamepad
+        /// (PlayerItemAnchors' Animated Bone attach mode). Null when the body is off,
+        /// not yet built, or not a humanoid rig — the caller docks to the view instead.
+        /// Parenting to the bone is enough to ride the animation; no IK is involved, so
+        /// this never contends with the sit-support IK (which owns the only IK goal).
+        /// </summary>
+        public Transform GetHandBone(HandType hand)
+        {
+            if (!bodyEnabled || bodyAnimator == null || !bodyAnimator.isHuman || hand == HandType.None) return null;
+            return bodyAnimator.GetBoneTransform(hand == HandType.Left
+                ? HumanBodyBones.LeftHand
+                : HumanBodyBones.RightHand);
+        }
+
+        /// <summary>True when <see cref="GetHandBone"/> can actually return a bone — the editor uses it to warn before play.</summary>
+        public bool HasHumanoidHands => bodyEnabled && bodyAnimator != null && bodyAnimator.isHuman;
+
+        /// <summary>
         /// Reaches the right hand toward a support point (a chair back) with the
         /// given weight — driven frame-by-frame by the sit/stand transition.
         /// Null anchor or weight 0 releases the hand back to the animation.

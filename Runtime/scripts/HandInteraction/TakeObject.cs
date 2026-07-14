@@ -82,6 +82,14 @@ namespace jeanf.universalplayer
         [SerializeField] NearFarInteractor rightInteractor;
         [SerializeField] NearFarInteractor leftInteractor;
 
+        [Header("Item anchors")]
+        [Tooltip("Resolves where a held item docks (camera / right / left hand). Left empty = found on the rig. Without it, items fall back to the legacy camera hold.")]
+        [SerializeField] private PlayerItemAnchors itemAnchors;
+        private bool anchorsSearched;
+        // Which hand the desktop-held item ended up in — the old code had no per-object
+        // record of the side at all (only three separate fields that lost it).
+        private HandType _heldHand = HandType.None;
+
         [Header("Objects in players's hand")]
         PickableObject objectRightHand;
         PickableObject objectLeftHand;
@@ -146,6 +154,10 @@ namespace jeanf.universalplayer
         //Checks for raycast hit, if object is pickable then pick it
         private void Take()
         {
+            // The press is aimed at world-space UI — the UI owns it. Without this a
+            // click on a canvas would also grab a pickable sitting behind it.
+            if (DesktopWorldUiInteractor.UiHoverActive) return;
+
             RaycastHit hit;
             // New Input System only — Input.mousePosition throws when the legacy
             // Input Manager is disabled. No mouse (gamepad/VR) = screen centre,
@@ -155,53 +167,132 @@ namespace jeanf.universalplayer
                 : new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0f);
             Ray ray = mainCamera.ScreenPointToRay(pointer);
             
-            if (Physics.Raycast(ray, out hit, maxDistanceCheck, layerMask))
-            {
-                if (hit.transform.gameObject.GetComponent<PickableObject>())
-                {
+            if (!Physics.Raycast(ray, out hit, maxDistanceCheck, layerMask)) return;
 
-                    objectInHand = hit.transform.gameObject.GetComponent<PickableObject>();
-                    objectInHand.transform.position = mainCamera.transform.position + mainCamera.transform.forward * objectDistance;
-                    objectInHand.transform.SetParent(mainCamera.transform);
-                    objectInHand.Rigidbody.freezeRotation = true;
-                    objectInHand.Rigidbody.useGravity = false;
-                    objectTakenChannel?.RaiseEvent(hit.transform.gameObject, roomId, true);
-                }
-            }
+            var pickable = hit.transform.gameObject.GetComponent<PickableObject>();
+            if (pickable == null) return;
+
+            objectInHand = pickable;
+            AttachHeld(pickable, HandType.None); // desktop: no grabbing hand — the item's own anchor decides
+            objectTakenChannel?.RaiseEvent(hit.transform.gameObject, roomId, true);
         }
 
-        //Drops object in hand
+        /// <summary>
+        /// Parents a taken object to the anchor IT asks for (camera dock, right/left
+        /// hand) instead of the old hardwired camera, applies its local offset (a hand
+        /// pose supplies its own) and wraps the hand around it.
+        /// </summary>
+        private void AttachHeld(PickableObject pickable, HandType grabbedWith)
+        {
+            var anchors = ResolveAnchors();
+            Transform anchor = null;
+            _heldHand = HandType.None;
+            if (anchors != null) anchor = anchors.Resolve(pickable, grabbedWith, out _heldHand);
+            // No rig component (Player variant predating it): the old camera hold still works.
+            if (anchor == null) anchor = mainCamera != null ? mainCamera.transform : null;
+            if (anchor == null) return;
+
+            var t = pickable.transform;
+            t.SetParent(anchor, false);
+            pickable.GetHeldOffset(_heldHand, out var localPosition, out var localRotation);
+            t.localPosition = localPosition;
+            t.localRotation = localRotation;
+
+            // A camera-docked item keeps the scroll-adjustable hold distance: its local
+            // z IS that distance, so seed it from the authored pose.
+            if (pickable.Anchor == HeldAnchor.Camera)
+                objectDistance = Mathf.Clamp(localPosition.z, minDistance, maxDistance);
+
+            SuspendPhysics(pickable);
+            if (anchors != null) anchors.ApplyHandPose(_heldHand, pickable.HandPose);
+        }
+
+        private static void SuspendPhysics(PickableObject pickable)
+        {
+            if (pickable.Rigidbody == null) return;
+            pickable.Rigidbody.freezeRotation = true;
+            pickable.Rigidbody.useGravity = false;
+        }
+
+        private static void RestorePhysics(PickableObject pickable)
+        {
+            if (pickable.Rigidbody == null) return;
+            pickable.Rigidbody.useGravity = pickable.InitialUseGravity;
+            pickable.Rigidbody.linearDamping = pickable.InitialDrag;
+            pickable.Rigidbody.angularDamping = pickable.InitialAngularDrag;
+            pickable.Rigidbody.freezeRotation = false;
+        }
+
+        // Drops the object in hand WHERE ITS RELEASE TARGET SAYS. The old code always
+        // reparented to the transform.parent captured at Awake; a world location or a
+        // project-placed drop was impossible, and the pose was only restored when
+        // "return to initial position" was ticked.
         private void Release()
         {
-            if (objectInHand.ReturnToInitialPositionOnRelease)
-            {
-                DisablePositionHandle();
-                objectInHand.transform.position = objectInHand.InitialPosition; 
-                objectInHand.transform.rotation = objectInHand.InitialRotation;
-            }
-            objectDropped?.RaiseEvent(objectInHand.gameObject);
-            objectInHand.Rigidbody.useGravity = objectInHand.InitialUseGravity;
-            objectInHand.Rigidbody.linearDamping = objectInHand.InitialDrag;
-            objectInHand.Rigidbody.angularDamping = objectInHand.InitialAngularDrag;
-            objectInHand.Rigidbody.freezeRotation = false;
-            if (objectInHand.Parent != null)
-            {
-                objectInHand.transform.SetParent(objectInHand.Parent);
-            }
-            else
-            {
-                objectInHand.transform.SetParent(null);
-            }
+            var pickable = objectInHand;
             objectInHand = null;
-            //UpdateSnapStatus(false);
+            if (pickable == null) return;
+
+            var anchors = ResolveAnchors();
+            if (anchors != null) anchors.ClearHandPose(_heldHand, pickable.HandPose);
+            _heldHand = HandType.None;
+
+            DisablePositionHandle();
+            objectDropped?.RaiseEvent(pickable.gameObject);
+
+            var t = pickable.transform;
+            switch (pickable.ReleaseMode)
+            {
+                case ReleaseTarget.OriginalSpot:
+                    t.SetParent(pickable.OriginalParent);
+                    t.SetPositionAndRotation(pickable.OriginalPosition, pickable.OriginalRotation);
+                    break;
+
+                case ReleaseTarget.WorldLocation:
+                    // Plain coordinates — nothing to resolve, so additive loading cannot break it.
+                    pickable.GetReleaseWorldPose(out var worldPosition, out var worldRotation);
+                    t.SetParent(null);
+                    t.SetPositionAndRotation(worldPosition, worldRotation);
+                    break;
+
+                case ReleaseTarget.EventDriven:
+                    // The project places it (a teleport/placement event, an inventory, …).
+                    t.SetParent(null);
+                    pickable.RequestRelease();
+                    break;
+
+                case ReleaseTarget.DropInPlace:
+                default:
+                    t.SetParent(null);
+                    break;
+            }
+
+            RestorePhysics(pickable);
         }
+
+        private PlayerItemAnchors ResolveAnchors()
+        {
+            if (itemAnchors == null && !anchorsSearched)
+            {
+                anchorsSearched = true;
+                itemAnchors = GetComponentInParent<PlayerItemAnchors>()
+                              ?? FindFirstObjectByType<PlayerItemAnchors>(FindObjectsInactive.Include);
+            }
+            return itemAnchors;
+        }
+        // NOTE: these two are invoked from SelectEnter UnityEvents on the NearFar
+        // interactors in Player.prefab (whose serialized target type is still the
+        // pre-rename 'jeanf.vrplayer.TakeObject' — they resolve by object+name at
+        // runtime, so do NOT rename them or change their signature).
         public void AssignGameObjectInRightHand()
         {
             if (rightInteractor.interactablesSelected.Count <= 0) return;
             var selectedInteractable = rightInteractor.interactablesSelected[0]; // Get the first selected interactable
             objectRightHand = selectedInteractable.transform.gameObject.GetComponent<PickableObject>();
-            OnGrabDeactivateCollider.Invoke(true, HandType.Right);
-            OnVrGrabSwapPrimaryItem("RightHand");
+            // XRI owns the attachment in VR; the item's hand pose is still ours to apply.
+            if (objectRightHand != null) ResolveAnchors()?.ApplyHandPose(HandType.Right, objectRightHand.HandPose);
+            OnGrabDeactivateCollider?.Invoke(true, HandType.Right);
+            OnVrGrabSwapPrimaryItem?.Invoke("RightHand");
         }
 
         public void AssignGameObjectInLeftHand()
@@ -209,26 +300,37 @@ namespace jeanf.universalplayer
             if (leftInteractor.interactablesSelected.Count <= 0) return;
             var selectedInteractable = leftInteractor.interactablesSelected[0]; // Get the first selected interactable
             objectLeftHand = selectedInteractable.transform.gameObject.GetComponent<PickableObject>();
-            OnGrabDeactivateCollider.Invoke(true, HandType.Left);
-            OnVrGrabSwapPrimaryItem("LeftHand");
+            if (objectLeftHand != null) ResolveAnchors()?.ApplyHandPose(HandType.Left, objectLeftHand.HandPose);
+            OnGrabDeactivateCollider?.Invoke(true, HandType.Left);
+            OnVrGrabSwapPrimaryItem?.Invoke("LeftHand");
 
         }
         public void RemoveGameObjectInRightHand()
         {
-
-            objectDropped?.RaiseEvent(objectRightHand.gameObject);
+            // Guard: this fires on SelectExit even when nothing pickable was held
+            // (objectRightHand is only set for a PickableObject), and the old code
+            // dereferenced it unconditionally.
+            if (objectRightHand != null)
+            {
+                ResolveAnchors()?.ClearHandPose(HandType.Right, objectRightHand.HandPose);
+                objectDropped?.RaiseEvent(objectRightHand.gameObject);
+            }
 
             objectRightHand = null;
-            OnGrabDeactivateCollider.Invoke(false, HandType.Right);
+            OnGrabDeactivateCollider?.Invoke(false, HandType.Right);
 
         }
 
         public void RemoveGameObjectInLeftHand()
         {
-            objectDropped?.RaiseEvent(objectLeftHand.gameObject);
+            if (objectLeftHand != null)
+            {
+                ResolveAnchors()?.ClearHandPose(HandType.Left, objectLeftHand.HandPose);
+                objectDropped?.RaiseEvent(objectLeftHand.gameObject);
+            }
 
             objectLeftHand = null;
-            OnGrabDeactivateCollider.Invoke(false, HandType.Left);
+            OnGrabDeactivateCollider?.Invoke(false, HandType.Left);
 
         }
 
@@ -265,21 +367,44 @@ namespace jeanf.universalplayer
         private void UpdateObjectDistance(float value)
         {
             if (objectIsSnapping || objectInHand == null) return;
+            // Scrolling pushes/pulls a CAMERA-docked item. An item held in a hand sits
+            // where the hand (or its hand pose) puts it — there is no view distance to
+            // adjust, and writing a world position would fight the hand parenting.
+            if (objectInHand.Anchor != HeldAnchor.Camera) return;
+
             value *= scrollStep;
             if (_isDebug) Debug.Log($"scroll reading: {value}");
-            objectDistance += value;
-            if (objectDistance > maxDistance) objectDistance = maxDistance;
-            if (objectDistance < minDistance) objectDistance = minDistance;
-            objectInHand.transform.position = mainCamera.transform.position + mainCamera.transform.forward * objectDistance;
+            objectDistance = Mathf.Clamp(objectDistance + value, minDistance, maxDistance);
+            ApplyCameraHoldDistance();
         }
 
+        // Snapping drives the object to a world snap point; letting go of the snap must
+        // put it back where its ANCHOR says it should be — which is the hand pose for a
+        // hand-held item, not (as before) always a camera-forward world position.
         private void UpdateSnapStatus(bool snapState)
         {
             objectIsSnapping = snapState;
-            if (!snapState && objectInHand != null)
-            {
-                objectInHand.transform.position = mainCamera.transform.position + mainCamera.transform.forward * objectDistance;
-            }
+            if (!snapState && objectInHand != null) ReapplyHeldPose();
+        }
+
+        /// <summary>Restores the held object to its anchor-local pose (its hand pose, or the camera dock at the current scroll distance).</summary>
+        private void ReapplyHeldPose()
+        {
+            if (objectInHand == null) return;
+            objectInHand.GetHeldOffset(_heldHand, out var localPosition, out var localRotation);
+            if (objectInHand.Anchor == HeldAnchor.Camera) localPosition.z = objectDistance;
+            objectInHand.transform.localPosition = localPosition;
+            objectInHand.transform.localRotation = localRotation;
+        }
+
+        // The item is parented to the camera, so the hold distance is simply its local
+        // z — no world-space math, which keeps it correct while the camera moves.
+        private void ApplyCameraHoldDistance()
+        {
+            if (objectInHand == null) return;
+            var local = objectInHand.transform.localPosition;
+            local.z = objectDistance;
+            objectInHand.transform.localPosition = local;
         }
         private void SetObjectPosition(Transform objectToMove, Vector3 goal)
         {
