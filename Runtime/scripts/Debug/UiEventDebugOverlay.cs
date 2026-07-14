@@ -297,6 +297,7 @@ namespace jeanf.universalplayer
             _text.AppendLine($"RETICLE colour: {(reticle.DebugInteractHeld ? "CLICK (held)" : tinted ? "HOVER" : "resting (default)")}"
                 + $"   [cached tinted:{reticle.DebugTinted}]");
             _text.AppendLine($"  hover sources -> XRI interactor:{xri}   gaze-ray UI:{gaze}   world-UI:{worldUi}   physics:{physics}");
+            _text.AppendLine($"     gazeRayUI: {reticle.DebugGazeRayUiDescription()}");
             if (tinted)
                 _text.AppendLine("  >> the reticle is TINTED because of the source(s) above that are true. "
                     + "It only returns to the resting colour when ALL FOUR are false.");

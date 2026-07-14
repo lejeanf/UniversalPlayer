@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using jeanf.validationTools;
 using Unity.VectorGraphics;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
@@ -142,7 +143,19 @@ namespace jeanf.universalplayer
         internal bool DebugTinted => currentlyTinted;
         internal bool DebugInteractHeld => interactHeld;
         internal int DebugXriHoverCount => hovered.Count;
-        internal bool DebugGazeRayUiHover => gazeRay != null && gazeRay.TryGetCurrentUIRaycastResult(out _);
+        internal bool DebugGazeRayUiHover => gazeRay != null
+                                             && gazeRay.TryGetCurrentUIRaycastResult(out var h) && IsRealUi(h);
+
+        /// <summary>What the gaze ray's UI raycast returned — and whether it was a real UI element or a blocker sentinel.</summary>
+        internal string DebugGazeRayUiDescription()
+        {
+            if (gazeRay == null) return "<no gaze ray>";
+            if (!gazeRay.TryGetCurrentUIRaycastResult(out var hit) || hit.gameObject == null) return "no UI hit";
+            var raycaster = hit.module != null ? hit.module.GetType().Name : "?";
+            return IsRealUi(hit)
+                ? $"'{hit.gameObject.name}' via {raycaster} at {hit.distance:0.##}m -> TINTS"
+                : $"'{hit.gameObject.name}' via {raycaster} — BLOCKER sentinel (the raycaster's own object, not UI) -> ignored";
+        }
         internal bool DebugWorldUiHover => worldUiInteractor != null && worldUiInteractor.HasUiHover;
         internal bool DebugPhysicsHover => PhysicsHover();
         internal LayerMask DebugPhysicsMask => physicsHoverMask;
@@ -203,7 +216,9 @@ namespace jeanf.universalplayer
             var scheme = BroadcastControlsStatus.controlScheme;
             var desktop = scheme == BroadcastControlsStatus.ControlScheme.KeyboardMouse
                           || scheme == BroadcastControlsStatus.ControlScheme.Gamepad;
-            var uiHovered = desktop && gazeRay != null && gazeRay.TryGetCurrentUIRaycastResult(out _);
+            var uiHovered = desktop && gazeRay != null
+                            && gazeRay.TryGetCurrentUIRaycastResult(out var gazeUiHit)
+                            && IsRealUi(gazeUiHit);
             // Fourth source: the world-canvas interactor. Unlike the gaze ray (always
             // camera-forward) it follows the reticle even when the cursor is free.
             uiHovered |= desktop && worldUiInteractor != null && worldUiInteractor.HasUiHover;
@@ -251,6 +266,26 @@ namespace jeanf.universalplayer
         // and the camera dock alike.
         private bool IsInOurOwnHand(Component hit)
             => playerCamera != null && hit != null && hit.transform.IsChildOf(playerCamera.transform);
+
+        /// <summary>
+        /// Is this UI raycast result actually UI?
+        ///
+        /// "The ray produced a UI hit" is NOT the same question. UI Toolkit's
+        /// WorldDocumentRaycaster appends a result for ANY collider its world picker hits,
+        /// even when there is no document there — and sets that result's gameObject to
+        /// ITSELF. Unity's own comment says why: such hits "should block UI but not hide
+        /// the PhysicsRaycaster results", i.e. they are occlusion sentinels, not UI.
+        ///
+        /// Taking them at face value meant a plain wall, floor or building counted as
+        /// hovering UI, so the reticle sat on its hover colour almost everywhere.
+        /// </summary>
+        private static bool IsRealUi(RaycastResult hit)
+        {
+            if (hit.gameObject == null) return false;
+            // The blocker sentinel: the result points at the raycaster's own GameObject.
+            if (hit.module != null && hit.gameObject == hit.module.gameObject) return false;
+            return true;
+        }
 
         private void Apply(bool tinted, bool flashing)
         {
