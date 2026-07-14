@@ -96,7 +96,7 @@ namespace jeanf.universalplayer
 
         private static IEnumerable<CheckResult> CheckXrManagement(BuildTargetGroup buildTargetGroup)
         {
-            EditorBuildSettings.TryGetConfigObject(XRGeneralSettings.k_SettingsKey,
+            EditorBuildSettings.TryGetConfigObject(XRGeneralSettings.settingsKey,
                 out XRGeneralSettingsPerBuildTarget perBuildTarget);
             var settings = perBuildTarget != null ? perBuildTarget.SettingsForBuildTarget(buildTargetGroup) : null;
 

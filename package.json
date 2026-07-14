@@ -3,7 +3,7 @@
   "version": "1.1.0",
   "displayName": "Universal Player",
   "description": "One player, every input: Mouse & Keyboard, Gamepad and VR with automatic switching, in URP & HDRP. First-person body, locomotion & camera feel, sitting, teleport, grab preview, hand pose & gesture authoring tools, and SO event-channel integration.",
-  "unity": "2022.3",
+  "unity": "6000.0",
   "repository": {
     "url": "https://github.com/lejeanf/UniversalPlayer"
   },
@@ -21,13 +21,13 @@
     "url": "https://jeanfrancoisrobin.art"
   },
   "dependencies": {
-    "com.unity.inputsystem": "1.14.2",
-    "com.unity.vectorgraphics": "2.0.0-preview.25",
-    "com.unity.xr.openxr": "1.15.1",
-    "com.unity.xr.interaction.toolkit": "3.0.9",
-    "com.unity.xr.hands": "1.5.1",
-    "com.unity.xr.management": "4.5.3",
-    "com.unity.xr.oculus": "4.5.2",
+    "com.unity.inputsystem": "1.19.0",
+    "com.unity.vectorgraphics": "3.0.0-preview.7",
+    "com.unity.xr.openxr": "1.17.1",
+    "com.unity.xr.interaction.toolkit": "3.5.1",
+    "com.unity.xr.hands": "1.8.0",
+    "com.unity.xr.management": "4.7.0",
+    "com.unity.xr.oculus": "4.5.4",
     "fr.jeanf.eventsystem": "0.1.124",
     "fr.jeanf.propertydrawer": "1.2.0",
     "fr.jeanf.tooltipsystem": "0.0.7"
