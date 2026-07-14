@@ -174,9 +174,19 @@ namespace jeanf.universalplayer
             }
             else
             {
-                // Never drop what we are holding just because we clicked ITS screen —
-                // a held tablet's buttons must be usable without releasing it. Aim off
-                // the UI to let go.
+                // A CARRIED (slotted) item is put away with its DRAW binding only —
+                // 1 / dpad-up. Take/Interact must never drop it, because that same
+                // button is what clicks the tablet's UI: dropping the tablet every
+                // time you press a button on it is unusable.
+                if (objectInHand.IsCarried)
+                {
+                    if (_isDebug) Debug.Log($"{LogPrefix} '{objectInHand.name}' is a carried item — " +
+                        "press its draw binding (1 / dpad-up) to put it away, not Take.", this);
+                    return;
+                }
+
+                // An ordinary held object still drops on the take button, but not while
+                // the press is aimed at world UI.
                 if (DesktopWorldUiInteractor.UiHoverActive) return;
                 Release();
             }
@@ -251,6 +261,11 @@ namespace jeanf.universalplayer
             // it, so the draw binding can stow it and bring it back later.
             if (pickable.Slot == CarrySlot.Primary)
             {
+                // The slot holds exactly ONE item: whatever was in it goes back to the
+                // world (per ITS release target) before the new one moves in. Without
+                // this the old tablet is simply forgotten — still parented to the camera
+                // and invisible if it was holstered.
+                EvictCarriedPrimary(pickable);
                 carriedPrimary = pickable;
                 ResolvePrimaryItemController()?.SetState(true);
             }
@@ -317,6 +332,32 @@ namespace jeanf.universalplayer
 
             if (drawn) DrawCarried(carriedPrimary);
             else HolsterCarried(carriedPrimary);
+        }
+
+        /// <summary>
+        /// The Primary slot holds one item. Taking a new one returns the previous
+        /// occupant to the world using its OWN release target (Original Spot by default,
+        /// so it goes back where it came from), whether it was drawn or holstered.
+        /// </summary>
+        private void EvictCarriedPrimary(PickableObject replacement)
+        {
+            if (carriedPrimary == null || carriedPrimary == replacement) return;
+
+            var previous = carriedPrimary;
+            carriedPrimary = null;
+            if (objectInHand == previous) objectInHand = null;
+
+            // Its own behaviour owns its placement — don't fight it, just let go.
+            if (previous.GetComponent<PrimaryItemBehaviour>() != null)
+            {
+                if (_isDebug) Debug.Log($"{LogPrefix} primary slot: '{previous.name}' replaced by '{replacement.name}' " +
+                    "(its PrimaryItemBehaviour owns where it goes).", previous);
+                return;
+            }
+
+            ReturnToWorld(previous);
+            if (_isDebug) Debug.Log($"{LogPrefix} primary slot: '{previous.name}' returned to the world, " +
+                $"replaced by '{replacement.name}' ({previous.ReleaseMode}).", previous);
         }
 
         /// <summary>Stow a carried item: send it home, hide it, and let go of it.</summary>
@@ -430,6 +471,17 @@ namespace jeanf.universalplayer
                 return;
             }
 
+            ReturnToWorld(pickable);
+        }
+
+        /// <summary>
+        /// Puts an object back into the world according to its Release Target. Shared by
+        /// a normal release and by evicting the previous Primary item, so both obey the
+        /// same authored rule instead of one of them inventing its own.
+        /// </summary>
+        private void ReturnToWorld(PickableObject pickable)
+        {
+            SetPickableVisible(pickable, true); // it may have been holstered (hidden)
             objectDropped?.RaiseEvent(pickable.gameObject);
 
             var t = pickable.transform;
