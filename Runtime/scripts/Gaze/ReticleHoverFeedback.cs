@@ -127,6 +127,9 @@ namespace jeanf.universalplayer
                 takeAction.canceled -= OnInteractCanceled;
             }
             interactHeld = false;
+            // Never leave the reticle stranded pressed (shrunk) if we are torn down or
+            // the scheme switches while the button is still down.
+            if (cursorColors != null) cursorColors.SetClickHeld(false);
             Apply(false, false);
         }
 
@@ -140,11 +143,15 @@ namespace jeanf.universalplayer
             if (currentlyTinted)
             {
                 interactHeld = true;
-                if (cursorColors != null) cursorColors.PulseClick(); // punctuate the click with a brief size dip
+                if (cursorColors != null) cursorColors.SetClickHeld(true); // and shrink, for as long as it is held
             }
         }
 
-        private void OnInteractCanceled(InputAction.CallbackContext _) => interactHeld = false;
+        private void OnInteractCanceled(InputAction.CallbackContext _)
+        {
+            interactHeld = false;
+            if (cursorColors != null) cursorColors.SetClickHeld(false); // released: grow back
+        }
 
         private void Update()
         {
@@ -171,7 +178,8 @@ namespace jeanf.universalplayer
 
             // Project layers: any hit on the mask counts (uvs Highlight_Interactionable pattern).
             if (physicsHoverMask.value != 0
-                && Physics.Raycast(origin.position, origin.forward, physicsHoverDistance, physicsHoverMask))
+                && Physics.Raycast(origin.position, origin.forward, out var masked, physicsHoverDistance, physicsHoverMask)
+                && !IsInOurOwnHand(masked.collider))
                 return true;
 
             // XRI interactables and package usables: the gaze interactor only hovers
@@ -179,6 +187,12 @@ namespace jeanf.universalplayer
             // reticle finds them by raycast — same way TakeObject/SitController do.
             if (Physics.Raycast(origin.position, origin.forward, out var hit, interactableHoverDistance))
             {
+                // The thing we are HOLDING is docked right in front of the camera, so it
+                // sits permanently under the reticle. Without this the reticle stays lit
+                // for as long as you carry anything and can never return to its resting
+                // colour — you are not "hovering" what is already in your hand.
+                if (IsInOurOwnHand(hit.collider)) return false;
+
                 if (hit.collider.GetComponentInParent<UnityEngine.XR.Interaction.Toolkit.Interactables.IXRInteractable>() != null) return true;
                 if (hit.collider.GetComponentInParent<Seat>() != null) return true;
                 if (hit.collider.GetComponentInParent<PickableObject>() != null) return true;
@@ -187,18 +201,27 @@ namespace jeanf.universalplayer
             return false;
         }
 
+        // Held items are parented to the camera (or to a dock beneath it), so "is it under
+        // the camera?" is exactly "is it in our hand?" — and it stays true for hand docks
+        // and the camera dock alike.
+        private bool IsInOurOwnHand(Component hit)
+            => playerCamera != null && hit != null && hit.transform.IsChildOf(playerCamera.transform);
+
         private void Apply(bool tinted, bool flashing)
         {
             // The cursor manager's invalid-request flash owns the reticle color while
-            // active — don't fight it, and mark our cache dirty so hover re-applies the
-            // instant the flash ends.
+            // active — don't fight it.
             if (cursorColors != null && cursorColors.IsFlashingInvalid)
             {
                 currentlyTinted = false;
                 currentlyFlashing = false;
                 return;
             }
-            if (tinted == currentlyTinted && flashing == currentlyFlashing) return;
+            // NO "unchanged since last frame" early-out. CursorStateController ALSO writes
+            // this color (state changes, the invalid flash), so a cached flag goes stale
+            // behind our back and the reticle then stays tinted forever — the resting
+            // color is only re-applied on a CHANGE that never comes. Re-asserting it every
+            // frame costs one color write and makes this the single authority.
             if (reticleImage == null)
             {
                 if (!missingImageWarned && tinted)
