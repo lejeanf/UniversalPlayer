@@ -144,20 +144,16 @@ namespace jeanf.universalplayer
             }
             _text.AppendLine($"GazeDesktopClick: on '{gazeClick.gameObject.name}'  enabled:{gazeClick.enabled}  activeInHierarchy:{gazeClick.gameObject.activeInHierarchy}");
 
-            var controller = gazeClick.GetComponent<UnityEngine.XR.Interaction.Toolkit.ActionBasedController>();
-            if (controller == null)
+            // XRI 3: what actually clicks is the RAY's own input readers (the
+            // deprecated controller actions fire into the void) — inspect those.
+            var ray = gazeClick.GetComponentInChildren<UnityEngine.XR.Interaction.Toolkit.Interactors.XRRayInteractor>(true);
+            if (ray == null)
             {
-                _text.AppendLine("  (no ActionBasedController next to it — cannot inspect UI Press/Scroll)");
+                _text.AppendLine("  (no XRRayInteractor under GazeDesktopClick — nothing to press)");
                 return;
             }
-            var press = controller.uiPressAction.action;
-            var scroll = controller.uiScrollAction.action;
-            _text.AppendLine(press != null
-                ? $"  gaze UI Press: bindings:{press.bindings.Count}  enabled:{press.enabled}  PRESSED NOW: {press.IsPressed()}   (hold your click/A while reading this!)"
-                : "  gaze UI Press: <no action>");
-            _text.AppendLine(scroll != null
-                ? $"  gaze UI Scroll: bindings:{scroll.bindings.Count}  enabled:{scroll.enabled}  value: {scroll.ReadValue<Vector2>()}"
-                : "  gaze UI Scroll: <no action>");
+            _text.AppendLine($"  ray uiPressInput: mode:{ray.uiPressInput.inputSourceMode}  PRESSED NOW: {ray.uiPressInput.ReadIsPerformed()}   (hold your click/A while reading this!)");
+            _text.AppendLine($"  ray uiScrollInput: mode:{ray.uiScrollInput.inputSourceMode}  value: {ray.uiScrollInput.ReadValue()}");
         }
 
         // ---- 2. every canvas and whether the mouse can click it ----
