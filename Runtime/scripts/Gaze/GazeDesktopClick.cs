@@ -56,7 +56,6 @@ namespace jeanf.universalplayer
         private bool moduleWired;
         private float nextRegistrationCheck;
         private bool registrationHealed;
-        private CursorLockMode lastLockState = (CursorLockMode)(-1);
 
         // Latched telemetry for the F9 overlay (screenshot timing can't hide events).
         internal int DebugPressEventCount;
@@ -154,17 +153,10 @@ namespace jeanf.universalplayer
         {
             if (!moduleWired) WireModule(); // EventSystem may come up after us
 
-            // On ENTERING locked mode, snap the pointer once to the exact screen
-            // center (where the reticle is) — the warp emits the one mouse-position
-            // event the point action needs. Never warp continuously: that hijacks
-            // the real OS cursor across the whole editor.
-            var lockState = Cursor.lockState;
-            if (lockState != lastLockState)
-            {
-                lastLockState = lockState;
-                if (lockState == CursorLockMode.Locked && Mouse.current != null && Application.isFocused)
-                    Mouse.current.WarpCursorPosition(new Vector2(Screen.width * 0.5f, Screen.height * 0.5f));
-            }
+            // NOTE: no cursor warping here — the package must never move the
+            // user's real OS cursor. The point action's initial-state check
+            // carries the mouse position; in locked mode the pointer sits where
+            // the OS pinned it (near center).
 
             // The reticle tint reads the ray's UI raycast, which requires the ray
             // to be REGISTERED with the module; registration happens in the ray's
