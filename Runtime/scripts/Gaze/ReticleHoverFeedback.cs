@@ -136,6 +136,51 @@ namespace jeanf.universalplayer
         private void OnHoverEntered(HoverEnterEventArgs args) => hovered.Add(args.interactableObject);
         private void OnHoverExited(HoverExitEventArgs args) => hovered.Remove(args.interactableObject);
 
+        // Telemetry for the F8 overlay. Four independent sources can tint the reticle,
+        // and if ANY of them is stuck on it never returns to its resting colour — so the
+        // overlay reports each one separately instead of just the final verdict.
+        internal bool DebugTinted => currentlyTinted;
+        internal bool DebugInteractHeld => interactHeld;
+        internal int DebugXriHoverCount => hovered.Count;
+        internal bool DebugGazeRayUiHover => gazeRay != null && gazeRay.TryGetCurrentUIRaycastResult(out _);
+        internal bool DebugWorldUiHover => worldUiInteractor != null && worldUiInteractor.HasUiHover;
+        internal bool DebugPhysicsHover => PhysicsHover();
+        internal LayerMask DebugPhysicsMask => physicsHoverMask;
+        internal float DebugPhysicsDistance => physicsHoverDistance;
+        internal float DebugInteractableDistance => interactableHoverDistance;
+
+        /// <summary>What the two physics hover rays actually hit right now, and why it counts as a hover.</summary>
+        internal string DebugPhysicsHitDescription()
+        {
+            if (playerCamera == null) playerCamera = Camera.main;
+            if (playerCamera == null) return "<no camera>";
+            var origin = playerCamera.transform;
+
+            var text = string.Empty;
+            if (physicsHoverMask.value != 0
+                && Physics.Raycast(origin.position, origin.forward, out var masked, physicsHoverDistance, physicsHoverMask))
+            {
+                var held = IsInOurOwnHand(masked.collider) ? "  (IN HAND -> ignored)" : "  -> TINTS";
+                text += $"maskRay hit '{masked.collider.name}' layer '{LayerMask.LayerToName(masked.collider.gameObject.layer)}' "
+                        + $"at {masked.distance:0.##}m{held}";
+            }
+            else text += physicsHoverMask.value == 0 ? "maskRay: <mask empty, source off>" : "maskRay: no hit";
+
+            if (Physics.Raycast(origin.position, origin.forward, out var hit, interactableHoverDistance))
+            {
+                var what = IsInOurOwnHand(hit.collider) ? "IN HAND -> ignored"
+                    : hit.collider.GetComponentInParent<UnityEngine.XR.Interaction.Toolkit.Interactables.IXRInteractable>() != null ? "IXRInteractable -> TINTS"
+                    : hit.collider.GetComponentInParent<Seat>() != null ? "Seat -> TINTS"
+                    : hit.collider.GetComponentInParent<PickableObject>() != null ? "PickableObject -> TINTS"
+                    : hit.collider.GetComponentInParent<IReticleHoverable>() != null ? "IReticleHoverable -> TINTS"
+                    : "nothing usable on it";
+                text += $"\n     usableRay hit '{hit.collider.name}' at {hit.distance:0.##}m: {what}";
+            }
+            else text += "\n     usableRay: no hit";
+
+            return text;
+        }
+
         private void OnInteractPerformed(InputAction.CallbackContext _)
         {
             // Only turn gold when the press lands on something the reticle marks as

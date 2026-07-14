@@ -75,6 +75,8 @@ namespace jeanf.universalplayer
                 _text.AppendLine("");
                 AppendPickup();
                 _text.AppendLine("");
+                AppendReticleHover();
+                _text.AppendLine("");
                 AppendCanvasInventory();
                 _text.AppendLine("");
                 var mousePosition = mouse != null ? mouse.position.ReadValue() : Vector2.zero;
@@ -272,6 +274,35 @@ namespace jeanf.universalplayer
                 if (!string.IsNullOrEmpty(name)) names.Add(name);
             }
             return names.Count > 0 ? string.Join(", ", names) : mask.value.ToString();
+        }
+
+        // ---- 1e. the RETICLE COLOUR (why it never returns to its resting colour) ----
+        // FOUR independent sources can tint it, and it only rests when ALL of them are
+        // off — so one that is stuck on holds the reticle lit forever. Show each.
+        private void AppendReticleHover()
+        {
+            var reticle = Object.FindFirstObjectByType<ReticleHoverFeedback>(FindObjectsInactive.Include);
+            if (reticle == null)
+            {
+                _text.AppendLine("RETICLE: no ReticleHoverFeedback — the reticle cannot tint at all.");
+                return;
+            }
+
+            var xri = reticle.DebugXriHoverCount;
+            var gaze = reticle.DebugGazeRayUiHover;
+            var worldUi = reticle.DebugWorldUiHover;
+            var physics = reticle.DebugPhysicsHover;
+            var tinted = xri > 0 || gaze || worldUi || physics;
+
+            _text.AppendLine($"RETICLE colour: {(reticle.DebugInteractHeld ? "CLICK (held)" : tinted ? "HOVER" : "resting (default)")}"
+                + $"   [cached tinted:{reticle.DebugTinted}]");
+            _text.AppendLine($"  hover sources -> XRI interactor:{xri}   gaze-ray UI:{gaze}   world-UI:{worldUi}   physics:{physics}");
+            if (tinted)
+                _text.AppendLine("  >> the reticle is TINTED because of the source(s) above that are true. "
+                    + "It only returns to the resting colour when ALL FOUR are false.");
+            _text.AppendLine($"  physics mask: {MaskToNames(reticle.DebugPhysicsMask)}  "
+                + $"(mask ray {reticle.DebugPhysicsDistance:0.##}m, usable ray {reticle.DebugInteractableDistance:0.##}m)");
+            _text.AppendLine("     " + reticle.DebugPhysicsHitDescription());
         }
 
         // ---- 2. every canvas and whether the mouse can click it ----
