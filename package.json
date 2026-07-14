@@ -1,6 +1,6 @@
 ﻿{
   "name": "fr.jeanf.universal.player",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "Universal Player",
   "description": "One player, every input: Mouse & Keyboard, Gamepad and VR with automatic switching, in URP & HDRP. First-person body, locomotion & camera feel, sitting, teleport, grab preview, hand pose & gesture authoring tools, and SO event-channel integration.",
   "unity": "2022.3",

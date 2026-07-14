@@ -242,8 +242,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isDebug: 0
   cursorImage: {fileID: 6018571504813308516}
-  validationFeedbackImage: {fileID: 0}
+  validationFeedbackImage: {fileID: 6018571504813308516}
   PrimaryItemState: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6, type: 2}
+  normalCursorSprite: {fileID: 0}
+  tabletCursorSprite: {fileID: 0}
+  normalCursorColor: {r: 0.9882353, g: 0.6627451, b: 0.03137255, a: 1}
+  tabletCursorColor: {r: 0.9882353, g: 0.6627451, b: 0.03137255, a: 1}
+  tabletCursorScale: 0.5
+  cursorScaleLerpSeconds: 0.12
+  hoverCursorColor: {r: 0.3490196, g: 0.6137748, b: 0.9490196, a: 1}
+  clickCursorColor: {r: 0.10466352, g: 0.31808785, b: 0.5283019, a: 1}
 --- !u!1 &1768687715
 GameObject:
   m_ObjectHideFlags: 0
@@ -4712,7 +4720,6 @@ MonoBehaviour:
   body: {fileID: 7606446318734894080}
   playerInput: {fileID: 6693059999648577018}
   cameraLook: {fileID: 0}
-  sitRequestChannel: {fileID: 11400000, guid: be4935bf60e25a74c95305ae9466c428, type: 2}
   interactMaxDistance: 2.5
   seatMask:
     serializedVersion: 2
