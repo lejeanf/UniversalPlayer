@@ -3,6 +3,7 @@ using jeanf.validationTools;
 using Unity.VectorGraphics;
 using UnityEngine;
 using UnityEngine.InputSystem;
+#pragma warning disable 0618 // ActionBasedController: deprecated in XRI 3, still what the gaze rig runs on
 namespace jeanf.universalplayer
 {
     public class CursorStateController : MonoBehaviour, IDebugBehaviour
@@ -215,6 +216,26 @@ namespace jeanf.universalplayer
             // frees up (menu, tablet) — no prefab wiring needed.
             if (GetComponent<GamepadScreenCursor>() == null) gameObject.AddComponent<GamepadScreenCursor>();
             if (GetComponent<UiEventDebugOverlay>() == null) gameObject.AddComponent<UiEventDebugOverlay>();
+
+            // Locked-mode UI (click, drag, scroll) rides the gaze ray through
+            // GazeDesktopClick — it is the GAMEPAD'S ONLY UI path. Player variants
+            // whose gaze rig predates the component miss it silently (M&K limps
+            // along on the frozen center mouse pointer, gamepad UI is dead), so
+            // self-heal it onto the gaze controller like the pieces above.
+            if (FindFirstObjectByType<GazeDesktopClick>(FindObjectsInactive.Include) == null)
+            {
+                var gate = FindFirstObjectByType<TrackedPoseSchemeGate>(FindObjectsInactive.Include);
+                var gazeController = gate != null
+                    ? gate.GetComponentInChildren<UnityEngine.XR.Interaction.Toolkit.ActionBasedController>(true)
+                    : null;
+                if (gazeController != null)
+                {
+                    gazeController.gameObject.AddComponent<GazeDesktopClick>();
+                    Debug.Log($"[UniversalPlayer] CursorStateController: added GazeDesktopClick to '{gazeController.name}' — " +
+                        "this Player (variant)'s gaze rig predates it. It is the locked-mode ray's click/drag/scroll and " +
+                        "the gamepad's only UI path. Add it to the variant's Gaze Interactor to silence this.", gazeController);
+                }
+            }
 
             if (isDebug)
             {
