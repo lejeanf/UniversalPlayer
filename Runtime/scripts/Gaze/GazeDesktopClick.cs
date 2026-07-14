@@ -57,7 +57,7 @@ namespace jeanf.universalplayer
         private float nextRegistrationCheck;
         private bool registrationHealed;
 
-        // Latched telemetry for the F9 overlay (screenshot timing can't hide events).
+        // Latched telemetry for the F8 overlay (screenshot timing can't hide events).
         internal int DebugPressEventCount;
         internal float DebugLastPressEventTime = -1f;
         internal InputAction DebugClickAction => clickAction;

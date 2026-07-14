@@ -120,7 +120,7 @@ namespace jeanf.universalplayer
         public Func<Vector2> DragStickProbe; // default: left stick when scheme == Gamepad
         public bool ForceActiveForTests;
 
-        // Latched telemetry for the F9 overlay (GazeDesktopClick pattern).
+        // Latched telemetry for the F8 overlay (GazeDesktopClick pattern).
         internal int DebugPressCount;
         internal int DebugClickCount;
         internal bool DebugDragging => eventData != null && eventData.dragging;

@@ -17,7 +17,7 @@ namespace jeanf.universalplayer
     using EventSystem = UnityEngine.EventSystems.EventSystem;
 
     /// <summary>
-    /// F9 (or LB+Select) in play mode: on-screen dump of the whole UGUI event
+    /// F8 (or LB+Select) in play mode: on-screen dump of the whole UGUI event
     /// pipeline, built to answer "the hover ring reacts but the UI does nothing"
     /// in M&amp;K / gamepad. It shows, top to bottom:
     ///  1. the active input module and whether it processes MOUSE / GAMEPAD input
@@ -43,7 +43,7 @@ namespace jeanf.universalplayer
 
         private void Update()
         {
-            if (Keyboard.current != null && Keyboard.current.f9Key.wasPressedThisFrame) _visible = !_visible;
+            if (Keyboard.current != null && Keyboard.current.f8Key.wasPressedThisFrame) _visible = !_visible;
             if (Gamepad.current != null && Gamepad.current.selectButton.wasPressedThisFrame
                 && Gamepad.current.leftShoulder.isPressed) _visible = !_visible; // LB+Select on gamepad
         }
@@ -55,7 +55,7 @@ namespace jeanf.universalplayer
 
             _text.Length = 0;
             var eventSystem = EventSystem.current;
-            _text.AppendLine("== UI EVENT DEBUG (F9 / LB+Select) ==");
+            _text.AppendLine("== UI EVENT DEBUG (F8 / LB+Select) ==");
             _text.AppendLine($"scheme: {BroadcastControlsStatus.controlScheme}   cursor lock: {Cursor.lockState}   visible: {Cursor.visible}");
             var mouse = Mouse.current;
             _text.AppendLine($"mouse: {(mouse != null ? mouse.position.ReadValue().ToString("F0") : "<no Mouse device>")}   gamepad: {(Gamepad.current != null ? "present" : "none")}");
