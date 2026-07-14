@@ -98,6 +98,13 @@ namespace jeanf.universalplayer
         private Transform _originalParent;
         private Vector3 _originalPosition;
         private Quaternion _originalRotation;
+        // Scale is captured too, in BOTH frames. Reparenting silently rewrites scale
+        // (SetParent(p, true) rescales localScale to preserve world size), so an object
+        // that is re-parented on take and again on release compounds the rig's scale and
+        // grows a little every cycle. Restoring an explicit value is the only way to make
+        // take/release exactly reversible.
+        private Vector3 _originalLocalScale = Vector3.one;  // correct under the original parent
+        private Vector3 _originalWorldScale = Vector3.one;  // correct when dropped at the scene root
 
         private Rigidbody rb;
         private float initialDrag;
@@ -118,6 +125,10 @@ namespace jeanf.universalplayer
         public Transform OriginalParent => _originalParent;
         public Vector3 OriginalPosition => _originalPosition;
         public Quaternion OriginalRotation => _originalRotation;
+        /// <summary>The authored localScale — restore this when the object goes back under its original parent.</summary>
+        public Vector3 OriginalLocalScale => _originalLocalScale;
+        /// <summary>The authored WORLD scale — restore this as localScale when the object is dropped unparented (scene root).</summary>
+        public Vector3 OriginalWorldScale => _originalWorldScale;
         public float InitialDrag => initialDrag;
         public float InitialAngularDrag => initialAngularDrag;
         public bool InitialUseGravity => initialUseGravity;
@@ -143,6 +154,8 @@ namespace jeanf.universalplayer
             _originalParent = t.parent;
             _originalPosition = t.position;
             _originalRotation = t.rotation;
+            _originalLocalScale = t.localScale;
+            _originalWorldScale = t.lossyScale;
 
             rb = GetComponent<Rigidbody>();
             if (rb != null)

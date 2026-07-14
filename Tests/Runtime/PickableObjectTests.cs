@@ -246,6 +246,32 @@ namespace jeanf.universalplayer.tests
         }
 
         [UnityTest]
+        public IEnumerator OriginalScale_IsCaptured_InBothFrames()
+        {
+            // Regression guard: reparenting rewrites scale as a side effect, so a
+            // take/release round trip through a SCALED rig used to compound that factor
+            // and the object grew a little every cycle. Restoring these captured values
+            // is what makes the round trip reversible — so they must be right.
+            var scaledParent = new GameObject("ScaledRoot").transform;
+            scaledParent.localScale = new Vector3(2f, 2f, 2f);
+
+            var pickable = NewPickable("Cube", (go, _) =>
+            {
+                go.transform.SetParent(scaledParent);
+                go.transform.localScale = new Vector3(3f, 3f, 3f);
+            });
+            yield return null;
+
+            AssertClose(pickable.OriginalLocalScale, new Vector3(3f, 3f, 3f),
+                "The authored localScale must be captured (it is what restores the object under its original parent)");
+            AssertClose(pickable.OriginalWorldScale, new Vector3(6f, 6f, 6f),
+                "The authored WORLD scale must be captured too (it is what restores size when dropped at the scene root)");
+
+            UnityEngine.Object.Destroy(pickable.gameObject);
+            UnityEngine.Object.Destroy(scaledParent.gameObject);
+        }
+
+        [UnityTest]
         public IEnumerator WorldLocation_IsPlainCoordinates_NoSceneReference()
         {
             var pickable = NewPickable("Returner", (_, p) =>

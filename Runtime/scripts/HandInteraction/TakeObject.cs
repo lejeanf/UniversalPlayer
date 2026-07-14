@@ -365,7 +365,7 @@ namespace jeanf.universalplayer
         {
             if (objectInHand == pickable) objectInHand = null;
             var t = pickable.transform;
-            t.SetParent(pickable.OriginalParent);
+            ReparentKeepingScale(t, pickable.OriginalParent, pickable);
             t.SetPositionAndRotation(pickable.OriginalPosition, pickable.OriginalRotation);
             RestorePhysics(pickable);
             SetPickableVisible(pickable, false);
@@ -415,7 +415,11 @@ namespace jeanf.universalplayer
             if (anchor == null) return;
 
             var t = pickable.transform;
-            t.SetParent(anchor, false);
+            // worldPositionStays: TRUE — Unity then rescales localScale so the object
+            // keeps its real-world SIZE under the rig's scale, instead of visibly
+            // resizing the moment you pick it up. Position/rotation are overwritten
+            // right below anyway, so only the scale handling matters here.
+            t.SetParent(anchor, true);
             pickable.GetHeldOffset(_heldHand, out var localPosition, out var localRotation);
             t.localPosition = localPosition;
             t.localRotation = localRotation;
@@ -488,30 +492,48 @@ namespace jeanf.universalplayer
             switch (pickable.ReleaseMode)
             {
                 case ReleaseTarget.OriginalSpot:
-                    t.SetParent(pickable.OriginalParent);
+                    ReparentKeepingScale(t, pickable.OriginalParent, pickable);
                     t.SetPositionAndRotation(pickable.OriginalPosition, pickable.OriginalRotation);
                     break;
 
                 case ReleaseTarget.WorldLocation:
                     // Plain coordinates — nothing to resolve, so additive loading cannot break it.
                     pickable.GetReleaseWorldPose(out var worldPosition, out var worldRotation);
-                    t.SetParent(null);
+                    ReparentKeepingScale(t, null, pickable);
                     t.SetPositionAndRotation(worldPosition, worldRotation);
                     break;
 
                 case ReleaseTarget.EventDriven:
                     // The project places it (a teleport/placement event, an inventory, …).
-                    t.SetParent(null);
+                    ReparentKeepingScale(t, null, pickable);
                     pickable.RequestRelease();
                     break;
 
                 case ReleaseTarget.DropInPlace:
                 default:
-                    t.SetParent(null);
+                    ReparentKeepingScale(t, null, pickable);
                     break;
             }
 
             RestorePhysics(pickable);
+        }
+
+        /// <summary>
+        /// Reparents and restores the object's AUTHORED scale explicitly.
+        /// Reparenting rewrites scale as a side effect (worldPositionStays recomputes
+        /// localScale to preserve world size), so a take+release round trip through a
+        /// scaled rig compounds that factor and the object grows every cycle. Setting the
+        /// captured value outright is what makes the round trip exactly reversible.
+        /// </summary>
+        private static void ReparentKeepingScale(Transform t, Transform parent, PickableObject pickable)
+        {
+            t.SetParent(parent, false);
+            // Under the original parent the authored localScale is right; at the scene
+            // root, localScale IS world scale, so the captured world scale is the one
+            // that reproduces the original size.
+            t.localScale = parent == pickable.OriginalParent
+                ? pickable.OriginalLocalScale
+                : pickable.OriginalWorldScale;
         }
 
         private PlayerItemAnchors ResolveAnchors()
