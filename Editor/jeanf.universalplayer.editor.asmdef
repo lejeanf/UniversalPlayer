@@ -4,6 +4,7 @@
     "references": [
         "jeanf.universalplayer",
         "jeanf.eventsystem",
+        "UnityEngine.UI",
         "Unity.XR.CoreUtils",
         "Unity.XR.Interaction.Toolkit",
         "Unity.XR.Management",

@@ -38,8 +38,6 @@ namespace jeanf.universalplayer
         {
             var results = new List<SetupValidator.CheckResult>();
 
-            results.Add(CheckActiveInputHandling());
-
             var packageRoot = PackageRoot();
             var playerPrefab = packageRoot != null ? AssetDatabase.LoadAssetAtPath<GameObject>(PlayerPrefabPath()) : null;
             if (playerPrefab == null)
@@ -76,7 +74,7 @@ namespace jeanf.universalplayer
             return results;
         }
 
-        private static List<GameObject> FindPlayerVariants(GameObject playerPrefab, string packageRoot)
+        internal static List<GameObject> FindPlayerVariants(GameObject playerPrefab, string packageRoot)
         {
             return AssetDatabase.FindAssets("t:Prefab", new[] { "Assets" })
                 .Select(AssetDatabase.GUIDToAssetPath)
@@ -92,31 +90,6 @@ namespace jeanf.universalplayer
         /// the VR hands vanished: the variant's hand-model overrides pointed at objects
         /// the updated base prefab no longer contained).
         /// </summary>
-        // The package is NEW Input System only. The editor defines mirror
-        // Project Settings > Player > Active Input Handling, so this stays
-        // correct without poking at ProjectSettings.asset.
-        private static SetupValidator.CheckResult CheckActiveInputHandling()
-        {
-            const string check = "Project: input handling";
-#if !ENABLE_INPUT_SYSTEM
-            return new SetupValidator.CheckResult(check, SetupValidator.Severity.Fail,
-                "Active Input Handling excludes the new Input System — NOTHING in UniversalPlayer can read input " +
-                "(all bindings live in an InputActionAsset).",
-                "Project Settings > Player > Other Settings > Active Input Handling -> 'Input System Package (new)' " +
-                "(Unity restarts the editor).");
-#elif ENABLE_LEGACY_INPUT_MANAGER
-            return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
-                "Active Input Handling is 'Both' — the deprecated legacy Input Manager is still enabled (Unity warns about " +
-                "it on every load, and legacy UnityEngine.Input calls can silently creep back into project code).",
-                "UniversalPlayer only needs the new system. KEEP 'Both' if a third-party asset requires legacy input " +
-                "(e.g. Vuplex 3D WebView's hardware keyboard) — otherwise switch to 'Input System Package (new)' after " +
-                "checking project scripts for UnityEngine.Input usage ('Input.GetKey', 'Input.GetAxis', 'Input.mousePosition').");
-#else
-            return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
-                "Input System (new) only — the legacy Input Manager is off.");
-#endif
-        }
-
         private static SetupValidator.CheckResult CheckOrphanedOverrides(GameObject variant)
         {
             var modifications = PrefabUtility.GetPropertyModifications(variant);
@@ -139,7 +112,8 @@ namespace jeanf.universalplayer
                 $"{orphaned.Length} override(s) point at objects that NO LONGER EXIST in the base Player.prefab " +
                 $"(e.g. {preview}) — whatever they customized (hand models, channels, ...) is silently gone.",
                 $"Open '{AssetDatabase.GetAssetPath(variant)}', re-apply those customizations on the current base objects, " +
-                "then remove the dead overrides (Overrides dropdown > Revert the entries showing missing targets).");
+                "then run Tools/UniversalPlayer/Remove Dead Variant Overrides (it logs every entry it strips) — " +
+                "or remove them by hand via the Overrides dropdown > Revert the entries showing missing targets.");
         }
 
         private static SetupValidator.CheckResult CheckStaleImportedSamples()
@@ -541,26 +515,42 @@ namespace jeanf.universalplayer
 
         private static SetupValidator.CheckResult CheckWorldSpaceCanvases()
         {
-            var worldCanvases = Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None)
-                .Where(canvas => canvas.renderMode == RenderMode.WorldSpace)
+            var interactiveCanvases = Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+                .Where(canvas => canvas.renderMode == RenderMode.WorldSpace && HasInteractiveUi(canvas))
                 .ToArray();
-            if (worldCanvases.Length == 0)
+            if (interactiveCanvases.Length == 0)
                 return new SetupValidator.CheckResult("Scene: XR-clickable UI", SetupValidator.Severity.Pass,
-                    "No world-space canvases in the scene.");
+                    "No interactive world-space canvases in the scene (display-only ones need no raycaster).");
 
-            var notClickable = worldCanvases
+            var notClickable = interactiveCanvases
                 .Where(canvas => canvas.GetComponent("TrackedDeviceGraphicRaycaster") == null)
                 .Select(canvas => canvas.name)
                 .ToArray();
 
             if (notClickable.Length == 0)
                 return new SetupValidator.CheckResult("Scene: XR-clickable UI", SetupValidator.Severity.Pass,
-                    $"All {worldCanvases.Length} world-space canvas(es) have a TrackedDeviceGraphicRaycaster.");
+                    $"All {interactiveCanvases.Length} interactive world-space canvas(es) have a TrackedDeviceGraphicRaycaster.");
 
             return new SetupValidator.CheckResult("Scene: XR-clickable UI", SetupValidator.Severity.Warning,
-                $"World-space canvas(es) without TrackedDeviceGraphicRaycaster: {string.Join(", ", notClickable)} — " +
+                $"Interactive world-space canvas(es) without TrackedDeviceGraphicRaycaster: {string.Join(", ", notClickable)} — " +
                 "the VR finger ray cannot click them (mouse still can).",
                 "Add a TrackedDeviceGraphicRaycaster component to each canvas meant to be used in VR.");
+        }
+
+        // Display-only canvases (tooltips, labels, HUDs) legitimately have no
+        // raycaster at all — only flag a canvas if something on it can actually
+        // receive clicks: a Selectable (Button/Toggle/...), a custom pointer
+        // handler, or a GraphicRaycaster already declaring click intent.
+        private static bool HasInteractiveUi(Canvas canvas)
+        {
+            if (canvas.GetComponent<UnityEngine.UI.GraphicRaycaster>() != null) return true;
+            if (canvas.GetComponentInChildren<UnityEngine.UI.Selectable>(true) != null) return true;
+
+            return canvas.GetComponentsInChildren<UnityEngine.EventSystems.IEventSystemHandler>(true).Any(handler =>
+                handler is UnityEngine.EventSystems.IPointerClickHandler
+                    or UnityEngine.EventSystems.IPointerDownHandler
+                    or UnityEngine.EventSystems.IPointerUpHandler
+                    or UnityEngine.EventSystems.IDragHandler);
         }
     }
 }
