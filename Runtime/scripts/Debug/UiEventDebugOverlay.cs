@@ -152,6 +152,13 @@ namespace jeanf.universalplayer
                 _text.AppendLine("  (no XRRayInteractor under GazeDesktopClick — nothing to press)");
                 return;
             }
+            // WHICH press path does this rig consume? (XRRayInteractor.UpdateUIModel:
+            // deprecated = controller's uiPressAction; modern = the ray's own reader.)
+            var deprecatedPath = ray.forceDeprecatedInput;
+            _text.AppendLine($"  ray input path: {(deprecatedPath ? "DEPRECATED — the CONTROLLER's uiPressAction drives select" : "modern — the ray's uiPressInput reader drives select")}");
+            var controllerPress = gazeClick.DebugControllerPress;
+            if (controllerPress != null)
+                _text.AppendLine($"  controller uiPress: bindings:{controllerPress.bindings.Count}  enabled:{controllerPress.enabled}  PRESSED NOW: {controllerPress.IsPressed()}");
             _text.AppendLine($"  ray uiPressInput: mode:{ray.uiPressInput.inputSourceMode}  PRESSED NOW: {ray.uiPressInput.ReadIsPerformed()}   (hold your click/A while reading this!)");
             _text.AppendLine($"  ray uiScrollInput: mode:{ray.uiScrollInput.inputSourceMode}  value: {ray.uiScrollInput.ReadValue()}");
 
