@@ -22,7 +22,7 @@ MonoBehaviour:
     - {x: 0.7784751, y: -0.12885284, z: 0.06734538, w: 0.61060476}
     - {x: 0, y: 4.3368087e-19, z: 0, w: 1}
     - {x: -0.016385758, y: -0.12910767, z: 0.29994953, w: 0.945036}
-    - {x: 0.66843575, y: -0.23075007, z: -0.258262, w: 0.65821636}
+    - {x: 0.6684358, y: -0.23075008, z: -0.25826204, w: 0.6582164}
     - {x: 0.652863, y: -0.05600602, z: 0.07158539, w: 0.7520032}
     - {x: 0.69796634, y: -0.26984355, z: 0.07934224, w: 0.6585836}
     - {x: -2.7755576e-17, y: 2.7755576e-17, z: -1.3877788e-17, w: 1}
@@ -40,18 +40,43 @@ MonoBehaviour:
     - {x: 0.14054087, y: -0.056633413, z: 0.077284515, w: 0.98542786}
     - {x: -0.049335342, y: 0.09045829, z: 0.03414775, w: 0.9940912}
     - {x: -9.62965e-35, y: -2.7755576e-17, z: -3.469447e-18, w: 1}
+    jointNames:
+    - L_IndexMetacarpal
+    - L_IndexProximal
+    - L_IndexIntermediate
+    - L_IndexDistal
+    - L_IndexTip
+    - L_LittleMetacarpal
+    - L_LittleProximal
+    - L_LittleIntermediate
+    - L_LittleDistal
+    - L_LittleTip
+    - L_MiddleMetacarpal
+    - L_MiddleProximal
+    - L_MiddleIntermediate
+    - L_MiddleDistal
+    - L_MiddleTip
+    - L_RingMetacarpal
+    - L_RingProximal
+    - L_RingIntermediate
+    - L_RingDistal
+    - L_RingTip
+    - L_ThumbMetacarpal
+    - L_ThumbProximal
+    - L_ThumbDistal
+    - L_ThumbTip
   rightHandInfo:
     attachPosition: {x: 0, y: 0, z: 0}
     attachRotation: {x: -0, y: -0, z: -0, w: 1}
     fingerRotations:
     - {x: 0.13855173, y: 0.053809006, z: -0.0042162174, w: 0.9888834}
-    - {x: 0.6934905, y: 0.03236997, z: 0.07963924, w: 0.71531874}
+    - {x: 0.69349045, y: 0.032369968, z: 0.07963923, w: 0.7153187}
     - {x: 0.65203446, y: -0.011008949, z: -0.13677344, w: 0.7456695}
     - {x: -0.7784748, y: -0.12885311, z: 0.06734548, w: -0.6106051}
     - {x: 0.000000029802312, y: 0.000000007450578, z: 0.000000007450578, w: 1}
-    - {x: 0.01638579, y: -0.12910765, z: 0.2999497, w: -0.9450359}
+    - {x: 0.016385792, y: -0.12910767, z: 0.29994974, w: -0.94503593}
     - {x: -0.66843575, y: -0.23075023, z: -0.25826225, w: -0.6582163}
-    - {x: 0.65286297, y: 0.056005977, z: -0.071585484, w: 0.75200313}
+    - {x: 0.652863, y: 0.05600598, z: -0.07158549, w: 0.7520032}
     - {x: 0.6979662, y: 0.26984373, z: -0.07934212, w: 0.65858364}
     - {x: 0.000000059604645, y: -0, z: 0.000000014901161, w: 1}
     - {x: 0.16905269, y: 0.05365297, z: -0.005877495, w: 0.98412806}
@@ -68,3 +93,28 @@ MonoBehaviour:
     - {x: 0.14054082, y: 0.056633297, z: -0.07728452, w: 0.98542786}
     - {x: -0.04933541, y: -0.090458274, z: -0.03414781, w: 0.9940912}
     - {x: -0, y: -0, z: 0.000000003259629, w: 1}
+    jointNames:
+    - R_IndexMetacarpal
+    - R_IndexProximal
+    - R_IndexIntermediate
+    - R_IndexDistal
+    - R_IndexTip
+    - R_LittleMetacarpal
+    - R_LittleProximal
+    - R_LittleIntermediate
+    - R_LittleDistal
+    - R_LittleTip
+    - R_MiddleMetacarpal
+    - R_MiddleProximal
+    - R_MiddleIntermediate
+    - R_MiddleDistal
+    - R_MiddleTip
+    - R_RingMetacarpal
+    - R_RingProximal
+    - R_RingIntermediate
+    - R_RingDistal
+    - R_RingTip
+    - R_ThumbMetacarpal
+    - R_ThumbProximal
+    - R_ThumbDistal
+    - R_ThumbTip

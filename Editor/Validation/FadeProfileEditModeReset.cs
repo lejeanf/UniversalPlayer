@@ -63,8 +63,8 @@ namespace jeanf.universalplayer
 
             if (!changed) return;
             EditorUtility.SetDirty(profile);
-            Debug.Log($"FadeMask: fade profile '{profile.name}' reset to CLEAR after the play session — a black fade left " +
-                "behind makes the world invisible in edit mode. (Edit-mode tweaks are kept; only STOP triggers this.)", profile);
+            //Debug.Log($"FadeMask: fade profile '{profile.name}' reset to CLEAR after the play session — a black fade left " +
+            //    "behind makes the world invisible in edit mode. (Edit-mode tweaks are kept; only STOP triggers this.)", profile);
         }
     }
 }

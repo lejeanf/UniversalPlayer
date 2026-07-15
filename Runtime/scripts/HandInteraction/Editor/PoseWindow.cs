@@ -119,6 +119,69 @@ public class PoseWindow {}
             GetWindow<PoseWindow>("Hand Poser");
         }
 
+        // One-click migration for every Pose asset: applies each pose to the preview
+        // hands (loading it exactly as the editor always did) and re-saves it, which now
+        // also writes the bone names — so poses authored before name-mapping apply on the
+        // right joints at runtime without opening each one. Idempotent.
+        [MenuItem("Tools/UniversalPlayer/Migrate Poses (add bone names)")]
+        public static void MigrateAllPoses()
+        {
+            if (EditorApplication.isPlaying)
+            {
+                Debug.LogWarning("Migrate Poses works in Edit Mode — exit Play Mode first.");
+                return;
+            }
+
+            var helperPrefab = Resources.Load("PoseHelper");
+            if (helperPrefab == null)
+            {
+                Debug.LogError("Migrate Poses: 'PoseHelper' prefab not found in any Resources folder.");
+                return;
+            }
+
+            var helper = (GameObject)PrefabUtility.InstantiatePrefab(helperPrefab);
+            helper.hideFlags = HideFlags.DontSave;
+            try
+            {
+                var handManager = helper.GetComponent<HandManager>();
+                if (handManager == null || !handManager.HandsExist)
+                {
+                    Debug.LogError("Migrate Poses: pose helper has no hands.");
+                    return;
+                }
+
+                var guids = AssetDatabase.FindAssets("t:Pose");
+                var migrated = 0;
+                foreach (var guid in guids)
+                {
+                    var pose = AssetDatabase.LoadAssetAtPath<Pose>(AssetDatabase.GUIDToAssetPath(guid));
+                    if (pose == null) continue;
+                    if (HasJointNames(pose.leftHandInfo) && HasJointNames(pose.rightHandInfo)) continue;
+                    // Empty poses (never authored — 0 rotations) have nothing to map; skip
+                    // them so we don't stamp the previous pose's leftover fingers onto them.
+                    var leftEmpty = pose.leftHandInfo == null || pose.leftHandInfo.fingerRotations.Count == 0;
+                    var rightEmpty = pose.rightHandInfo == null || pose.rightHandInfo.fingerRotations.Count == 0;
+                    if (leftEmpty && rightEmpty) continue;
+
+                    // Load the pose onto the preview hands exactly as before (index order,
+                    // which is correct on the preview rig), then re-save WITH names. No
+                    // object context here, so don't touch the wrist offset (false) — that
+                    // is authored per held-object pose in the full pose editor.
+                    handManager.LeftHand.ApplyPoseForSetup(pose);
+                    handManager.RightHand.ApplyPoseForSetup(pose);
+                    handManager.SavePose(pose, computeAnchorOffset: false);
+                    migrated++;
+                }
+                AssetDatabase.SaveAssets();
+                Debug.Log($"[UniversalPlayer] Migrate Poses: added bone-name mapping to {migrated} pose(s) " +
+                    $"(scanned {guids.Length}). They now apply on the correct joints at runtime.");
+            }
+            finally
+            {
+                DestroyImmediate(helper);
+            }
+        }
+
         /// <summary>Open the editor on a pose; a context object (e.g. the PoseContainer's) pre-fills step 3.</summary>
         public static void Open(Pose pose, GameObject context = null)
         {
@@ -269,6 +332,8 @@ public class PoseWindow {}
             handManager.UpdateHandsForSetup(activePose, _handAnchor);
             NormalizeHandScales();
             _handsPlaced = true;
+            MigrateJointNamesIfNeeded();
+            AutoLinkPoseToObject();
             ApplySideVisibility();
             ApplyIsolation();
             SyncControllerVisuals();
@@ -821,6 +886,28 @@ public class PoseWindow {}
             }
         }
 
+        // Keep the object ↔ pose link in sync automatically: while editing a held-object
+        // pose, assign it to the object's PickableObject/SnapObject "Hand Pose" field so
+        // carrying it in-game uses exactly the pose being authored — no manual wiring.
+        // Guarded (only writes when it differs) so it never spams the scene, and undoable.
+        private void AutoLinkPoseToObject()
+        {
+            if (activePose == null || _previewObject == null || _poseKind != PoseKind.HeldObject) return;
+            if (!_previewObject.TryGetComponent(out PickableObject pickable)) return;
+            if (pickable.HandPose == activePose) return; // already linked
+
+            var so = new SerializedObject(pickable);
+            var prop = so.FindProperty("handPose");
+            if (prop == null) return;
+            Undo.RecordObject(pickable, "Link Pose To Object");
+            prop.objectReferenceValue = activePose;
+            so.ApplyModifiedProperties();
+            EditorUtility.SetDirty(pickable);
+            if (_previewObject.scene.IsValid()) EditorSceneManager.MarkSceneDirty(_previewObject.scene);
+            Debug.Log($"[UniversalPlayer] Pose Editor: linked pose '{activePose.name}' to " +
+                $"'{_previewObject.name}' ({pickable.GetType().Name}.Hand Pose).", pickable);
+        }
+
         // Offered only when it applies: put the edited pose on the preview object's
         // PoseContainer so grabbing it in-game uses this pose.
         private void DrawPoseContainerAssign()
@@ -1065,8 +1152,41 @@ public class PoseWindow {}
             {
                 attachPosition = source.attachPosition,
                 attachRotation = source.attachRotation,
-                fingerRotations = new List<Quaternion>(source.fingerRotations)
+                fingerRotations = new List<Quaternion>(source.fingerRotations),
+                jointNames = new List<string>(source.jointNames),
+                hasAnchorOffset = source.hasAnchorOffset,
+                anchorLocalPosition = source.anchorLocalPosition,
+                anchorLocalRotation = source.anchorLocalRotation
             };
+        }
+
+        // Poses saved before bone-name mapping existed apply by list index at runtime,
+        // which breaks when the runtime hand's fingerRoots are ordered differently from
+        // the preview hand's. The hands have just been posed from the (index-loaded)
+        // pose, so they look correct here — re-saving now writes the SAME rotations plus
+        // the bone names, and the pose then applies correctly at runtime. One-time, per pose.
+        private void MigrateJointNamesIfNeeded()
+        {
+            if (activePose == null || handManager == null || !handManager.HandsExist) return;
+            var namesOk = HasJointNames(activePose.leftHandInfo) && HasJointNames(activePose.rightHandInfo);
+            // Held-object poses also need the wrist-relative offset, which can only be
+            // computed here (hands parented to the object anchor). Gesture poses don't.
+            var anchorNeeded = _poseKind == PoseKind.HeldObject && _previewObject != null;
+            var anchorOk = !anchorNeeded
+                || (activePose.leftHandInfo.hasAnchorOffset && activePose.rightHandInfo.hasAnchorOffset);
+            if (namesOk && anchorOk) return;
+
+            handManager.SavePose(activePose, computeAnchorOffset: anchorNeeded);
+            AssetDatabase.SaveAssets();
+            Debug.Log($"[UniversalPlayer] Pose '{activePose.name}': stored bone-name mapping" +
+                (anchorNeeded ? " and the wrist-relative item offset" : "") +
+                " so it applies correctly at runtime (one-time migration — the pose itself is unchanged).");
+        }
+
+        private static bool HasJointNames(HandInfo info)
+        {
+            return info != null && info.jointNames != null && info.jointNames.Count == info.fingerRotations.Count
+                && info.jointNames.Count > 0;
         }
 
         private void SaveIntoExistingPose()

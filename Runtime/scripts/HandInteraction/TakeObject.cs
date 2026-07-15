@@ -305,10 +305,10 @@ namespace jeanf.universalplayer
             var pickable = any.collider.GetComponentInParent<PickableObject>();
             var layer = any.collider.gameObject.layer;
             var inMask = (layerMask.value & (1 << layer)) != 0;
-            Debug.Log($"{LogPrefix} take failed. Nearest collider ahead: '{any.collider.name}' at {any.distance:F2}m, " +
-                $"layer '{LayerMask.LayerToName(layer)}'. PickableObject found: {(pickable != null ? $"YES ('{pickable.name}')" : "NO")}. " +
-                $"Layer in TakeObject's mask: {(inMask ? "YES" : "NO -> ADD IT")}. " +
-                $"Within range: {(any.distance <= maxDistanceCheck ? "YES" : $"NO -> it is {any.distance:F2}m away but Max Distance Check is {maxDistanceCheck}m")}.",
+            if(isDebug) Debug.Log($"{LogPrefix} take failed. Nearest collider ahead: '{any.collider.name}' at {any.distance:F2}m, " +
+                                      $"layer '{LayerMask.LayerToName(layer)}'. PickableObject found: {(pickable != null ? $"YES ('{pickable.name}')" : "NO")}. " +
+                                      $"Layer in TakeObject's mask: {(inMask ? "YES" : "NO -> ADD IT")}. " +
+                                      $"Within range: {(any.distance <= maxDistanceCheck ? "YES" : $"NO -> it is {any.distance:F2}m away but Max Distance Check is {maxDistanceCheck}m")}.",
                 any.collider);
         }
 

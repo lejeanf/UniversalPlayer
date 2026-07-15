@@ -4,10 +4,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using jeanf.EventSystem;
+using jeanf.validationTools;
 namespace jeanf.universalplayer
 {
-   public class SnapObject : PickableObject
+   public class SnapObject : PickableObject, IValidatable
     {
+        // A SnapObject is meant to be carried with an authored grip, so a missing Hand
+        // Pose is a setup smell: it drives the orange hierarchy dot / console log (and,
+        // with SnapObjectEditor, the inspector banner). Base PickableObjects keep an
+        // OPTIONAL pose, so this validation is intentionally scoped to SnapObject.
+        public bool IsValid => HandPose != null;
+
         private GameObject nearestSnapPoint;
         public GameObject NearestSnapPoint { get { return nearestSnapPoint; } set { nearestSnapPoint = value; } }
         [SerializeField] LayerMask snapTargetLayer;

@@ -21,7 +21,7 @@ public class HandVibration : MonoBehaviour
 
     private void OnDisable()
     {
-        hapticFeedbackOnSpecificHandSO.OnEventRaised += TriggerHapticFeedback;
+        hapticFeedbackOnSpecificHandSO.OnEventRaised -= TriggerHapticFeedback;
         VibrateHand -= TriggerHapticFeedback;
     }
     private void TriggerHapticFeedback(string hand)

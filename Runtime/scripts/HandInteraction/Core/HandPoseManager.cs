@@ -60,23 +60,37 @@ namespace jeanf.universalplayer
         private void TryApplyObjectPose(SelectEnterEventArgs args)
         {
             var interactable = args.interactableObject as UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable;
-            // Try and get pose container, and apply
-            if (!interactable.TryGetComponent(out PoseContainer poseContainer)) return;
+            if (interactable == null) return;
+
+            // The grab pose can live on either component: a PoseContainer (legacy) or a
+            // PickableObject/SnapObject's Hand Pose (what the Pose Editor auto-links). Read
+            // whichever is present so grabbing wraps the fingers around the object.
+            var pose = ResolveGrabPose(interactable);
+            if (pose == null) return;
+
             grabAction.Invoke();
-            if(isDebug) Debug.Log($"Pose name : {poseContainer.pose.name}");
-            //move AttachTransform
-            //AplyPose
-            ApplyPose(poseContainer.pose);
+            if (isDebug) Debug.Log($"Pose name : {pose.name}");
+            ApplyPose(pose);
         }
 
         private void TryApplyDefaultPose(SelectExitEventArgs args)
         {
             var interactable = args.interactableObject as UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable;
-            
-            // Try and get pose container, and apply
-            if (!interactable.TryGetComponent(out PoseContainer poseContainer)) return;
+            if (interactable == null) return;
+
+            // Only reopen the hand for objects that actually posed it.
+            if (ResolveGrabPose(interactable) == null) return;
             ungrabAction.Invoke();
             ApplyDefaultPose();
+        }
+
+        private static Pose ResolveGrabPose(UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable interactable)
+        {
+            if (interactable.TryGetComponent(out PoseContainer poseContainer) && poseContainer.pose != null)
+                return poseContainer.pose;
+            if (interactable.TryGetComponent(out PickableObject pickable) && pickable.HandPose != null)
+                return pickable.HandPose;
+            return null;
         }
 
         public override void ApplyOffset(Vector3 position, Quaternion rotation)

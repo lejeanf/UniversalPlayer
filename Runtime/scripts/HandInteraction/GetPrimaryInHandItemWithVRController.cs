@@ -38,6 +38,10 @@ namespace jeanf.universalplayer
         [Header("PrimaryItem")]
         [Validation("The primary item (tablet) is required — drawing the item does NOTHING without it. Reference the scene instance (or prefab) here.")]
         public Transform primaryItem;
+        [Tooltip("Live trim on the held item's placement (hand-local), on top of the authored pose offset — reconciles any difference between the runtime hand frame and the pose editor's. Scrub in Play mode until the tablet sits right.")]
+        [SerializeField] private Vector3 heldItemPositionOffset;
+        [Tooltip("Live trim on the held item's rotation (euler, item-local), on top of the authored pose offset.")]
+        [SerializeField] private Vector3 heldItemRotationOffset;
         [Validation("The primary item state channel is required (shared with PrimaryItemController and the cursor).")]
         [SerializeField] private BoolEventChannelSO _PrimaryItemStateChannel;
         [SerializeField] private StringEventChannelSO _primaryItemStateWithUsedHandChannel;
@@ -164,7 +168,11 @@ namespace jeanf.universalplayer
             var handPose = isLeft ? _leftHandPoseManager : _rightHandPoseManager;
             var otherPose = isLeft ? _rightHandPoseManager : _leftHandPoseManager;
 
-            SetIpadStateForASpecificHand(handInfo, handTransform);
+            SetIpadStateForASpecificHand(handInfo, handTransform, handPose);
+            // Own the item's visibility here rather than relying on a PrimaryItemBehaviour
+            // being present and wired to the same channel — the VR hand flow already owns
+            // the item's PLACEMENT, so it must own show/hide too or "hide" silently no-ops.
+            SetPrimaryItemVisible(true);
             _ipadState = isLeft ? IpadState.InLeftHand : IpadState.InRightHand;
             (isLeft ? _leftGrab : _rightGrab)?.RaiseEvent();
             HoldPose(handPose);
@@ -179,17 +187,48 @@ namespace jeanf.universalplayer
         private void HidePrimaryItem(HandPoseManager fromHand)
         {
             _ipadState = IpadState.Disabled;
+            // Actually hide it — the previous code only flipped state and raised the
+            // channel, so with no PrimaryItemBehaviour listening the tablet stayed
+            // parented in the hand (visible): "shows, swaps hands, never hides".
+            SetPrimaryItemVisible(false);
             _PrimaryItemStateChannel.RaiseEvent(false);
             OnIpadStateChanged?.Invoke(_ipadState);
             HoldPose(null);
             if (fromHand) fromHand.ApplyDefaultPose();
         }
-        public void SetIpadStateForASpecificHand(HandInfo handInfo, Transform parent)
+
+        // Toggle the item's renderers/canvases (not the GameObject, so any component on
+        // it keeps listening). Mirrors PrimaryItemBehaviour.SetVisible so behaviour is
+        // identical whether or not that component is also present.
+        private void SetPrimaryItemVisible(bool visible)
+        {
+            if (!primaryItem) return;
+            foreach (var r in primaryItem.GetComponentsInChildren<Renderer>(true)) r.enabled = visible;
+            foreach (var c in primaryItem.GetComponentsInChildren<Canvas>(true)) c.enabled = visible;
+        }
+        public void SetIpadStateForASpecificHand(HandInfo handInfo, Transform fallbackParent, HandPoseManager poseManager)
         {
             if(!primaryItem) return;
-            primaryItem.SetParent(parent);
-            primaryItem.localPosition = handInfo.attachPosition;
-            primaryItem.localRotation = handInfo.attachRotation;
+
+            // Preferred: seat the item relative to the WRIST bone using the wrist-relative
+            // offset the pose editor authored. The wrist is a shared skeleton point, so
+            // this lands exactly as posed regardless of how the runtime hand is wired
+            // (physics wrapper, mesh object, etc.) — no per-scene trim needed.
+            var wrist = poseManager != null ? poseManager.GetAnchorBone() : null;
+            if (handInfo.hasAnchorOffset && wrist != null)
+            {
+                primaryItem.SetParent(wrist);
+                primaryItem.localRotation = handInfo.anchorLocalRotation * Quaternion.Euler(heldItemRotationOffset);
+                primaryItem.localPosition = handInfo.anchorLocalPosition + heldItemPositionOffset;
+                return;
+            }
+
+            // Legacy fallback (pose predates the wrist offset): the INVERSE of the
+            // hand-root-relative offset, on the wired hand transform.
+            primaryItem.SetParent(fallbackParent);
+            var invRot = Quaternion.Inverse(handInfo.attachRotation);
+            primaryItem.localRotation = invRot * Quaternion.Euler(heldItemRotationOffset);
+            primaryItem.localPosition = invRot * (-handInfo.attachPosition) + heldItemPositionOffset;
         }
 
         private void ReceiveGrabSide(string str)
@@ -197,11 +236,11 @@ namespace jeanf.universalplayer
             if (!primaryItem) return;
             if (str == "RightHand")
             {
-                SetIpadStateForASpecificHand(primaryItemPose.leftHandInfo, _leftHand.transform);
+                SetIpadStateForASpecificHand(primaryItemPose.leftHandInfo, _leftHand.transform, _leftHandPoseManager);
             }
             else if (str == "LeftHand")
             {
-                SetIpadStateForASpecificHand(primaryItemPose.rightHandInfo, _rightHand.transform);
+                SetIpadStateForASpecificHand(primaryItemPose.rightHandInfo, _rightHand.transform, _rightHandPoseManager);
             }
         }
         public void SetIpadStateForASpecificHand(string hand)

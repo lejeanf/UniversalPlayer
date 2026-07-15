@@ -79,16 +79,18 @@ public class HandManager : MonoBehaviour
         RightHand.ApplyPoseForSetup(pose);
     }
 
-    public void SavePose(Pose pose)
+    public void SavePose(Pose pose, bool computeAnchorOffset = true)
     {
         // Mark object as dirty for saving
         #if UNITY_EDITOR
         EditorUtility.SetDirty(pose);
         #endif
 
-        // Copy the hand info into
-        pose.leftHandInfo.Save(LeftHand);
-        pose.rightHandInfo.Save(RightHand);
+        // Copy the hand info into. computeAnchorOffset is true from the full pose editor
+        // (hands parented to the object anchor) and false from the batch migration (no
+        // object context — it must not overwrite the wrist offset with a wrong value).
+        pose.leftHandInfo.Save(LeftHand, computeAnchorOffset);
+        pose.rightHandInfo.Save(RightHand, computeAnchorOffset);
     }
 
 }

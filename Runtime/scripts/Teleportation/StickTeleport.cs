@@ -30,6 +30,11 @@ namespace jeanf.universalplayer
         [Tooltip("Curve velocity at full deflection — how far the longest teleport reaches.")]
         [SerializeField] private float maxCurveVelocity = 13f;
 
+        [Tooltip("Override the teleport ray's aim while summoned, so it fires forward out of the hand instead of along whatever the finger/stabilizer points at. Turn OFF to use the interactor's own ray origin unchanged.")]
+        [SerializeField] private bool overrideAim = true;
+        [Tooltip("Aim offset (Euler) applied on top of the controller's orientation while aiming. X tilts the launch DOWN. Tune live in Play mode until the arc points where you expect — this is the 'rotate the anchor' knob.")]
+        [SerializeField] private Vector3 aimEulerOffset = new Vector3(35f, 0f, 0f);
+
         /// <summary>Test seam: stick value per hand. Null = read the real XR device.</summary>
         public Func<XRNode, Vector2?> StickProbe;
 
@@ -38,6 +43,7 @@ namespace jeanf.universalplayer
             public XRNode Node;
             public XRRayInteractor Ray;
             public XRInteractorLineVisual LineVisual;
+            public Transform RayOrigin; // what the interactor casts from (stabilizer-driven)
             public bool Aiming;
             public float TargetYaw;
         }
@@ -74,6 +80,26 @@ namespace jeanf.universalplayer
             foreach (var hand in hands) DriveHand(hand);
         }
 
+        // The ray origin is driven by an XRTransformStabilizer (position + rotation) that
+        // aims along the finger/controller in a way that reads "sideways" for a natural
+        // hand pose. We keep its stabilized POSITION but re-aim its ROTATION forward out
+        // of the controller here in LateUpdate — after the stabilizer has run this frame,
+        // so our aim wins. Only while the ray is actually summoned.
+        private void LateUpdate()
+        {
+            if (!overrideAim) return;
+            if (BroadcastControlsStatus.controlScheme != BroadcastControlsStatus.ControlScheme.XR) return;
+            foreach (var hand in hands)
+            {
+                if (!hand.Aiming || hand.Ray == null) continue;
+                if (hand.RayOrigin == null)
+                    hand.RayOrigin = hand.Ray.rayOriginTransform != null ? hand.Ray.rayOriginTransform : hand.Ray.transform;
+                // The interactor transform tracks the controller (identity-local under it),
+                // so its rotation is the controller's aim; offset it forward/down.
+                hand.RayOrigin.rotation = hand.Ray.transform.rotation * Quaternion.Euler(aimEulerOffset);
+            }
+        }
+
         /// <summary>Finds the packaged teleport rays (projectile-curve interactors); also a test seam.</summary>
         public void RefreshInteractors()
         {
@@ -88,6 +114,7 @@ namespace jeanf.universalplayer
                     Node = node,
                     Ray = ray,
                     LineVisual = ray.GetComponent<XRInteractorLineVisual>(),
+                    RayOrigin = ray.rayOriginTransform != null ? ray.rayOriginTransform : ray.transform,
                 });
                 // The ray only shows while aiming.
                 ray.gameObject.SetActive(false);
