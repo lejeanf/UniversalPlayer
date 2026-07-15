@@ -144,55 +144,45 @@ namespace jeanf.universalplayer
             }
         }
 
+        // A hand's draw button: hide the item if it is already showing in THAT hand,
+        // otherwise show it there — moving it over from the other hand if needed.
         public void SetIpadStateForLeftHand(HandInfo handInfo)
         {
-            if (_ipadState is IpadState.Disabled or IpadState.InRightHand)
-            {
-                SetIpadStateForASpecificHand(handInfo, _leftHand);
-                _ipadState = IpadState.InLeftHand;
-                _leftGrab.RaiseEvent();
-                HoldPose(_leftHandPoseManager);
-                if(_leftHandPoseManager) _leftHandPoseManager.ApplyPose(primaryItemPose);
-                //_poseContainer.SetAttachTransform_Left();
-                if (!_rightHandPoseManager) return;
-                _rightHandPoseManager.ApplyDefaultPose();
-                _noGrab.RaiseEvent();
-                OnIpadStateChanged.Invoke(_ipadState);  
-                _PrimaryItemStateChannel.RaiseEvent(true);
-            }
-            else
-            {
-                _ipadState = IpadState.Disabled;
-                _PrimaryItemStateChannel.RaiseEvent(false);
-                OnIpadStateChanged.Invoke(_ipadState);
-                HoldPose(null);
-                if (_leftHandPoseManager) _leftHandPoseManager.ApplyDefaultPose();
-            }
+            if (_ipadState == IpadState.InLeftHand) HidePrimaryItem(_leftHandPoseManager);
+            else ShowPrimaryItemInHand(handInfo, isLeft: true);
         }
+
         public void SetIpadStateForRightHand(HandInfo handInfo)
         {
-            if (_ipadState is IpadState.Disabled or IpadState.InLeftHand)
-            {
-                SetIpadStateForASpecificHand(handInfo, _rightHand.transform);
-                _ipadState = IpadState.InRightHand;
-                _rightGrab.RaiseEvent();
-                HoldPose(_rightHandPoseManager);
-                if(_rightHandPoseManager) _rightHandPoseManager.ApplyPose(primaryItemPose);
-                //_poseContainer.SetAttachTransform_Right();
-                if (!_leftHandPoseManager) return;
-                _leftHandPoseManager.ApplyDefaultPose();
-                _noGrab.RaiseEvent();
-                OnIpadStateChanged.Invoke(_ipadState);
-                _PrimaryItemStateChannel.RaiseEvent(true);
-            }
-            else
-            {
-                _ipadState = IpadState.Disabled;
-                _PrimaryItemStateChannel.RaiseEvent(false);
-                OnIpadStateChanged.Invoke(_ipadState);
-                HoldPose(null);
-                if(_rightHandPoseManager) _rightHandPoseManager.ApplyDefaultPose();
-            }
+            if (_ipadState == IpadState.InRightHand) HidePrimaryItem(_rightHandPoseManager);
+            else ShowPrimaryItemInHand(handInfo, isLeft: false);
+        }
+
+        private void ShowPrimaryItemInHand(HandInfo handInfo, bool isLeft)
+        {
+            var handTransform = isLeft ? _leftHand : _rightHand;
+            var handPose = isLeft ? _leftHandPoseManager : _rightHandPoseManager;
+            var otherPose = isLeft ? _rightHandPoseManager : _leftHandPoseManager;
+
+            SetIpadStateForASpecificHand(handInfo, handTransform);
+            _ipadState = isLeft ? IpadState.InLeftHand : IpadState.InRightHand;
+            (isLeft ? _leftGrab : _rightGrab)?.RaiseEvent();
+            HoldPose(handPose);
+            if (handPose) handPose.ApplyPose(primaryItemPose);
+            // Open the hand it moved away from (the switch case); guarded, never early-returns.
+            if (otherPose) otherPose.ApplyDefaultPose();
+            _noGrab?.RaiseEvent();
+            OnIpadStateChanged?.Invoke(_ipadState);
+            _PrimaryItemStateChannel.RaiseEvent(true);
+        }
+
+        private void HidePrimaryItem(HandPoseManager fromHand)
+        {
+            _ipadState = IpadState.Disabled;
+            _PrimaryItemStateChannel.RaiseEvent(false);
+            OnIpadStateChanged?.Invoke(_ipadState);
+            HoldPose(null);
+            if (fromHand) fromHand.ApplyDefaultPose();
         }
         public void SetIpadStateForASpecificHand(HandInfo handInfo, Transform parent)
         {

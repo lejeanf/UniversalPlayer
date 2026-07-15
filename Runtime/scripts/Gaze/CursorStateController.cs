@@ -294,7 +294,8 @@ namespace jeanf.universalplayer
 
         /// <summary>
         /// One rule for the whole cursor:
-        ///  VR                          → Off (nothing changes when items equip)
+        ///  VR / FreeCam                → Off (headset owns the pointer in VR; FreeCam
+        ///                                is a free-fly camera with no cursor)
         ///  menu open                   → OnConstrained (the menu UI needs the
         ///                                cursor, even over the menu's black fade)
         ///  world black (load/teleport) → Off (nothing to point at)
@@ -303,7 +304,9 @@ namespace jeanf.universalplayer
         /// </summary>
         private void ResolveCursor()
         {
-            if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR)
+            var scheme = BroadcastControlsStatus.controlScheme;
+            if (scheme == BroadcastControlsStatus.ControlScheme.XR
+                || scheme == BroadcastControlsStatus.ControlScheme.Freecam)
                 SetCursorState(CursorState.Off);
             else if (_menuOpen)
                 SetCursorState(CursorState.OnConstrained);
@@ -330,7 +333,9 @@ namespace jeanf.universalplayer
             {
                 Debug.Log("Setting cursor to " + state.ToString());
             }
-            if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR) state = CursorState.Off;
+            var scheme = BroadcastControlsStatus.controlScheme;
+            if (scheme == BroadcastControlsStatus.ControlScheme.XR
+                || scheme == BroadcastControlsStatus.ControlScheme.Freecam) state = CursorState.Off;
             switch (state)
             {
                 case CursorState.OnConstrained:

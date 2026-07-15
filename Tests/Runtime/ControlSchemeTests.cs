@@ -1,19 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using jeanf.EventSystem;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.TestTools;
 
 namespace jeanf.universalplayer.tests
 {
     /// <summary>
-    /// Regression tests for the control scheme switching bug: entering VR used to set
-    /// neverAutoSwitchControlSchemes permanently, so VR -> keyboard never switched back.
-    /// Uses fake input devices and a fake HMD-presence probe — no headset needed.
+    /// Integration tests for the control-mode authority (BroadcastControlsStatus). The
+    /// mode is now a LOGICAL flag (<see cref="BroadcastControlsStatus.controlScheme"/>) —
+    /// input devices are never re-masked — so these assert the static, not
+    /// PlayerInput.currentControlScheme. They cover auto-detect at launch and the
+    /// Approach-A switching model (deliberate desktop input leaves VR; a debounced
+    /// presence edge / controller button / Ctrl+Alt+V enters; Link-style runtimes don't
+    /// re-lock). Exhaustive decision-table coverage is in <see cref="ControlModeArbiterTests"/>.
     /// </summary>
     public class ControlSchemeTests : InputTestFixture
     {
@@ -21,16 +25,30 @@ namespace jeanf.universalplayer.tests
         private PlayerInput _playerInput;
         private BroadcastControlsStatus _broadcaster;
         private InputActionAsset _actions;
-        private bool _fakeHmdMounted;
+        private DetectUserPresence.HmdState _fakeState;
         private readonly List<bool> _hmdEvents = new List<bool>();
 
-        [UnitySetUp]
-        public IEnumerator UnitySetUp()
+        private static BroadcastControlsStatus.ControlScheme Mode => BroadcastControlsStatus.controlScheme;
+
+        // Headset connected but OFF the head (presence supported, not present).
+        private static DetectUserPresence.HmdState OffHead =>
+            new DetectUserPresence.HmdState(hmdValid: true, presenceSupported: true, present: false, tracked: true);
+
+        // Headset worn (presence reported).
+        private static DetectUserPresence.HmdState Worn =>
+            new DetectUserPresence.HmdState(hmdValid: true, presenceSupported: true, present: true, tracked: true);
+
+        // Link-style runtime: userPresence NOT reported, tracking stuck true even off-head.
+        private static DetectUserPresence.HmdState LinkNoPresence =>
+            new DetectUserPresence.HmdState(hmdValid: true, presenceSupported: false, present: false, tracked: true);
+
+        public override void Setup()
         {
             base.Setup(); // InputTestFixture: isolated input system state
 
             InputSystem.AddDevice<Keyboard>();
             InputSystem.AddDevice<Mouse>();
+            InputSystem.AddDevice<Gamepad>();
             try { InputSystem.AddDevice<XRHMD>(); }
             catch
             {
@@ -45,162 +63,378 @@ namespace jeanf.universalplayer.tests
             _actions.AddControlScheme("Keyboard&Mouse").WithRequiredDevice("<Keyboard>").WithOptionalDevice("<Mouse>");
             _actions.AddControlScheme("XR").WithRequiredDevice("<XRHMD>");
             _actions.AddControlScheme("Gamepad").WithRequiredDevice("<Gamepad>");
-            InputSystem.AddDevice<Gamepad>();
 
             _hmdEvents.Clear();
             PlayerEvents.HmdStateChanged += RecordHmdEvent;
+            _fakeState = OffHead;
 
-            _fakeHmdMounted = false;
-            _playerGo = new GameObject("ControlSchemeTestPlayer");
-            _playerGo.SetActive(false);
-            _playerInput = _playerGo.AddComponent<PlayerInput>();
-            _playerInput.actions = _actions;
-            _playerInput.defaultControlScheme = "Keyboard&Mouse";
-            _playerInput.neverAutoSwitchControlSchemes = false;
-            _playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
-
-            _broadcaster = _playerGo.AddComponent<BroadcastControlsStatus>();
-            _broadcaster.playerInput = _playerInput;
-            _broadcaster.HmdMountedProbe = () => _fakeHmdMounted;
-            SetField(_broadcaster, "hmdPollIntervalSeconds", 0.01f);
-
-            _playerGo.SetActive(true);
-            yield return null; // Awake/Start
+            // Isolate the mode-preference from real PlayerPrefs and from other tests.
+            ControlModePreference.ExternalProvider = null;
+            ControlModePreference.Clear();
         }
 
-        [UnityTearDown]
-        public IEnumerator UnityTearDown()
+        public override void TearDown()
         {
             PlayerEvents.HmdStateChanged -= RecordHmdEvent;
-            Object.Destroy(_playerGo);
-            Object.Destroy(_actions);
-            yield return null;
+            ControlModePreference.ExternalProvider = null;
+            ControlModePreference.Clear();
+            if (_playerGo != null) Object.Destroy(_playerGo);
+            if (_actions != null) Object.Destroy(_actions);
             base.TearDown();
         }
 
         private void RecordHmdEvent(bool mounted) => _hmdEvents.Add(mounted);
 
-        private IEnumerator WaitForPoll() => WaitSeconds(0.1f);
+        /// <summary>Creates and starts the player with the current fake HMD state, so start-in-mode is observable.</summary>
+        private IEnumerator Begin()
+        {
+            _playerGo = new GameObject("ControlSchemeTestPlayer");
+            _playerGo.SetActive(false);
+            _playerInput = _playerGo.AddComponent<PlayerInput>();
+            _playerInput.actions = _actions;
+            _playerInput.defaultControlScheme = "Keyboard&Mouse";
+            _playerInput.defaultActionMap = "Player";
+            _playerInput.neverAutoSwitchControlSchemes = false;
+            _playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
+
+            _broadcaster = _playerGo.AddComponent<BroadcastControlsStatus>();
+            _broadcaster.playerInput = _playerInput;
+            _broadcaster.HmdStateProbe = () => _fakeState;
+            SetField(_broadcaster, "hmdPollIntervalSeconds", 0.01f);
+            SetField(_broadcaster, "switchCooldownSeconds", 0f); // no debounce in tests (they switch fast)
+
+            _playerGo.SetActive(true);
+            yield return null; // Awake/Start
+            yield return WaitForPoll();
+        }
+
+        private static IEnumerator WaitForPoll() => WaitSeconds(0.05f);
 
         private static IEnumerator WaitSeconds(float seconds)
         {
             yield return new WaitForSeconds(seconds);
         }
 
-        [UnityTest]
-        public IEnumerator PuttingHmdOn_SwitchesToXr_LocksScheme_AndRaisesChannel()
+        private IEnumerator PressKey(KeyControl key)
         {
-            _fakeHmdMounted = true;
-            yield return WaitForPoll();
+            Press(key);
+            yield return null;
+            yield return null;
+            Release(key);
+            yield return null;
+        }
 
-            Assert.That(_playerInput.currentControlScheme, Is.EqualTo("XR"),
-                "Putting the headset on did not switch PlayerInput to the XR scheme.");
-            Assert.That(BroadcastControlsStatus.controlScheme, Is.EqualTo(BroadcastControlsStatus.ControlScheme.XR),
-                "The static controlScheme did not follow the switch to XR — listeners (hands, cursor) won't react.");
-            Assert.That(_playerInput.neverAutoSwitchControlSchemes, Is.True,
-                "While the headset is worn, auto-switching must be locked so idle mouse/keyboard input " +
-                "cannot yank the player out of VR.");
-            Assert.That(_hmdEvents, Does.Contain(true),
-                "PlayerEvents.HmdStateChanged was not raised with 'true' when the headset was put on.");
+        // ---- start-in-mode (auto-detection) -------------------------------------
+
+        [UnityTest]
+        public IEnumerator StartsInVr_WhenWornAtLaunch()
+        {
+            _fakeState = Worn;
+            yield return Begin();
+
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.XR),
+                "Launching with the headset worn did not auto-detect VR.");
+            Assert.That(_hmdEvents, Does.Contain(true));
         }
 
         [UnityTest]
-        public IEnumerator RemovingHmd_SwitchesBackToKeyboard_TheOldLatchBug()
+        public IEnumerator StartsInVr_OverLink_WhenTrackedAtLaunch()
         {
-            _fakeHmdMounted = true;
-            yield return WaitForPoll();
-            Assert.That(_playerInput.currentControlScheme, Is.EqualTo("XR"), "Precondition failed: XR scheme not active.");
+            _fakeState = LinkNoPresence;
+            yield return Begin();
 
-            _fakeHmdMounted = false;
-            yield return WaitForPoll();
-
-            Assert.That(_playerInput.currentControlScheme, Is.EqualTo("Keyboard&Mouse"),
-                "THE VR->KEYBOARD BUG IS BACK: removing the headset did not switch back to Keyboard&Mouse. " +
-                "Most likely neverAutoSwitchControlSchemes is latched permanently again (BroadcastControlsStatus).");
-            Assert.That(_playerInput.neverAutoSwitchControlSchemes, Is.False,
-                "After removing the headset, auto-switching must be re-enabled so gamepad/other devices work.");
-            Assert.That(_hmdEvents, Does.Contain(false),
-                "PlayerEvents.HmdStateChanged was not raised with 'false' when the headset was removed.");
-            Assert.That(BroadcastControlsStatus.controlScheme, Is.EqualTo(BroadcastControlsStatus.ControlScheme.KeyboardMouse),
-                "The static controlScheme did not follow the switch back to Keyboard&Mouse.");
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.XR),
+                "Launching worn over Link (tracked, no presence) should start in VR via the launch hint.");
         }
 
         [UnityTest]
-        public IEnumerator StuckPresenceSensor_DesktopInput_TakesControlBack()
+        public IEnumerator StartsInDesktop_WhenOffHeadAtLaunch()
         {
-            // A headset resting on a desk often reports 'user present' forever (light on
-            // the proximity sensor, Link idling). That must NEVER lock out the desktop:
-            // after the donning grace period, real keyboard/mouse input wins.
-            SetField(_broadcaster, "xrInputGraceSeconds", 0.05f);
-            _fakeHmdMounted = true; // and it never goes false again — the stuck sensor
-            yield return WaitForPoll();
-            Assert.That(_playerInput.currentControlScheme, Is.EqualTo("XR"), "Precondition failed: XR scheme not active.");
+            _fakeState = OffHead;
+            yield return Begin();
 
-            yield return WaitSeconds(0.15f); // let the donning grace expire
-            Press(Keyboard.current.wKey);
-            yield return null;
-            yield return null;
-
-            Assert.That(_playerInput.currentControlScheme, Is.EqualTo("Keyboard&Mouse"),
-                "THE VR-LOCKOUT BUG IS BACK: with the presence sensor stuck on 'mounted', pressing a key " +
-                "did not hand control back to the keyboard — desktop players are locked out whenever a " +
-                "headset is plugged in (BroadcastControlsStatus desktop-input arbitration).");
-            Assert.That(BroadcastControlsStatus.controlScheme, Is.EqualTo(BroadcastControlsStatus.ControlScheme.KeyboardMouse),
-                "The static controlScheme did not follow the desktop takeover.");
-            Assert.That(_playerInput.neverAutoSwitchControlSchemes, Is.True,
-                "While presence still claims 'mounted', auto-switching must stay blocked — otherwise the " +
-                "continuously-streaming HMD data yanks the scheme straight back to XR.");
-            Release(Keyboard.current.wKey);
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.KeyboardMouse),
+                "Launching with the headset off the head should start in Keyboard&Mouse.");
         }
 
         [UnityTest]
-        public IEnumerator PluggedHeadsetLatch_GamepadStillSwitchesFromKeyboard()
+        public IEnumerator Startup_AlwaysRaisesInitialHmdState_EvenOnDesktop()
         {
-            // With a desk headset keeping presence 'mounted', the auto-switch latch stays
-            // on and PlayerInput's native KBM<->Gamepad switching is blocked — the
-            // arbitration must handle desktop<->desktop swaps manually.
-            SetField(_broadcaster, "xrInputGraceSeconds", 0.05f);
-            _fakeHmdMounted = true; // stuck sensor
+            _fakeState = OffHead; // desktop launch
+            yield return Begin();
+
+            Assert.That(_hmdEvents, Is.Not.Empty,
+                "The initial headset state must be broadcast at startup (desktop included) so channel listeners initialise.");
+            Assert.That(_hmdEvents[0], Is.False, "Desktop launch should report not-in-VR.");
+        }
+
+        [UnityTest]
+        public IEnumerator StartsInLastKnownDesktopScheme_Gamepad()
+        {
+            ControlModePreference.ExternalProvider = () => BroadcastControlsStatus.ControlScheme.Gamepad;
+            _fakeState = OffHead;
+            yield return Begin();
+
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.Gamepad),
+                "A desktop launch should restore the last-used desktop mode (Gamepad), not always default to Keyboard&Mouse.");
+        }
+
+        // ---- leaving VR ----------------------------------------------------------
+
+        [UnityTest]
+        public IEnumerator Worn_DeliberateKeyboard_ExitsVr_AndStays()
+        {
+            _fakeState = Worn;
+            yield return Begin();
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.XR), "Precondition: XR active.");
+
+            yield return PressKey(Keyboard.current.wKey);
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.KeyboardMouse),
+                "Deliberate keyboard input must leave VR (Approach A).");
+
+            // Still worn, but no NEW presence rising edge → must not bounce back to XR.
             yield return WaitForPoll();
-            yield return WaitSeconds(0.15f);
-            Press(Keyboard.current.wKey);
+            yield return WaitForPoll();
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.KeyboardMouse),
+                "A continuously-worn headset must not yank the player back into VR after a deliberate exit.");
+        }
+
+        [UnityTest]
+        public IEnumerator HeadsetOff_NoInput_StaysInCurrentScheme()
+        {
+            _fakeState = Worn;
+            yield return Begin();
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.XR), "Precondition: XR active.");
+
+            _fakeState = OffHead; // taken off, but nothing touched yet
+            yield return WaitForPoll();
+            yield return WaitForPoll();
+
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.XR),
+                "Removing the headset must not blank the view until a desktop control is touched.");
+        }
+
+        [UnityTest]
+        public IEnumerator HeadsetOff_ThenKeyboard_SwitchesToKbm()
+        {
+            _fakeState = Worn;
+            yield return Begin();
+
+            _fakeState = OffHead;
+            yield return WaitForPoll();
+            yield return PressKey(Keyboard.current.wKey);
+
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.KeyboardMouse),
+                "Headset off + keyboard input should switch to Keyboard&Mouse.");
+        }
+
+        [UnityTest]
+        public IEnumerator HeadsetOff_ThenGamepad_SwitchesToGamepad()
+        {
+            _fakeState = Worn;
+            yield return Begin();
+
+            _fakeState = OffHead;
+            yield return WaitForPoll();
+            Press(Gamepad.current.buttonSouth);
             yield return null;
             yield return null;
-            Release(Keyboard.current.wKey);
-            Assert.That(_playerInput.currentControlScheme, Is.EqualTo("Keyboard&Mouse"), "Precondition failed: desktop takeover.");
+            Release(Gamepad.current.buttonSouth);
+
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.Gamepad),
+                "Headset off + gamepad input should switch to Gamepad.");
+        }
+
+        // ---- the Link regression: no re-lock, and Ctrl+Alt+V returns -------------
+
+        [UnityTest]
+        public IEnumerator LinkRegime_LeaveVr_StaysDesktop_NoReLock()
+        {
+            _fakeState = LinkNoPresence;
+            yield return Begin();
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.XR), "Precondition: launched in VR over Link.");
+
+            yield return PressKey(Keyboard.current.wKey);
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.KeyboardMouse), "Keyboard must leave VR.");
+
+            for (var i = 0; i < 3; i++) yield return WaitForPoll();
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.KeyboardMouse),
+                "Stuck isTracked must never re-lock the player into VR over Link.");
+        }
+
+        [UnityTest]
+        public IEnumerator LinkRegime_CtrlAltV_ReEntersVr()
+        {
+            _fakeState = LinkNoPresence;
+            yield return Begin();
+            yield return PressKey(Keyboard.current.wKey); // leave VR
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.KeyboardMouse), "Precondition: on desktop.");
+
+            // Ctrl+Alt+V — the reliable re-entry when the runtime reports no presence edge.
+            Press(Keyboard.current.leftCtrlKey);
+            Press(Keyboard.current.leftAltKey);
+            yield return null;
+            Press(Keyboard.current.vKey);
+            yield return null;
+            yield return null;
+            Release(Keyboard.current.vKey);
+            Release(Keyboard.current.leftAltKey);
+            Release(Keyboard.current.leftCtrlKey);
+
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.XR),
+                "Ctrl+Alt+V must re-enter VR over a no-presence runtime.");
+        }
+
+        // ---- desktop <-> desktop -------------------------------------------------
+
+        [UnityTest]
+        public IEnumerator Desktop_KbmToGamepadAndBack()
+        {
+            _fakeState = OffHead;
+            yield return Begin();
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.KeyboardMouse), "Precondition: KBM.");
 
             Press(Gamepad.current.buttonSouth);
             yield return null;
             yield return null;
-
-            Assert.That(_playerInput.currentControlScheme, Is.EqualTo("Gamepad"),
-                "Pressing a gamepad button in Keyboard&Mouse (with the headset latch active) did not switch to " +
-                "the Gamepad scheme — gamepads are unusable whenever a headset is plugged in.");
             Release(Gamepad.current.buttonSouth);
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.Gamepad),
+                "Gamepad input in KBM must switch to Gamepad.");
 
-            Press(Keyboard.current.wKey);
-            yield return null;
-            yield return null;
-            Assert.That(_playerInput.currentControlScheme, Is.EqualTo("Keyboard&Mouse"),
-                "Keyboard input did not take the scheme back from Gamepad.");
-            Release(Keyboard.current.wKey);
+            yield return PressKey(Keyboard.current.wKey);
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.KeyboardMouse),
+                "Keyboard input must take the mode back from Gamepad.");
         }
 
         [UnityTest]
         public IEnumerator HmdOnOffOn_KeepsWorkingBothWays()
         {
+            _fakeState = OffHead;
+            yield return Begin();
+
             for (var cycle = 0; cycle < 2; cycle++)
             {
-                _fakeHmdMounted = true;
+                _fakeState = Worn; // a real presence rising edge (debounced) re-enters VR
                 yield return WaitForPoll();
-                Assert.That(_playerInput.currentControlScheme, Is.EqualTo("XR"),
-                    $"Cycle {cycle}: putting the headset back on no longer switches to XR.");
+                Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.XR),
+                    $"Cycle {cycle}: putting the headset on (presence edge) should switch to XR.");
 
-                _fakeHmdMounted = false;
+                _fakeState = OffHead;
                 yield return WaitForPoll();
-                Assert.That(_playerInput.currentControlScheme, Is.EqualTo("Keyboard&Mouse"),
-                    $"Cycle {cycle}: removing the headset no longer switches back to Keyboard&Mouse.");
+                yield return PressKey(Keyboard.current.wKey);
+                Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.KeyboardMouse),
+                    $"Cycle {cycle}: headset off + keyboard should return to Keyboard&Mouse.");
             }
+        }
+
+        // ---- force-desktop failsafe ----------------------------------------------
+
+        [UnityTest]
+        public IEnumerator ForceDesktopControls_DropsToKbm_AndStaysWhileWorn()
+        {
+            _fakeState = Worn;
+            yield return Begin();
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.XR), "Precondition: XR active.");
+
+            _broadcaster.ForceDesktopControls("battery critical (test)");
+            yield return null;
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.KeyboardMouse),
+                "ForceDesktopControls must drop to Keyboard&Mouse even while worn.");
+
+            yield return WaitForPoll();
+            yield return WaitForPoll();
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.KeyboardMouse),
+                "The force-desktop drop must hold while the headset stays continuously worn.");
+        }
+
+        // ---- freecam sub-mode ----------------------------------------------------
+
+        [UnityTest]
+        public IEnumerator SetFreecam_EntersAndExits_LogicalSubMode()
+        {
+            _fakeState = OffHead;
+            yield return Begin();
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.KeyboardMouse), "Precondition: KBM.");
+
+            _broadcaster.SetFreecam(true, BroadcastControlsStatus.ControlScheme.KeyboardMouse);
+            yield return null;
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.Freecam),
+                "SetFreecam(true) must enter the FreeCam sub-mode, and arbitration must leave it alone.");
+
+            yield return WaitForPoll();
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.Freecam),
+                "FreeCam must persist — arbitration does not override it.");
+
+            _broadcaster.SetFreecam(false, BroadcastControlsStatus.ControlScheme.KeyboardMouse);
+            yield return null;
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.KeyboardMouse),
+                "SetFreecam(false) must restore the desktop mode.");
+        }
+
+        // ---- broadcast dedup (no over-firing) ------------------------------------
+
+        [UnityTest]
+        public IEnumerator SwitchingMode_BroadcastsOncePerChange()
+        {
+            _fakeState = Worn;
+            yield return Begin();
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.XR), "Precondition: XR active.");
+
+            var count = 0;
+            BroadcastControlsStatus.SendControlScheme += Counter;
+            try
+            {
+                _fakeState = OffHead;
+                yield return WaitForPoll();
+                yield return PressKey(Keyboard.current.wKey);
+
+                Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.KeyboardMouse), "Precondition: switched to KBM.");
+                Assert.That(count, Is.EqualTo(1),
+                    "The XR->Keyboard&Mouse switch fired SendControlScheme " + count + " times; it must fire exactly once.");
+            }
+            finally
+            {
+                BroadcastControlsStatus.SendControlScheme -= Counter;
+            }
+
+            void Counter(BroadcastControlsStatus.ControlScheme _) => count++;
+        }
+
+        // ---- pure worn-signal helpers --------------------------------------------
+
+        [Test]
+        public void WornForEntry_IsPresenceOnly_NeverTracked()
+        {
+            Assert.That(BroadcastControlsStatus.WornForEntry(
+                new DetectUserPresence.HmdState(true, true, true, false)), Is.True,
+                "Presence supported + present is worn.");
+            Assert.That(BroadcastControlsStatus.WornForEntry(
+                new DetectUserPresence.HmdState(true, true, false, true)), Is.False,
+                "Presence supported + not present is not worn (tracked ignored).");
+            Assert.That(BroadcastControlsStatus.WornForEntry(
+                new DetectUserPresence.HmdState(true, false, false, true)), Is.False,
+                "The Link fix: presence unsupported + tracked must NOT count as worn at runtime.");
+            Assert.That(BroadcastControlsStatus.WornForEntry(
+                new DetectUserPresence.HmdState(false, true, true, true)), Is.False,
+                "An invalid HMD is never worn.");
+        }
+
+        [Test]
+        public void ComputeWornAtLaunch_UsesPresence_ThenTracking()
+        {
+            Assert.That(BroadcastControlsStatus.ComputeWornAtLaunch(
+                new DetectUserPresence.HmdState(true, true, true, false)), Is.True);
+            Assert.That(BroadcastControlsStatus.ComputeWornAtLaunch(
+                new DetectUserPresence.HmdState(true, true, false, true)), Is.False,
+                "Presence supported + not present ignores tracked at launch.");
+            Assert.That(BroadcastControlsStatus.ComputeWornAtLaunch(
+                new DetectUserPresence.HmdState(true, false, false, true)), Is.True,
+                "Presence unsupported falls back to tracking for the ONE launch decision.");
+            Assert.That(BroadcastControlsStatus.ComputeWornAtLaunch(
+                new DetectUserPresence.HmdState(true, false, false, false)), Is.False);
+            Assert.That(BroadcastControlsStatus.ComputeWornAtLaunch(
+                new DetectUserPresence.HmdState(false, false, false, true)), Is.False,
+                "An invalid HMD is never worn.");
         }
 
         private static void SetField(object target, string fieldName, object value)

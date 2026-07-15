@@ -6145,7 +6145,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2423214379621556911}
   - component: {fileID: 5246354473374005088}
-  - component: {fileID: 2665802328072059309}
   - component: {fileID: 5280162163099371832}
   - component: {fileID: 4061889393909512434}
   - component: {fileID: 8181721135841574653}
@@ -6165,6 +6164,9 @@ GameObject:
   - component: {fileID: 4416398215687170347}
   - component: {fileID: 4416398215687170348}
   - component: {fileID: 4416398215687170349}
+  - component: {fileID: 4416398215687170350}
+  - component: {fileID: 4416398215687170351}
+  - component: {fileID: 4416398215687170352}
   m_Layer: 9
   m_Name: Player
   m_TagString: Player
@@ -6208,7 +6210,7 @@ MonoBehaviour:
   m_CameraFloorOffsetObject: {fileID: 7264267533532500777}
   m_RequestedTrackingOriginMode: 2
   m_CameraYOffset: 1.36144
---- !u!114 &2665802328072059309
+--- !u!114 &4416398215687170350
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -6217,13 +6219,37 @@ MonoBehaviour:
   m_GameObject: {fileID: 8694773027870397994}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5a11e2b9ac9f4b058e4d5d1cdf05b499, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_LeftHand: {fileID: 6601360084267668000}
-  m_RightHand: {fileID: 6601360083180395373}
-  m_LeftController: {fileID: 2278783626678670785}
-  m_RightController: {fileID: 8387425044706141412}
+  m_Script: {fileID: 11500000, guid: b7f3a1c294e5d4e0aa1f6c3d8b2e5f47, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  _isDebug: 0
+--- !u!114 &4416398215687170351
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8694773027870397994}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3e4f5a6b7c8091e2f3a4b5c6d7e8f90, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  rescanInterval: 1
+--- !u!114 &4416398215687170352
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8694773027870397994}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2c3d4e5f6a70819203b4c5d6e7f8a02, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  showOverlay: 0
+  allowRuntimeToggle: 1
 --- !u!143 &5280162163099371832
 CharacterController:
   m_ObjectHideFlags: 0

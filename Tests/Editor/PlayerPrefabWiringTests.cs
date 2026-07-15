@@ -76,6 +76,49 @@ namespace jeanf.universalplayer.tests
         }
 
         [Test]
+        public void HandsDisplayer_IsTheSingleHandVisibilityAuthority()
+        {
+            // Regression: the Player used to also carry the XRI sample
+            // HandsAndControllersManager, which toggles the SAME Left/Right Controller
+            // objects as HandsDisplayer but with opposite (hand-tracking) logic — the
+            // two fought and the hands ended up hidden. HandsDisplayer (scheme-driven)
+            // is the sole authority; nothing else may toggle those objects.
+            Assert.That(_player.GetComponentsInChildren<HandsDisplayer>(true).Length, Is.EqualTo(1),
+                "Expected exactly one HandsDisplayer on the Player prefab.");
+
+            foreach (var component in _player.GetComponentsInChildren<Component>(true))
+            {
+                if (component == null) continue; // missing script slot
+                Assert.That(component.GetType().Name, Is.Not.EqualTo("HandsAndControllersManager"),
+                    "The XRI-sample HandsAndControllersManager is back on the Player prefab. It fights " +
+                    "HandsDisplayer over the Left/Right Controller objects (and depends on a project-side " +
+                    "imported sample). Remove it — HandsDisplayer owns hand visibility.");
+            }
+        }
+
+        [Test]
+        public void XrModeManager_ShipsOnThePlayer()
+        {
+            // Matches the XR display to the control mode (stereo in VR, flat on
+            // desktop) so the monitor never shows a single-eye view outside VR.
+            RequireComponent<XrModeManager>();
+        }
+
+        [Test]
+        public void XrModeHud_ShipsOnThePlayer_OverlayOffByDefault()
+        {
+            // Diagnostic HUD for the presence signals + resolved mode. Ships present but
+            // with the overlay disabled (toggle at runtime with Ctrl+Alt+H).
+            var hud = RequireComponent<XrModeHud>();
+            var so = new SerializedObject(hud);
+            var overlay = so.FindProperty("showOverlay");
+            Assert.That(overlay, Is.Not.Null,
+                "Field 'showOverlay' no longer exists on XrModeHud — update this test alongside the refactor.");
+            Assert.That(overlay.boolValue, Is.False,
+                "The XR mode HUD must ship with its overlay disabled — it is a debug tool, not default UI.");
+        }
+
+        [Test]
         public void PlayerEventBridge_IsTheSingleWiringPoint_AndFullyAssigned()
         {
             var bridge = RequireComponent<PlayerEventBridge>();

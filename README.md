@@ -9,7 +9,7 @@
 
 This package was built for a hospital simulator (the UVS project) where the same scenario must be playable by a student at a desk, on a couch with a controller, or inside a headset — **without authoring the interaction three times**. Everything in the package follows from four principles:
 
-1. **One player, every input.** The player watches all connected devices and switches to whichever one you actually use — no menu, no setup, *"most recent meaningful input wins"*. Putting on a headset switches to VR; touching the mouse, keyboard or gamepad switches back.
+1. **One player, every input.** The player watches all connected devices and switches to whichever one you actually use — no menu, no setup, *"most recent meaningful input wins"*. Using the mouse, keyboard or gamepad switches to desktop; picking up and pressing a VR controller (or donning the headset where the runtime reports presence) switches to VR — with `Ctrl`+`Alt`+`K` / `Ctrl`+`Alt`+`V` as explicit fallbacks for runtimes that don't report headset presence (e.g. some setups over Link).
 2. **Feature parity across modes.** Interacting, grabbing, sitting, teleporting, menus — every feature raises the *same events* whatever the input device. If it works in VR it works on desktop, and vice versa. Gameplay code never needs to know which mode is active.
 3. **Simple to set up, loud when broken.** One menu click creates a working player for your render pipeline. A validation tool (`Tools/UniversalPlayer/ValidateSetup`) and runtime guards report misconfiguration with actionable messages instead of failing silently.
 4. **The project owns the game; the package owns the player.** Communication happens through ScriptableObject event channels and C# delegates (single `PlayerChannels` hub — see `Documentation~/player-channels-hub.md`). The map, the inventory, the menus, the scenario logic all live in *your* project; the player just reports what the user did.
@@ -64,8 +64,10 @@ To integrate with your project, copy the `PlayerChannels` asset locally (the pla
 |---|---|---|
 | **Mouse & Keyboard** | Any key press, click or mouse movement | First-person, center-screen reticle (tints green over anything usable, fills up for gaze-validated actions) |
 | **Gamepad** | Any button/stick input on a connected gamepad | Same first-person experience as Mouse & Keyboard |
-| **VR** | Putting on the headset (or moving a tracked controller) | XR Interaction Toolkit rig: tracked hands with poses, grab preview (highlight + ghost hand), fingertip UI ray |
+| **VR** | Press a VR controller button, or don the headset where the runtime reports presence (`Ctrl`+`Alt`+`V` to force) | XR Interaction Toolkit rig: tracked hands with poses, grab preview (highlight + ghost hand), fingertip UI ray |
 | **Free camera** | Toggled from Mouse & Keyboard or Gamepad (see bindings) | Detached fly-through camera for debugging/inspection; toggling again returns to the previous mode |
+
+> **Leaving VR:** any deliberate keyboard, mouse or gamepad input drops back to desktop; `Ctrl`+`Alt`+`K` forces it even when the headset still reports as worn. **Entering VR:** a controller button or `Ctrl`+`Alt`+`V` is the reliable path on runtimes that don't report `userPresence`. A debug HUD (`Ctrl`+`Alt`+`H`) shows the live mode/presence state.
 
 ---
 
@@ -87,7 +89,9 @@ All bindings live in `Runtime/InputActions/UniversalPlayer_InputActions.inputact
 | Inventory (raises `toggleInventory` channel) | `I` | D-pad right |
 | Main menu | `Esc` | `Start` |
 | Pause | `P` | `Select` |
-| Toggle free camera | `Ctrl`+`Shift`+`C` | Hold D-pad down + `Y` |
+| Toggle free camera | `Ctrl`+`Alt`+`F` | Hold D-pad down + `Y` |
+| Force Keyboard & Mouse (leave VR) | `Ctrl`+`Alt`+`K` | — |
+| Force VR | `Ctrl`+`Alt`+`V` | Press any controller button |
 
 Map and Inventory only *report the press* on their ScriptableObject event channels (`PlayerChannelsSO.toggleMap` / `toggleInventory`) — the project owns both UIs and their open/close state.
 
@@ -98,7 +102,7 @@ Free camera, while active:
 | Move | `W` `A` `S` `D` | Left stick |
 | Look around | Mouse (hold right click to rotate) | Right stick |
 | Up / down | `E` / `Q` | Right trigger / left trigger |
-| Exit | `Ctrl`+`Shift`+`C` | Hold D-pad down + `Y` |
+| Exit | `Ctrl`+`Alt`+`F` | Hold D-pad down + `Y` |
 
 VR uses the standard XR Interaction Toolkit bindings: sticks for locomotion/turning, grip to grab (with highlight + ghost-hand grab preview), trigger to select and click UI, plus gaze-timed validation where the scene uses it. The **menu button** (left controller) opens the main menu, like `Esc`/`Start` on desktop. Item, seat and UI interactions are the same events as on desktop — features behave identically across modes.
 

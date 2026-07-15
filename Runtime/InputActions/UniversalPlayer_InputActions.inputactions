@@ -728,7 +728,7 @@
                 {
                     "name": "",
                     "id": "a4e5d42c-7425-44cd-849c-e0de8fab212b",
-                    "path": "<XRController>{LeftHand}/primaryButton",
+                    "path": "<XRController>{LeftHand}/secondaryButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "XR",
@@ -1571,7 +1571,7 @@
                 {
                     "name": "",
                     "id": "b7fb8bb6-743e-4fed-ac81-d6123a50b9b3",
-                    "path": "<XRController>{RightHand}/primaryButton",
+                    "path": "<XRController>{RightHand}/secondaryButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "XR",
@@ -2655,7 +2655,7 @@
                 {
                     "name": "",
                     "id": "5b67bf19-c944-4b14-8d6d-dd9ea3427458",
-                    "path": "<XRController>{RightHand}/primaryButton",
+                    "path": "<XRController>{RightHand}/triggerPressed",
                     "interactions": "",
                     "processors": "",
                     "groups": "XR",
@@ -2666,7 +2666,7 @@
                 {
                     "name": "",
                     "id": "b90525e3-1466-424f-9e69-eb23fb7f077e",
-                    "path": "<XRController>{LeftHand}/primaryButton",
+                    "path": "<XRController>{LeftHand}/triggerPressed",
                     "interactions": "",
                     "processors": "",
                     "groups": "XR",

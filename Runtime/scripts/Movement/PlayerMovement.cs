@@ -114,6 +114,39 @@ namespace jeanf.universalplayer
         public bool IsCrouched => crouchBlend > 0.5f;
         public bool IsGrounded => controller != null && controller.isGrounded;
         public Vector2 MoveInput => moveValue;
+        /// <summary>Diagnostics: is the movement input currently registering as "moving".</summary>
+        public bool IsMoving => isMoving;
+        /// <summary>Diagnostics: is the CharacterController present and enabled (walking is dead when it is not).</summary>
+        public bool ControllerEnabled => controller != null && controller.enabled;
+
+        /// <summary>
+        /// Diagnostics: full movement + input state dump for logging. Reveals which stage
+        /// of the walk pipeline is failing — no input (moveInput 0 while a key is down),
+        /// a frozen gate (locomotionLocked / menu / pause / sceneLoading), a disabled or
+        /// un-grounded controller, or input present but the controller not actually moving.
+        /// </summary>
+        public string DiagnosticSnapshot()
+        {
+            var kb = Keyboard.current;
+            var wPressed = kb != null && kb.wKey.isPressed;
+            var action = fpsMoveAction != null ? fpsMoveAction.action : null;
+            var actionEnabled = action != null && action.enabled;
+            var controlsCount = action != null ? action.controls.Count : -1;
+            var boundDevices = "n/a";
+            if (action != null && action.controls.Count > 0)
+            {
+                var set = new System.Collections.Generic.HashSet<string>();
+                for (var i = 0; i < action.controls.Count; i++) set.Add(action.controls[i].device.displayName);
+                boundDevices = string.Join(",", set);
+            }
+            var actualVel = controller != null && controller.enabled ? controller.velocity : Vector3.zero;
+            var groundedRobust = controller != null && controller.enabled && IsGroundedForMovement();
+            return
+                $"movement: scheme={BroadcastControlsStatus.controlScheme} ctrlEnabled={ControllerEnabled} grounded={IsGrounded} groundedRobust={groundedRobust} " +
+                $"locomotionLocked={LocomotionLocked} menuOpen={menuOpen} paused={paused} sceneLoading={sceneIsLoading} isFreeCamOn={isFreeCamOn}\n" +
+                $"    moveInput={moveValue} isMoving={isMoving} planarVel={planarVelocity} actualVel={actualVel} rootPos={transform.position}\n" +
+                $"    Keyboard={(kb != null ? "Yes" : "NULL")} wPressed={wPressed}  fpsMoveAction(legacy route): enabled={actionEnabled} controls={controlsCount} devices=[{boundDevices}]";
+        }
         /// <summary>Current vertical velocity in m/s (M&K/gamepad modes; negative while falling).</summary>
         public float VerticalVelocity => verticalVelocity;
         /// <summary>When true (e.g. while seated) movement, crouch and gravity are suspended. Input is still read.</summary>
@@ -386,37 +419,30 @@ namespace jeanf.universalplayer
 
         private BroadcastControlsStatus.ControlScheme preFreecamScheme = BroadcastControlsStatus.ControlScheme.KeyboardMouse;
 
+        private BroadcastControlsStatus _controls;
+
         private void OnFreeCamPerformed(InputAction.CallbackContext ctx) => ActivateFreeMove();
         private void ActivateFreeMove()
         {
+            // FreeCam is a LOGICAL sub-mode now (no device re-masking): toggle it through
+            // the control authority so the decoupled input state is never disturbed.
+            if (_controls == null && playerInput != null) _controls = playerInput.GetComponent<BroadcastControlsStatus>();
+            if (_controls == null) return;
+
             switch (controlScheme)
             {
                 case BroadcastControlsStatus.ControlScheme.KeyboardMouse:
                 case BroadcastControlsStatus.ControlScheme.Gamepad:
                     preFreecamScheme = controlScheme;
-                    playerInput.SwitchCurrentControlScheme("FreeCam", FreecamDevices());
+                    _controls.SetFreecam(true, preFreecamScheme);
                     isFreeCamOn = true;
                     break;
                 case BroadcastControlsStatus.ControlScheme.Freecam:
                     // Return to wherever we came from (keyboard or gamepad).
-                    if (preFreecamScheme == BroadcastControlsStatus.ControlScheme.Gamepad && Gamepad.current != null)
-                        playerInput.SwitchCurrentControlScheme("Gamepad", Gamepad.current);
-                    else
-                        playerInput.SwitchCurrentControlScheme("Keyboard&Mouse", Keyboard.current, Mouse.current);
+                    _controls.SetFreecam(false, preFreecamScheme);
                     isFreeCamOn = false;
                     break;
             }
-        }
-
-        private static InputDevice[] FreecamDevices()
-        {
-            // FreeCam requires keyboard+mouse and optionally takes the gamepad, so both
-            // input families fly the camera.
-            var devices = new System.Collections.Generic.List<InputDevice>();
-            if (Keyboard.current != null) devices.Add(Keyboard.current);
-            if (Mouse.current != null) devices.Add(Mouse.current);
-            if (Gamepad.current != null) devices.Add(Gamepad.current);
-            return devices.ToArray();
         }
         private void OnFpsElevatePerformed(InputAction.CallbackContext ctx)
         {
@@ -424,20 +450,38 @@ namespace jeanf.universalplayer
             SetIsMoving(true);
         }
 
-        private void OnReceivedControlSchemeChange(BroadcastControlsStatus.ControlScheme controlScheme)
+        private void OnReceivedControlSchemeChange(BroadcastControlsStatus.ControlScheme newScheme)
         {
-            // Realign the player with the last teleport's ground height — but ONLY when a
-            // teleport actually set one. Before the first teleport, groundLevel is (0,0,0):
-            // snapping to y=0 at startup (the scheme broadcast fires ~0.25s into play) dropped
-            // the player INTO/below thin floors and they fell through the world.
-            if (hasGroundLevel)
+            var leavingXr = controlScheme == BroadcastControlsStatus.ControlScheme.XR
+                            && newScheme != BroadcastControlsStatus.ControlScheme.XR;
+
+            if (leavingXr)
             {
+                // Drop any momentum XRI locomotion left behind so desktop walking starts
+                // clean. (Grounding is fine on exit — gravity/fall behaviour is unchanged —
+                // so no reposition is needed; the "can't walk" bug was input, not grounding.)
+                planarVelocity = Vector3.zero;
+                verticalVelocity = 0f;
+                jumpRequested = false;
+            }
+            else if (hasGroundLevel)
+            {
+                // Desktop<->desktop: realign with the last teleport's ground height — but
+                // ONLY when a teleport actually set one. Before the first teleport,
+                // groundLevel is (0,0,0): snapping to y=0 dropped the player INTO/below thin
+                // floors and they fell through the world.
                 controller.enabled = false;
-                playerInput.gameObject.transform.position = new Vector3(playerInput.gameObject.transform.position.x, groundLevel.y, playerInput.gameObject.transform.position.z);
+                var p = playerInput.gameObject.transform.position;
+                playerInput.gameObject.transform.position = new Vector3(p.x, groundLevel.y, p.z);
                 controller.enabled = true;
             }
 
-            this.controlScheme = controlScheme;
+            this.controlScheme = newScheme;
+
+            // If we were flying the FreeCam and something else changed the scheme
+            // (the Ctrl+Alt+K desktop-force, a battery failsafe, ...), leave FreeCam
+            // cleanly so gravity/fall-recovery resume and the toggle stays in sync.
+            if (newScheme != BroadcastControlsStatus.ControlScheme.Freecam) isFreeCamOn = false;
         }
         private void OnFpsElevateCancelled(InputAction.CallbackContext ctx)
         {
@@ -541,6 +585,71 @@ namespace jeanf.universalplayer
             verticalMoveValue = move;
         }
 
+        // FreeCam is toggled with Ctrl+Alt+F from any desktop mode — hop in and out of
+        // a free-fly camera (no cursor while flying). Read directly off the keyboard so
+        // it works regardless of the active control scheme / action map.
+        private void Update()
+        {
+            if (FreeCamComboPressed()) ActivateFreeMove();
+            PollDesktopMoveInput();
+        }
+
+        /// <summary>
+        /// Reads walk input by polling the physical devices DIRECTLY each frame in desktop
+        /// modes (WASD/arrows off Keyboard.current, left stick off Gamepad.current) instead
+        /// of through the FPS/Move action. The action route proved unreliable across mode
+        /// switches — the Move Value action's callback/value would stall while the
+        /// PassThrough mouse-look kept working ("look works, WASD dead"). Reading the keys
+        /// directly cannot be broken by any device-pairing / binding-resolution state, so
+        /// desktop walking always works. XR locomotion still uses xrMoveAction; FreeCam
+        /// reads moveValue too, so this feeds it as well. Changes are pushed only on
+        /// transition, so the player-moving event is not re-raised every frame.
+        /// </summary>
+        private void PollDesktopMoveInput()
+        {
+            var scheme = BroadcastControlsStatus.controlScheme;
+            var desktop = scheme == BroadcastControlsStatus.ControlScheme.KeyboardMouse
+                          || scheme == BroadcastControlsStatus.ControlScheme.Gamepad
+                          || scheme == BroadcastControlsStatus.ControlScheme.Freecam;
+            if (!desktop) return;
+
+            var value = Vector2.zero;
+
+            var keyboard = Keyboard.current;
+            if (keyboard != null)
+            {
+                if (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed) value.y += 1f;
+                if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed) value.y -= 1f;
+                if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed) value.x += 1f;
+                if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed) value.x -= 1f;
+            }
+
+            if (value == Vector2.zero)
+            {
+                var gamepad = Gamepad.current;
+                if (gamepad != null)
+                {
+                    var stick = gamepad.leftStick.ReadValue();
+                    if (stick.sqrMagnitude > 0.02f) value = stick; // deadzone
+                }
+            }
+
+            value = Vector2.ClampMagnitude(value, 1f);
+            if (value != moveValue) SetMoveValue(value);
+
+            var moving = value.sqrMagnitude > 0.0001f;
+            if (moving != isMoving) SetIsMoving(moving);
+        }
+
+        private static bool FreeCamComboPressed()
+        {
+            var kb = Keyboard.current;
+            if (kb == null || !kb.fKey.wasPressedThisFrame) return false;
+            if (!(kb.leftCtrlKey.isPressed || kb.rightCtrlKey.isPressed)) return false;
+            if (!(kb.leftAltKey.isPressed || kb.rightAltKey.isPressed)) return false;
+            return true;
+        }
+
         private void LateUpdate()
         {
             if (LocomotionLocked || menuOpen || paused)
@@ -608,7 +717,8 @@ namespace jeanf.universalplayer
 
         private void UpdateMomentumMove(float dt)
         {
-            if (controller.isGrounded)
+            var grounded = IsGroundedForMovement();
+            if (grounded)
             {
                 var look = LookTransform();
                 var forward = look.forward;
@@ -637,7 +747,7 @@ namespace jeanf.universalplayer
             }
 
             // Vertical: real integrated gravity (accelerating falls, enables jumping).
-            if (controller.isGrounded)
+            if (grounded)
             {
                 // Small downward bias keeps the capsule pressed to the ground so
                 // isGrounded stays reliable on slopes and steps.
@@ -651,6 +761,29 @@ namespace jeanf.universalplayer
             verticalVelocity -= gravity * dt;
 
             controller.Move((planarVelocity + Vector3.up * verticalVelocity) * dt);
+        }
+
+        /// <summary>
+        /// Ground test for locomotion. <see cref="CharacterController.isGrounded"/> alone is
+        /// unreliable after another system moves the controller — coming back from VR the XR
+        /// rig moves the shared CharacterController, leaving isGrounded stuck FALSE while the
+        /// capsule sits on the floor, which silently killed desktop walking (WASD only
+        /// applies while grounded). Confirm with a short downward cast so movement resumes
+        /// the moment the feet are actually on/just-above the floor.
+        /// </summary>
+        private bool IsGroundedForMovement()
+        {
+            if (controller.isGrounded) return true;
+
+            var collidable = CollidableLayersMask();
+            if (collidable == 0) return false;
+
+            var worldCenter = transform.TransformPoint(controller.center);
+            var bottom = worldCenter + Vector3.down * (controller.height * 0.5f - controller.radius);
+            // A little beyond the skin width — enough to catch "resting but isGrounded==false",
+            // not so much that the player walks on air over a real ledge.
+            return Physics.SphereCast(bottom, controller.radius * 0.9f, Vector3.down, out _,
+                controller.skinWidth + 0.15f, collidable, QueryTriggerInteraction.Ignore);
         }
 
         private float CurrentSpeedMultiplier()
