@@ -1,0 +1,3 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Label text="Tablet" name="Tablet" style="align-self: center; justify-content: center; -unity-text-align: upper-center; position: relative; font-size: 100px; translate: 0 302px; color: rgb(117, 117, 117);"/>
+</ui:UXML>

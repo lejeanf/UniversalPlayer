@@ -15,9 +15,11 @@ namespace jeanf.universalplayer
         }
         [SerializeField] private bool _isDebug = false;
 
-        [Validation("Cursor image is required — it IS the pointer in free-cursor mode (menu/tablet). Without it there is no visible cursor.")]
+        [Tooltip("LEGACY optional. The cursor is now the ScreenspaceUI HUD's #Cursor element (pure styling, no sprite). " +
+                 "Leave empty once the old cursor canvas is deleted; assign only to keep the old SVG reticle alive too.")]
         [SerializeField] private SVGImage cursorImage;
         private static SVGImage _cursorImage;
+        [Tooltip("LEGACY optional — the validation fill moves to the HUD cursor's radial fill.")]
         [SerializeField] private SVGImage validationFeedbackImage;
 
         // Mouselook state is raised on PlayerEvents; the PlayerEventBridge forwards it.
@@ -45,8 +47,9 @@ namespace jeanf.universalplayer
         [SerializeField] private Sprite normalCursorSprite;
         [Tooltip("Optional override for the cursor sprite while the primary item (tablet) is drawn. Empty = use the normal cursor sprite.")]
         [SerializeField] private Sprite tabletCursorSprite;
+        [Tooltip("The cursor's RESTING colour, in every mode (tablet included — tablet changes shape, not colour). " +
+                 "Hover / click / invalid below take over on top of it.")]
         [SerializeField] private Color normalCursorColor = Color.white;
-        [SerializeField] private Color tabletCursorColor = Color.white;
         [Tooltip("Cursor size while the primary item is drawn (lerped in and back out).")]
         [Range(0.1f, 1f)][SerializeField] private float tabletCursorScale = 0.5f;
         [SerializeField] private float cursorScaleLerpSeconds = 0.12f;
@@ -70,8 +73,33 @@ namespace jeanf.universalplayer
         // these so all four live on this one component under _settings.
         public Color HoverColor => hoverCursorColor;
         public Color ClickColor => clickCursorColor;
-        /// <summary>The reticle's resting color for the CURRENT state (tablet vs normal) — what ReticleHoverFeedback returns to when it stops hovering.</summary>
-        public Color RestingColor => _followPointer && _primaryItemOut ? tabletCursorColor : normalCursorColor;
+        /// <summary>
+        /// The reticle's resting color — what ReticleHoverFeedback returns to when it stops
+        /// hovering. ONE colour scheme for every mode: tablet mode differs in SHAPE (filled
+        /// and smaller), never in colour, so hover/click/invalid read identically wherever
+        /// the cursor is.
+        /// </summary>
+        public Color RestingColor => normalCursorColor;
+
+        // The resolved cursor, held HERE rather than read back off the SVGImage. That is
+        // what lets the legacy cursor canvas be deleted: the HUD renders from these, and
+        // the image (while it still exists) is just another output.
+        private Color _resolvedColor = Color.white;
+        private bool _cursorVisible = true;
+        // Eased toward the resolved state so default <-> tablet is a transition, not a snap.
+        private Color _displayedColor = Color.white;
+        private float _fill;
+
+        /// <summary>
+        /// The FINAL reticle colour. ReticleHoverFeedback stays the hover/click authority
+        /// and pushes its result here; this component forwards it to the HUD (and to the
+        /// legacy image while one is assigned).
+        /// </summary>
+        public void SetResolvedColor(Color color)
+        {
+            _resolvedColor = color;
+            if (_cursorImage != null) _cursorImage.color = color;
+        }
 
         /// <summary>True while the invalid-request flash owns the reticle color — ReticleHoverFeedback yields to it.</summary>
         public bool IsFlashingInvalid => Time.unscaledTime < _invalidFlashUntil;
@@ -110,13 +138,12 @@ namespace jeanf.universalplayer
 
         private void Update()
         {
-            if (_cursorImage == null) return;
-
             // The invalid-request flash owns the reticle color while active (over hover,
             // click and resting); when it ends, snap back to the current resting color.
+            // Routed through SetResolvedColor so the HUD sees it — the image is optional.
             var flashingInvalid = Time.unscaledTime < _invalidFlashUntil;
-            if (flashingInvalid) _cursorImage.color = invalidCursorColor;
-            else if (_wasFlashingInvalid) _cursorImage.color = RestingColor;
+            if (flashingInvalid) SetResolvedColor(invalidCursorColor);
+            else if (_wasFlashingInvalid) SetResolvedColor(RestingColor);
             _wasFlashingInvalid = flashingInvalid;
 
             // Smooth size in/out (tablet shrinks the pointer, exiting restores it),
@@ -124,6 +151,14 @@ namespace jeanf.universalplayer
             // separately so the pulse can multiply on top without fighting the lerp.
             _baseScale = Mathf.Lerp(_baseScale, _targetScale, cursorScaleLerpSeconds <= 0f ? 1f : 1f - Mathf.Exp(-Time.unscaledDeltaTime / cursorScaleLerpSeconds));
             UpdateClickPulse(Time.unscaledDeltaTime);
+
+            // The HUD IS the cursor: it positions and scales itself from this state, so it
+            // must be driven before (and independently of) any legacy image.
+            PushToHud();
+
+            // ---- everything below only drives the LEGACY SVG cursor canvas ----
+            // It is optional: with the canvas deleted, the HUD above is the whole cursor.
+            if (_cursorImage == null) return;
             _cursorImage.rectTransform.localScale = Vector3.one * (_baseScale * _pulseScale);
 
             if (!_followPointer) return;
@@ -150,13 +185,54 @@ namespace jeanf.universalplayer
             }
         }
 
+        /// <summary>
+        /// Mirrors the resolved cursor onto the UI Toolkit HUD (ScreenspaceHud).
+        ///
+        /// It reads the image's FINAL colour/enabled state on purpose: ReticleHoverFeedback
+        /// and the invalid flash already resolve those, so the HUD renders what they decided
+        /// instead of duplicating the rules. Tablet mode (free pointer + item out) also FILLS
+        /// the ring's background, per design.
+        ///
+        /// This is the migration bridge: while the legacy cursor canvas still exists it is
+        /// the state source. Cutting the canvas means moving the colour authority off the
+        /// SVGImage onto this component — see the HUD migration notes.
+        /// </summary>
+        private void PushToHud()
+        {
+            var hud = ScreenspaceHud.Active;
+            if (hud == null) return;
+
+            var mouse = UnityEngine.InputSystem.Mouse.current;
+            Vector2? position = _followPointer && mouse != null ? mouse.position.ReadValue() : (Vector2?)null;
+
+            // Ease default <-> tablet on ONE curve (cursorScaleLerpSeconds), so the size,
+            // the colour and the ring->filled-dot change all travel together instead of
+            // snapping. Frame-rate independent (exponential), like the size lerp already was.
+            var t = cursorScaleLerpSeconds <= 0f
+                ? 1f
+                : 1f - Mathf.Exp(-Time.unscaledDeltaTime / cursorScaleLerpSeconds);
+            _displayedColor = Color.Lerp(_displayedColor, _resolvedColor, t);
+            _fill = Mathf.Lerp(_fill, _followPointer && _primaryItemOut ? 1f : 0f, t);
+
+            // _baseScale is already eased toward _targetScale (1 or the tablet size) and
+            // defaults to 1, so it needs no legacy image to be correct.
+            hud.ApplyCursor(
+                visible: _cursorVisible,
+                color: _displayedColor,
+                fill: _fill,
+                screenPosition: position,
+                scale: Mathf.Max(0.01f, _baseScale * _pulseScale));
+        }
+
         private void CaptureCursorHomeOnce()
         {
             if (_homeCaptured || _cursorImage == null) return;
             _homeCaptured = true;
             _cursorHomePosition = _cursorImage.rectTransform.localPosition;
             _authoredCursorSprite = _cursorImage.sprite;
-            _baseScale = _cursorImage.rectTransform.localScale.x; // start from the authored size, no first-frame pop
+            // NOTE: _baseScale is deliberately NOT seeded from the image's authored scale.
+            // It is the logical size (1 = default, tabletCursorScale = tablet) that the HUD
+            // eases on, and must stay correct once the legacy canvas is gone.
         }
 
         /// <summary>
@@ -183,19 +259,27 @@ namespace jeanf.universalplayer
             CaptureCursorHomeOnce();
             _followPointer = follow;
             _targetScale = follow && tabletMode ? tabletCursorScale : 1f;
-            if (_cursorImage == null) return;
 
-            _cursorImage.color = follow && tabletMode ? tabletCursorColor : normalCursorColor;
-            var targetSprite = follow && tabletMode ? EffectiveTabletSprite : EffectiveNormalSprite;
-            if (targetSprite != null) _cursorImage.sprite = targetSprite;
+            // Resting colour — through SetResolvedColor so the HUD gets it with or without
+            // a legacy image. Same colour in every mode (see RestingColor); tablet only
+            // changes shape. ReticleHoverFeedback overrides it while hovering; this is the
+            // base it returns to.
+            SetResolvedColor(RestingColor);
 
+            // Recentring the hardware pointer is image-independent: the next unlock must
+            // start from the default position whether or not the old canvas exists.
             if (!follow)
             {
-                _cursorImage.rectTransform.localPosition = _cursorHomePosition;
                 var mouse = UnityEngine.InputSystem.Mouse.current;
                 if (mouse != null && BroadcastControlsStatus.controlScheme != BroadcastControlsStatus.ControlScheme.XR)
                     mouse.WarpCursorPosition(new Vector2(Screen.width * 0.5f, Screen.height * 0.5f));
             }
+
+            // ---- legacy SVG cursor only (sprite swap + home position) ----
+            if (_cursorImage == null) return;
+            var targetSprite = follow && tabletMode ? EffectiveTabletSprite : EffectiveNormalSprite;
+            if (targetSprite != null) _cursorImage.sprite = targetSprite;
+            if (!follow) _cursorImage.rectTransform.localPosition = _cursorHomePosition;
         }
 
         private void OnEnable()
@@ -336,6 +420,9 @@ namespace jeanf.universalplayer
             var scheme = BroadcastControlsStatus.controlScheme;
             if (scheme == BroadcastControlsStatus.ControlScheme.XR
                 || scheme == BroadcastControlsStatus.ControlScheme.Freecam) state = CursorState.Off;
+            // Held here (not read back off the image) so the HUD keeps working once the
+            // legacy cursor canvas is gone.
+            _cursorVisible = state != CursorState.Off;
             switch (state)
             {
                 case CursorState.OnConstrained:
@@ -343,43 +430,43 @@ namespace jeanf.universalplayer
                     // pointer (same icon in M&K and gamepad, scalable/tintable).
                     Cursor.visible = false;
                     Cursor.lockState = CursorLockMode.Confined;
-                    _cursorImage.enabled = true;
+                    if (_cursorImage != null) _cursorImage.enabled = true;
                     SetPointerFollow(true, _primaryItemOut);
                     if (validationFeedbackImage != null)
                     {
-                        validationFeedbackImage.enabled = false;
+                        if (validationFeedbackImage != null) validationFeedbackImage.enabled = false;
                     }
                     PlayerEvents.RaiseMouselookState(false);
                     break;
                 case CursorState.OnLocked:
                     Cursor.visible = false; // the OS arrow is NEVER shown — the reticle is the pointer
                     Cursor.lockState = CursorLockMode.Locked;
-                    _cursorImage.enabled = true;
+                    if (_cursorImage != null) _cursorImage.enabled = true;
                     SetPointerFollow(false, false);
                     if (validationFeedbackImage != null)
                     {
-                        validationFeedbackImage.enabled = true;
+                        if (validationFeedbackImage != null) validationFeedbackImage.enabled = true;
                     }
                     PlayerEvents.RaiseMouselookState(true);
                     break;
                 case CursorState.Off:
                     Cursor.visible = false;
                     Cursor.lockState = CursorLockMode.Locked;
-                    _cursorImage.enabled = false;
+                    if (_cursorImage != null) _cursorImage.enabled = false;
                     _followPointer = false;
                     if (validationFeedbackImage != null)
                     {
-                        validationFeedbackImage.enabled = false;
+                        if (validationFeedbackImage != null) validationFeedbackImage.enabled = false;
                     }
                     PlayerEvents.RaiseMouselookState(false);
                     break;
                 default:
                     Cursor.visible = false;
                     Cursor.lockState = CursorLockMode.Locked;
-                    _cursorImage.enabled = true;
+                    if (_cursorImage != null) _cursorImage.enabled = true;
                     if (validationFeedbackImage != null)
                     {
-                        validationFeedbackImage.enabled = true;
+                        if (validationFeedbackImage != null) validationFeedbackImage.enabled = true;
                     }
                     PlayerEvents.RaiseMouselookState(true);
                     break;

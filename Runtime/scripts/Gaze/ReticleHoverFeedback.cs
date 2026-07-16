@@ -10,16 +10,28 @@ using UnityEngine.XR.Interaction.Toolkit.Interactors;
 namespace jeanf.universalplayer
 {
     /// <summary>
-    /// Desktop counterpart of the VR grab preview: the center reticle tints while the
-    /// player is looking at something usable, and flashes when they interact.
-    /// Four hover sources, any of which tints:
-    ///   1. XRI interactor hover (grabbables, chairs, switches)
-    ///   2. the gaze ray's UI raycast (world-space UI elements, camera-forward)
-    ///   3. the DesktopWorldUiInteractor's hover (world-space UI, follows the
-    ///      reticle even when the cursor is free in tablet/menu mode)
+    /// Desktop counterpart of the VR grab preview: the reticle tints while the player
+    /// aims at something usable, and flashes when they interact.
+    ///
+    /// EVERY source must answer about the AIM POINT — where the cursor actually is —
+    /// not about the camera. Those are the same ray only while the cursor is LOCKED
+    /// (the reticle is pinned to screen centre, so centre IS the cursor). In
+    /// free-cursor mode (tablet/menu) the cursor roams and the two diverge, so a
+    /// camera-forward source reports whatever is parked at screen centre regardless of
+    /// where the player is pointing — which left the cursor stuck on its hover colour
+    /// for as long as anything usable sat at centre. Hence the split below.
+    ///
+    /// Hover sources, any of which tints:
+    ///   1. XRI interactor hover (grabbables, chairs, switches) — LOCKED ONLY: it comes
+    ///      from the gaze ray, which TrackedPoseSchemeGate pins camera-forward, so it
+    ///      cannot be aimed at a free cursor.
+    ///   2. the gaze ray's UI raycast (world-space UI elements) — LOCKED ONLY, same reason.
+    ///   3. the DesktopWorldUiInteractor's hover (world-space UI): already casts through
+    ///      the aim point in both modes, so it is the free-cursor UI source.
     ///   4. a plain physics raycast against <see cref="physicsHoverMask"/> — the same
-    ///      camera-forward pattern project click handlers use (e.g. uvs's
-    ///      UIClickHandler → Highlight_Interactionable). Set the SAME LayerMask on the
+    ///      pattern project click handlers use (e.g. uvs's UIClickHandler →
+    ///      Highlight_Interactionable), cast through the aim point rather than
+    ///      camera-forward so it follows a free cursor. Set the SAME LayerMask on the
     ///      Player variant as the project's click handler uses; layers are
     ///      project-specific so the packaged default is empty (source disabled).
     /// The validation fill (validationFeedbackImage) is a separate image and stays
@@ -29,8 +41,9 @@ namespace jeanf.universalplayer
     {
         private const string LogPrefix = "[UniversalPlayer]";
 
-        [Tooltip("The reticle SVG image (the same one CursorStateController drives).")]
-        [Validation("Reticle image is required — it is what tints on hover. Wire the Cursor's SVGImage (same one CursorStateController uses).")]
+        [Tooltip("LEGACY optional. Hover/click colour is pushed through CursorStateController, which drives the " +
+                 "ScreenspaceUI HUD's #Cursor element. Leave EMPTY once the old cursor canvas is deleted; assign only " +
+                 "to also tint the old SVG reticle.")]
         [SerializeField] private SVGImage reticleImage;
         [Tooltip("Fallback only — the CursorStateController's Hover Color overrides this when a manager is present (it always is on the shipped prefab).")]
         [SerializeField] private Color hoverColor = new Color(0.35f, 0.95f, 0.6f);
@@ -143,13 +156,14 @@ namespace jeanf.universalplayer
         internal bool DebugTinted => currentlyTinted;
         internal bool DebugInteractHeld => interactHeld;
         internal int DebugXriHoverCount => hovered.Count;
-        internal bool DebugGazeRayUiHover => gazeRay != null
+        internal bool DebugGazeRayUiHover => CursorLocked && gazeRay != null
                                              && gazeRay.TryGetCurrentUIRaycastResult(out var h) && IsRealUi(h);
 
         /// <summary>What the gaze ray's UI raycast returned — and whether it was a real UI element or a blocker sentinel.</summary>
         internal string DebugGazeRayUiDescription()
         {
             if (gazeRay == null) return "<no gaze ray>";
+            if (!CursorLocked) return "cursor FREE — gaze sources stood down (they only see screen centre)";
             if (!gazeRay.TryGetCurrentUIRaycastResult(out var hit) || hit.gameObject == null) return "no UI hit";
             var raycaster = hit.module != null ? hit.module.GetType().Name : "?";
             return IsRealUi(hit)
@@ -167,11 +181,12 @@ namespace jeanf.universalplayer
         {
             if (playerCamera == null) playerCamera = Camera.main;
             if (playerCamera == null) return "<no camera>";
-            var origin = playerCamera.transform;
+            var ray = AimRay();
 
-            var text = string.Empty;
+            var text = CursorLocked ? "aim: screen centre (cursor locked)\n     "
+                : $"aim: cursor at {AimScreenPoint()} (cursor free)\n     ";
             if (physicsHoverMask.value != 0
-                && Physics.Raycast(origin.position, origin.forward, out var masked, physicsHoverDistance, physicsHoverMask))
+                && Physics.Raycast(ray, out var masked, physicsHoverDistance, physicsHoverMask))
             {
                 var held = IsInOurOwnHand(masked.collider) ? "  (IN HAND -> ignored)" : "  -> TINTS";
                 text += $"maskRay hit '{masked.collider.name}' layer '{LayerMask.LayerToName(masked.collider.gameObject.layer)}' "
@@ -179,7 +194,7 @@ namespace jeanf.universalplayer
             }
             else text += physicsHoverMask.value == 0 ? "maskRay: <mask empty, source off>" : "maskRay: no hit";
 
-            if (Physics.Raycast(origin.position, origin.forward, out var hit, interactableHoverDistance))
+            if (Physics.Raycast(ray, out var hit, interactableHoverDistance))
             {
                 var what = IsInOurOwnHand(hit.collider) ? "IN HAND -> ignored"
                     : hit.collider.GetComponentInParent<UnityEngine.XR.Interaction.Toolkit.Interactables.IXRInteractable>() != null ? "IXRInteractable -> TINTS"
@@ -216,16 +231,47 @@ namespace jeanf.universalplayer
             var scheme = BroadcastControlsStatus.controlScheme;
             var desktop = scheme == BroadcastControlsStatus.ControlScheme.KeyboardMouse
                           || scheme == BroadcastControlsStatus.ControlScheme.Gamepad;
-            var uiHovered = desktop && gazeRay != null
+
+            // The gaze ray is pinned camera-forward (TrackedPoseSchemeGate zeroes its
+            // local pose), so both of ITS sources answer about screen centre. That is the
+            // aim point only while the cursor is locked. Consulting them with a free
+            // cursor pinned the reticle to whatever sat at centre and it could never
+            // return to resting — so they stand down and the aim-point sources below
+            // (world UI + the physics ray) own free-cursor hover.
+            var aimed = desktop && CursorLocked;
+            var uiHovered = aimed && gazeRay != null
                             && gazeRay.TryGetCurrentUIRaycastResult(out var gazeUiHit)
                             && IsRealUi(gazeUiHit);
-            // Fourth source: the world-canvas interactor. Unlike the gaze ray (always
-            // camera-forward) it follows the reticle even when the cursor is free.
+            // The world-canvas interactor casts through the aim point in BOTH modes, so
+            // it follows the reticle even when the cursor is free.
             uiHovered |= desktop && worldUiInteractor != null && worldUiInteractor.HasUiHover;
             var physicsHovered = desktop && PhysicsHover();
-            Apply(desktop && (hovered.Count > 0 || uiHovered || physicsHovered),
+            var xriHovered = aimed && hovered.Count > 0;
+            Apply(desktop && (xriHovered || uiHovered || physicsHovered),
                 desktop && interactHeld);
         }
+
+        /// <summary>
+        /// Is the cursor pinned to screen centre? While it is, centre and the cursor are
+        /// the same point and every camera-forward source is valid; once it frees up
+        /// (tablet/menu) they are not. Read directly off Cursor.lockState — the same
+        /// signal DesktopWorldUiInteractor resolves its screen point from, so the two
+        /// components can never disagree about where the player is pointing.
+        /// </summary>
+        private static bool CursorLocked => Cursor.lockState == CursorLockMode.Locked;
+
+        /// <summary>Where the reticle actually points: screen centre while locked, the
+        /// (stick-warped) cursor position while free.</summary>
+        private static Vector2 AimScreenPoint()
+        {
+            if (CursorLocked || Mouse.current == null)
+                return new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+            return Mouse.current.position.ReadValue();
+        }
+
+        /// <summary>The aim ray. Through the cursor, NOT the camera's nose — in tablet
+        /// mode those point at different things.</summary>
+        private Ray AimRay() => playerCamera.ScreenPointToRay(AimScreenPoint());
 
         private bool PhysicsHover()
         {
@@ -234,18 +280,18 @@ namespace jeanf.universalplayer
                 playerCamera = Camera.main;
                 if (playerCamera == null) return false;
             }
-            var origin = playerCamera.transform;
+            var ray = AimRay();
 
             // Project layers: any hit on the mask counts (uvs Highlight_Interactionable pattern).
             if (physicsHoverMask.value != 0
-                && Physics.Raycast(origin.position, origin.forward, out var masked, physicsHoverDistance, physicsHoverMask)
+                && Physics.Raycast(ray, out var masked, physicsHoverDistance, physicsHoverMask)
                 && !IsInOurOwnHand(masked.collider))
                 return true;
 
             // XRI interactables and package usables: the gaze interactor only hovers
             // interactables that opt into allowGazeInteraction (off by default), so the
             // reticle finds them by raycast — same way TakeObject/SitController do.
-            if (Physics.Raycast(origin.position, origin.forward, out var hit, interactableHoverDistance))
+            if (Physics.Raycast(ray, out var hit, interactableHoverDistance))
             {
                 // The thing we are HOLDING is docked right in front of the camera, so it
                 // sits permanently under the reticle. Without this the reticle stays lit
@@ -302,17 +348,20 @@ namespace jeanf.universalplayer
             // behind our back and the reticle then stays tinted forever — the resting
             // color is only re-applied on a CHANGE that never comes. Re-asserting it every
             // frame costs one color write and makes this the single authority.
-            if (reticleImage == null)
+            // No image is FINE when a CursorStateController is present: it forwards the
+            // colour to the UI Toolkit HUD. Only bail when there is no output at ALL —
+            // otherwise deleting the legacy cursor canvas silently kills the hover tint.
+            if (reticleImage == null && cursorColors == null)
             {
                 if (!missingImageWarned && tinted)
                 {
                     missingImageWarned = true;
-                    Debug.LogWarning($"{LogPrefix} ReticleHoverFeedback on '{name}': reticleImage is not assigned — the " +
-                        "reticle cannot signal hover. Wire the Cursor's SVGImage (same one CursorStateController uses).", this);
+                    Debug.LogWarning($"{LogPrefix} ReticleHoverFeedback on '{name}': no reticleImage AND no " +
+                        "CursorStateController — the reticle cannot signal hover anywhere.", this);
                 }
                 return;
             }
-            if (!defaultCaptured)
+            if (!defaultCaptured && reticleImage != null)
             {
                 defaultCaptured = true;
                 defaultColor = reticleImage.color;
@@ -324,7 +373,14 @@ namespace jeanf.universalplayer
             var hover = cursorColors != null ? cursorColors.HoverColor : hoverColor;
             var flash = cursorColors != null ? cursorColors.ClickColor : interactFlashColor;
             var resting = cursorColors != null ? cursorColors.RestingColor : defaultColor;
-            reticleImage.color = flashing ? flash : tinted ? hover : resting;
+            var resolved = flashing ? flash : tinted ? hover : resting;
+
+            // Push through the cursor manager: it forwards to the UI Toolkit HUD AND to the
+            // legacy image. Writing the image directly would strand the HUD the moment the
+            // old cursor canvas is deleted.
+            if (cursorColors != null) cursorColors.SetResolvedColor(resolved);
+            else reticleImage.color = resolved;
+
             currentlyTinted = tinted;
             currentlyFlashing = flashing;
         }
