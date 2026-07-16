@@ -111,6 +111,26 @@ namespace jeanf.universalplayer
         public bool HasUiHover => hoverTarget != null;
         public GameObject CurrentHoverTarget => hoverTarget;
 
+        /// <summary>
+        /// The UI under the aim point that a click would LAND ON — whoever delivers that
+        /// click.
+        ///
+        /// Deliberately NOT hoverTarget: that one is ownership-scoped (see the partition
+        /// in the class docs — with a free cursor this component yields every canvas a
+        /// plain GraphicRaycaster can reach, and reports null for them). Tint is a
+        /// different question from ownership: the reticle must show hover for anything
+        /// clickable regardless of which pipeline presses it. Without this the tablet —
+        /// a dual-raycaster world canvas, held in our own hand, off the camera axis —
+        /// matched NO hover source at all, so the cursor sat on its resting colour and
+        /// hover/click/shrink never fired in tablet mode.
+        ///
+        /// Keyed to IPointerClickHandler, not "any UI": tinting on any graphic would
+        /// light the cursor across the tablet's whole backplate and the state would read
+        /// as permanently-hovering, which is the same bug wearing the other hat.
+        /// </summary>
+        public GameObject AimClickTarget => aimClickTarget;
+        public bool HasAimClickTarget => aimClickTarget != null;
+
         // Test seams (BroadcastControlsStatus.HmdMountedProbe pattern — public,
         // the tests assembly has no InternalsVisibleTo).
         public Func<bool> PressProbe;
@@ -144,6 +164,7 @@ namespace jeanf.universalplayer
         private bool pressedLastFrame;
         private float nextHoverTime;
         private GameObject hoverTarget;
+        private GameObject aimClickTarget; // clickable UI at the aim point, ownership-independent (reticle tint)
         private Vector3 pressWorldPosition; // re-projected each held frame (locked-mode drag threshold)
         private Vector2 stickPointerOffset; // accumulated left-stick nudge while the press is held
         private PlayerMovement playerMovement;
@@ -304,12 +325,22 @@ namespace jeanf.universalplayer
 
             var covered = false;
             var worldHit = default(RaycastResult);
+            GameObject aimClick = null;
             foreach (var result in raycastResults)
             {
                 if (result.gameObject == null) continue;
                 var isTracked = result.module is TrackedDeviceGraphicRaycaster;
                 var isPlain = !isTracked && result.module is GraphicRaycaster;
                 if (!isTracked && !isPlain) continue;
+
+                // Reticle tint, resolved BEFORE the ownership partition below: the first
+                // clickable in RaycastAll's order is the topmost one, and it counts
+                // whether or not this component ends up driving the press. Screen-space
+                // and world canvases alike — a click lands the same either way.
+                // Filtering to Graphic raycasters above also drops UI Toolkit's blocker
+                // sentinels (see ReticleHoverFeedback.IsRealUi), which are not UI.
+                if (aimClick == null)
+                    aimClick = ExecuteEvents.GetEventHandler<IPointerClickHandler>(result.gameObject);
 
                 var canvas = result.gameObject.GetComponentInParent<Canvas>();
                 var isWorld = canvas != null && canvas.rootCanvas.renderMode == RenderMode.WorldSpace;
@@ -349,6 +380,7 @@ namespace jeanf.universalplayer
                 }
             }
 
+            aimClickTarget = aimClick;
             eventData.pointerCurrentRaycast = covered ? default : worldHit;
             UpdateHover(covered ? null : worldHit.gameObject);
         }
@@ -523,6 +555,10 @@ namespace jeanf.universalplayer
         /// click, end any drag, exit the hover chain, forget the press.</summary>
         private void CancelInteraction()
         {
+            // Stand-down clears the tint target too: the reticle reads it every frame, so
+            // a value left behind by the last live frame would pin the cursor on its hover
+            // colour for as long as we stay idle (scheme switch, fade, disable).
+            aimClickTarget = null;
             if (eventData == null)
             {
                 pressedLastFrame = false;

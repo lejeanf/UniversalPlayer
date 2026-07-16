@@ -170,7 +170,20 @@ namespace jeanf.universalplayer
                 ? $"'{hit.gameObject.name}' via {raycaster} at {hit.distance:0.##}m -> TINTS"
                 : $"'{hit.gameObject.name}' via {raycaster} — BLOCKER sentinel (the raycaster's own object, not UI) -> ignored";
         }
-        internal bool DebugWorldUiHover => worldUiInteractor != null && worldUiInteractor.HasUiHover;
+        internal bool DebugWorldUiHover => worldUiInteractor != null
+                                           && (worldUiInteractor.HasUiHover || worldUiInteractor.HasAimClickTarget);
+
+        /// <summary>Which half of the world-UI source answered — they mean different
+        /// things (owned click vs. any clickable at the aim point).</summary>
+        internal string DebugWorldUiDescription()
+        {
+            if (worldUiInteractor == null) return "<no DesktopWorldUiInteractor>";
+            var owned = worldUiInteractor.HasUiHover ? $"owned '{worldUiInteractor.CurrentHoverTarget.name}'" : "owned <none>";
+            var clickable = worldUiInteractor.HasAimClickTarget
+                ? $"clickable-at-aim '{worldUiInteractor.AimClickTarget.name}' -> TINTS"
+                : "clickable-at-aim <none>";
+            return $"{owned}; {clickable}";
+        }
         internal bool DebugPhysicsHover => PhysicsHover();
         internal LayerMask DebugPhysicsMask => physicsHoverMask;
         internal float DebugPhysicsDistance => physicsHoverDistance;
@@ -243,8 +256,13 @@ namespace jeanf.universalplayer
                             && gazeRay.TryGetCurrentUIRaycastResult(out var gazeUiHit)
                             && IsRealUi(gazeUiHit);
             // The world-canvas interactor casts through the aim point in BOTH modes, so
-            // it follows the reticle even when the cursor is free.
-            uiHovered |= desktop && worldUiInteractor != null && worldUiInteractor.HasUiHover;
+            // it follows the reticle even when the cursor is free. Two questions, not one:
+            // HasUiHover is what it OWNS the click for, HasAimClickTarget is what a click
+            // would land on whoever delivers it. The reticle wants the second — with a
+            // free cursor the first is null for every canvas the input module owns, which
+            // is what left the tablet with no hover source at all.
+            uiHovered |= desktop && worldUiInteractor != null
+                         && (worldUiInteractor.HasUiHover || worldUiInteractor.HasAimClickTarget);
             var physicsHovered = desktop && PhysicsHover();
             var xriHovered = aimed && hovered.Count > 0;
             Apply(desktop && (xriHovered || uiHovered || physicsHovered),
