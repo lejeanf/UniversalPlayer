@@ -24,10 +24,12 @@ namespace jeanf.universalplayer
         [Validation("Assign the Sit Anchor — where the hips go. Right-click the Seat ▸ 'Auto-assign anchors from children' to wire named children. (Falls back to the seat's own transform if left empty.)")]
         [SerializeField] private Transform sitAnchor;
         [Tooltip("Optional: where the player stands when exiting. When empty, they return to where they sat down from.")]
+        [Validation("Assign an Exit Anchor — where the player stands after leaving. Right-click the Seat ▸ 'Auto-assign anchors from children'. (Falls back to where they sat down from if left empty.)")]
         [SerializeField] private Transform exitAnchor;
         [Tooltip("Eye height above the sit anchor while seated.")]
         [SerializeField] private float eyeHeightAboveSeat = 0.7f;
         [Tooltip("Optional: where a hand rests (chair back / armrest) while sitting down or standing up — the body reaches for it with IK in M&K/gamepad.")]
+        [Validation("Assign a Hand Support Anchor — the chair back / armrest the hand reaches for while sitting. Right-click the Seat ▸ 'Auto-assign anchors from children'. (Leave empty for no hand IK.)")]
         [SerializeField] private Transform handSupportAnchor;
         [Tooltip("Add (or reuse) an XRSimpleInteractable at startup and wire its Select to ToggleSit, so the chair works in VR with zero extra setup.")]
         [SerializeField] private bool autoConfigureXrInteractable = true;
