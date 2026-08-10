@@ -15,7 +15,7 @@ namespace jeanf.universalplayer
     /// interactable, wire its Select to ToggleSit — the auto-wiring detects that and
     /// stays out of the way.
     /// </summary>
-    public class Seat : MonoBehaviour
+    public class Seat : MonoBehaviour, ISeatSource
     {
         private const string LogPrefix = "[UniversalPlayer]";
 
@@ -34,6 +34,24 @@ namespace jeanf.universalplayer
         public Transform ExitAnchor => exitAnchor;
         public float EyeHeightAboveSeat => eyeHeightAboveSeat;
         public Transform HandSupportAnchor => handSupportAnchor;
+
+        /// <summary>Snapshot this seat as plain values for <see cref="SitController"/> (see <see cref="ISeatSource"/>).</summary>
+        public SeatData GetSeatData()
+        {
+            var anchor = SitAnchor;
+            return new SeatData(
+                seatId: GetInstanceID(),
+                name: name,
+                sitPosition: anchor.position,
+                sitFacingYaw: anchor.eulerAngles.y,
+                eyeHeightAboveSeat: eyeHeightAboveSeat,
+                hasExit: exitAnchor != null,
+                exitPosition: exitAnchor != null ? exitAnchor.position : Vector3.zero,
+                exitFacingYaw: exitAnchor != null ? exitAnchor.eulerAngles.y : 0f,
+                hasHandSupport: handSupportAnchor != null,
+                handSupportWorldPos: handSupportAnchor != null ? handSupportAnchor.position : Vector3.zero,
+                handSupportWorldRot: handSupportAnchor != null ? handSupportAnchor.rotation : Quaternion.identity);
+        }
 
         private XRBaseInteractable interactable;
         private bool listeningOnInteractable;

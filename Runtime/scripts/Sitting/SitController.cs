@@ -73,8 +73,11 @@ namespace jeanf.universalplayer
         // Seated state + camera reset go through PlayerEvents; the PlayerEventBridge
         // forwards them onto the project's channels.
 
-        public Seat CurrentSeat { get; private set; }
-        public bool IsSeated => CurrentSeat != null;
+        public bool IsSeated { get; private set; }
+        private SeatData _seat;
+        // The live source of the current seat (classic Seat or ECS proxy), kept for identity
+        // checks (scenario re-seat) and so a streamed-out entity seat can force an exit later.
+        private ISeatSource _currentSource;
 
         private InputAction interactAction;
         private InputAction jumpAction;
@@ -140,17 +143,17 @@ namespace jeanf.universalplayer
                 return;
             }
 
-            var seat = seatObject.GetComponentInParent<Seat>();
-            if (seat == null)
+            var source = seatObject.GetComponentInParent<ISeatSource>();
+            if (source == null)
             {
                 Debug.LogWarning($"{LogPrefix} SitController: a sit was requested on '{seatObject.name}' but there is no " +
                     "Seat component on it (or its parents) — add a Seat and set its sit anchor.", seatObject);
                 return;
             }
 
-            if (CurrentSeat == seat) return;
+            if (IsSeated && ReferenceEquals(_currentSource, source)) return;
             if (IsSeated) Exit(true); // silent swap: release the previous seat instantly
-            SitOn(seat, instant);
+            SitOn(source, instant);
         }
 
         private void OnJumpWhileSeated(InputAction.CallbackContext _)
@@ -181,8 +184,8 @@ namespace jeanf.universalplayer
             if (!Physics.Raycast(new Ray(origin.position, origin.forward), out var hit,
                     interactMaxDistance, seatMask, QueryTriggerInteraction.Collide)) return;
 
-            var seat = hit.collider.GetComponentInParent<Seat>();
-            if (seat != null) SitOn(seat);
+            var source = hit.collider.GetComponentInParent<ISeatSource>();
+            if (source != null) SitOn(source);
         }
 
         private void LateUpdate()
@@ -193,17 +196,27 @@ namespace jeanf.universalplayer
             if (playerMovement != null && playerMovement.MoveInput.sqrMagnitude > 0.25f) Exit();
         }
 
-        public void ToggleSit(Seat seat)
+        public void ToggleSit(ISeatSource source)
         {
             if (IsSeated) Exit();
-            else SitOn(seat);
+            else SitOn(source);
         }
 
-        public void SitOn(Seat seat) => SitOn(seat, false);
+        public void SitOn(ISeatSource source) => SitOn(source, false);
 
-        public void SitOn(Seat seat, bool instant)
+        public void SitOn(ISeatSource source, bool instant)
         {
-            if (seat == null || IsSeated) return;
+            if (source == null) return;
+            var wasSeated = IsSeated;
+            SitOn(source.GetSeatData(), instant);
+            // Record identity only when this call actually seated the player (not on a
+            // no-op because we were already seated), so scenario re-seat checks stay correct.
+            if (!wasSeated && IsSeated) _currentSource = source;
+        }
+
+        public void SitOn(in SeatData seat, bool instant)
+        {
+            if (IsSeated) return;
             if (_transitioning)
             {
                 if (!instant) return;
@@ -229,10 +242,11 @@ namespace jeanf.universalplayer
                 disabledLocomotionProviders.Add(provider);
             }
 
-            var anchor = seat.SitAnchor;
-            var facing = Quaternion.Euler(0f, anchor.eulerAngles.y, 0f);
+            var facing = Quaternion.Euler(0f, seat.SitFacingYaw, 0f);
 
-            CurrentSeat = seat;
+            _seat = seat;
+            IsSeated = true;
+            _currentSource = null; // set by the ISeatSource wrapper when a source drove this
             seatedSince = Time.time;
             if (body != null) body.SetSeated(true);
             PlayerEvents.RaiseSeated(true);
@@ -246,12 +260,12 @@ namespace jeanf.universalplayer
                     ? Camera.main.transform.position.y - playerRoot.position.y
                     : 1.6f;
                 playerRoot.SetPositionAndRotation(
-                    new Vector3(anchor.position.x,
-                        anchor.position.y + seat.EyeHeightAboveSeat - cameraHeightAboveRoot,
-                        anchor.position.z),
+                    new Vector3(seat.SitPosition.x,
+                        seat.SitPosition.y + seat.EyeHeightAboveSeat - cameraHeightAboveRoot,
+                        seat.SitPosition.z),
                     facing);
                 PlayerEvents.RaiseCameraReset();
-                if (isDebug) Debug.Log($"{LogPrefix} seated on '{seat.name}'", this);
+                if (isDebug) Debug.Log($"{LogPrefix} seated on '{seat.Name}'", this);
             }
             else
             {
@@ -260,23 +274,23 @@ namespace jeanf.universalplayer
                 var eyeHeight = seat.EyeHeightAboveSeat;
                 var standingHeadY = preSitPosition.y + preSitCameraOffsetY;
                 const float minimumDrop = 0.15f;
-                if (anchor.position.y + eyeHeight > standingHeadY - minimumDrop)
+                if (seat.SitPosition.y + eyeHeight > standingHeadY - minimumDrop)
                 {
-                    eyeHeight = standingHeadY - minimumDrop - anchor.position.y;
-                    Debug.LogWarning($"{LogPrefix} Seat '{seat.name}': seated eye height would be ABOVE the standing eye " +
+                    eyeHeight = standingHeadY - minimumDrop - seat.SitPosition.y;
+                    Debug.LogWarning($"{LogPrefix} Seat '{seat.Name}': seated eye height would be ABOVE the standing eye " +
                         $"height — clamped to {eyeHeight:F2}m above the sit anchor. Lower the sit anchor or " +
-                        "'Eye Height Above Seat' on the Seat (select it to see the height gizmos).", seat);
+                        "'Eye Height Above Seat' on the Seat (select it to see the height gizmos).", this);
                 }
 
                 if (instant)
                 {
                     // Scenario placement under a black screen: no glide, arrive seated.
-                    playerRoot.SetPositionAndRotation(anchor.position, facing);
+                    playerRoot.SetPositionAndRotation(seat.SitPosition, facing);
                     var offset = cameraOffset.localPosition;
                     offset.y = eyeHeight;
                     cameraOffset.localPosition = offset;
                     if (cameraLook != null) cameraLook.OverrideLook(Vector2.zero);
-                    if (isDebug) Debug.Log($"{LogPrefix} seated on '{seat.name}' (instant)", this);
+                    if (isDebug) Debug.Log($"{LogPrefix} seated on '{seat.Name}' (instant)", this);
                     return;
                 }
 
@@ -284,9 +298,12 @@ namespace jeanf.universalplayer
                 // No RaiseCameraReset here: ResetCameraSettings would restore the
                 // STANDING camera offset on top of the seat anchor (seated view
                 // higher than standing) and hard-cut the look rotation.
-                StartTransition(anchor.position, facing, eyeHeight, seat.HandSupportAnchor, sitTransitionSeconds, () =>
+                var seatName = seat.Name; // 'in' params can't be captured by the completion lambda
+                StartTransition(seat.SitPosition, facing, eyeHeight,
+                    seat.HasHandSupport, seat.HandSupportWorldPos, seat.HandSupportWorldRot,
+                    sitTransitionSeconds, () =>
                 {
-                    if (isDebug) Debug.Log($"{LogPrefix} seated on '{seat.name}'", this);
+                    if (isDebug) Debug.Log($"{LogPrefix} seated on '{seatName}'", this);
                 });
             }
         }
@@ -302,15 +319,16 @@ namespace jeanf.universalplayer
                 CancelTransition();
             }
 
-            var seat = CurrentSeat;
-            CurrentSeat = null;
+            var seat = _seat;
+            IsSeated = false;
+            _currentSource = null;
 
             Vector3 targetPosition;
             Quaternion targetRotation;
-            if (seat.ExitAnchor != null)
+            if (seat.HasExit)
             {
-                targetPosition = seat.ExitAnchor.position;
-                targetRotation = Quaternion.Euler(0f, seat.ExitAnchor.eulerAngles.y, 0f);
+                targetPosition = seat.ExitPosition;
+                targetRotation = Quaternion.Euler(0f, seat.ExitFacingYaw, 0f);
             }
             else
             {
@@ -346,11 +364,13 @@ namespace jeanf.universalplayer
                 // glide ends — this also guarantees the jump press that stood us
                 // up can never double as a real jump. No camera reset: the glide
                 // blends both height and look, a reset would snap them.
-                StartTransition(targetPosition, targetRotation, preSitCameraOffsetY, seat.HandSupportAnchor, standTransitionSeconds, () => FinishExit(seat));
+                StartTransition(targetPosition, targetRotation, preSitCameraOffsetY,
+                    seat.HasHandSupport, seat.HandSupportWorldPos, seat.HandSupportWorldRot,
+                    standTransitionSeconds, () => FinishExit(seat));
             }
         }
 
-        private void FinishExit(Seat seat)
+        private void FinishExit(in SeatData seat)
         {
             if (playerMovement != null)
             {
@@ -364,13 +384,15 @@ namespace jeanf.universalplayer
             disabledLocomotionProviders.Clear();
             controller.enabled = true;
 
-            if (isDebug) Debug.Log($"{LogPrefix} stood up from '{seat.name}'", this);
+            if (isDebug) Debug.Log($"{LogPrefix} stood up from '{seat.Name}'", this);
         }
 
-        private void StartTransition(Vector3 targetPosition, Quaternion targetRotation, float targetCameraY, Transform handSupport, float seconds, System.Action onComplete)
+        private void StartTransition(Vector3 targetPosition, Quaternion targetRotation, float targetCameraY,
+            bool hasHandSupport, Vector3 handSupportPos, Quaternion handSupportRot, float seconds, System.Action onComplete)
         {
             if (_transition != null) StopCoroutine(_transition);
-            _transition = StartCoroutine(TransitionRoutine(targetPosition, targetRotation, targetCameraY, handSupport, seconds, onComplete));
+            _transition = StartCoroutine(TransitionRoutine(targetPosition, targetRotation, targetCameraY,
+                hasHandSupport, handSupportPos, handSupportRot, seconds, onComplete));
         }
 
         private void CancelTransition()
@@ -386,7 +408,8 @@ namespace jeanf.universalplayer
         // peaking mid-transition on a sine arc: the view glances DOWN toward
         // the feet, the head dips with the weight shift, and (when the seat
         // has a hand-support anchor) the body's hand reaches the chair back.
-        private System.Collections.IEnumerator TransitionRoutine(Vector3 targetPosition, Quaternion targetRotation, float targetCameraY, Transform handSupport, float seconds, System.Action onComplete)
+        private System.Collections.IEnumerator TransitionRoutine(Vector3 targetPosition, Quaternion targetRotation, float targetCameraY,
+            bool hasHandSupport, Vector3 handSupportPos, Quaternion handSupportRot, float seconds, System.Action onComplete)
         {
             _transitioning = true;
             var startPosition = playerRoot.position;
@@ -420,7 +443,7 @@ namespace jeanf.universalplayer
                     cameraLook.OverrideLook(look);
                 }
 
-                if (body != null && handSupport != null) body.SetHandSupport(handSupport, arc);
+                if (body != null && hasHandSupport) body.SetHandSupport(handSupportPos, handSupportRot, arc);
                 yield return null;
             }
 

@@ -125,6 +125,31 @@ namespace jeanf.universalplayer
             _handSupportIk.SetHandTarget(anchor, weight);
         }
 
+        private Transform _handSupportProxy;
+
+        /// <summary>
+        /// Value-based hand support for seats that have no live Transform (ECS-baked seats).
+        /// A hidden proxy transform is parked at the support pose and fed to the same IK path,
+        /// so behavior matches the Transform overload. Weight 0 releases the hand.
+        /// </summary>
+        public void SetHandSupport(Vector3 worldPos, Quaternion worldRot, float weight)
+        {
+            if (bodyAnimator == null) return; // placeholder mannequin: no IK rig
+            if (weight <= 0f)
+            {
+                SetHandSupport((Transform)null, 0f);
+                return;
+            }
+            if (_handSupportProxy == null)
+            {
+                _handSupportProxy = new GameObject("HandSupportProxy").transform;
+                _handSupportProxy.SetParent(transform, false);
+                _handSupportProxy.hideFlags = HideFlags.HideInHierarchy;
+            }
+            _handSupportProxy.SetPositionAndRotation(worldPos, worldRot);
+            SetHandSupport(_handSupportProxy, weight);
+        }
+
         /// <summary>
         /// Turn the whole body feature on/off. Off before the first frame means the body
         /// prefab is never instantiated at all; turning on later builds it on demand.
