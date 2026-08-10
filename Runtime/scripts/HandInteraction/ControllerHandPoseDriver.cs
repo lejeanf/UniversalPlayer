@@ -25,6 +25,7 @@ namespace jeanf.universalplayer
         public enum PoseState
         {
             Suspended, // someone else owns the pose (grab, zone, item) — reapply when released
+            Default,
             Point,
             SemiClosedFist,
             ClosedFist,
@@ -35,6 +36,8 @@ namespace jeanf.universalplayer
         [SerializeField] private bool driveEnabled = true;
 
         [Header("Poses (author with Tools/UniversalPlayer/Pose Editor)")]
+        //[Tooltip("Idle pose while the trigger is released. Empty = the hand's default pose.")]
+        //[SerializeField] private Pose defaultPose;
         [Tooltip("Idle pose while the trigger is released. Empty = the hand's default pose.")]
         [SerializeField] private Pose pointPose;
         [Tooltip("Grip slightly touched. Empty = falls back to the closest assigned pose.")]
@@ -126,6 +129,10 @@ namespace jeanf.universalplayer
             hand.GripTouched = WithHysteresis(grip, gripTouchThreshold, hand.GripTouched);
             hand.TriggerPressed = WithHysteresis(trigger, triggerPressThreshold, hand.TriggerPressed);
 
+            /*var state = hand.GripHard ? PoseState.FullClosedFist
+                : hand.TriggerPressed ? PoseState.ClosedFist
+                : hand.GripTouched ? PoseState.SemiClosedFist
+                : PoseState.Point;*/
             var state = hand.GripHard ? PoseState.FullClosedFist
                 : hand.TriggerPressed ? PoseState.ClosedFist
                 : hand.GripTouched ? PoseState.SemiClosedFist
