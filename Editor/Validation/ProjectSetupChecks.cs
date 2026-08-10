@@ -198,6 +198,7 @@ namespace jeanf.universalplayer
             results.Add(CheckFadeMaskProfile());
             results.Add(CheckFadeVolumeVisibleToCamera());
             results.Add(CheckSeatHeights());
+            results.Add(CheckSeatColliders());
             results.Add(CheckScenarioSeating());
             results.Add(CheckWorldSpaceCanvases());
             return results;
@@ -267,6 +268,41 @@ namespace jeanf.universalplayer
                 "Select the Seat to see the height gizmos (cyan = seated eyes, yellow = standing eyes) and lower the " +
                 "sit anchor or 'Eye Height Above Seat'. If a seat has no Exit Anchor the standing estimate uses the sit " +
                 "anchor as ground — add an Exit Anchor for an accurate check.");
+        }
+
+        // A Seat needs a collider to be aimed at. For the entity world (baked into a
+        // SubScene) the runtime proxy is placed at the Seat ROOT with the root's BoxCollider,
+        // so a missing collider (can't aim at all) or a collider only on a CHILD / non-box
+        // (proxy misaligned or default-sized) breaks the baked case.
+        private static SetupValidator.CheckResult CheckSeatColliders()
+        {
+            const string check = "Scene: seat colliders";
+            var seats = Object.FindObjectsByType<Seat>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            if (seats.Length == 0)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass, "No Seat in the scene.");
+
+            var noCollider = new List<string>();
+            var notBoxOnRoot = new List<string>();
+            foreach (var seat in seats)
+            {
+                if (seat.GetComponentInChildren<Collider>() == null) { noCollider.Add($"'{seat.name}'"); continue; }
+                if (seat.GetComponent<BoxCollider>() == null) notBoxOnRoot.Add($"'{seat.name}'");
+            }
+
+            if (noCollider.Count == 0 && notBoxOnRoot.Count == 0)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
+                    $"All {seats.Length} seat(s) have a BoxCollider on the Seat root.");
+
+            var msg = "";
+            if (noCollider.Count > 0)
+                msg += $"No collider — cannot be aimed at, and cannot bake a proxy in a SubScene: {string.Join(", ", noCollider)}. ";
+            if (notBoxOnRoot.Count > 0)
+                msg += $"No BoxCollider on the Seat root (it's on a child or a non-box collider) — the baked entity-world " +
+                       $"proxy is placed at the root and will be misaligned/default-sized: {string.Join(", ", notBoxOnRoot)}. ";
+
+            return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning, msg.TrimEnd(),
+                "Put a BoxCollider on the Seat's own GameObject (the one with the Seat script) so it works both in the " +
+                "additive-scene flow and when baked into a SubScene.");
         }
 
         // A camera only evaluates volumes on layers in its Volume Mask (HDRP:

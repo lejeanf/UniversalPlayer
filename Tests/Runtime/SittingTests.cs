@@ -196,5 +196,68 @@ namespace jeanf.universalplayer.tests
 
             Object.Destroy(camGo);
         }
+
+        // The classic Seat and the ECS seat proxy both feed SitController through SeatData.
+        // If GetSeatData stops mapping the anchors, both worlds break — lock it down.
+        [Test]
+        public void Seat_GetSeatData_RoundTripsAnchors()
+        {
+            var sitAnchor = new GameObject("Sit").transform;
+            sitAnchor.SetParent(_chair.transform, false);
+            sitAnchor.SetPositionAndRotation(new Vector3(3f, 0.4f, 2f), Quaternion.Euler(0f, 45f, 0f));
+            var exitAnchor = new GameObject("Exit").transform;
+            exitAnchor.SetParent(_chair.transform, false);
+            exitAnchor.SetPositionAndRotation(new Vector3(4f, 0f, 2f), Quaternion.Euler(0f, 120f, 0f));
+            var handAnchor = new GameObject("Hand").transform;
+            handAnchor.SetParent(_chair.transform, false);
+            handAnchor.position = new Vector3(3.2f, 0.6f, 2.1f);
+
+            SetField(_seat, "sitAnchor", sitAnchor);
+            SetField(_seat, "exitAnchor", exitAnchor);
+            SetField(_seat, "eyeHeightAboveSeat", 0.65f);
+            SetField(_seat, "handSupportAnchor", handAnchor);
+
+            var data = _seat.GetSeatData();
+
+            Assert.That(Vector3.Distance(data.SitPosition, sitAnchor.position), Is.LessThan(0.001f), "SitPosition");
+            Assert.That(data.SitFacingYaw, Is.EqualTo(45f).Within(0.01f), "SitFacingYaw");
+            Assert.That(data.EyeHeightAboveSeat, Is.EqualTo(0.65f).Within(0.001f), "EyeHeightAboveSeat");
+            Assert.That(data.HasExit, Is.True, "HasExit");
+            Assert.That(Vector3.Distance(data.ExitPosition, exitAnchor.position), Is.LessThan(0.001f), "ExitPosition");
+            Assert.That(data.ExitFacingYaw, Is.EqualTo(120f).Within(0.01f), "ExitFacingYaw");
+            Assert.That(data.HasHandSupport, Is.True, "HasHandSupport");
+            Assert.That(Vector3.Distance(data.HandSupportWorldPos, handAnchor.position), Is.LessThan(0.001f), "HandSupportWorldPos");
+        }
+
+        // The entity-world path: SitController driven by a raw SeatData with NO Seat GameObject —
+        // exactly what the baked-seat proxy does. Proves sit/stand work without a live Seat.
+        [UnityTest]
+        public IEnumerator SitOn_WithRawSeatData_SitsAndExits()
+        {
+            var preSit = _player.transform.position;
+            var sitPos = new Vector3(3f, 0.5f, 2f);
+            var data = new SeatData(
+                seatId: 123, name: "RawSeat",
+                sitPosition: sitPos, sitFacingYaw: 90f,
+                eyeHeightAboveSeat: 0.7f,
+                hasExit: false, exitPosition: Vector3.zero, exitFacingYaw: 0f,
+                hasHandSupport: false, handSupportWorldPos: Vector3.zero, handSupportWorldRot: Quaternion.identity);
+
+            _sit.SitOn(data, true); // instant: teleport, no glide
+            yield return null;
+
+            Assert.That(_sit.IsSeated, Is.True, "SitOn(SeatData) did not seat the player.");
+            Assert.That(Vector3.Distance(_player.transform.position, sitPos), Is.LessThan(0.01f),
+                "SitOn(SeatData) did not teleport to the sit position.");
+            Assert.That(_cameraOffset.localPosition.y, Is.EqualTo(0.7f).Within(0.001f),
+                "SitOn(SeatData) did not set the seated eye height.");
+
+            _sit.Exit(true);
+            yield return null;
+
+            Assert.That(_sit.IsSeated, Is.False, "Exit did not stand the player up.");
+            Assert.That(Vector3.Distance(_player.transform.position, preSit), Is.LessThan(0.05f),
+                "Exit did not restore the pre-sit position (no exitAnchor was set).");
+        }
     }
 }

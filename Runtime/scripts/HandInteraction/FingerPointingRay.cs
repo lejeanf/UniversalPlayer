@@ -200,7 +200,7 @@ namespace jeanf.universalplayer
                     distance = hit.distance;
                     usable = (physicsHoverMask.value & 1 << hit.collider.gameObject.layer) != 0
                              || hit.collider.GetComponentInParent<UnityEngine.XR.Interaction.Toolkit.Interactables.IXRInteractable>() != null
-                             || hit.collider.GetComponentInParent<Seat>() != null
+                             || hit.collider.GetComponentInParent<ISeatSource>() != null
                              || hit.collider.GetComponentInParent<PickableObject>() != null
                              || hit.collider.GetComponentInParent<IReticleHoverable>() != null;
                 }

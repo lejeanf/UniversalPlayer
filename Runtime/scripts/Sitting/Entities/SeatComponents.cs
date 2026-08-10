@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Mathematics;
 
 namespace jeanf.universalplayer
 {
@@ -19,5 +20,14 @@ namespace jeanf.universalplayer
 
         /// <summary>Hand rest reached with IK during the glide; <see cref="Entity.Null"/> when unset.</summary>
         public Entity HandSupportAnchor;
+
+        // Chair collider, baked from the Seat's BoxCollider and reproduced on a runtime proxy so
+        // the GameObject-side raycast / hover can hit a baked seat. Local to the seat root transform.
+        public float3 ColliderSize;
+        public float3 ColliderCenter;
+        public byte HasCollider;
+
+        /// <summary>The seat GameObject's layer, so the proxy sits on the same physics layer.</summary>
+        public int Layer;
     }
 }

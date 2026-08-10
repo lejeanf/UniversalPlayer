@@ -211,7 +211,7 @@ namespace jeanf.universalplayer
             {
                 var what = IsInOurOwnHand(hit.collider) ? "IN HAND -> ignored"
                     : hit.collider.GetComponentInParent<UnityEngine.XR.Interaction.Toolkit.Interactables.IXRInteractable>() != null ? "IXRInteractable -> TINTS"
-                    : hit.collider.GetComponentInParent<Seat>() != null ? "Seat -> TINTS"
+                    : hit.collider.GetComponentInParent<ISeatSource>() != null ? "Seat -> TINTS"
                     : hit.collider.GetComponentInParent<PickableObject>() != null ? "PickableObject -> TINTS"
                     : hit.collider.GetComponentInParent<IReticleHoverable>() != null ? "IReticleHoverable -> TINTS"
                     : "nothing usable on it";
@@ -318,7 +318,7 @@ namespace jeanf.universalplayer
                 if (IsInOurOwnHand(hit.collider)) return false;
 
                 if (hit.collider.GetComponentInParent<UnityEngine.XR.Interaction.Toolkit.Interactables.IXRInteractable>() != null) return true;
-                if (hit.collider.GetComponentInParent<Seat>() != null) return true;
+                if (hit.collider.GetComponentInParent<ISeatSource>() != null) return true;
                 if (hit.collider.GetComponentInParent<PickableObject>() != null) return true;
                 if (hit.collider.GetComponentInParent<IReticleHoverable>() != null) return true; // tooltips & friends
             }
