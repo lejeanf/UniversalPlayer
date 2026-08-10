@@ -21,15 +21,15 @@ namespace jeanf.universalplayer
         private const string LogPrefix = "[UniversalPlayer]";
 
         [Tooltip("Where the hips go (position) and which way the player faces (forward). Defaults to this transform.")]
-        [Validation("Assign the Sit Anchor — where the hips go. Right-click the Seat ▸ 'Auto-assign anchors from children' to wire named children. (Falls back to the seat's own transform if left empty.)")]
+        [Validation("Assign the Sit Anchor — where the hips go. Use the Fix button below to wire it from a matching child. (Falls back to the seat's own transform if left empty.)")]
         [SerializeField] private Transform sitAnchor;
         [Tooltip("Optional: where the player stands when exiting. When empty, they return to where they sat down from.")]
-        [Validation("Assign an Exit Anchor — where the player stands after leaving. Right-click the Seat ▸ 'Auto-assign anchors from children'. (Falls back to where they sat down from if left empty.)")]
+        [Validation("Assign an Exit Anchor — where the player stands after leaving. Use the Fix button below to wire it from a matching child. (Falls back to where they sat down from if left empty.)")]
         [SerializeField] private Transform exitAnchor;
         [Tooltip("Eye height above the sit anchor while seated.")]
         [SerializeField] private float eyeHeightAboveSeat = 0.7f;
         [Tooltip("Optional: where a hand rests (chair back / armrest) while sitting down or standing up — the body reaches for it with IK in M&K/gamepad.")]
-        [Validation("Assign a Hand Support Anchor — the chair back / armrest the hand reaches for while sitting. Right-click the Seat ▸ 'Auto-assign anchors from children'. (Leave empty for no hand IK.)")]
+        [Validation("Assign a Hand Support Anchor — the chair back / armrest the hand reaches for while sitting. Use the Fix button below to wire it from a matching child. (Leave empty for no hand IK.)")]
         [SerializeField] private Transform handSupportAnchor;
         [Tooltip("Add (or reuse) an XRSimpleInteractable at startup and wire its Select to ToggleSit, so the chair works in VR with zero extra setup.")]
         [SerializeField] private bool autoConfigureXrInteractable = true;
@@ -103,35 +103,6 @@ namespace jeanf.universalplayer
         }
 
         private void OnSelectEntered(SelectEnterEventArgs _) => ToggleSit();
-
-#if UNITY_EDITOR
-        // Anchors are usually child GameObjects named SitAnchor / ExitAnchor / HandSupportAnchor.
-        // This wires the ones that are still empty from those children so you don't do it by hand.
-        [ContextMenu("Auto-assign anchors from children")]
-        private void AutoAssignAnchorsFromChildren()
-        {
-            UnityEditor.Undo.RecordObject(this, "Auto-assign Seat anchors");
-            var filled = "";
-            if (sitAnchor == null && TryFindChild(out var s, "sit")) { sitAnchor = s; filled += " SitAnchor"; }
-            if (exitAnchor == null && TryFindChild(out var e, "exit")) { exitAnchor = e; filled += " ExitAnchor"; }
-            if (handSupportAnchor == null && TryFindChild(out var h, "hand", "support")) { handSupportAnchor = h; filled += " HandSupportAnchor"; }
-            UnityEditor.EditorUtility.SetDirty(this);
-            Debug.Log($"{LogPrefix} Seat '{name}': auto-assigned anchors from children —{(filled.Length == 0 ? " none matched (name children e.g. 'SitAnchor')." : filled + ".")}", this);
-        }
-
-        private bool TryFindChild(out Transform result, params string[] keywords)
-        {
-            foreach (var child in GetComponentsInChildren<Transform>(true))
-            {
-                if (child == transform) continue;
-                var n = child.name.ToLowerInvariant();
-                foreach (var k in keywords)
-                    if (n.Contains(k)) { result = child; return true; }
-            }
-            result = null;
-            return false;
-        }
-#endif
 
         /// <summary>Sit on / stand up from this seat. Safe to wire to UnityEvents (XRI Select, buttons, ...).</summary>
         public void ToggleSit()
