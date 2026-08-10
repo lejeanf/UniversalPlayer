@@ -1,3 +1,4 @@
+using jeanf.validationTools;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
@@ -20,6 +21,7 @@ namespace jeanf.universalplayer
         private const string LogPrefix = "[UniversalPlayer]";
 
         [Tooltip("Where the hips go (position) and which way the player faces (forward). Defaults to this transform.")]
+        [Validation("Assign the Sit Anchor — where the hips go. Right-click the Seat ▸ 'Auto-assign anchors from children' to wire named children. (Falls back to the seat's own transform if left empty.)")]
         [SerializeField] private Transform sitAnchor;
         [Tooltip("Optional: where the player stands when exiting. When empty, they return to where they sat down from.")]
         [SerializeField] private Transform exitAnchor;
@@ -99,6 +101,35 @@ namespace jeanf.universalplayer
         }
 
         private void OnSelectEntered(SelectEnterEventArgs _) => ToggleSit();
+
+#if UNITY_EDITOR
+        // Anchors are usually child GameObjects named SitAnchor / ExitAnchor / HandSupportAnchor.
+        // This wires the ones that are still empty from those children so you don't do it by hand.
+        [ContextMenu("Auto-assign anchors from children")]
+        private void AutoAssignAnchorsFromChildren()
+        {
+            UnityEditor.Undo.RecordObject(this, "Auto-assign Seat anchors");
+            var filled = "";
+            if (sitAnchor == null && TryFindChild(out var s, "sit")) { sitAnchor = s; filled += " SitAnchor"; }
+            if (exitAnchor == null && TryFindChild(out var e, "exit")) { exitAnchor = e; filled += " ExitAnchor"; }
+            if (handSupportAnchor == null && TryFindChild(out var h, "hand", "support")) { handSupportAnchor = h; filled += " HandSupportAnchor"; }
+            UnityEditor.EditorUtility.SetDirty(this);
+            Debug.Log($"{LogPrefix} Seat '{name}': auto-assigned anchors from children —{(filled.Length == 0 ? " none matched (name children e.g. 'SitAnchor')." : filled + ".")}", this);
+        }
+
+        private bool TryFindChild(out Transform result, params string[] keywords)
+        {
+            foreach (var child in GetComponentsInChildren<Transform>(true))
+            {
+                if (child == transform) continue;
+                var n = child.name.ToLowerInvariant();
+                foreach (var k in keywords)
+                    if (n.Contains(k)) { result = child; return true; }
+            }
+            result = null;
+            return false;
+        }
+#endif
 
         /// <summary>Sit on / stand up from this seat. Safe to wire to UnityEvents (XRI Select, buttons, ...).</summary>
         public void ToggleSit()
