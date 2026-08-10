@@ -20,19 +20,20 @@ namespace jeanf.universalplayer
     {
         private const string LogPrefix = "[UniversalPlayer]";
 
+        [Header("Anchors")]
         [Tooltip("Where the hips go (position) and which way the player faces (forward). Defaults to this transform.")]
         [Validation("Assign the Sit Anchor — where the hips go. Use the Fix button below to wire it from a matching child. (Falls back to the seat's own transform if left empty.)")]
         [SerializeField] private Transform sitAnchor;
         [Tooltip("Optional: where the player stands when exiting. When empty, they return to where they sat down from.")]
         [Validation("Assign an Exit Anchor — where the player stands after leaving. Use the Fix button below to wire it from a matching child. (Falls back to where they sat down from if left empty.)")]
         [SerializeField] private Transform exitAnchor;
-        [Tooltip("Eye height above the sit anchor while seated.")]
-        [SerializeField] private float eyeHeightAboveSeat = 0.7f;
         [Tooltip("Optional: where a hand rests (chair back / armrest) while sitting down or standing up — the body reaches for it with IK in M&K/gamepad.")]
         [Validation("Assign a Hand Support Anchor — the chair back / armrest the hand reaches for while sitting. Use the Fix button below to wire it from a matching child. (Leave empty for no hand IK.)")]
         [SerializeField] private Transform handSupportAnchor;
-        [Tooltip("Add (or reuse) an XRSimpleInteractable at startup and wire its Select to ToggleSit, so the chair works in VR with zero extra setup.")]
-        [SerializeField] private bool autoConfigureXrInteractable = true;
+
+        [Header("Seated view")]
+        [Tooltip("Eye height above the sit anchor while seated.")]
+        [SerializeField] private float eyeHeightAboveSeat = 0.7f;
 
         public Transform SitAnchor => sitAnchor != null ? sitAnchor : transform;
         public Transform ExitAnchor => exitAnchor;
@@ -62,16 +63,13 @@ namespace jeanf.universalplayer
 
         private void Awake()
         {
-            if (!autoConfigureXrInteractable) return;
-
             interactable = GetComponent<XRBaseInteractable>();
             if (interactable == null)
             {
                 if (GetComponentInChildren<Collider>() == null)
                 {
                     Debug.LogWarning($"{LogPrefix} Seat '{name}': no collider on the chair — the player cannot aim at it " +
-                        "in desktop mode and no VR interactable can be set up. Add a collider (or disable " +
-                        "autoConfigureXrInteractable if this is intentional).", this);
+                        "in desktop mode and no VR interactable can be set up. Add a collider.", this);
                     return;
                 }
                 interactable = gameObject.AddComponent<XRSimpleInteractable>();
