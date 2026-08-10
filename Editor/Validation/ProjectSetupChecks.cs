@@ -199,6 +199,7 @@ namespace jeanf.universalplayer
             results.Add(CheckFadeVolumeVisibleToCamera());
             results.Add(CheckSeatHeights());
             results.Add(CheckSeatColliders());
+            results.Add(CheckSeatDataBridge());
             results.Add(CheckScenarioSeating());
             results.Add(CheckWorldSpaceCanvases());
             return results;
@@ -303,6 +304,28 @@ namespace jeanf.universalplayer
             return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning, msg.TrimEnd(),
                 "Put a BoxCollider on the Seat's own GameObject (the one with the Seat script) so it works both in the " +
                 "additive-scene flow and when baked into a SubScene.");
+        }
+
+        // Baked seats live in SubScenes as pure data — the SeatDataBridge spawns the collider
+        // proxies that make them hoverable/clickable/VR-selectable. Without it, SubScene seats are
+        // dead. Closed SubScenes hide their Seats at edit time, so SubScenes-present is the signal.
+        private static SetupValidator.CheckResult CheckSeatDataBridge()
+        {
+            const string check = "Scene: seat data bridge";
+
+            var usesSubScenes = Object.FindObjectsByType<Unity.Scenes.SubScene>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length > 0;
+            if (!usesSubScenes)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
+                    "No SubScenes in the scene — a SeatDataBridge only matters for seats baked into a SubScene.");
+
+            if (Object.FindFirstObjectByType<SeatDataBridge>(FindObjectsInactive.Include) != null)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
+                    "A SeatDataBridge is present for baked seats.");
+
+            return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
+                "SubScenes are in use but there is no SeatDataBridge in the loaded scenes — any seat baked into a " +
+                "SubScene will not be hoverable, clickable or VR-selectable.",
+                "Add a SeatDataBridge component to an always-loaded GameObject (e.g. a manager in your main scene).");
         }
 
         // A camera only evaluates volumes on layers in its Volume Mask (HDRP:

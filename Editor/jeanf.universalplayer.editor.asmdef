@@ -3,6 +3,8 @@
     "rootNamespace": "",
     "references": [
         "jeanf.universalplayer",
+        "jeanf.universalplayer.entities",
+        "Unity.Scenes",
         "jeanf.eventsystem",
         "UnityEngine.UI",
         "Unity.XR.CoreUtils",
