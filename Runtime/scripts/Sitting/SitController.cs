@@ -395,6 +395,19 @@ namespace jeanf.universalplayer
                 hasHandSupport, handSupportPos, handSupportRot, seconds, onComplete));
         }
 
+        /// <summary>
+        /// Re-express a free-look yaw so that, blended to 0 while the body slerps from
+        /// <paramref name="startYaw"/> to <paramref name="seatYaw"/>, the COMBINED view turn takes
+        /// the shortest path. The result is the same camera orientation as <paramref name="lookYaw"/>
+        /// (equal mod 360), so swapping it in causes no visual pop.
+        /// </summary>
+        public static float ShortestBlendLookYaw(float startYaw, float seatYaw, float lookYaw)
+        {
+            var rootDelta = Mathf.DeltaAngle(startYaw, seatYaw);              // body turn (shortest)
+            var viewDelta = Mathf.DeltaAngle(startYaw + lookYaw, seatYaw);    // total view turn (shortest)
+            return rootDelta - viewDelta;
+        }
+
         private void CancelTransition()
         {
             if (_transition != null) StopCoroutine(_transition);
@@ -416,6 +429,12 @@ namespace jeanf.universalplayer
             var startRotation = playerRoot.rotation;
             var startCameraY = cameraOffset.localPosition.y;
             var startLook = cameraLook != null ? cameraLook.LookRotation : Vector2.zero;
+            // The view turns to the seat via TWO blends: the body (root) slerps to the seat facing
+            // and the free-look yaw unwinds to 0. Free-look yaw accumulates unbounded, and the two
+            // can add up to a long way round (a 280° stored look, or body +170° while look unwinds
+            // +170° = 340°). Re-express the look yaw so the COMBINED view takes the shortest path.
+            if (cameraLook != null)
+                startLook.y = ShortestBlendLookYaw(startRotation.eulerAngles.y, targetRotation.eulerAngles.y, startLook.y);
             var duration = Mathf.Max(0.01f, seconds);
 
             for (var t = 0f; t < 1f; t += Time.deltaTime / duration)

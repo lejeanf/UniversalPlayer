@@ -229,6 +229,35 @@ namespace jeanf.universalplayer.tests
             Assert.That(Vector3.Distance(data.HandSupportWorldPos, handAnchor.position), Is.LessThan(0.001f), "HandSupportWorldPos");
         }
 
+        // Sitting must never spin the long way round: the body slerp + free-look unwind must
+        // combine into the shortest turn to the seat, whatever the (unbounded) accumulated yaw.
+        [Test]
+        public void ShortestBlendLookYaw_MakesCombinedTurnTakeShortestPath()
+        {
+            AssertShortest(0f, 170f, -170f);   // body +170 while look reads -170 → naive 340, shortest -20
+            AssertShortest(0f, 0f, 280f);      // seat faces the body; a 280° stored look → shortest -80
+            AssertShortest(30f, 200f, 765f);   // multi-turn accumulation (720 + 45)
+            AssertShortest(-90f, 90f, -350f);
+        }
+
+        private static void AssertShortest(float startYaw, float seatYaw, float lookYaw)
+        {
+            var blended = SitController.ShortestBlendLookYaw(startYaw, seatYaw, lookYaw);
+
+            // No pop: same camera orientation as the raw look (equal mod 360).
+            Assert.That(Mathf.DeltaAngle(lookYaw, blended), Is.EqualTo(0f).Within(0.01f),
+                $"blended look changed the orientation (start {startYaw}, seat {seatYaw}, look {lookYaw}).");
+
+            // Combined view turn = body slerp (rootDelta) + look unwind (-blended); it must equal the
+            // shortest view delta and never exceed 180°.
+            var combined = Mathf.DeltaAngle(startYaw, seatYaw) - blended;
+            var shortest = Mathf.DeltaAngle(startYaw + lookYaw, seatYaw);
+            Assert.That(Mathf.DeltaAngle(combined, shortest), Is.EqualTo(0f).Within(0.01f),
+                $"combined turn is not the shortest path (start {startYaw}, seat {seatYaw}, look {lookYaw}).");
+            Assert.That(Mathf.Abs(combined), Is.LessThanOrEqualTo(180.01f),
+                $"combined turn goes the long way (start {startYaw}, seat {seatYaw}, look {lookYaw}).");
+        }
+
         // The entity-world path: SitController driven by a raw SeatData with NO Seat GameObject —
         // exactly what the baked-seat proxy does. Proves sit/stand work without a live Seat.
         [UnityTest]
