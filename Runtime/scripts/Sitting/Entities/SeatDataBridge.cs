@@ -293,12 +293,18 @@ namespace jeanf.universalplayer
                 {
                     // Directly-linked seat: resolve through the (just-refreshed) seat cache.
                     // Not there yet = the seat's section is still streaming in — retry next tick.
-                    if (!TryGetSeat(fs.Seat, out var data)) continue;
+                    if (!TryGetSeat(fs.Seat, out var data))
+                    {
+                        if (isDebug) Debug.Log($"{LogPrefix} SeatDataBridge: force-sit e{e.Index} waiting — its linked seat entity is not in the seat cache yet.", this);
+                        continue;
+                    }
+                    if (isDebug) Debug.Log($"{LogPrefix} SeatDataBridge: executing baked force-sit e{e.Index} on '{data.Name}'.", this);
                     _forceSitProxies[e] = SpawnForceSitProxy(proxy => proxy.ConfigureResolved(data, fs.FadeToBlack == 1, fs.HoldBlackSeconds));
                 }
                 else if (fs.SeatId != 0)
                 {
                     // Id-targeted: the component's own SeatRegistry retry loop handles timing.
+                    if (isDebug) Debug.Log($"{LogPrefix} SeatDataBridge: executing baked force-sit e{e.Index} targeting Seat Id {fs.SeatId}.", this);
                     _forceSitProxies[e] = SpawnForceSitProxy(proxy => proxy.ConfigureById(fs.SeatId, fs.FadeToBlack == 1, fs.HoldBlackSeconds));
                 }
                 else
