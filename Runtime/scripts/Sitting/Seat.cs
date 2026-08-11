@@ -78,17 +78,29 @@ namespace jeanf.universalplayer
 
         private void OnEnable()
         {
-            if (interactable == null || AlreadyWiredManually()) return;
+            if (interactable == null) return;
+            // Hover feeds the trigger-to-sit path (G3) regardless of how select is wired.
+            interactable.hoverEntered.AddListener(OnHoverEntered);
+            interactable.hoverExited.AddListener(OnHoverExited);
+            if (AlreadyWiredManually()) return;
             interactable.selectEntered.AddListener(OnSelectEntered);
             listeningOnInteractable = true;
         }
 
         private void OnDisable()
         {
+            if (interactable != null)
+            {
+                interactable.hoverEntered.RemoveListener(OnHoverEntered);
+                interactable.hoverExited.RemoveListener(OnHoverExited);
+            }
             if (!listeningOnInteractable) return;
             interactable.selectEntered.RemoveListener(OnSelectEntered);
             listeningOnInteractable = false;
         }
+
+        private void OnHoverEntered(HoverEnterEventArgs _) => SitController.Instance?.NotifySeatHoverEntered(this);
+        private void OnHoverExited(HoverExitEventArgs _) => SitController.Instance?.NotifySeatHoverExited(this);
 
         /// <summary>True when the user wired ToggleSit into the interactable's inspector events themselves.</summary>
         private bool AlreadyWiredManually()
@@ -100,19 +112,31 @@ namespace jeanf.universalplayer
             return false;
         }
 
-        private void OnSelectEntered(SelectEnterEventArgs _) => ToggleSit();
+        // Sit-only: grabbing/triggering a seat only ever SITS. Standing is the left stick
+        // in VR (and jump / move on desktop) — a toggle would pop you up on a second grab.
+        private void OnSelectEntered(SelectEnterEventArgs _) => SitOnly();
 
-        /// <summary>Sit on / stand up from this seat. Safe to wire to UnityEvents (XRI Select, buttons, ...).</summary>
+        /// <summary>Sit on this seat (no-op if already seated). The default VR/desktop interactable path.</summary>
+        public void SitOnly()
+        {
+            if (!EnsureController()) return;
+            SitController.Instance.SitOn(this);
+        }
+
+        /// <summary>Sit on / stand up from this seat. Kept for manual UnityEvent wiring and tests.</summary>
         public void ToggleSit()
         {
-            if (SitController.Instance == null)
-            {
-                Debug.LogWarning($"{LogPrefix} Seat '{name}': ToggleSit was called but there is no active SitController " +
-                    "in the scene. The Player prefab ships one on its Move object — is the player missing, disabled, " +
-                    "or is your variant built from an older prefab?", this);
-                return;
-            }
+            if (!EnsureController()) return;
             SitController.Instance.ToggleSit(this);
+        }
+
+        private bool EnsureController()
+        {
+            if (SitController.Instance != null) return true;
+            Debug.LogWarning($"{LogPrefix} Seat '{name}': a sit was requested but there is no active SitController " +
+                "in the scene. The Player prefab ships one on its Move object — is the player missing, disabled, " +
+                "or is your variant built from an older prefab?", this);
+            return false;
         }
 
 #if UNITY_EDITOR

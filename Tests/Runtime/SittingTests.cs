@@ -288,5 +288,90 @@ namespace jeanf.universalplayer.tests
             Assert.That(Vector3.Distance(_player.transform.position, preSit), Is.LessThan(0.05f),
                 "Exit did not restore the pre-sit position (no exitAnchor was set).");
         }
+
+        // ---- VR stand-up: left stick held past standUpHoldSeconds (v1.6.0) ----
+        // In VR the seat interactable is SIT-ONLY; standing is exclusively the left stick,
+        // debounced two ways: a fresh push is required (a stick already held when sitting
+        // down must be released first) and the push must be HELD for standUpHoldSeconds.
+
+        private void EnterXrSeated(out float holdSeconds)
+        {
+            holdSeconds = 0.2f;
+            SetField(_sit, "standUpHoldSeconds", holdSeconds);
+            SetField(_sit, "exitGraceSeconds", 0.15f);
+            BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.XR;
+            _seat.SitOnly(); // XR sit is instant (teleport, no glide)
+            Assert.That(_sit.IsSeated, Is.True, "SitOnly did not seat the player in XR mode.");
+        }
+
+        [UnityTest]
+        public IEnumerator VrStick_HeldPastThreshold_StandsUp()
+        {
+            EnterXrSeated(out var holdSeconds);
+            yield return new WaitForSeconds(0.3f); // past the exit grace, stick released -> armed
+
+            _movement.SetIsMoving(true);
+            yield return new WaitForSeconds(holdSeconds * 0.4f);
+            Assert.That(_sit.IsSeated, Is.True,
+                "The player stood up BEFORE the stick was held for standUpHoldSeconds — the hold debounce is gone.");
+
+            yield return new WaitForSeconds(holdSeconds * 1.5f);
+            Assert.That(_sit.IsSeated, Is.False,
+                "Holding the left stick past standUpHoldSeconds did not stand the player up in VR.");
+            _movement.SetIsMoving(false);
+        }
+
+        [UnityTest]
+        public IEnumerator VrStick_ShortFlick_DoesNotStand()
+        {
+            EnterXrSeated(out var holdSeconds);
+            yield return new WaitForSeconds(0.3f);
+
+            _movement.SetIsMoving(true);
+            yield return new WaitForSeconds(holdSeconds * 0.4f); // released before the threshold
+            _movement.SetIsMoving(false);
+            yield return new WaitForSeconds(holdSeconds * 2f);
+
+            Assert.That(_sit.IsSeated, Is.True,
+                "A short stick flick (released before standUpHoldSeconds) stood the player up — it must not.");
+        }
+
+        [UnityTest]
+        public IEnumerator VrStick_HeldThroughSit_NeedsAFreshPush()
+        {
+            // Walked INTO the chair holding the stick: that same hold must never pop the player
+            // back up — the stick has to be released and pushed again.
+            _movement.SetIsMoving(true);
+            EnterXrSeated(out var holdSeconds);
+
+            yield return new WaitForSeconds(0.3f + holdSeconds * 2f);
+            Assert.That(_sit.IsSeated, Is.True,
+                "A stick held from BEFORE sitting down stood the player up — the fresh-push debounce is gone.");
+
+            _movement.SetIsMoving(false); // release -> re-arm
+            yield return null;
+            _movement.SetIsMoving(true);  // fresh push
+            yield return new WaitForSeconds(holdSeconds * 1.5f);
+            Assert.That(_sit.IsSeated, Is.False,
+                "After releasing and re-pushing the stick, the player must stand up.");
+            _movement.SetIsMoving(false);
+        }
+
+        [UnityTest]
+        public IEnumerator SeatInteractable_IsSitOnly_WhileSeated()
+        {
+            EnterXrSeated(out _);
+            var seatedPosition = _player.transform.position;
+
+            // Grabbing/triggering the chair again must NOT stand the player up (no toggle).
+            _seat.SitOnly();
+            _sit.SitOn(_seat);
+            yield return null;
+
+            Assert.That(_sit.IsSeated, Is.True,
+                "Selecting the seat while seated stood the player up — the interactable must be sit-only.");
+            Assert.That(Vector3.Distance(_player.transform.position, seatedPosition), Is.LessThan(0.001f),
+                "A repeated select while seated moved the player.");
+        }
     }
 }

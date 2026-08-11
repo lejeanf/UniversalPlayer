@@ -14,10 +14,12 @@ for M&K/gamepad, one UnityEvent for VR.
      they sat down from);
    - `eyeHeightAboveSeat`: seated eye height above the anchor (default 0.7).
 3. VR: nothing — the Seat adds an `XRSimpleInteractable` and wires its Select to
-   `ToggleSit()` by itself at startup (the chair needs a collider, which desktop mode
-   needs anyway). If you prefer your own interactable, add it and wire Select to
-   `ToggleSit` in the inspector — the auto-wiring detects that and stays out of the
-   way; `autoConfigureXrInteractable` turns the behavior off entirely.
+   sit by itself at startup (the chair needs a collider, which desktop mode
+   needs anyway). The interactable is **sit-only**: grabbing (grip) or triggering
+   the chair (trigger while the interaction ray hovers it) sits you; standing is
+   the LEFT STICK's job (see below). If you prefer your own interactable, add it
+   and wire Select to `ToggleSit` in the inspector — the auto-wiring detects that
+   and stays out of the way.
 
 ## Behavior per mode
 
@@ -28,11 +30,16 @@ for M&K/gamepad, one UnityEvent for VR.
   (Space / gamepad south) or Interact again — Interact stays usable for things
   around the seat, and move input deliberately does nothing while seated
   (`exitOnMoveInput` restores the old eject-on-move behavior if a project wants it).
-- **VR**: `ToggleSit()` teleports the rig and lowers the root so the user's *real*
+- **VR**: sitting teleports the rig and lowers the root so the user's *real*
   head lands at the seat's eye height — deliberately nothing more (no forced camera
-  animation in VR). Toggle again (Select on the chair) to restore the exact pre-sit
-  position and height. XRI's joystick locomotion providers are disabled while
-  seated, so the stick cannot slide a seated player off the chair.
+  animation in VR). Sit with **grip** (grab the chair) or **trigger** (press it while
+  the interaction ray hovers the chair). Stand up by **pushing the LEFT STICK and
+  holding it** for `standUpHoldSeconds` (default 0.2 s) — any direction. Two
+  debounces keep it deliberate: a stick already held when you sat down doesn't
+  count (release it and push again), and a short flick under the hold time does
+  nothing. XRI's joystick locomotion providers are disabled while seated, so the
+  stick cannot slide a seated player off the chair; the hold that stands you up
+  seamlessly becomes walking once you're up.
 - **All modes**: the CharacterController is disabled while seated (no gravity/collision
   fighting the chair) and fully restored on exit; the mouselook reset channel is raised
   so the view realigns with the seat's facing.
@@ -42,6 +49,15 @@ for M&K/gamepad, one UnityEvent for VR.
 `SitController` on the Move object. `Seat.ToggleSit()` complains loudly in the console
 if no SitController is alive in the scene (older variant, missing player). The
 `seatedStateChannel` (Bool) slot is optional for gameplay hooks on your variant.
+
+## Sit/stand hint tooltip (TooltipSystem)
+
+The TooltipSystem package (`fr.jeanf.tooltipsystem` ≥ 3.1.0) ships a `SeatTooltip`
+component: drop it next to the Seat with an `InteractableTooltipController` child and
+two `TooltipActionContentSo` assets (one "how to sit", one "how to stand") and the
+chair shows the right input hint for the active control scheme — parked slightly
+above the sit anchor, label parallel to the seat's facing, switching to the stand
+hint while the player is seated on that chair.
 
 ## Scenario-driven seating (event channel)
 

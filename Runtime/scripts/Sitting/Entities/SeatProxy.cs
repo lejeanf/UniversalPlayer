@@ -35,16 +35,25 @@ namespace jeanf.universalplayer
         {
             _interactable = gameObject.AddComponent<XRSimpleInteractable>();
             _interactable.selectEntered.AddListener(OnSelectEntered);
+            _interactable.hoverEntered.AddListener(OnHoverEntered);
+            _interactable.hoverExited.AddListener(OnHoverExited);
         }
 
         private void OnDestroy()
         {
-            if (_interactable != null) _interactable.selectEntered.RemoveListener(OnSelectEntered);
+            if (_interactable == null) return;
+            _interactable.selectEntered.RemoveListener(OnSelectEntered);
+            _interactable.hoverEntered.RemoveListener(OnHoverEntered);
+            _interactable.hoverExited.RemoveListener(OnHoverExited);
         }
 
+        // Sit-only (mirrors the classic Seat): grab/trigger only sits. Standing is the stick (VR) / jump+move (desktop).
         private void OnSelectEntered(SelectEnterEventArgs _)
         {
-            if (SitController.Instance != null) SitController.Instance.ToggleSit(this);
+            if (SitController.Instance != null) SitController.Instance.SitOn(this);
         }
+
+        private void OnHoverEntered(HoverEnterEventArgs _) => SitController.Instance?.NotifySeatHoverEntered(this);
+        private void OnHoverExited(HoverExitEventArgs _) => SitController.Instance?.NotifySeatHoverExited(this);
     }
 }

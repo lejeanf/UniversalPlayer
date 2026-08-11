@@ -58,6 +58,11 @@ namespace jeanf.universalplayer
         [Tooltip("Off by default: with it on, any move input stands the player up, which reads as being ejected from the chair.")]
         [SerializeField] private bool exitOnMoveInput = false;
         [SerializeField] private float exitGraceSeconds = 0.3f;
+
+        [Header("VR")]
+        [Tooltip("VR: push the LEFT stick and hold it this long to stand up (debounces accidental nudges). " +
+                 "Grabbing/triggering a seat only ever SITS in VR — standing is the stick's job.")]
+        [SerializeField] private float standUpHoldSeconds = 0.2f;
         [Tooltip("Seconds of the sitting-down glide (M&K/gamepad only — VR always teleports instantly, no imposed camera motion).")]
         [UnityEngine.Serialization.FormerlySerializedAs("transitionSeconds")]
         [SerializeField] private float sitTransitionSeconds = 0.85f;
@@ -74,6 +79,11 @@ namespace jeanf.universalplayer
         // forwards them onto the project's channels.
 
         public bool IsSeated { get; private set; }
+
+        /// <summary>Seat id of the currently occupied seat (0 when not seated) — lets seat-side UI
+        /// (e.g. a chair's tooltip) know whether THIS seat is the one being sat on.</summary>
+        public int CurrentSeatId => IsSeated ? _seat.SeatId : 0;
+
         private SeatData _seat;
         // The live source of the current seat (classic Seat or ECS proxy), kept for identity
         // checks (scenario re-seat) and so a streamed-out entity seat can force an exit later.
@@ -81,6 +91,13 @@ namespace jeanf.universalplayer
 
         private InputAction interactAction;
         private InputAction jumpAction;
+        // VR stand-up (left-stick hold) state.
+        private float _vrMoveHeldSince = -1f;
+        private bool _vrArmed;
+        // VR trigger-to-sit (G3): the seat whose interaction ray is currently hovering us.
+        private ISeatSource _hoveredSeat;
+        private readonly System.Collections.Generic.List<InputAction> _activateActions =
+            new System.Collections.Generic.List<InputAction>();
         private readonly System.Collections.Generic.List<Behaviour> disabledLocomotionProviders =
             new System.Collections.Generic.List<Behaviour>();
         private Vector3 preSitPosition;
@@ -114,6 +131,16 @@ namespace jeanf.universalplayer
 
                 jumpAction = playerInput.actions.FindAction("FPS/Jump", throwIfNotFound: false);
                 if (jumpAction != null) jumpAction.performed += OnJumpWhileSeated;
+
+                // G3: trigger (XRI Activate) sits when the interaction ray hovers a seat.
+                // Both hands' Activate actions feed the same "press to sit" path.
+                foreach (var mapName in new[] { "XRI LeftHand", "XRI RightHand" })
+                {
+                    var activate = playerInput.actions.FindAction($"{mapName}/Activate", throwIfNotFound: false);
+                    if (activate == null) continue;
+                    activate.performed += OnActivateWhileHovering;
+                    _activateActions.Add(activate);
+                }
             }
             else
             {
@@ -126,6 +153,9 @@ namespace jeanf.universalplayer
         {
             if (interactAction != null) interactAction.performed -= OnInteract;
             if (jumpAction != null) jumpAction.performed -= OnJumpWhileSeated;
+            foreach (var activate in _activateActions) activate.performed -= OnActivateWhileHovering;
+            _activateActions.Clear();
+            _hoveredSeat = null;
             PlayerEvents.SitRequested -= OnSitRequested;
             if (Instance == this) Instance = null;
         }
@@ -163,6 +193,27 @@ namespace jeanf.universalplayer
             Exit();
         }
 
+        // G3: seats report when their interaction ray hovers/leaves them (Seat / SeatProxy
+        // forward the XR interactable's hover events) so a trigger press can sit the player.
+        public void NotifySeatHoverEntered(ISeatSource source)
+        {
+            if (source != null) _hoveredSeat = source;
+        }
+
+        public void NotifySeatHoverExited(ISeatSource source)
+        {
+            if (ReferenceEquals(_hoveredSeat, source)) _hoveredSeat = null;
+        }
+
+        // Trigger (XRI Activate) while the interaction ray hovers a seat sits the player.
+        // VR only, sit-only: standing is the left stick's job, so this never toggles.
+        private void OnActivateWhileHovering(InputAction.CallbackContext _)
+        {
+            if (BroadcastControlsStatus.controlScheme != BroadcastControlsStatus.ControlScheme.XR) return;
+            if (IsSeated || _transitioning || _hoveredSeat == null) return;
+            SitOn(_hoveredSeat);
+        }
+
         private void OnInteract(InputAction.CallbackContext _)
         {
             // VR sits through the seat's own interactable, not through this raycast.
@@ -190,9 +241,26 @@ namespace jeanf.universalplayer
 
         private void LateUpdate()
         {
-            if (!IsSeated || !exitOnMoveInput || _transitioning) return;
-            if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR) return;
-            if (Time.time < seatedSince + exitGraceSeconds) return;
+            if (!IsSeated || _transitioning) return;
+            var pastGrace = Time.time >= seatedSince + exitGraceSeconds;
+
+            if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR)
+            {
+                // VR stand-up: push the left stick and HOLD it for standUpHoldSeconds.
+                // Debounce with _vrArmed so a stick that was already held when we sat
+                // (walked into the chair) doesn't instantly pop us back up — it must be
+                // RELEASED and pushed again to count.
+                var moving = playerMovement != null && playerMovement.IsMoving;
+                if (!pastGrace) { _vrArmed = false; _vrMoveHeldSince = -1f; return; }
+                if (!moving) { _vrArmed = true; _vrMoveHeldSince = -1f; return; } // released -> armed for a fresh push
+                if (!_vrArmed) return;                                             // still holding from before -> ignore
+                if (_vrMoveHeldSince < 0f) _vrMoveHeldSince = Time.time;
+                else if (Time.time >= _vrMoveHeldSince + standUpHoldSeconds) { _vrMoveHeldSince = -1f; Exit(); }
+                return;
+            }
+
+            // Desktop / gamepad: optional stand-up on move input (unchanged).
+            if (!exitOnMoveInput || !pastGrace) return;
             if (playerMovement != null && playerMovement.MoveInput.sqrMagnitude > 0.25f) Exit();
         }
 
@@ -248,6 +316,7 @@ namespace jeanf.universalplayer
             IsSeated = true;
             _currentSource = null; // set by the ISeatSource wrapper when a source drove this
             seatedSince = Time.time;
+            _vrArmed = false; _vrMoveHeldSince = -1f; // each sit starts clean for the stick-stand debounce
             if (body != null) body.SetSeated(true);
             PlayerEvents.RaiseSeated(true);
 
