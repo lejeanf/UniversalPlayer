@@ -50,14 +50,15 @@ for M&K/gamepad, one UnityEvent for VR.
 if no SitController is alive in the scene (older variant, missing player). The
 `seatedStateChannel` (Bool) slot is optional for gameplay hooks on your variant.
 
-## Sit/stand hint tooltip (TooltipSystem)
+## Sit/stand hint tooltip (project-side)
 
-The TooltipSystem package (`fr.jeanf.tooltipsystem` ≥ 3.1.0) ships a `SeatTooltip`
-component: drop it next to the Seat with an `InteractableTooltipController` child and
-two `TooltipActionContentSo` assets (one "how to sit", one "how to stand") and the
-chair shows the right input hint for the active control scheme — parked slightly
-above the sit anchor, label parallel to the seat's facing, switching to the stand
-hint while the player is seated on that chair.
+Chairs can show a "how to sit / how to stand" hint with the TooltipSystem package
+(`fr.jeanf.tooltipsystem` ≥ 3.1.0), wired in the project: put an
+`InteractableTooltipController` on the chair (a `TooltipActionContentSo` gives each
+control scheme its own text/icon) and park it above the Seat's sit anchor. To switch
+the hint between sit and stand, compare `SitController.Instance.CurrentSeatId`
+against the seat's `GetSeatData().SeatId` on `PlayerEvents.SeatedChanged` and call
+`InteractableTooltipController.SetActionContent(...)` with the matching content asset.
 
 ## Scenario-driven seating (event channel)
 
