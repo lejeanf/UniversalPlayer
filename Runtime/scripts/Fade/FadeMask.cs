@@ -161,6 +161,10 @@ namespace jeanf.universalplayer
         /// <summary>True while the world is faded to black by loading/teleporting (menu-caused black excluded).</summary>
         public static bool ScreenFaded => _requestedState == VisualState.Loading;
 
+        /// <summary>Seconds a fade transition takes — how long after <see cref="SetStateLoading"/> the
+        /// screen is actually fully black (callers hiding something behind the fade must wait this long).</summary>
+        public static float FadeSeconds => _fadeTime;
+
         // Tells listeners (the cursor, notably) that the world went black or came
         // back — driven by the BASE state only: the menu overlay also blacks the
         // screen but its UI still needs a visible cursor.

@@ -10,11 +10,13 @@ namespace jeanf.universalplayer
     /// whenever a sequence requires the player to start seated at a specific chair.
     ///
     /// Goes through the normal sit-request flow (<see cref="PlayerEvents.RaiseSitRequest"/>)
-    /// and, by default, waits for the screen to be FADED TO BLACK before raising it — the
-    /// placement is then instant and the player never sees the transition (the scenario-load
-    /// pattern: fade out → this seats them → the reveal shows them already in the chair).
-    /// Being already seated elsewhere swaps seats. Additive-load safe: if the Player isn't
-    /// alive yet when this enables, it waits for the SitController to appear first.
+    /// and, by default, hides the placement BEHIND A FADE TO BLACK so the transition is
+    /// never seen: when the screen is already black (scenario loading) it simply seats the
+    /// player behind it and leaves the fade to its owner; when the world is visible it
+    /// TRIGGERS the fade itself (<see cref="FadeMask.SetStateLoading"/>), seats the player
+    /// once the black covers the screen, then fades back in. Being already seated elsewhere
+    /// swaps seats. Additive-load safe: if the Player isn't alive yet when this enables, it
+    /// waits for the SitController to appear first.
     /// </summary>
     public class SitPlayerOnEnable : MonoBehaviour
     {
@@ -24,13 +26,17 @@ namespace jeanf.universalplayer
         [Validation("A Seat is required — without it there is nothing to sit the player on and this component does nothing.")]
         [SerializeField] private Seat seat;
 
-        [Tooltip("Wait for the screen to be faded to black before seating, so the transition is never seen (placement while black is instant). Off = seat immediately on enable, glide and all.")]
-        [SerializeField] private bool waitForFadeToBlack = true;
+        [Tooltip("Hide the placement behind a fade to black. Screen already black (scenario loading): seat behind it, the loading flow keeps owning the fade. World visible: fade to black, seat, fade back in. Off = seat immediately on enable, glide and all.")]
+        [SerializeField] private bool fadeToBlackForPlacement = true;
 
-        [Tooltip("How long to keep waiting (for the Player to exist, and for the fade to black) before falling back — additive scene loading can enable this object before the player scene is in. On timeout the player is still seated, just visibly.")]
+        [Tooltip("Extra seconds the screen stays black after the placement before fading back in (only when this component triggered the fade itself).")]
+        [SerializeField] private float holdBlackSeconds = 0.15f;
+
+        [Tooltip("How long to keep waiting for the Player (SitController) to exist before giving up — additive scene loading can enable this object before the player scene is in.")]
         [SerializeField] private float waitTimeout = 10f;
 
         private Coroutine _pending;
+        private bool _ownsFade; // we triggered the black — we must give it back, even if disabled mid-sequence
 
         private void OnEnable()
         {
@@ -47,6 +53,12 @@ namespace jeanf.universalplayer
         {
             if (_pending != null) StopCoroutine(_pending);
             _pending = null;
+            if (_ownsFade)
+            {
+                // Killed mid-sequence after fading to black: never leave the screen black.
+                FadeMask.SetStateClear();
+                _ownsFade = false;
+            }
         }
 
         private IEnumerator SitWhenPlayerReady()
@@ -67,20 +79,27 @@ namespace jeanf.universalplayer
                 yield return null;
             }
 
-            // Seat only while the screen is black so the placement is instant and invisible.
-            // If the fade never comes, seat anyway (the scenario NEEDS the player in the chair)
-            // — visibly, with a warning naming the likely wiring gap.
-            if (waitForFadeToBlack && !FadeMask.ScreenFaded)
+            // Seat behind black so the placement is instant and invisible. If the screen is
+            // not already black (no scenario load running), trigger the fade OURSELVES and
+            // give it back afterwards; an already-black screen belongs to whoever faded it
+            // (the loading flow), so it is left untouched.
+            if (fadeToBlackForPlacement && !FadeMask.ScreenFaded)
             {
-                while (!FadeMask.ScreenFaded && Time.unscaledTime < deadline) yield return null;
-                if (!FadeMask.ScreenFaded)
-                    Debug.LogWarning($"{LogPrefix} SitPlayerOnEnable on '{name}': the screen never faded to black " +
-                        $"within {waitTimeout:F0}s — seating the player on '{seat.name}' VISIBLY. If this enable is " +
-                        "part of a scenario load, make sure the loading fade runs (FadeMask), or turn " +
-                        "'Wait For Fade To Black' off to accept the visible transition.", this);
+                FadeMask.SetStateLoading(); // warns loudly by itself when no FadeMask is set up
+                _ownsFade = true;
+                // ScreenFaded flips on the REQUEST — the visual takes FadeSeconds to cover
+                // the screen, and seating early would show the teleport mid-fade.
+                yield return new WaitForSeconds(FadeMask.FadeSeconds + 0.05f);
             }
 
             PlayerEvents.RaiseSitRequest(seat.gameObject);
+
+            if (_ownsFade)
+            {
+                yield return new WaitForSeconds(holdBlackSeconds);
+                FadeMask.SetStateClear();
+                _ownsFade = false;
+            }
             _pending = null;
         }
     }

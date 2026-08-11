@@ -81,9 +81,11 @@ Channel** (optional field on the Player variant):
 
 For "this scenario starts with the player seated HERE", drop a
 `SitPlayerOnEnable` in the scenario's scene and reference the Seat: the moment
-the object is enabled it raises the sit request. By default it **waits for the
-screen to be faded to black** first, so the placement is instant and the
-transition is never seen (turn `waitForFadeToBlack` off to seat immediately,
-glide and all). It also waits for the Player to exist — additive loading can
-enable it before the player scene is in — and warns loudly (but still seats the
-player, visibly) if the fade never comes within `waitTimeout`.
+the object is enabled it raises the sit request, **hidden behind a fade to
+black** (default on). Screen already black (scenario loading): the player is
+seated behind it and the loading flow keeps owning the fade. World visible: the
+component **triggers the fade itself**, seats the player once the black covers
+the screen, holds `holdBlackSeconds`, then fades back in (and always fades back
+in if it gets disabled mid-sequence). Turn `fadeToBlackForPlacement` off to
+seat immediately, glide and all. It also waits up to `waitTimeout` for the
+Player to exist — additive loading can enable it before the player scene is in.
