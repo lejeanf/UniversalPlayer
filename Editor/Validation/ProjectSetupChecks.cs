@@ -197,6 +197,7 @@ namespace jeanf.universalplayer
 
             results.Add(CheckFadeMaskProfile());
             results.Add(CheckFadeVolumeVisibleToCamera());
+            results.Add(CheckCameraPostProcessing());
             results.Add(CheckSeatHeights());
             results.Add(CheckSeatColliders());
             results.Add(CheckSeatDataBridge());
@@ -375,6 +376,48 @@ namespace jeanf.universalplayer
 
             return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
                 $"Camera volume mask includes layer '{LayerMask.LayerToName(layer)}'.");
+        }
+
+        // URP applies volume post-processing to a camera ONLY when its "Post Processing"
+        // toggle is on (UniversalAdditionalCameraData.m_RenderPostProcessing) — and that
+        // toggle defaults to OFF on every new URP camera. With it off, a correctly
+        // configured (even global) fade volume renders NOTHING and EVERY fade silently
+        // no-ops. HDRP enables post-processing through frame settings (on by default) and
+        // has no equivalent per-camera toggle, so this is URP-only. Read through
+        // SerializedObject to avoid a hard URP assembly reference.
+        private static SetupValidator.CheckResult CheckCameraPostProcessing()
+        {
+            const string check = "Scene: camera post-processing (URP)";
+            var fadeMask = Object.FindFirstObjectByType<FadeMask>(FindObjectsInactive.Include);
+            if (fadeMask == null)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
+                    "No FadeMask in the scene — nothing to check.", "See the 'Scene: fade profile' result.");
+
+            var camera = fadeMask.GetComponentInParent<Camera>(true);
+            if (camera == null) camera = Object.FindFirstObjectByType<Camera>(FindObjectsInactive.Include);
+            if (camera == null)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
+                    "No Camera found — cannot verify post-processing.", "Add the Player variant to the scene.");
+
+            var urpData = camera.GetComponent("UniversalAdditionalCameraData");
+            if (urpData == null)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
+                    "Not a URP camera (built-in/HDRP) — the per-camera post-processing toggle does not apply.");
+
+            var renderPostProcessing = new SerializedObject(urpData).FindProperty("m_RenderPostProcessing");
+            if (renderPostProcessing == null)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
+                    "URP camera data exposes no post-processing toggle — nothing to verify.");
+
+            if (!renderPostProcessing.boolValue)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Fail,
+                    $"'Post Processing' is OFF on camera '{camera.gameObject.name}' — URP applies no volume overrides " +
+                    "with it off, so the (global) fade volume renders nothing and EVERY fade (loading black screen, " +
+                    "head-in-wall, menu) silently no-ops.",
+                    $"Select '{camera.gameObject.name}' (on your Player variant) and tick Camera > Rendering > Post Processing.");
+
+            return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
+                $"Post Processing is enabled on camera '{camera.gameObject.name}'.");
         }
 
         private static SetupValidator.CheckResult CheckFadeMaskProfile()
