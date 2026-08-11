@@ -76,3 +76,14 @@ Channel** (optional field on the Player variant):
 - With the world visible, the same request plays the normal sit/stand glide.
 - Raising a different Seat while seated swaps seats (silent instant release,
   then the new sit).
+
+### SitPlayerOnEnable (zero-code scenario placement)
+
+For "this scenario starts with the player seated HERE", drop a
+`SitPlayerOnEnable` in the scenario's scene and reference the Seat: the moment
+the object is enabled it raises the sit request. By default it **waits for the
+screen to be faded to black** first, so the placement is instant and the
+transition is never seen (turn `waitForFadeToBlack` off to seat immediately,
+glide and all). It also waits for the Player to exist — additive loading can
+enable it before the player scene is in — and warns loudly (but still seats the
+player, visibly) if the fade never comes within `waitTimeout`.

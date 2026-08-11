@@ -357,6 +357,31 @@ namespace jeanf.universalplayer.tests
             _movement.SetIsMoving(false);
         }
 
+        // Scenario placement: enabling a SitPlayerOnEnable must put the player in its seat.
+        // With no FadeMask in the scene ScreenFaded defaults to true (loading state), so the
+        // fade-gated path places instantly — exactly the scenario-load situation it exists for.
+        [UnityTest]
+        public IEnumerator SitPlayerOnEnable_SeatsThePlayer_OnItsSeat()
+        {
+            var trigger = new GameObject("ForceSit");
+            trigger.SetActive(false);
+            var force = trigger.AddComponent<SitPlayerOnEnable>();
+            SetField(force, "seat", _seat);
+
+            trigger.SetActive(true);
+            for (var i = 0; i < 5; i++) yield return null;
+
+            Assert.That(_sit.IsSeated, Is.True, "Enabling SitPlayerOnEnable did not seat the player.");
+            Assert.That(_sit.CurrentSeatId, Is.EqualTo(_seat.GetSeatData().SeatId),
+                "The player was seated, but not on the seat referenced by SitPlayerOnEnable.");
+            Assert.That(Vector3.Distance(_player.transform.position, _chair.transform.position), Is.LessThan(0.01f),
+                "Screen-faded placement must be instant — the player is not at the seat anchor.");
+
+            Object.Destroy(trigger);
+            _sit.Exit(true);
+            yield return null;
+        }
+
         [UnityTest]
         public IEnumerator SeatInteractable_IsSitOnly_WhileSeated()
         {
