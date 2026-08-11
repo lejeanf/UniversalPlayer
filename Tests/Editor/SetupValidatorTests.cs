@@ -1,5 +1,8 @@
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace jeanf.universalplayer.tests.editor
 {
@@ -68,6 +71,104 @@ namespace jeanf.universalplayer.tests.editor
 
             Assert.That(duplicates, Is.Empty,
                 $"Duplicate check names: {string.Join(", ", duplicates)} — rename them so console feedback is unambiguous.");
+        }
+
+        // --- Seat scene checks -------------------------------------------------
+        // The scene checks only run once a Player is in the scene, so these build a minimal one
+        // plus the Seat(s) under test and assert the specific seat results. (Closed SubScenes hide
+        // their Seats at edit time, so the SeatDataBridge warning path can't be faked here — its
+        // no-SubScene pass path is covered, the warning path is left to manual ValidateSetup.)
+
+        private readonly List<GameObject> _spawned = new List<GameObject>();
+
+        [TearDown]
+        public void DestroySpawned()
+        {
+            foreach (var go in _spawned) if (go != null) Object.DestroyImmediate(go);
+            _spawned.Clear();
+        }
+
+        private GameObject Spawn(string name)
+        {
+            var go = new GameObject(name);
+            _spawned.Add(go);
+            return go;
+        }
+
+        private Seat NewSeat(string name) => Spawn(name).AddComponent<Seat>();
+
+        // Run the open-scene checks and return one by name (with a clear failure if it didn't run).
+        private static SetupValidator.CheckResult SceneCheck(string name)
+        {
+            var result = ProjectSetupChecks.RunOpenSceneChecks().FirstOrDefault(r => r.Name == name);
+            Assert.That(result.Name, Is.EqualTo(name),
+                $"Check '{name}' did not run — is a Player (BroadcastControlsStatus) present in the scene?");
+            return result;
+        }
+
+        private static void SetPrivate(object target, string field, object value)
+        {
+            var info = target.GetType().GetField(field, BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(info, Is.Not.Null, $"Field '{field}' not found on {target.GetType().Name} — was it renamed?");
+            info.SetValue(target, value);
+        }
+
+        [Test]
+        public void SeatColliderCheck_FlagsMissingAndOffRootColliders()
+        {
+            Spawn("Player").AddComponent<BroadcastControlsStatus>(); // lets the scene checks run
+
+            var seat = NewSeat("Seat_NoCollider");
+            Assert.That(SceneCheck("Scene: seat colliders").Severity, Is.EqualTo(SetupValidator.Severity.Warning),
+                "A Seat with no collider must be flagged (cannot be aimed at / cannot bake a proxy).");
+            Object.DestroyImmediate(seat.gameObject);
+
+            seat = NewSeat("Seat_BoxOnRoot");
+            seat.gameObject.AddComponent<BoxCollider>();
+            Assert.That(SceneCheck("Scene: seat colliders").Severity, Is.EqualTo(SetupValidator.Severity.Pass),
+                "A Seat with a BoxCollider on its root must pass.");
+            Object.DestroyImmediate(seat.gameObject);
+
+            seat = NewSeat("Seat_ChildCollider");
+            var child = new GameObject("Mesh");
+            child.transform.SetParent(seat.transform, false);
+            child.AddComponent<BoxCollider>();
+            Assert.That(SceneCheck("Scene: seat colliders").Severity, Is.EqualTo(SetupValidator.Severity.Warning),
+                "A Seat whose only collider is on a child must be flagged — the baked proxy is placed at the root.");
+        }
+
+        [Test]
+        public void SeatHeightCheck_FlagsSeatedEyesAtOrAboveStanding()
+        {
+            Spawn("Player").AddComponent<BroadcastControlsStatus>();
+
+            var seat = NewSeat("Seat");               // at origin, no exit anchor -> standing est. uses 1.7m
+            SetPrivate(seat, "eyeHeightAboveSeat", 2.0f); // seated eyes 2.0m are ABOVE standing -> flagged
+            Assert.That(SceneCheck("Scene: seat heights").Severity, Is.EqualTo(SetupValidator.Severity.Warning),
+                "A seat whose seated eyes land at/above the standing eyes must be flagged.");
+
+            SetPrivate(seat, "eyeHeightAboveSeat", 0.5f); // seated eyes well below standing -> pass
+            Assert.That(SceneCheck("Scene: seat heights").Severity, Is.EqualTo(SetupValidator.Severity.Pass),
+                "A seat that lowers the view must pass.");
+        }
+
+        [Test]
+        public void SeatDataBridgeCheck_PassesWhenNoSubScenes()
+        {
+            Spawn("Player").AddComponent<BroadcastControlsStatus>();
+            NewSeat("Seat");
+            Assert.That(SceneCheck("Scene: seat data bridge").Severity, Is.EqualTo(SetupValidator.Severity.Pass),
+                "With no SubScenes present, the SeatDataBridge check must pass (it only matters for baked seats).");
+        }
+
+        [Test]
+        public void OpenSceneChecks_IncludeTheSeatChecks()
+        {
+            Spawn("Player").AddComponent<BroadcastControlsStatus>();
+            var names = ProjectSetupChecks.RunOpenSceneChecks().Select(r => r.Name).ToList();
+            foreach (var expected in new[] { "Scene: seat heights", "Scene: seat colliders", "Scene: seat data bridge" })
+                Assert.That(names, Does.Contain(expected),
+                    $"'{expected}' is no longer in the open-scene checks — a seat setup regression would go unvalidated.");
         }
     }
 }
