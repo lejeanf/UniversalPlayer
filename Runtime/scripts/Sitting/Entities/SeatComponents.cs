@@ -34,4 +34,20 @@ namespace jeanf.universalplayer
         /// <summary>The seat GameObject's layer, so the proxy sits on the same physics layer.</summary>
         public int Layer;
     }
+
+    /// <summary>
+    /// A <see cref="SitPlayerOnEnable"/> that was authored inside a SubScene. The MonoBehaviour is
+    /// stripped at runtime (baked SubScenes keep entities only), so its intent is baked to data and
+    /// <see cref="SeatDataBridge"/> executes it when the entity streams in — the entity-world
+    /// equivalent of "OnEnable": force-sit the player the moment this object's section is loaded.
+    /// </summary>
+    public struct ForceSitOnLoad : IComponentData
+    {
+        /// <summary>The directly-linked seat (same SubScene); <see cref="Entity.Null"/> when targeting by id.</summary>
+        public Entity Seat;
+        /// <summary>Authored Seat Id fallback for seats the SubScene cannot reference; 0 = unset.</summary>
+        public int SeatId;
+        public byte FadeToBlack;
+        public float HoldBlackSeconds;
+    }
 }

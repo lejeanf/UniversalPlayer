@@ -45,6 +45,7 @@ namespace jeanf.universalplayer
 
         private EntityManager _em;
         private EntityQuery _seatQuery;
+        private EntityQuery _forceSitQuery;
         private bool _worldReady;
         private float _timer;
         private int _lastLoggedCount = -1;
@@ -57,6 +58,14 @@ namespace jeanf.universalplayer
         private readonly Dictionary<Entity, SeatProxy> _proxies = new Dictionary<Entity, SeatProxy>(64);
         private readonly List<Entity> _toRemove = new List<Entity>(16);
         private readonly HashSet<Entity> _seen = new HashSet<Entity>();
+
+        // Baked SitPlayerOnEnable (ForceSitOnLoad) entities → the proxy GameObjects re-hosting
+        // the real component. Alive proxy = already fired for this load; streaming the section
+        // out destroys it, so a reload re-triggers — the entity-world "OnEnable".
+        private readonly Dictionary<Entity, GameObject> _forceSitProxies = new Dictionary<Entity, GameObject>(8);
+        private readonly HashSet<Entity> _forceSitSeen = new HashSet<Entity>();
+        private readonly HashSet<Entity> _forceSitInvalid = new HashSet<Entity>();
+        private readonly List<Entity> _forceSitToRemove = new List<Entity>(8);
 
         private void Awake()
         {
@@ -109,6 +118,7 @@ namespace jeanf.universalplayer
             if (world == null || !world.IsCreated) { _worldReady = false; return; }
             _em = world.EntityManager;
             _seatQuery = _em.CreateEntityQuery(ComponentType.ReadOnly<SeatComponent>());
+            _forceSitQuery = _em.CreateEntityQuery(ComponentType.ReadOnly<ForceSitOnLoad>());
             _worldReady = true;
         }
 
@@ -127,6 +137,7 @@ namespace jeanf.universalplayer
 
             Refresh();
             Reconcile();
+            ReconcileForceSits();
         }
 
         // --- Query baked seats -------------------------------------------------
@@ -257,6 +268,68 @@ namespace jeanf.universalplayer
             var proxy = go.AddComponent<SeatProxy>();
             proxy.Bind(entity, info.Data);
             return proxy;
+        }
+
+        // --- Baked SitPlayerOnEnable execution ---------------------------------
+
+        // A SitPlayerOnEnable authored in a SubScene is stripped at runtime (entities only),
+        // so its baked ForceSitOnLoad is executed here: when the entity appears (its section
+        // loaded), spawn a proxy GameObject re-hosting the REAL component pre-resolved — all
+        // the fade/wait/warn behavior stays in one place. One firing per load; streaming out
+        // removes the proxy so the next load fires again.
+        private void ReconcileForceSits()
+        {
+            _forceSitSeen.Clear();
+            var entities = _forceSitQuery.ToEntityArray(Allocator.Temp);
+            for (var i = 0; i < entities.Length; i++)
+            {
+                var e = entities[i];
+                _forceSitSeen.Add(e);
+                if (_forceSitInvalid.Contains(e)) continue;
+                if (_forceSitProxies.TryGetValue(e, out var existing) && existing != null) continue;
+
+                var fs = _em.GetComponentData<ForceSitOnLoad>(e);
+                if (fs.Seat != Entity.Null)
+                {
+                    // Directly-linked seat: resolve through the (just-refreshed) seat cache.
+                    // Not there yet = the seat's section is still streaming in — retry next tick.
+                    if (!TryGetSeat(fs.Seat, out var data)) continue;
+                    _forceSitProxies[e] = SpawnForceSitProxy(proxy => proxy.ConfigureResolved(data, fs.FadeToBlack == 1, fs.HoldBlackSeconds));
+                }
+                else if (fs.SeatId != 0)
+                {
+                    // Id-targeted: the component's own SeatRegistry retry loop handles timing.
+                    _forceSitProxies[e] = SpawnForceSitProxy(proxy => proxy.ConfigureById(fs.SeatId, fs.FadeToBlack == 1, fs.HoldBlackSeconds));
+                }
+                else
+                {
+                    _forceSitInvalid.Add(e);
+                    Debug.LogWarning($"{LogPrefix} SeatDataBridge: a baked SitPlayerOnEnable has neither a linked Seat " +
+                        "nor a Seat Id — the player cannot be seated. Fix the SitPlayerOnEnable in its SubScene and re-bake.", this);
+                }
+            }
+            entities.Dispose();
+
+            _forceSitToRemove.Clear();
+            foreach (var kv in _forceSitProxies)
+                if (kv.Value == null || !_forceSitSeen.Contains(kv.Key)) _forceSitToRemove.Add(kv.Key);
+            for (var i = 0; i < _forceSitToRemove.Count; i++)
+            {
+                if (_forceSitProxies.TryGetValue(_forceSitToRemove[i], out var go) && go != null) Destroy(go);
+                _forceSitProxies.Remove(_forceSitToRemove[i]);
+            }
+            _forceSitInvalid.RemoveWhere(e => !_forceSitSeen.Contains(e)); // re-warn if a fixed bake reloads
+        }
+
+        private GameObject SpawnForceSitProxy(System.Action<SitPlayerOnEnable> configure)
+        {
+            // Configure while inactive so OnEnable runs with the values already in place.
+            var go = new GameObject("ForceSitProxy");
+            go.transform.SetParent(_container, false);
+            go.SetActive(false);
+            configure(go.AddComponent<SitPlayerOnEnable>());
+            go.SetActive(true);
+            return go;
         }
 
         /// <summary>Seat pose for a specific baked seat entity, or false if it is gone (streamed out).</summary>

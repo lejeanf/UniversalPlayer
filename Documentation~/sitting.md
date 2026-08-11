@@ -88,7 +88,16 @@ runtime) — give the Seat a unique **Seat Id** and set the same id on the
 `SitPlayerOnEnable` instead: it resolves through the `SeatRegistry` (live Seats
 register themselves; the `SeatDataBridge` resolves baked ones), patiently
 retrying while the SubScene streams in. `Tools/UniversalPlayer/ValidateSetup`
-flags duplicate ids and untargeted SitPlayerOnEnable components. Screen already black (scenario loading): the player is
+flags duplicate ids and untargeted SitPlayerOnEnable components.
+
+`SitPlayerOnEnable` can also be authored **inside a SubScene** (e.g. right next
+to the chair, with the Seat linked directly — no id needed): like the Seat, it
+is baked (to `ForceSitOnLoad`) and the `SeatDataBridge` executes it when the
+entity streams in — the entity-world "OnEnable" is *its section loading*. One
+firing per load; streaming the section out and back in fires it again. Note a
+baked force-sit that was saved disabled never fires (there is no GameObject to
+enable at runtime) — use a classic-scene SitPlayerOnEnable with a Seat Id when
+a scenario needs to trigger the sit at an arbitrary moment. Screen already black (scenario loading): the player is
 seated behind it and the loading flow keeps owning the fade. World visible: the
 component **triggers the fade itself**, seats the player once the black covers
 the screen, holds `holdBlackSeconds`, then fades back in (and always fades back

@@ -45,9 +45,42 @@ namespace jeanf.universalplayer
         private Coroutine _pending;
         private bool _ownsFade; // we triggered the black — we must give it back, even if disabled mid-sequence
 
+        // Baked path: the SeatDataBridge resolved the seat from the entity world already and
+        // spawns a proxy carrying this component with the values pre-filled (a MonoBehaviour
+        // inside a baked SubScene is stripped at runtime, so the bridge re-hosts it).
+        private SeatData _resolvedOverride;
+        private bool _hasResolvedOverride;
+
+        /// <summary>The authoring values, for the SubScene baker.</summary>
+        public Seat SeatRef => seat;
+        public int AuthoredSeatId => seatId;
+        public bool FadeToBlackForPlacement => fadeToBlackForPlacement;
+        public float HoldBlackSeconds => holdBlackSeconds;
+
+        /// <summary>
+        /// Configure with an already-resolved seat (entity world) — call while the GameObject is
+        /// still inactive, then activate; the normal enable flow runs with this data.
+        /// </summary>
+        public void ConfigureResolved(in SeatData resolved, bool fadeToBlack, float holdBlack)
+        {
+            _resolvedOverride = resolved;
+            _hasResolvedOverride = true;
+            fadeToBlackForPlacement = fadeToBlack;
+            holdBlackSeconds = holdBlack;
+        }
+
+        /// <summary>Configure for Seat-Id resolution (bridge proxy for a baked force-sit that
+        /// targets a seat by id) — call while the GameObject is still inactive, then activate.</summary>
+        public void ConfigureById(int targetSeatId, bool fadeToBlack, float holdBlack)
+        {
+            seatId = targetSeatId;
+            fadeToBlackForPlacement = fadeToBlack;
+            holdBlackSeconds = holdBlack;
+        }
+
         private void OnEnable()
         {
-            if (seat == null && seatId == 0)
+            if (seat == null && seatId == 0 && !_hasResolvedOverride)
             {
                 Debug.LogWarning($"{LogPrefix} SitPlayerOnEnable on '{name}': no Seat assigned and no Seat Id set — " +
                     "the player cannot be seated. Assign the target Seat, or set the Seat Id authored on it " +
@@ -92,7 +125,11 @@ namespace jeanf.universalplayer
             // Never fade to black over a target that can't be found.
             var resolvedSeat = default(SeatData);
             var byId = seat == null;
-            if (byId)
+            if (_hasResolvedOverride)
+            {
+                resolvedSeat = _resolvedOverride; // entity world already resolved it (bridge proxy)
+            }
+            else if (byId)
             {
                 while (!SeatRegistry.TryGetSeatData(seatId, out resolvedSeat))
                 {

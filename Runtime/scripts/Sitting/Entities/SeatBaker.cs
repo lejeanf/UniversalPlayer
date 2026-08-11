@@ -42,4 +42,25 @@ namespace jeanf.universalplayer
             });
         }
     }
+
+    /// <summary>
+    /// Bakes a <see cref="SitPlayerOnEnable"/> that lives in a SubScene into
+    /// <see cref="ForceSitOnLoad"/> — the MonoBehaviour itself is stripped at runtime, so
+    /// <see cref="SeatDataBridge"/> takes over: it runs the force-sit when the baked entity
+    /// streams in (the entity-world "OnEnable"). In a normal scene the MonoBehaviour just runs.
+    /// </summary>
+    public class SitPlayerOnEnableBaker : Baker<SitPlayerOnEnable>
+    {
+        public override void Bake(SitPlayerOnEnable authoring)
+        {
+            var entity = GetEntity(TransformUsageFlags.None);
+            AddComponent(entity, new ForceSitOnLoad
+            {
+                Seat = authoring.SeatRef != null ? GetEntity(authoring.SeatRef, TransformUsageFlags.Dynamic) : Entity.Null,
+                SeatId = authoring.AuthoredSeatId,
+                FadeToBlack = (byte)(authoring.FadeToBlackForPlacement ? 1 : 0),
+                HoldBlackSeconds = authoring.HoldBlackSeconds,
+            });
+        }
+    }
 }

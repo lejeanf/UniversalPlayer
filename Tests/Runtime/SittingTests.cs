@@ -433,6 +433,35 @@ namespace jeanf.universalplayer.tests
             yield return null;
         }
 
+        // The bridge-proxy path for a SitPlayerOnEnable BAKED into a SubScene: the MonoBehaviour
+        // is stripped there, so SeatDataBridge spawns a proxy GO hosting the component with the
+        // seat pre-resolved from the entity world (ConfigureResolved) — this is that flow minus
+        // the ECS query, which needs a baked world.
+        [UnityTest]
+        public IEnumerator SitPlayerOnEnable_PreResolved_SeatsThePlayer()
+        {
+            var data = new SeatData(
+                seatId: 900, name: "BakedSeat", sitPosition: new Vector3(5f, 0.5f, -3f), sitFacingYaw: 180f,
+                eyeHeightAboveSeat: 0.7f, hasExit: false, exitPosition: Vector3.zero, exitFacingYaw: 0f,
+                hasHandSupport: false, handSupportWorldPos: Vector3.zero, handSupportWorldRot: Quaternion.identity);
+
+            var proxy = new GameObject("ForceSitProxy");
+            proxy.SetActive(false);
+            var force = proxy.AddComponent<SitPlayerOnEnable>();
+            force.ConfigureResolved(data, fadeToBlack: true, holdBlack: 0f);
+            proxy.SetActive(true);
+            for (var i = 0; i < 5; i++) yield return null;
+
+            Assert.That(_sit.IsSeated, Is.True, "A pre-resolved SitPlayerOnEnable (bridge proxy) did not seat the player.");
+            Assert.That(_sit.CurrentSeatId, Is.EqualTo(900), "The player is not on the pre-resolved seat.");
+            Assert.That(Vector3.Distance(_player.transform.position, data.SitPosition), Is.LessThan(0.01f),
+                "The player was not placed at the pre-resolved sit position.");
+
+            Object.Destroy(proxy);
+            _sit.Exit(true);
+            yield return null;
+        }
+
         [UnityTest]
         public IEnumerator RequestSit_SwapsSeats_AndNoOpsOnSameSeat()
         {
