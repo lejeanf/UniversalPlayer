@@ -67,4 +67,62 @@ namespace jeanf.universalplayer
     {
         SeatData GetSeatData();
     }
+
+    /// <summary>
+    /// Finds a seat by its authored Seat Id across BOTH worlds — for scenario code (e.g.
+    /// <see cref="SitPlayerOnEnable"/>) that must target a seat it cannot hold a direct
+    /// reference to: a seat in another additive scene, or one baked into a SubScene.
+    /// Live <see cref="Seat"/>s with a non-zero Seat Id register themselves; the entity
+    /// world's SeatDataBridge registers a resolver covering every currently-baked seat.
+    /// </summary>
+    public static class SeatRegistry
+    {
+        /// <summary>Resolver signature: true + data when the id is known to this resolver.</summary>
+        public delegate bool SeatResolver(int seatId, out SeatData data);
+
+        private static readonly System.Collections.Generic.Dictionary<int, ISeatSource> Sources =
+            new System.Collections.Generic.Dictionary<int, ISeatSource>();
+        private static readonly System.Collections.Generic.List<SeatResolver> Resolvers =
+            new System.Collections.Generic.List<SeatResolver>();
+
+        public static void Register(int seatId, ISeatSource source)
+        {
+            if (seatId == 0 || source == null) return;
+            if (Sources.TryGetValue(seatId, out var existing) && !ReferenceEquals(existing, source))
+                Debug.LogWarning($"[UniversalPlayer] SeatRegistry: two seats share Seat Id {seatId} — " +
+                    "ids must be unique for scenario targeting to be deterministic. The newest wins.");
+            Sources[seatId] = source;
+        }
+
+        public static void Unregister(int seatId, ISeatSource source)
+        {
+            if (seatId == 0) return;
+            if (Sources.TryGetValue(seatId, out var existing) && ReferenceEquals(existing, source))
+                Sources.Remove(seatId);
+        }
+
+        public static void RegisterResolver(SeatResolver resolver)
+        {
+            if (resolver != null && !Resolvers.Contains(resolver)) Resolvers.Add(resolver);
+        }
+
+        public static void UnregisterResolver(SeatResolver resolver) => Resolvers.Remove(resolver);
+
+        /// <summary>Seat values for an authored id — live Seats first, then baked-world resolvers.</summary>
+        public static bool TryGetSeatData(int seatId, out SeatData data)
+        {
+            if (seatId != 0)
+            {
+                if (Sources.TryGetValue(seatId, out var source))
+                {
+                    data = source.GetSeatData();
+                    return true;
+                }
+                for (var i = 0; i < Resolvers.Count; i++)
+                    if (Resolvers[i](seatId, out data)) return true;
+            }
+            data = default;
+            return false;
+        }
+    }
 }

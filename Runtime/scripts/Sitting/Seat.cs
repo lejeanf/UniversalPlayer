@@ -35,17 +35,24 @@ namespace jeanf.universalplayer
         [Tooltip("Eye height above the sit anchor while seated.")]
         [SerializeField] private float eyeHeightAboveSeat = 0.7f;
 
+        [Header("Scenario targeting (optional)")]
+        [Tooltip("Unique id so scenario code (SitPlayerOnEnable) can target this seat without a direct reference — required for seats in OTHER additive scenes or baked into SubScenes. 0 = not targetable. Must be unique across seats (door-system convention).")]
+        [SerializeField] private int seatId = 0;
+
         public Transform SitAnchor => sitAnchor != null ? sitAnchor : transform;
         public Transform ExitAnchor => exitAnchor;
         public float EyeHeightAboveSeat => eyeHeightAboveSeat;
         public Transform HandSupportAnchor => handSupportAnchor;
+
+        /// <summary>The authored scenario-targeting id (0 = none) — baked into the entity world as-is.</summary>
+        public int AuthoredSeatId => seatId;
 
         /// <summary>Snapshot this seat as plain values for <see cref="SitController"/> (see <see cref="ISeatSource"/>).</summary>
         public SeatData GetSeatData()
         {
             var anchor = SitAnchor;
             return new SeatData(
-                seatId: GetInstanceID(),
+                seatId: seatId != 0 ? seatId : GetInstanceID(),
                 name: name,
                 sitPosition: anchor.position,
                 sitFacingYaw: anchor.eulerAngles.y,
@@ -78,6 +85,8 @@ namespace jeanf.universalplayer
 
         private void OnEnable()
         {
+            SeatRegistry.Register(seatId, this); // no-op when seatId == 0
+
             if (interactable == null) return;
             // Hover feeds the trigger-to-sit path (G3) regardless of how select is wired.
             interactable.hoverEntered.AddListener(OnHoverEntered);
@@ -89,6 +98,8 @@ namespace jeanf.universalplayer
 
         private void OnDisable()
         {
+            SeatRegistry.Unregister(seatId, this);
+
             if (interactable != null)
             {
                 interactable.hoverEntered.RemoveListener(OnHoverEntered);

@@ -200,6 +200,7 @@ namespace jeanf.universalplayer
             results.Add(CheckCameraPostProcessing());
             results.Add(CheckSeatHeights());
             results.Add(CheckSeatColliders());
+            results.Add(CheckSeatIds());
             results.Add(CheckSeatDataBridge());
             results.Add(CheckScenarioSeating());
             results.Add(CheckWorldSpaceCanvases());
@@ -270,6 +271,48 @@ namespace jeanf.universalplayer
                 "Select the Seat to see the height gizmos (cyan = seated eyes, yellow = standing eyes) and lower the " +
                 "sit anchor or 'Eye Height Above Seat'. If a seat has no Exit Anchor the standing estimate uses the sit " +
                 "anchor as ground — add an Exit Anchor for an accurate check.");
+        }
+
+        // Scenario targeting (SitPlayerOnEnable by Seat Id) resolves seats through the
+        // SeatRegistry — a DUPLICATE id makes the target ambiguous (newest registration
+        // wins, silently the wrong chair), and a SitPlayerOnEnable with neither a Seat
+        // nor an id can never seat anyone. Only loaded scenes can be checked here; ids
+        // must be unique across the whole project (door-system convention).
+        private static SetupValidator.CheckResult CheckSeatIds()
+        {
+            const string check = "Scene: seat ids (scenario targeting)";
+            var seats = Object.FindObjectsByType<Seat>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+            var byId = new Dictionary<int, List<string>>();
+            foreach (var seat in seats)
+            {
+                if (seat.AuthoredSeatId == 0) continue;
+                if (!byId.TryGetValue(seat.AuthoredSeatId, out var list)) byId[seat.AuthoredSeatId] = list = new List<string>();
+                list.Add($"'{seat.name}'");
+            }
+            var duplicates = new List<string>();
+            foreach (var kv in byId)
+                if (kv.Value.Count > 1) duplicates.Add($"id {kv.Key}: {string.Join(", ", kv.Value)}");
+
+            var untargeted = new List<string>();
+            foreach (var forceSit in Object.FindObjectsByType<SitPlayerOnEnable>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                var so = new SerializedObject(forceSit);
+                if (so.FindProperty("seat").objectReferenceValue == null && so.FindProperty("seatId").intValue == 0)
+                    untargeted.Add($"'{forceSit.name}'");
+            }
+
+            if (duplicates.Count == 0 && untargeted.Count == 0)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
+                    $"{byId.Count} targetable seat id(s), no duplicates; every SitPlayerOnEnable has a target.");
+
+            var problems = new List<string>();
+            if (duplicates.Count > 0) problems.Add($"duplicate Seat Ids ({string.Join("; ", duplicates)})");
+            if (untargeted.Count > 0) problems.Add($"SitPlayerOnEnable with no Seat and no Seat Id ({string.Join(", ", untargeted)})");
+            return new SetupValidator.CheckResult(check, SetupValidator.Severity.Fail,
+                string.Join(" and ", problems) + ".",
+                "Give every scenario-targeted Seat a unique non-zero Seat Id (unique across ALL scenes — only loaded " +
+                "ones are checked here) and point each SitPlayerOnEnable at a Seat or a Seat Id.");
         }
 
         // A Seat needs a collider to be aimed at. For the entity world (baked into a

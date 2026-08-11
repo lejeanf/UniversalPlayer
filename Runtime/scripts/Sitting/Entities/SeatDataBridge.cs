@@ -76,6 +76,31 @@ namespace jeanf.universalplayer
         {
             _timer = float.MaxValue; // scan on the first Update
             TryInitWorld();
+            // Baked seats join the cross-world seat lookup (SitPlayerOnEnable & co. resolve by id).
+            SeatRegistry.RegisterResolver(ResolveSeatById);
+        }
+
+        private void OnDisable() => SeatRegistry.UnregisterResolver(ResolveSeatById);
+
+        // Authored-id lookup over the baked seats. On a cache miss with a live world, re-scan
+        // once immediately — scenario code often asks right as a SubScene finishes streaming in,
+        // up to refreshInterval before the next scheduled scan would see it.
+        private bool ResolveSeatById(int seatId, out SeatData data)
+        {
+            for (var attempt = 0; attempt < 2; attempt++)
+            {
+                foreach (var kv in _seats)
+                {
+                    if (kv.Value.Data.SeatId != seatId) continue;
+                    data = kv.Value.Data;
+                    return true;
+                }
+                if (!_worldReady) TryInitWorld();
+                if (!_worldReady) break;
+                Refresh();
+            }
+            data = default;
+            return false;
         }
 
         private void TryInitWorld()
@@ -164,7 +189,7 @@ namespace jeanf.universalplayer
             info = new SeatInfo
             {
                 Data = new SeatData(
-                    seatId: seat.Index,
+                    seatId: sc.SeatId != 0 ? sc.SeatId : seat.Index, // authored id wins; entity index is a fallback
                     name: $"Seat(e{seat.Index})",
                     sitPosition: sitPos,
                     sitFacingYaw: sitYaw,

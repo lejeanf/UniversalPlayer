@@ -82,7 +82,13 @@ Channel** (optional field on the Player variant):
 For "this scenario starts with the player seated HERE", drop a
 `SitPlayerOnEnable` in the scenario's scene and reference the Seat: the moment
 the object is enabled it raises the sit request, **hidden behind a fade to
-black** (default on). Screen already black (scenario loading): the player is
+black** (default on). When the seat can't be referenced directly — it lives in
+**another additive scene**, or is **baked into a SubScene** (no GameObject at
+runtime) — give the Seat a unique **Seat Id** and set the same id on the
+`SitPlayerOnEnable` instead: it resolves through the `SeatRegistry` (live Seats
+register themselves; the `SeatDataBridge` resolves baked ones), patiently
+retrying while the SubScene streams in. `Tools/UniversalPlayer/ValidateSetup`
+flags duplicate ids and untargeted SitPlayerOnEnable components. Screen already black (scenario loading): the player is
 seated behind it and the loading flow keeps owning the fade. World visible: the
 component **triggers the fade itself**, seats the player once the black covers
 the screen, holds `holdBlackSeconds`, then fades back in (and always fades back

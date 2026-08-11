@@ -10,6 +10,10 @@ namespace jeanf.universalplayer
     /// </summary>
     public struct SeatComponent : IComponentData
     {
+        /// <summary>The Seat's authored scenario-targeting id (0 = not targetable), baked as-is
+        /// so <see cref="SeatDataBridge"/> can resolve "sit at seat N" requests by id.</summary>
+        public int SeatId;
+
         public float EyeHeight;
 
         /// <summary>Hips position + facing. Never null (the baker falls back to the seat root).</summary>

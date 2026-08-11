@@ -30,6 +30,7 @@ namespace jeanf.universalplayer
 
             AddComponent(entity, new SeatComponent
             {
+                SeatId = authoring.AuthoredSeatId,
                 EyeHeight = authoring.EyeHeightAboveSeat,
                 SitAnchor = GetEntity(sit, TransformUsageFlags.Dynamic),
                 ExitAnchor = exit != null ? GetEntity(exit, TransformUsageFlags.Dynamic) : Entity.Null,

@@ -186,6 +186,19 @@ namespace jeanf.universalplayer
             SitOn(source, instant);
         }
 
+        /// <summary>
+        /// Scenario sit by plain seat values — the GameObject-free twin of the sit-request flow,
+        /// for seats resolved through <see cref="SeatRegistry"/> (baked SubScene seats, seats in
+        /// other additive scenes). Same semantics: instant behind a black screen, already on this
+        /// seat = no-op, seated elsewhere = silent instant swap.
+        /// </summary>
+        public void RequestSit(in SeatData seat)
+        {
+            if (IsSeated && CurrentSeatId == seat.SeatId) return;
+            if (IsSeated) Exit(true);
+            SitOn(seat, FadeMask.ScreenFaded);
+        }
+
         private void OnJumpWhileSeated(InputAction.CallbackContext _)
         {
             if (!exitOnJump || !IsSeated || _transitioning) return;

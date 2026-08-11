@@ -382,6 +382,86 @@ namespace jeanf.universalplayer.tests
             yield return null;
         }
 
+        // ---- Seat Id targeting: SeatRegistry + SitPlayerOnEnable by id (both worlds) ----
+
+        private void GiveChairSeatId(int id)
+        {
+            // Registration happens in Seat.OnEnable, so the id must be set across a re-enable.
+            _chair.SetActive(false);
+            SetField(_seat, "seatId", id);
+            _chair.SetActive(true);
+        }
+
+        [Test]
+        public void SeatRegistry_ResolvesById_AndForgetsDisabledSeats()
+        {
+            GiveChairSeatId(777);
+
+            Assert.That(SeatRegistry.TryGetSeatData(777, out var data), Is.True,
+                "A live Seat with a Seat Id must be resolvable through the SeatRegistry.");
+            Assert.That(data.SeatId, Is.EqualTo(777), "The resolved SeatData must carry the authored id.");
+            Assert.That(Vector3.Distance(data.SitPosition, _chair.transform.position), Is.LessThan(0.001f),
+                "The resolved SeatData does not point at the seat's sit anchor.");
+
+            _chair.SetActive(false);
+            Assert.That(SeatRegistry.TryGetSeatData(777, out _), Is.False,
+                "A disabled Seat must unregister — resolving its id would seat the player on a dead chair.");
+            _chair.SetActive(true);
+        }
+
+        // The exact cross-scene / SubScene scenario shape: the trigger holds NO direct seat
+        // reference, only the authored id, and resolves through the registry.
+        [UnityTest]
+        public IEnumerator SitPlayerOnEnable_BySeatId_SeatsThePlayer()
+        {
+            GiveChairSeatId(778);
+
+            var trigger = new GameObject("ForceSitById");
+            trigger.SetActive(false);
+            var force = trigger.AddComponent<SitPlayerOnEnable>();
+            SetField(force, "seatId", 778); // no Seat reference on purpose
+
+            trigger.SetActive(true);
+            for (var i = 0; i < 5; i++) yield return null;
+
+            Assert.That(_sit.IsSeated, Is.True, "SitPlayerOnEnable (by Seat Id) did not seat the player.");
+            Assert.That(_sit.CurrentSeatId, Is.EqualTo(778),
+                "The player was seated, but not on the seat with the targeted id.");
+
+            Object.Destroy(trigger);
+            _sit.Exit(true);
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator RequestSit_SwapsSeats_AndNoOpsOnSameSeat()
+        {
+            SeatData Raw(int id, Vector3 pos) => new SeatData(
+                seatId: id, name: $"Raw{id}", sitPosition: pos, sitFacingYaw: 0f, eyeHeightAboveSeat: 0.7f,
+                hasExit: false, exitPosition: Vector3.zero, exitFacingYaw: 0f,
+                hasHandSupport: false, handSupportWorldPos: Vector3.zero, handSupportWorldRot: Quaternion.identity);
+
+            var seatA = Raw(41, new Vector3(2f, 0.5f, 0f));
+            var seatB = Raw(42, new Vector3(-2f, 0.5f, 4f));
+
+            _sit.RequestSit(seatA); // no FadeMask in the rig -> ScreenFaded defaults true -> instant
+            yield return null;
+            Assert.That(_sit.CurrentSeatId, Is.EqualTo(41), "RequestSit did not seat the player.");
+
+            _sit.RequestSit(seatA); // same seat: must be a no-op, not a stand-up
+            yield return null;
+            Assert.That(_sit.IsSeated, Is.True, "RequestSit on the CURRENT seat must be a no-op.");
+
+            _sit.RequestSit(seatB); // different seat: silent swap
+            yield return null;
+            Assert.That(_sit.CurrentSeatId, Is.EqualTo(42), "RequestSit did not swap to the other seat.");
+            Assert.That(Vector3.Distance(_player.transform.position, seatB.SitPosition), Is.LessThan(0.01f),
+                "The swap did not move the player to the new seat.");
+
+            _sit.Exit(true);
+            yield return null;
+        }
+
         [UnityTest]
         public IEnumerator SeatInteractable_IsSitOnly_WhileSeated()
         {
