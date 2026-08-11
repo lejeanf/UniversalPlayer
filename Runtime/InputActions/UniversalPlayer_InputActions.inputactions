@@ -524,6 +524,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Rotate Manipulation",
+                    "type": "Value",
+                    "id": "f1c0de01-0000-4a00-9a00-100000000001",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Directional Manipulation",
+                    "type": "Value",
+                    "id": "f1c0de01-0000-4a00-9a00-100000000002",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -966,6 +984,28 @@
                     "action": "Snap Turn",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f1c0de01-0000-4b00-9b00-200000000001",
+                    "path": "<XRController>{LeftHand}/Primary2DAxis",
+                    "interactions": "",
+                    "processors": "ScaleVector2(y=0),StickDeadzone",
+                    "groups": "XR",
+                    "action": "Rotate Manipulation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f1c0de01-0000-4b00-9b00-200000000002",
+                    "path": "<XRController>{LeftHand}/Primary2DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "Directional Manipulation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -1220,6 +1260,24 @@
                     "name": "Snap Turn",
                     "type": "Value",
                     "id": "59225dd4-ee6a-4ff3-96c2-7c608b7e897e",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Rotate Manipulation",
+                    "type": "Value",
+                    "id": "f1c0de01-0000-4a00-9a00-100000000003",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Directional Manipulation",
+                    "type": "Value",
+                    "id": "f1c0de01-0000-4a00-9a00-100000000004",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
@@ -1664,6 +1722,28 @@
                     "processors": "",
                     "groups": "XR",
                     "action": "Snap Turn",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f1c0de01-0000-4b00-9b00-200000000003",
+                    "path": "<XRController>{RightHand}/Primary2DAxis",
+                    "interactions": "",
+                    "processors": "ScaleVector2(y=0),StickDeadzone",
+                    "groups": "XR",
+                    "action": "Rotate Manipulation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f1c0de01-0000-4b00-9b00-200000000004",
+                    "path": "<XRController>{RightHand}/Primary2DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "Directional Manipulation",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
