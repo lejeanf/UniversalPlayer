@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
@@ -175,6 +176,7 @@ namespace jeanf.universalplayer.tests
             camGo.transform.SetParent(_cameraOffset, false);
 
             BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.XR;
+            SetField(_sit, "vrTransitionSeconds", 0f); // this test checks the geometry, not the glide
             yield return null;
 
             var cameraHeightAboveRoot = camGo.transform.position.y - _player.transform.position.y;
@@ -299,8 +301,9 @@ namespace jeanf.universalplayer.tests
             holdSeconds = 0.2f;
             SetField(_sit, "standUpHoldSeconds", holdSeconds);
             SetField(_sit, "exitGraceSeconds", 0.15f);
+            SetField(_sit, "vrTransitionSeconds", 0f); // glide off: stick tests need deterministic timing
             BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.XR;
-            _seat.SitOnly(); // XR sit is instant (teleport, no glide)
+            _seat.SitOnly();
             Assert.That(_sit.IsSeated, Is.True, "SitOnly did not seat the player in XR mode.");
         }
 
@@ -355,6 +358,147 @@ namespace jeanf.universalplayer.tests
             Assert.That(_sit.IsSeated, Is.False,
                 "After releasing and re-pushing the stick, the player must stand up.");
             _movement.SetIsMoving(false);
+        }
+
+        // The completed hold is narrated on the LEFT controller: growing "charge" pulses
+        // while the stick is held, then one full-strength burst when the player stands.
+        [UnityTest]
+        public IEnumerator VrStick_HapticCharge_GrowsThenBursts()
+        {
+            var pulses = new List<(string hand, float amplitude, float duration)>();
+            HandVibration.VibrateHandDelegate recorder = (hand, amplitude, duration) => pulses.Add((hand, amplitude, duration));
+            HandVibration.VibrateHand += recorder;
+            try
+            {
+                EnterXrSeated(out var holdSeconds);
+                yield return new WaitForSeconds(0.3f); // past the grace, stick released -> armed
+
+                _movement.SetIsMoving(true);
+                yield return new WaitForSeconds(holdSeconds * 1.5f);
+                _movement.SetIsMoving(false);
+
+                Assert.That(_sit.IsSeated, Is.False, "Sanity: the held stick must stand the player up.");
+                Assert.That(pulses.Count, Is.GreaterThanOrEqualTo(3),
+                    "The stand-up hold must emit charge pulses while the stick is held.");
+                Assert.That(pulses.TrueForAll(p => p.hand == "Left"), Is.True,
+                    "Stand-up haptics must go to the LEFT controller — that stick does the standing.");
+                Assert.That(pulses[pulses.Count - 1].amplitude, Is.EqualTo(1f).Within(0.001f),
+                    "Completing the hold must end on the full-strength burst (standUpBurstAmplitude).");
+                Assert.That(pulses[0].amplitude, Is.LessThan(pulses[pulses.Count - 2].amplitude),
+                    "The charge must GROW: the first pulse must be weaker than the last one before the burst.");
+            }
+            finally
+            {
+                HandVibration.VibrateHand -= recorder;
+            }
+        }
+
+        // A released stick means silence: a short flick must not leave haptics running
+        // (each pulse is ~ChargePulseSeconds long, so no explicit stop call is needed —
+        // but no NEW pulses may arrive after the release).
+        [UnityTest]
+        public IEnumerator VrStick_ReleaseDuringCharge_StopsThePulses()
+        {
+            var pulses = new List<(string hand, float amplitude, float duration)>();
+            HandVibration.VibrateHandDelegate recorder = (hand, amplitude, duration) => pulses.Add((hand, amplitude, duration));
+            HandVibration.VibrateHand += recorder;
+            try
+            {
+                EnterXrSeated(out var holdSeconds);
+                yield return new WaitForSeconds(0.3f);
+
+                _movement.SetIsMoving(true);
+                yield return new WaitForSeconds(holdSeconds * 0.4f);
+                _movement.SetIsMoving(false); // released before the threshold
+                var pulsesAtRelease = pulses.Count;
+                yield return new WaitForSeconds(holdSeconds);
+
+                Assert.That(_sit.IsSeated, Is.True, "Sanity: a short flick must not stand the player up.");
+                Assert.That(pulses.Count, Is.EqualTo(pulsesAtRelease),
+                    "Charge pulses kept firing after the stick was released — haptics must fall silent on a cancel.");
+            }
+            finally
+            {
+                HandVibration.VibrateHand -= recorder;
+            }
+        }
+
+        // ---- VR trigger-to-sit: aim a hand at the chair, pull the trigger (v1.8.0) ----
+        // The old path subscribed to "XRI LeftHand/Activate" on playerInput.actions — but that
+        // is PlayerInput's PRIVATE CLONE of the asset and PlayerInput only enables its FPS map,
+        // so the action never fired. The trigger is now polled at device level (probe seam) and
+        // the pressing hand's aim is raycast for a seat.
+
+        [UnityTest]
+        public IEnumerator VrTrigger_AimedAtSeat_Sits()
+        {
+            _chair.AddComponent<BoxCollider>();
+            SetField(_sit, "vrTransitionSeconds", 0f);
+            BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.XR;
+
+            var triggerValue = 0f;
+            _sit.TriggerProbe = hand => hand == HandType.Right ? triggerValue : 0f;
+            // Hand half a meter to the chair's left, aiming straight at it.
+            _sit.AimProbe = hand => new Ray(_chair.transform.position + new Vector3(-1.5f, 0f, 0f), Vector3.right);
+            yield return null; // one polled frame with the trigger released (rising-edge baseline)
+
+            triggerValue = 1f;
+            yield return null;
+            yield return null;
+
+            Assert.That(_sit.IsSeated, Is.True,
+                "Pulling the trigger while the hand aims at a seat must sit the player (ray + trigger, not just grab).");
+        }
+
+        [UnityTest]
+        public IEnumerator VrTrigger_AimedAway_DoesNotSit()
+        {
+            _chair.AddComponent<BoxCollider>();
+            SetField(_sit, "vrTransitionSeconds", 0f);
+            BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.XR;
+
+            var triggerValue = 0f;
+            _sit.TriggerProbe = hand => hand == HandType.Right ? triggerValue : 0f;
+            _sit.AimProbe = hand => new Ray(_chair.transform.position + new Vector3(-1.5f, 0f, 0f), Vector3.left);
+            yield return null;
+
+            triggerValue = 1f;
+            yield return null;
+            yield return null;
+
+            Assert.That(_sit.IsSeated, Is.False,
+                "A trigger pull with no seat under the hand's aim must not sit the player.");
+        }
+
+        // ---- VR glide: sitting/standing moves the root over vrTransitionSeconds (v1.8.0) ----
+        [UnityTest]
+        public IEnumerator VrSit_GlidesToTheSeat_InsteadOfTeleporting()
+        {
+            SetField(_sit, "vrTransitionSeconds", 0.4f);
+            BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.XR;
+            var start = _player.transform.position;
+
+            _seat.SitOnly();
+            // The glide's first step runs synchronously at s=0 — the root must still be at
+            // the start, proving this is a glide and not the old hard teleport.
+            Assert.That(_sit.IsSeated, Is.True, "SitOnly must seat the player immediately (state), even while gliding.");
+            Assert.That(Vector3.Distance(_player.transform.position, start), Is.LessThan(0.001f),
+                "The root teleported on the same frame — the VR sit must GLIDE when vrTransitionSeconds > 0.");
+
+            yield return new WaitForSeconds(1f);
+            var horizontal = _player.transform.position - _chair.transform.position;
+            horizontal.y = 0f;
+            Assert.That(horizontal.magnitude, Is.LessThan(0.01f),
+                "The glide did not arrive at the seat anchor.");
+
+            _sit.Exit();
+            Assert.That(_controller.enabled, Is.False,
+                "The CharacterController must stay disabled until the stand-up glide completes.");
+            yield return new WaitForSeconds(1f);
+            Assert.That(Vector3.Distance(_player.transform.position, start), Is.LessThan(0.05f),
+                "The stand-up glide did not return to the pre-sit position (no exitAnchor was set).");
+            Assert.That(_controller.enabled, Is.True,
+                "The CharacterController was not re-enabled after the stand-up glide.");
         }
 
         // Scenario placement: enabling a SitPlayerOnEnable must put the player in its seat.

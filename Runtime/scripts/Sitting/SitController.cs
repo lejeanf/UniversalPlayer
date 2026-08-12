@@ -13,9 +13,11 @@ namespace jeanf.universalplayer
     /// restores everything. Differences per mode:
     /// - M&amp;K / gamepad: FPS/Interact raycast finds the Seat, FirstPersonBody plays the
     ///   sit pose, moving stands you back up;
-    /// - VR: the seat's XR interactable calls Seat.ToggleSit() — the root is lowered so
-    ///   the user's real head lands at the seat's eye height (teleport + camera height,
-    ///   nothing more), and exit is the interactable again.
+    /// - VR: grab the seat OR aim a hand at it and pull the trigger to sit — the root is
+    ///   lowered so the user's real head lands at the seat's eye height (glided over
+    ///   vrTransitionSeconds; 0 = instant teleport). Standing is the LEFT stick's job:
+    ///   hold it for standUpHoldSeconds while the controller "charges" (growing rumble),
+    ///   a full-strength burst marks completion.
     /// </summary>
     public class SitController : MonoBehaviour, IDebugBehaviour
     {
@@ -60,9 +62,20 @@ namespace jeanf.universalplayer
         [SerializeField] private float exitGraceSeconds = 0.3f;
 
         [Header("VR")]
-        [Tooltip("VR: push the LEFT stick and hold it this long to stand up (debounces accidental nudges). " +
-                 "Grabbing/triggering a seat only ever SITS in VR — standing is the stick's job.")]
-        [SerializeField] private float standUpHoldSeconds = 0.2f;
+        [Tooltip("VR: push the LEFT stick and hold it this long to stand up (debounces accidental nudges, and gives " +
+                 "the haptic charge time to read). Grabbing/triggering a seat only ever SITS in VR — standing is the stick's job.")]
+        [SerializeField] private float standUpHoldSeconds = 0.6f;
+        [Tooltip("Stand-up 'charge' on the LEFT controller: haptic amplitude over the hold progress (x: 0 = push started, " +
+                 "1 = about to stand). Ease-in so the rumble reads as charging up; completion fires the burst below.")]
+        [SerializeField] private AnimationCurve standUpChargeCurve = new AnimationCurve(
+            new Keyframe(0f, 0.05f, 0f, 0.1f), new Keyframe(1f, 0.7f, 1.6f, 0f));
+        [Range(0f, 1f)]
+        [Tooltip("Full-strength kick when the hold completes — 'action done' — then silence.")]
+        [SerializeField] private float standUpBurstAmplitude = 1f;
+        [SerializeField] private float standUpBurstSeconds = 0.12f;
+        [Tooltip("Seconds of the VR sit/stand glide (the root moves, the HMD stays live — same idea as the desktop " +
+                 "glide, kept short). 0 = instant teleport, the most comfort-safe option.")]
+        [SerializeField] private float vrTransitionSeconds = 0.5f;
         [Tooltip("Seconds of the sitting-down glide (M&K/gamepad only — VR always teleports instantly, no imposed camera motion).")]
         [UnityEngine.Serialization.FormerlySerializedAs("transitionSeconds")]
         [SerializeField] private float sitTransitionSeconds = 0.85f;
@@ -94,10 +107,22 @@ namespace jeanf.universalplayer
         // VR stand-up (left-stick hold) state.
         private float _vrMoveHeldSince = -1f;
         private bool _vrArmed;
-        // VR trigger-to-sit (G3): the seat whose interaction ray is currently hovering us.
+        private float _nextChargePulse;
+        private const float ChargePulseSeconds = 0.05f; // pulses overlap slightly -> reads as one continuous rumble
+        private const string StandUpHand = "Left";      // the stick doing the standing lives on the left controller
+        // VR trigger-to-sit: a seat being hovered by an XRI interactor (touch range).
         private ISeatSource _hoveredSeat;
-        private readonly System.Collections.Generic.List<InputAction> _activateActions =
-            new System.Collections.Generic.List<InputAction>();
+        // Trigger is polled at DEVICE level: the "XRI LeftHand/Activate" actions found on
+        // playerInput.actions live on PlayerInput's private clone of the asset, and PlayerInput
+        // only ever enables its FPS map — those actions never fire. Same pattern as
+        // ControllerHandPoseDriver: read the hardware, keep a Func seam for tests.
+        private const float TriggerPressThreshold = 0.55f;
+        private const float TriggerReleaseThreshold = 0.35f;
+        private readonly bool[] _triggerWasPressed = new bool[2];
+        private HandPoseManager[] _hands;
+        private float _nextHandScan;
+        public System.Func<HandType, float?> TriggerProbe; // test seam (null = real XR device)
+        public System.Func<HandType, Ray?> AimProbe;       // test seam (null = the hand's attach transform)
         private readonly System.Collections.Generic.List<Behaviour> disabledLocomotionProviders =
             new System.Collections.Generic.List<Behaviour>();
         private Vector3 preSitPosition;
@@ -131,16 +156,6 @@ namespace jeanf.universalplayer
 
                 jumpAction = playerInput.actions.FindAction("FPS/Jump", throwIfNotFound: false);
                 if (jumpAction != null) jumpAction.performed += OnJumpWhileSeated;
-
-                // G3: trigger (XRI Activate) sits when the interaction ray hovers a seat.
-                // Both hands' Activate actions feed the same "press to sit" path.
-                foreach (var mapName in new[] { "XRI LeftHand", "XRI RightHand" })
-                {
-                    var activate = playerInput.actions.FindAction($"{mapName}/Activate", throwIfNotFound: false);
-                    if (activate == null) continue;
-                    activate.performed += OnActivateWhileHovering;
-                    _activateActions.Add(activate);
-                }
             }
             else
             {
@@ -153,8 +168,6 @@ namespace jeanf.universalplayer
         {
             if (interactAction != null) interactAction.performed -= OnInteract;
             if (jumpAction != null) jumpAction.performed -= OnJumpWhileSeated;
-            foreach (var activate in _activateActions) activate.performed -= OnActivateWhileHovering;
-            _activateActions.Clear();
             _hoveredSeat = null;
             PlayerEvents.SitRequested -= OnSitRequested;
             if (Instance == this) Instance = null;
@@ -206,8 +219,8 @@ namespace jeanf.universalplayer
             Exit();
         }
 
-        // G3: seats report when their interaction ray hovers/leaves them (Seat / SeatProxy
-        // forward the XR interactable's hover events) so a trigger press can sit the player.
+        // Seats report when an XRI interactor hovers/leaves them (Seat / SeatProxy forward
+        // the interactable's hover events) so a trigger press at touch range can sit the player.
         public void NotifySeatHoverEntered(ISeatSource source)
         {
             if (source != null) _hoveredSeat = source;
@@ -218,13 +231,68 @@ namespace jeanf.universalplayer
             if (ReferenceEquals(_hoveredSeat, source)) _hoveredSeat = null;
         }
 
-        // Trigger (XRI Activate) while the interaction ray hovers a seat sits the player.
-        // VR only, sit-only: standing is the left stick's job, so this never toggles.
-        private void OnActivateWhileHovering(InputAction.CallbackContext _)
+        // VR trigger-to-sit, sit-only (standing is the left stick's job, so this never
+        // toggles): on a trigger's rising edge, an XRI-hovered seat wins (touch range);
+        // otherwise raycast along the pressing hand's aim — same "point at the chair and
+        // pull the trigger" gesture as the FingerPointingRay interactions.
+        private void PollVrTriggerToSit()
         {
-            if (BroadcastControlsStatus.controlScheme != BroadcastControlsStatus.ControlScheme.XR) return;
-            if (IsSeated || _transitioning || _hoveredSeat == null) return;
-            SitOn(_hoveredSeat);
+            for (var i = 0; i < 2; i++)
+            {
+                var hand = i == 0 ? HandType.Left : HandType.Right;
+                var value = ReadTrigger(hand);
+                var pressed = value >= (_triggerWasPressed[i] ? TriggerReleaseThreshold : TriggerPressThreshold);
+                var rising = pressed && !_triggerWasPressed[i];
+                _triggerWasPressed[i] = pressed;
+                if (!rising) continue;
+
+                if (_hoveredSeat != null) { SitOn(_hoveredSeat); return; }
+                if (!TryGetAim(hand, out var aim)) continue;
+                if (!Physics.Raycast(aim, out var hit, interactMaxDistance, seatMask, QueryTriggerInteraction.Collide)) continue;
+                var source = hit.collider.GetComponentInParent<ISeatSource>();
+                if (source != null) { SitOn(source); return; }
+            }
+        }
+
+        private float ReadTrigger(HandType hand)
+        {
+            if (TriggerProbe != null) return TriggerProbe(hand) ?? 0f;
+            var node = hand == HandType.Left ? UnityEngine.XR.XRNode.LeftHand : UnityEngine.XR.XRNode.RightHand;
+            var device = UnityEngine.XR.InputDevices.GetDeviceAtXRNode(node);
+            if (!device.isValid) return 0f;
+            device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.trigger, out var value);
+            return value;
+        }
+
+        private bool TryGetAim(HandType hand, out Ray aim)
+        {
+            if (AimProbe != null)
+            {
+                var probed = AimProbe(hand);
+                aim = probed ?? default;
+                return probed.HasValue;
+            }
+
+            aim = default;
+            // Hands spawn at runtime — rescan until found (FingerPointingRay cadence).
+            if ((_hands == null || _hands.Length == 0) && Time.unscaledTime >= _nextHandScan)
+            {
+                _nextHandScan = Time.unscaledTime + 1f;
+                _hands = playerRoot != null ? playerRoot.GetComponentsInChildren<HandPoseManager>(true) : null;
+            }
+            if (_hands == null) return false;
+
+            foreach (var manager in _hands)
+            {
+                if (manager == null || manager.HandType != hand) continue;
+                if (manager.IsSelecting) return false; // trigger on a held item is "use it", never "sit"
+                var origin = manager.targetInteractor != null && manager.targetInteractor.attachTransform != null
+                    ? manager.targetInteractor.attachTransform
+                    : manager.transform;
+                aim = new Ray(origin.position, origin.forward);
+                return true;
+            }
+            return false;
         }
 
         private void OnInteract(InputAction.CallbackContext _)
@@ -254,21 +322,46 @@ namespace jeanf.universalplayer
 
         private void LateUpdate()
         {
+            var isXr = BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR;
+            if (isXr && !IsSeated && !_transitioning) PollVrTriggerToSit();
+
             if (!IsSeated || _transitioning) return;
             var pastGrace = Time.time >= seatedSince + exitGraceSeconds;
 
-            if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR)
+            if (isXr)
             {
                 // VR stand-up: push the left stick and HOLD it for standUpHoldSeconds.
                 // Debounce with _vrArmed so a stick that was already held when we sat
                 // (walked into the chair) doesn't instantly pop us back up — it must be
-                // RELEASED and pushed again to count.
+                // RELEASED and pushed again to count. The hold is narrated on the left
+                // controller: a growing "charge" rumble, a full burst on completion, and
+                // silence the moment the stick is released early.
                 var moving = playerMovement != null && playerMovement.IsMoving;
                 if (!pastGrace) { _vrArmed = false; _vrMoveHeldSince = -1f; return; }
                 if (!moving) { _vrArmed = true; _vrMoveHeldSince = -1f; return; } // released -> armed for a fresh push
                 if (!_vrArmed) return;                                             // still holding from before -> ignore
-                if (_vrMoveHeldSince < 0f) _vrMoveHeldSince = Time.time;
-                else if (Time.time >= _vrMoveHeldSince + standUpHoldSeconds) { _vrMoveHeldSince = -1f; Exit(); }
+                if (_vrMoveHeldSince < 0f)
+                {
+                    _vrMoveHeldSince = Time.time;
+                    _nextChargePulse = Time.time;
+                }
+                else if (Time.time >= _vrMoveHeldSince + standUpHoldSeconds)
+                {
+                    _vrMoveHeldSince = -1f;
+                    // Action completed: one full-strength kick, then back to silence.
+                    HandVibration.VibrateHand?.Invoke(StandUpHand, standUpBurstAmplitude, standUpBurstSeconds);
+                    Exit();
+                    return;
+                }
+                if (_vrMoveHeldSince >= 0f && Time.time >= _nextChargePulse)
+                {
+                    // Charging: short overlapping pulses so the amplitude curve plays as
+                    // one continuous, growing rumble.
+                    var progress = Mathf.Clamp01((Time.time - _vrMoveHeldSince) / standUpHoldSeconds);
+                    HandVibration.VibrateHand?.Invoke(StandUpHand,
+                        Mathf.Clamp01(standUpChargeCurve.Evaluate(progress)), ChargePulseSeconds * 1.5f);
+                    _nextChargePulse = Time.time + ChargePulseSeconds;
+                }
                 return;
             }
 
@@ -335,19 +428,33 @@ namespace jeanf.universalplayer
 
             if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR)
             {
-                // Teleport + camera height, INSTANT: lower the root so the user's REAL
-                // head (wherever the HMD is in the play space) ends up at the seat's
-                // eye height. Never animate the camera in VR — imposed motion is nausea.
+                // Lower the ROOT so the user's REAL head (wherever the HMD is in the play
+                // space) ends up at the seat's eye height — the camera itself is never
+                // animated in VR, only the root moves. The root move is glided over
+                // vrTransitionSeconds (like the desktop sit) unless this is a scenario
+                // placement behind a black screen, or the glide is turned off (0 = teleport).
                 var cameraHeightAboveRoot = Camera.main != null
                     ? Camera.main.transform.position.y - playerRoot.position.y
                     : 1.6f;
-                playerRoot.SetPositionAndRotation(
-                    new Vector3(seat.SitPosition.x,
-                        seat.SitPosition.y + seat.EyeHeightAboveSeat - cameraHeightAboveRoot,
-                        seat.SitPosition.z),
-                    facing);
-                PlayerEvents.RaiseCameraReset();
-                if (isDebug) Debug.Log($"{LogPrefix} seated on '{seat.Name}'", this);
+                var target = new Vector3(seat.SitPosition.x,
+                    seat.SitPosition.y + seat.EyeHeightAboveSeat - cameraHeightAboveRoot,
+                    seat.SitPosition.z);
+
+                if (instant || vrTransitionSeconds <= 0f)
+                {
+                    playerRoot.SetPositionAndRotation(target, facing);
+                    PlayerEvents.RaiseCameraReset();
+                    if (isDebug) Debug.Log($"{LogPrefix} seated on '{seat.Name}'", this);
+                }
+                else
+                {
+                    var seatName = seat.Name;
+                    StartVrGlide(target, facing, vrTransitionSeconds, () =>
+                    {
+                        PlayerEvents.RaiseCameraReset();
+                        if (isDebug) Debug.Log($"{LogPrefix} seated on '{seatName}'", this);
+                    });
+                }
             }
             else
             {
@@ -423,19 +530,28 @@ namespace jeanf.universalplayer
 
             if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR)
             {
-                playerRoot.SetPositionAndRotation(targetPosition, targetRotation);
-                var offset = cameraOffset.localPosition;
-                offset.y = preSitCameraOffsetY;
-                cameraOffset.localPosition = offset;
-                FinishExit(seat);
-                PlayerEvents.RaiseCameraReset(); // XR only: recenter the HMD view
+                if (instant || vrTransitionSeconds <= 0f)
+                {
+                    playerRoot.SetPositionAndRotation(targetPosition, targetRotation);
+                    RestoreCameraOffsetHeight();
+                    FinishExit(seat);
+                    PlayerEvents.RaiseCameraReset(); // XR only: recenter the HMD view
+                }
+                else
+                {
+                    var seatCopy = seat; // 'in'-style local, safe to capture
+                    StartVrGlide(targetPosition, targetRotation, vrTransitionSeconds, () =>
+                    {
+                        RestoreCameraOffsetHeight();
+                        FinishExit(seatCopy);
+                        PlayerEvents.RaiseCameraReset();
+                    });
+                }
             }
             else if (instant)
             {
                 playerRoot.SetPositionAndRotation(targetPosition, targetRotation);
-                var offset = cameraOffset.localPosition;
-                offset.y = preSitCameraOffsetY;
-                cameraOffset.localPosition = offset;
+                RestoreCameraOffsetHeight();
                 if (cameraLook != null) cameraLook.OverrideLook(Vector2.zero);
                 if (body != null) body.SetHandSupport(null, 0f);
                 FinishExit(seat);
@@ -467,6 +583,45 @@ namespace jeanf.universalplayer
             controller.enabled = true;
 
             if (isDebug) Debug.Log($"{LogPrefix} stood up from '{seat.Name}'", this);
+        }
+
+        private void RestoreCameraOffsetHeight()
+        {
+            var offset = cameraOffset.localPosition;
+            offset.y = preSitCameraOffsetY;
+            cameraOffset.localPosition = offset;
+        }
+
+        // VR glide: ONLY the root moves (position + yaw) — no camera-offset animation, no
+        // glance-down/weight-shift layer, those are imposed head motion and read as nausea
+        // with an HMD on. Kept deliberately short and smooth-stepped.
+        private void StartVrGlide(Vector3 targetPosition, Quaternion targetRotation, float seconds, System.Action onComplete)
+        {
+            if (_transition != null) StopCoroutine(_transition);
+            _transition = StartCoroutine(VrGlideRoutine(targetPosition, targetRotation, seconds, onComplete));
+        }
+
+        private System.Collections.IEnumerator VrGlideRoutine(Vector3 targetPosition, Quaternion targetRotation,
+            float seconds, System.Action onComplete)
+        {
+            _transitioning = true;
+            var startPosition = playerRoot.position;
+            var startRotation = playerRoot.rotation;
+            var duration = Mathf.Max(0.01f, seconds);
+
+            for (var t = 0f; t < 1f; t += Time.deltaTime / duration)
+            {
+                var s = Mathf.SmoothStep(0f, 1f, t);
+                playerRoot.SetPositionAndRotation(
+                    Vector3.Lerp(startPosition, targetPosition, s),
+                    Quaternion.Slerp(startRotation, targetRotation, s));
+                yield return null;
+            }
+
+            playerRoot.SetPositionAndRotation(targetPosition, targetRotation);
+            _transitioning = false;
+            _transition = null;
+            onComplete?.Invoke();
         }
 
         private void StartTransition(Vector3 targetPosition, Quaternion targetRotation, float targetCameraY,

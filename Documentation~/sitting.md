@@ -15,11 +15,13 @@ for M&K/gamepad, one UnityEvent for VR.
    - `eyeHeightAboveSeat`: seated eye height above the anchor (default 0.7).
 3. VR: nothing — the Seat adds an `XRSimpleInteractable` and wires its Select to
    sit by itself at startup (the chair needs a collider, which desktop mode
-   needs anyway). The interactable is **sit-only**: grabbing (grip) or triggering
-   the chair (trigger while the interaction ray hovers it) sits you; standing is
-   the LEFT STICK's job (see below). If you prefer your own interactable, add it
-   and wire Select to `ToggleSit` in the inspector — the auto-wiring detects that
-   and stays out of the way.
+   needs anyway). The interactable is **sit-only**: grabbing (grip) sits you, and
+   so does **aiming a hand at the chair and pulling the trigger** (the trigger is
+   read at device level and the hand's aim is raycast for a seat, so it works
+   from `interactMaxDistance` away — no XRI hover needed); standing is the LEFT
+   STICK's job (see below). If you prefer your own interactable, add it and wire
+   Select to `ToggleSit` in the inspector — the auto-wiring detects that and
+   stays out of the way.
 
 ## Behavior per mode
 
@@ -30,16 +32,24 @@ for M&K/gamepad, one UnityEvent for VR.
   (Space / gamepad south) or Interact again — Interact stays usable for things
   around the seat, and move input deliberately does nothing while seated
   (`exitOnMoveInput` restores the old eject-on-move behavior if a project wants it).
-- **VR**: sitting teleports the rig and lowers the root so the user's *real*
-  head lands at the seat's eye height — deliberately nothing more (no forced camera
-  animation in VR). Sit with **grip** (grab the chair) or **trigger** (press it while
-  the interaction ray hovers the chair). Stand up by **pushing the LEFT STICK and
-  holding it** for `standUpHoldSeconds` (default 0.2 s) — any direction. Two
-  debounces keep it deliberate: a stick already held when you sat down doesn't
-  count (release it and push again), and a short flick under the hold time does
-  nothing. XRI's joystick locomotion providers are disabled while seated, so the
-  stick cannot slide a seated player off the chair; the hold that stands you up
-  seamlessly becomes walking once you're up.
+- **VR**: sitting lowers the root so the user's *real* head lands at the seat's
+  eye height, gliding the root there over `vrTransitionSeconds` (default 0.5 s —
+  only the root moves, the HMD stays live; set 0 for the old instant teleport if
+  the glide bothers comfort-sensitive users; scenario placements behind a black
+  screen are always instant). Sit with **grip** (grab the chair) or **trigger**
+  (aim a hand at the chair and pull — works at ray distance, or while an XRI
+  interactor hovers the chair up close; a hand holding an item never sit-triggers).
+  Stand up by **pushing the LEFT STICK and holding it** for `standUpHoldSeconds`
+  (default 0.6 s) — any direction. The hold is narrated with haptics on the left
+  controller: a **growing "charge" rumble** (`standUpChargeCurve`, ease-in from
+  barely-there to strong) while you hold, a **full-strength burst**
+  (`standUpBurstAmplitude`/`standUpBurstSeconds`) when the stand triggers, and
+  instant silence if you release early. Two debounces keep it deliberate: a stick
+  already held when you sat down doesn't count (release it and push again), and a
+  short flick under the hold time does nothing. XRI's joystick locomotion
+  providers are disabled while seated, so the stick cannot slide a seated player
+  off the chair; the hold that stands you up seamlessly becomes walking once
+  you're up.
 - **All modes**: the CharacterController is disabled while seated (no gravity/collision
   fighting the chair) and fully restored on exit; the mouselook reset channel is raised
   so the view realigns with the seat's facing.
