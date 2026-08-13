@@ -112,7 +112,10 @@ namespace jeanf.universalplayer
         /// <summary>0 = standing, 1 = fully crouched (mid-transition values in between).</summary>
         public float CrouchBlend => crouchBlend;
         public bool IsCrouched => crouchBlend > 0.5f;
-        public bool IsGrounded => controller != null && controller.isGrounded;
+        /// <summary>Grounded, with the same cast-backed fallback locomotion uses — raw
+        /// controller.isGrounded sticks FALSE after anything else moves the controller,
+        /// which silently killed consumers like the head bob and body walk animation.</summary>
+        public bool IsGrounded => controller != null && controller.enabled && IsGroundedForMovement();
         public Vector2 MoveInput => moveValue;
         /// <summary>Diagnostics: is the movement input currently registering as "moving".</summary>
         public bool IsMoving => isMoving;
@@ -312,8 +315,7 @@ namespace jeanf.universalplayer
             hasGroundLevel = true;
         }
         // The main menu (Escape) and the pause flow both freeze locomotion: walking
-        // around behind an open menu is never intended in the simulator. Always logged:
-        // a stuck freeze silently kills crouch/jump/walk and is otherwise invisible.
+        // around behind an open menu is never intended in the simulator.
         private void OnMenuStateChanged(bool isOpen)
         {
             menuOpen = isOpen;
@@ -328,7 +330,8 @@ namespace jeanf.universalplayer
 
         private void LogFreezeState()
         {
-            Debug.Log($"{LogPrefix} locomotion {(menuOpen || paused ? "FROZEN" : "resumed")} (menuOpen: {menuOpen}, paused: {paused})", this);
+            // A stuck freeze silently kills crouch/jump/walk — XrModeHud's snapshot shows it too.
+            if (debugInput) Debug.Log($"{LogPrefix} locomotion {(menuOpen || paused ? "FROZEN" : "resumed")} (menuOpen: {menuOpen}, paused: {paused})", this);
         }
 
         private void OnSceneLoadingChanged(bool loading)
@@ -342,6 +345,7 @@ namespace jeanf.universalplayer
                 verticalVelocity = 0f;
                 groundSeen = false;
                 waitingForGroundWarned = false;
+                noGroundFrames = 0;
             }
         }
 
@@ -366,12 +370,15 @@ namespace jeanf.universalplayer
         /// additive scenes finish loading — or standing above floors on non-colliding
         /// layers — does not drop through the world.
         /// </summary>
+        private int noGroundFrames;
+
         private bool GroundExistsBelow()
         {
             if (groundSeen || !waitForGroundBeforeFalling) return true;
             if (controller.isGrounded)
             {
                 groundSeen = true;
+                noGroundFrames = 0;
                 return true;
             }
 
@@ -382,11 +389,18 @@ namespace jeanf.universalplayer
                     collidable, QueryTriggerInteraction.Ignore))
             {
                 groundSeen = true;
+                noGroundFrames = 0;
                 if (waitingForGroundWarned) Debug.Log($"{LogPrefix} PlayerMovement on '{name}': ground detected below — gravity enabled.", this);
                 return true;
             }
 
-            if (!waitingForGroundWarned)
+            // Diagnose only once the condition has persisted a few frames: with
+            // auto-sync-transforms off, freshly created colliders are invisible to
+            // queries until the next physics step, and a first-frame diagnosis blamed
+            // the collision matrix (or "nothing below") on scenes that are simply
+            // one physics tick young. Gravity is held either way.
+            noGroundFrames++;
+            if (!waitingForGroundWarned && noGroundFrames >= 3)
             {
                 waitingForGroundWarned = true;
                 var playerLayer = controller.gameObject.layer;
@@ -544,6 +558,7 @@ namespace jeanf.universalplayer
             jumpRequested = false;
             groundSeen = false;
             waitingForGroundWarned = false;
+            noGroundFrames = 0;
         }
 
         // Public input seams: used by the input callbacks above, the Hands Test Bench and PlayMode tests.
@@ -635,11 +650,16 @@ namespace jeanf.universalplayer
             }
 
             value = Vector2.ClampMagnitude(value, 1f);
-            if (value != moveValue) SetMoveValue(value);
-
-            var moving = value.sqrMagnitude > 0.0001f;
-            if (moving != isMoving) SetIsMoving(moving);
+            // Edge-triggered: only push CHANGES in the polled devices. Re-pushing the same
+            // (usually zero) value every frame would overwrite the other writers of
+            // moveValue — the input-action callbacks, the Hands Test Bench and the
+            // PlayMode tests all drive movement through SetMoveValue/SetIsMoving.
+            if (value == lastPolledMove) return;
+            lastPolledMove = value;
+            SetMoveValue(value);
+            SetIsMoving(value.sqrMagnitude > 0.0001f);
         }
+        private Vector2 lastPolledMove;
 
         private static bool FreeCamComboPressed()
         {
@@ -775,6 +795,11 @@ namespace jeanf.universalplayer
         {
             if (controller.isGrounded) return true;
 
+            // Ascending — a jump in progress — is never "grounded": right after takeoff
+            // the capsule is still within the short cast's reach below, and treating that
+            // as ground let a sprint pressed mid-air add speed for the first few frames.
+            if (verticalVelocity > 0f) return false;
+
             var collidable = CollidableLayersMask();
             if (collidable == 0) return false;
 
@@ -827,20 +852,32 @@ namespace jeanf.universalplayer
             }
         }
 
+        private static readonly Collider[] StandUpHits = new Collider[16];
+
         private bool CanStandUp()
         {
             if (crouchBlend <= 0f) return true;
 
+            // The headroom the standing capsule would newly occupy, tested as an OVERLAP
+            // rather than an upward SphereCast: a cast is blind to any obstacle it already
+            // starts inside (e.g. crawling under a very low shelf) and would allow
+            // standing straight into it. The player's own colliders overlap this volume
+            // by construction, so they are filtered out explicitly.
             var worldCenter = transform.TransformPoint(controller.center);
-            var standingTop = transform.TransformPoint(standingCenter).y + standingHeight * 0.5f;
-            var currentTop = worldCenter.y + controller.height * 0.5f;
-            var castDistance = standingTop - currentTop;
-            if (castDistance <= 0f) return true;
-
             var radius = controller.radius * 0.95f;
-            var origin = worldCenter + Vector3.up * (controller.height * 0.5f - radius);
-            return !Physics.SphereCast(origin, radius, Vector3.up, out _, castDistance,
-                standUpObstructionMask, QueryTriggerInteraction.Ignore);
+            var currentTopSphere = worldCenter + Vector3.up * (controller.height * 0.5f - radius);
+            var standingTopSphere = transform.TransformPoint(standingCenter)
+                                    + Vector3.up * (standingHeight * 0.5f - radius);
+            if (standingTopSphere.y <= currentTopSphere.y) return true;
+
+            var count = Physics.OverlapCapsuleNonAlloc(currentTopSphere, standingTopSphere, radius,
+                StandUpHits, standUpObstructionMask, QueryTriggerInteraction.Ignore);
+            for (var i = 0; i < count; i++)
+            {
+                var hit = StandUpHits[i];
+                if (hit != null && !hit.transform.IsChildOf(transform)) return false;
+            }
+            return true;
         }
 
         private void MoveFreeCam(Vector2 move, Vector2 verticalMove)

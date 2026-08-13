@@ -213,9 +213,15 @@ namespace jeanf.universalplayer
             // grip/face/stick click) — a discrete press, never an analog value, so a
             // resting/drifting controller can't continuously yank the player into VR.
             // Only consulted on desktop, so using the controllers in VR never blocks exit.
-            var vrEntryRequested = !inSwitchCooldown
-                && (ForceVrComboPressed() || (!_arbiter.InVr && XrControllerButtonPressedThisFrame()));
-            var forceKbm = !inSwitchCooldown && ForceKeyboardComboPressed();
+            // The explicit chords BYPASS the switch cooldown: the cooldown exists to keep
+            // ambient input (controller drift vs. mouse bumps) from ping-ponging the mode,
+            // but Ctrl+Alt+V / Ctrl+Alt+K are unambiguous intent — a V-press right after
+            // a keyboard-driven VR exit used to land inside the cooldown and be swallowed.
+            // Always evaluated, so the rising-edge latches also stay fresh.
+            var forceVr = ForceVrComboPressed();
+            var forceKbm = ForceKeyboardComboPressed();
+            var vrEntryRequested = forceVr
+                || (!inSwitchCooldown && !_arbiter.InVr && XrControllerButtonPressedThisFrame());
 
             if (Time.unscaledTime >= _nextHmdPoll)
             {
@@ -227,8 +233,8 @@ namespace jeanf.universalplayer
             }
 
             var isFreecam = controlScheme == ControlScheme.Freecam;
-            var deliberateExit = inSwitchCooldown ? ControlModeArbiter.DesktopInput.None
-                : (forceKbm ? ControlModeArbiter.DesktopInput.KeyboardMouse : DeliberateVrExitInput());
+            var deliberateExit = forceKbm ? ControlModeArbiter.DesktopInput.KeyboardMouse
+                : (inSwitchCooldown ? ControlModeArbiter.DesktopInput.None : DeliberateVrExitInput());
             var desktopInput = inSwitchCooldown ? ControlModeArbiter.DesktopInput.None : DesktopInputThisFrame();
 
             var decision = _arbiter.Decide(isFreecam, _hmdValid, vrEntryRequested, deliberateExit, desktopInput);
@@ -305,17 +311,34 @@ namespace jeanf.universalplayer
             return state.PresenceSupported ? state.Present : state.Tracked;
         }
 
-        private bool ForceKeyboardComboPressed() =>
-            ComboPressed(forceKeyboardKey, forceKeyboardRequiresCtrl, forceKeyboardRequiresAlt);
+        private bool _forceKeyboardComboWasDown;
+        private bool _forceVrComboWasDown;
 
-        private bool ForceVrComboPressed() =>
-            ComboPressed(forceVrKey, forceVrRequiresCtrl, forceVrRequiresAlt);
+        private bool ForceKeyboardComboPressed()
+        {
+            var down = ComboDown(forceKeyboardKey, forceKeyboardRequiresCtrl, forceKeyboardRequiresAlt);
+            var rising = down && !_forceKeyboardComboWasDown;
+            _forceKeyboardComboWasDown = down;
+            return rising;
+        }
 
-        private static bool ComboPressed(Key key, bool requiresCtrl, bool requiresAlt)
+        private bool ForceVrComboPressed()
+        {
+            var down = ComboDown(forceVrKey, forceVrRequiresCtrl, forceVrRequiresAlt);
+            var rising = down && !_forceVrComboWasDown;
+            _forceVrComboWasDown = down;
+            return rising;
+        }
+
+        // Rising edge latched on isPressed, NOT wasPressedThisFrame: the press edge is
+        // consumed by whichever InputSystem.Update ran last (a manual update from tooling
+        // or tests eats it before this component polls), while the pressed STATE survives
+        // any number of input updates — so the combo fires exactly once per physical press.
+        private static bool ComboDown(Key key, bool requiresCtrl, bool requiresAlt)
         {
             var keyboard = Keyboard.current;
             if (keyboard == null) return false;
-            if (!keyboard[key].wasPressedThisFrame) return false;
+            if (!keyboard[key].isPressed) return false;
             if (requiresCtrl && !(keyboard.leftCtrlKey.isPressed || keyboard.rightCtrlKey.isPressed)) return false;
             if (requiresAlt && !(keyboard.leftAltKey.isPressed || keyboard.rightAltKey.isPressed)) return false;
             return true;
@@ -343,6 +366,13 @@ namespace jeanf.universalplayer
         /// </summary>
         private ControlModeArbiter.DesktopInput DeliberateVrExitInput()
         {
+            // The force-VR chord must never read as "leave VR": its own key presses
+            // trip anyKey, so the same physical Ctrl+Alt+V that just entered VR would
+            // bounce straight back to desktop whenever the switch cooldown is not
+            // there to swallow it (it is configurable, and tests run it at 0).
+            if (ComboDown(forceVrKey, forceVrRequiresCtrl, forceVrRequiresAlt))
+                return ControlModeArbiter.DesktopInput.None;
+
             var keyboard = Keyboard.current;
             if (keyboard != null && keyboard.anyKey.wasPressedThisFrame) return ControlModeArbiter.DesktopInput.KeyboardMouse;
 

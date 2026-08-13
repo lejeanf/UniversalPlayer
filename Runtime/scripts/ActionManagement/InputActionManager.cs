@@ -27,7 +27,6 @@ namespace jeanf.universalplayer
 
         private void SwitchEnabledInputs()
         {
-            Debug.Log("Testing switch inputs");
         }
     }
 }

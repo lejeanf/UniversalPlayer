@@ -95,6 +95,7 @@ namespace jeanf.universalplayer.tests
             var preJumpSpeed = _movement.PlanarVelocity.magnitude;
             Assert.That(preJumpSpeed, Is.GreaterThan(1f), "Test rig sanity: player should be walking before the jump.");
 
+            var preJumpY = _player.transform.position.y;
             _movement.RequestJump();
             for (var i = 0; i < 30 && _controller.isGrounded; i++) yield return null;
             Assert.That(_controller.isGrounded, Is.False, "Test rig sanity: player should be airborne after the jump.");
@@ -104,7 +105,11 @@ namespace jeanf.universalplayer.tests
             for (var i = 0; i < 60 && !_controller.isGrounded; i++)
             {
                 yield return null;
-                maxAirSpeed = Mathf.Max(maxAirSpeed, _movement.PlanarVelocity.magnitude);
+                // Sample only while CLEARLY airborne: near the floor the movement's short
+                // ground probe legitimately resumes ground acceleration a frame or two
+                // before controller.isGrounded flips back — that's landing, not mid-air.
+                if (!_controller.isGrounded && _player.transform.position.y > preJumpY + 0.3f)
+                    maxAirSpeed = Mathf.Max(maxAirSpeed, _movement.PlanarVelocity.magnitude);
             }
 
             Assert.That(maxAirSpeed, Is.LessThanOrEqualTo(preJumpSpeed + 0.05f),
@@ -230,8 +235,11 @@ namespace jeanf.universalplayer.tests
             var position = _player.transform.position;
             Assert.That(new Vector2(position.x, position.z).magnitude, Is.LessThan(0.1f),
                 "WorldOrigin recovery did not teleport the player to x=0, z=0.");
-            Assert.That(position.y, Is.InRange(0f, 0.5f),
-                "WorldOrigin recovery should hover just above y=0.");
+            // Recovery lands the capsule's FEET just above y=0 (the root offset depends on
+            // how the CharacterController is authored — this rig's capsule is root-centered).
+            var capsuleBottomY = position.y + _controller.center.y - _controller.height * 0.5f;
+            Assert.That(capsuleBottomY, Is.InRange(0f, 0.5f),
+                "WorldOrigin recovery should land the capsule just above y=0.");
 
             _floor.GetComponent<Collider>().enabled = true;
             for (var i = 0; i < 60 && !_controller.isGrounded; i++) yield return null;
@@ -294,6 +302,11 @@ namespace jeanf.universalplayer.tests
                 ghostFloor.layer = floorLayer;
                 ghostFloor.transform.localScale = new Vector3(10f, 1f, 10f);
                 ghostFloor.transform.position = new Vector3(300f, -0.5f, 300f);
+                // Auto-sync-transforms is off: the ghost floor must be in the physics world
+                // before the player's ground probe diagnoses the layer mismatch, or the
+                // raycast misses it and the warning names the wrong cause.
+                yield return new WaitForFixedUpdate();
+                yield return null;
 
                 stranded = new GameObject("LayerMismatchPlayer") { layer = playerLayer };
                 stranded.SetActive(false);

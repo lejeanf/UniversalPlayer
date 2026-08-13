@@ -23,6 +23,7 @@ namespace jeanf.universalplayer.tests
         private SendTeleportTarget _sender;
         private TeleportEventChannelSO _teleportChannel;
         private int _cameraResetCount;
+        private int _playerTeleportedCount;
 
         private static readonly Vector3 Destination = new Vector3(5f, 0f, 3f);
 
@@ -31,7 +32,9 @@ namespace jeanf.universalplayer.tests
         {
             _teleportChannel = ScriptableObject.CreateInstance<TeleportEventChannelSO>();
             _cameraResetCount = 0;
+            _playerTeleportedCount = 0;
             PlayerEvents.CameraResetRequested += CountCameraReset;
+            PlayerEvents.PlayerTeleported += CountPlayerTeleported;
 
             _player = new GameObject("TestPlayer");
             _player.transform.position = Vector3.zero;
@@ -42,7 +45,6 @@ namespace jeanf.universalplayer.tests
             _teleportOnEvent = _listenerGo.AddComponent<TeleportOnEvent>();
             SetField(_teleportOnEvent, "player", _player);
             SetField(_teleportOnEvent, "fadeInDuration", 0.05f);
-            SetField(_teleportOnEvent, "fadeOutDuration", 0.05f);
             SetField(_teleportOnEvent, "listOfFilters", new List<FilterSO>());
             SetFieldOn(typeof(TeleportEventListener), _teleportOnEvent, "_channel", _teleportChannel);
             if (_teleportOnEvent.OnEventRaised == null)
@@ -64,6 +66,7 @@ namespace jeanf.universalplayer.tests
         public IEnumerator TearDown()
         {
             PlayerEvents.CameraResetRequested -= CountCameraReset;
+            PlayerEvents.PlayerTeleported -= CountPlayerTeleported;
             Object.Destroy(_player);
             Object.Destroy(_listenerGo);
             Object.Destroy(_destinationGo);
@@ -72,6 +75,7 @@ namespace jeanf.universalplayer.tests
         }
 
         private void CountCameraReset() => _cameraResetCount++;
+        private void CountPlayerTeleported(TeleportInformation _) => _playerTeleportedCount++;
 
         [UnityTest]
         public IEnumerator Teleport_NoFade_MovesPlayerToDestination_AndResetsCamera()
@@ -87,6 +91,9 @@ namespace jeanf.universalplayer.tests
                 "Player moved but did not take the destination's rotation.");
             Assert.That(_cameraResetCount, Is.EqualTo(1),
                 "PlayerEvents.CameraResetRequested was not raised after a player teleport — the camera would keep its stale orientation.");
+            Assert.That(_playerTeleportedCount, Is.EqualTo(1),
+                "PlayerEvents.PlayerTeleported was not raised after the player moved — a seated player would stay 'seated' " +
+                "and standing up later would slide them back to the chair.");
         }
 
         [UnityTest]
@@ -146,6 +153,8 @@ namespace jeanf.universalplayer.tests
                 "A non-player teleport moved the player — objectIsPlayer routing is broken.");
             Assert.That(_cameraResetCount, Is.EqualTo(0),
                 "CameraResetRequested must only be raised for player teleports.");
+            Assert.That(_playerTeleportedCount, Is.EqualTo(0),
+                "PlayerTeleported must only be raised for player teleports.");
 
             Object.Destroy(crate);
         }

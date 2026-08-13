@@ -23,6 +23,10 @@ namespace jeanf.universalplayer.tests
         public IEnumerator SetUp()
         {
             BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.XR;
+            // NUnit reuses the fixture instance across tests: without this reset, the
+            // grip/trigger a previous test ended on leaks into the next one's probe.
+            _grip = 0f;
+            _trigger = 0f;
 
             _player = new GameObject("PoseDriverPlayer");
             var handGo = new GameObject("RightHand");

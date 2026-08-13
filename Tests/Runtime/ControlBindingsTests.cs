@@ -16,16 +16,21 @@ namespace jeanf.universalplayer.tests
     /// instead of in someone's playtest. (XR bindings need real XR devices and are
     /// covered by the on-hardware checklist instead.)
     /// </summary>
-    public class ControlBindingsTests
+    public class ControlBindingsTests : InputTestFixture
     {
         private InputActionAsset _asset;
         private InputActionMap _fps;
         private Keyboard _keyboard;
         private Gamepad _gamepad;
 
-        [UnitySetUp]
-        public IEnumerator SetUp()
+        // InputTestFixture (not plain AddDevice on the live system): the editor discards
+        // queued device events when the Game view has no focus, which failed every test
+        // here whenever the suite ran unfocused. The fixture's isolated input runtime
+        // processes queued events deterministically regardless of focus.
+        public override void Setup()
         {
+            base.Setup();
+
             var guids = UnityEditor.AssetDatabase.FindAssets("UniversalPlayer_InputActions t:InputActionAsset");
             Assert.That(guids, Is.Not.Empty,
                 "UniversalPlayer_InputActions not found — if the asset was renamed, update this test, the Player prefab and the README.");
@@ -37,17 +42,13 @@ namespace jeanf.universalplayer.tests
 
             _keyboard = InputSystem.AddDevice<Keyboard>();
             _gamepad = InputSystem.AddDevice<Gamepad>();
-            yield return null;
         }
 
-        [UnityTearDown]
-        public IEnumerator TearDown()
+        public override void TearDown()
         {
             _fps.Disable();
-            InputSystem.RemoveDevice(_keyboard);
-            InputSystem.RemoveDevice(_gamepad);
             Object.Destroy(_asset);
-            yield return null;
+            base.TearDown(); // restores the real input system (and removes the fake devices)
         }
 
         private void UseScheme(string bindingGroup)

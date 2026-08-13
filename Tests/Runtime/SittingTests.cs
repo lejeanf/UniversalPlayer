@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using jeanf.EventSystem;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -31,6 +32,7 @@ namespace jeanf.universalplayer.tests
             _prevIgnoreDefaultCollision = Physics.GetIgnoreLayerCollision(0, 0);
             Physics.IgnoreLayerCollision(0, 0, false);
             BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.KeyboardMouse;
+            ResetFadeMaskToNoFadeMaskDefault();
 
             _floor = GameObject.CreatePrimitive(PrimitiveType.Cube);
             _floor.transform.localScale = new Vector3(30f, 1f, 30f);
@@ -58,6 +60,7 @@ namespace jeanf.universalplayer.tests
 
             _chair = new GameObject("Chair");
             _chair.transform.SetPositionAndRotation(new Vector3(3f, 0.5f, 2f), Quaternion.Euler(0f, 90f, 0f));
+            _chair.AddComponent<BoxCollider>(); // a real chair is aimable/grabbable; also keeps Seat.Awake quiet
             _seat = _chair.AddComponent<Seat>();
 
             _player.SetActive(true);
@@ -82,16 +85,38 @@ namespace jeanf.universalplayer.tests
             info.SetValue(target, value);
         }
 
+        /// <summary>
+        /// FadeMask keeps its state in statics that survive across fixtures in one play
+        /// session: the fade/no-peeking tests leave the screen 'Clear', while this rig
+        /// depends on the documented no-FadeMask default — 'Loading' (ScreenFaded == true),
+        /// which makes every fade-gated placement instant.
+        /// </summary>
+        private static void ResetFadeMaskToNoFadeMaskDefault()
+        {
+            var stateField = typeof(FadeMask).GetField("_requestedState", BindingFlags.NonPublic | BindingFlags.Static);
+            Assert.That(stateField, Is.Not.Null,
+                "FadeMask._requestedState not found — it was renamed; update SittingTests alongside the refactor.");
+            stateField.SetValue(null, System.Enum.ToObject(stateField.FieldType, 0)); // VisualState.Loading
+            typeof(FadeMask).GetField("_lastRaisedFade", BindingFlags.NonPublic | BindingFlags.Static)
+                ?.SetValue(null, true);
+        }
+
+        /// <summary>Waits until a running sit/stand glide has fully applied its end state.</summary>
+        private IEnumerator WaitForGlide()
+        {
+            yield return new WaitUntil(() => !_sit.IsTransitioning);
+        }
+
         [UnityTest]
         public IEnumerator Sit_TeleportsToSeat_SetsCameraHeight_LocksMovement_AndExitRestores()
         {
             var preSitPosition = _player.transform.position;
 
             _seat.ToggleSit();
-            yield return null;
+            yield return WaitForGlide(); // desktop sit is a short glide (sitTransitionSeconds)
 
             Assert.That(Vector3.Distance(_player.transform.position, _chair.transform.position), Is.LessThan(0.01f),
-                "Sitting did not teleport the player to the seat anchor.");
+                "Sitting did not move the player to the seat anchor.");
             Assert.That(_cameraOffset.localPosition.y, Is.EqualTo(0.7f).Within(0.001f),
                 "Camera did not drop to the seated eye height (eyeHeightAboveSeat).");
             Assert.That(_controller.enabled, Is.False, "CharacterController stayed enabled while seated — gravity/collisions will fight the seat.");
@@ -107,7 +132,7 @@ namespace jeanf.universalplayer.tests
             _movement.SetMoveValue(Vector2.zero);
 
             _seat.ToggleSit();
-            yield return null;
+            yield return WaitForGlide(); // standing up glides too (standTransitionSeconds)
 
             Assert.That(_sit.IsSeated, Is.False);
             Assert.That(_cameraOffset.localPosition.y, Is.EqualTo(1.65f).Within(0.001f),
@@ -123,7 +148,8 @@ namespace jeanf.universalplayer.tests
             SetField(_sit, "exitOnMoveInput", true);
 
             _seat.ToggleSit();
-            yield return new WaitForSeconds(0.5f); // past the exit grace period
+            yield return WaitForGlide();               // the sit glide outlasts the exit grace period
+            yield return new WaitForSeconds(0.05f);
             Assert.That(_sit.IsSeated, Is.True);
 
             _movement.SetMoveValue(Vector2.up);
@@ -432,7 +458,6 @@ namespace jeanf.universalplayer.tests
         [UnityTest]
         public IEnumerator VrTrigger_AimedAtSeat_Sits()
         {
-            _chair.AddComponent<BoxCollider>();
             SetField(_sit, "vrTransitionSeconds", 0f);
             BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.XR;
 
@@ -453,7 +478,6 @@ namespace jeanf.universalplayer.tests
         [UnityTest]
         public IEnumerator VrTrigger_AimedAway_DoesNotSit()
         {
-            _chair.AddComponent<BoxCollider>();
             SetField(_sit, "vrTransitionSeconds", 0f);
             BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.XR;
 
@@ -499,6 +523,42 @@ namespace jeanf.universalplayer.tests
                 "The stand-up glide did not return to the pre-sit position (no exitAnchor was set).");
             Assert.That(_controller.enabled, Is.True,
                 "The CharacterController was not re-enabled after the stand-up glide.");
+        }
+
+        // A teleport lands the player somewhere else entirely — by definition they are
+        // standing there. The seated state must be released IN PLACE: standing up later
+        // must never slide them back in front of the chair they teleported away from.
+        [UnityTest]
+        public IEnumerator Teleport_WhileSeated_ReleasesTheSeat_WithoutSlidingBack()
+        {
+            _seat.ToggleSit();
+            yield return WaitForGlide();
+            Assert.That(_sit.IsSeated, Is.True, "Sanity: the player must be seated before the teleport.");
+
+            var destination = new GameObject("TeleportDestination").transform;
+            destination.SetPositionAndRotation(new Vector3(20f, 1.1f, -7f), Quaternion.identity);
+            _player.transform.SetPositionAndRotation(destination.position, destination.rotation);
+            PlayerEvents.RaisePlayerTeleported(new TeleportInformation(
+                _player.transform, destination, true, null, false, false)); // what TeleportOnEvent raises after moving the player
+            yield return null;
+
+            Assert.That(_sit.IsSeated, Is.False,
+                "A teleported player is standing by definition — the seated state was not released.");
+            Assert.That(_controller.enabled, Is.True,
+                "The CharacterController must come back when a teleport releases the seat.");
+            Assert.That(_cameraOffset.localPosition.y, Is.EqualTo(1.65f).Within(0.001f),
+                "The standing camera height must be restored when a teleport releases the seat.");
+            Assert.That(Vector3.Distance(_player.transform.position, destination.position), Is.LessThan(0.05f),
+                "Releasing the seat after a teleport must NOT move the player back toward the chair.");
+
+            // A stand-up arriving later must be a no-op — this was the reported bug:
+            // sit → teleport → stand slid the player back in front of the chair.
+            _sit.Exit();
+            yield return null;
+            Assert.That(Vector3.Distance(_player.transform.position, destination.position), Is.LessThan(0.05f),
+                "Standing up after a teleport slid the player back to the chair.");
+
+            Object.Destroy(destination.gameObject);
         }
 
         // Scenario placement: enabling a SitPlayerOnEnable must put the player in its seat.

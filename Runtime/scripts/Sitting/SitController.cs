@@ -93,6 +93,9 @@ namespace jeanf.universalplayer
 
         public bool IsSeated { get; private set; }
 
+        /// <summary>True while a sit/stand glide is moving the player (tests and UI wait on this).</summary>
+        public bool IsTransitioning => _transitioning;
+
         /// <summary>Seat id of the currently occupied seat (0 when not seated) — lets seat-side UI
         /// (e.g. a chair's tooltip) know whether THIS seat is the one being sat on.</summary>
         public int CurrentSeatId => IsSeated ? _seat.SeatId : 0;
@@ -146,20 +149,21 @@ namespace jeanf.universalplayer
                 cameraLook = playerRoot.GetComponentInChildren<FPSCameraMovement>(true);
 
             PlayerEvents.SitRequested += OnSitRequested;
+            PlayerEvents.PlayerTeleported += OnPlayerTeleported;
 
             if (playerInput != null && playerInput.actions != null)
             {
                 interactAction = playerInput.actions.FindAction("FPS/Interact", throwIfNotFound: false);
                 if (interactAction != null) interactAction.performed += OnInteract;
-                else Debug.LogWarning($"{LogPrefix} SitController on '{name}': no 'Interact' action in the FPS map of " +
+                else if (isDebug) Debug.Log($"{LogPrefix} SitController on '{name}': no 'Interact' action in the FPS map of " +
                     $"'{playerInput.actions.name}' — sitting via aim+interact is disabled (Seat.ToggleSit() still works).", this);
 
                 jumpAction = playerInput.actions.FindAction("FPS/Jump", throwIfNotFound: false);
                 if (jumpAction != null) jumpAction.performed += OnJumpWhileSeated;
             }
-            else
+            else if (isDebug)
             {
-                Debug.LogWarning($"{LogPrefix} SitController on '{name}': playerInput is not assigned — sitting via " +
+                Debug.Log($"{LogPrefix} SitController on '{name}': playerInput is not assigned — sitting via " +
                     "aim+interact is disabled (Seat.ToggleSit() still works).", this);
             }
         }
@@ -170,7 +174,28 @@ namespace jeanf.universalplayer
             if (jumpAction != null) jumpAction.performed -= OnJumpWhileSeated;
             _hoveredSeat = null;
             PlayerEvents.SitRequested -= OnSitRequested;
+            PlayerEvents.PlayerTeleported -= OnPlayerTeleported;
             if (Instance == this) Instance = null;
+        }
+
+        // A teleport moved the player somewhere else entirely — by definition they are no
+        // longer in the chair. Release the seated state IN PLACE: restore controls and the
+        // standing camera height where the player landed; never glide back to the seat's
+        // exit spot (that read as being slid back in front of the chair).
+        private void OnPlayerTeleported(TeleportInformation _)
+        {
+            var wasSeated = IsSeated;
+            if (!wasSeated && !_transitioning) return;
+            CancelTransition();
+
+            var seat = _seat;
+            IsSeated = false;
+            _currentSource = null;
+            RestoreCameraOffsetHeight();
+            if (cameraLook != null) cameraLook.OverrideLook(Vector2.zero);
+            if (body != null) body.SetSeated(false);
+            if (wasSeated) PlayerEvents.RaiseSeated(false); // a running stand-up glide already raised it
+            FinishExit(seat);
         }
 
         // Scenario-driven seating: while the screen is black (loading fade) the

@@ -33,6 +33,13 @@ namespace jeanf.universalplayer.tests
             _cube.transform.position = new Vector3(0f, 1f, 2f);
             _renderer = _cube.GetComponent<Renderer>();
             _interactable = _cube.AddComponent<XRGrabInteractable>(); // auto-creates its Rigidbody + interaction manager
+            // The auto-created Rigidbody has gravity on and this rig has no floor: the
+            // cube would be in free fall, and the ghost-anchor assert would chase a
+            // moving target (the anchor follows the attach point in LateUpdate, so it
+            // is always one frame behind a moving grabbable).
+            var body = _cube.GetComponent<Rigidbody>();
+            body.useGravity = false;
+            body.isKinematic = true;
             yield return null;
         }
 

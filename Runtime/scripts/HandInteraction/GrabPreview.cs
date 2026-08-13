@@ -248,6 +248,17 @@ namespace jeanf.universalplayer
             helper.name = "GrabPreviewGhosts";
             foreach (var hand in helper.GetComponentsInChildren<PreviewHand>(true))
             {
+                // The helper's HandManager (an edit-mode pose tool) instantiates one
+                // PreviewHand pair in OnEnable — that pair is what gets harvested here
+                // (HandManager skips its OnDisable DestroyImmediate cleanup in play mode,
+                // which used to kill these very hands when Destroy(helper) ran below).
+                // Guard against doubles anyway: a prefab re-saved with baked hands would
+                // carry a second pair, and one ghost per side is all we ever want.
+                if (ghosts.ContainsKey(hand.HandType))
+                {
+                    Destroy(hand.gameObject);
+                    continue;
+                }
                 foreach (var handRenderer in hand.GetComponentsInChildren<Renderer>(true))
                 {
                     if (ghostMaterial != null)

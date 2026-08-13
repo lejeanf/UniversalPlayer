@@ -16,6 +16,7 @@ namespace jeanf.universalplayer.tests
     {
         private GameObject _floor;
         private GameObject _player;
+        private GameObject _ceiling;
         private CharacterController _controller;
         private PlayerMovement _movement;
         private bool _prevIgnoreDefaultCollision;
@@ -57,6 +58,12 @@ namespace jeanf.universalplayer.tests
             BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.KeyboardMouse;
             Object.Destroy(_player);
             Object.Destroy(_floor);
+            // The crouch test's ceiling: destroyed HERE, not only mid-test — when its
+            // assert throws, the in-test Destroy never runs and the leaked ceiling
+            // wedges every later player (spawned overlapping it, Move() achieves
+            // nothing), which broke the head-bob test with a mystifying zero offset.
+            if (_ceiling != null) Object.Destroy(_ceiling);
+            _ceiling = null;
             yield return null;
         }
 
@@ -95,7 +102,7 @@ namespace jeanf.universalplayer.tests
             Assert.That(earlySpeed, Is.LessThan(3.9f),
                 "Velocity snapped (almost) straight to top speed — the acceleration ramp (speedChangeRate) is not being applied.");
 
-            yield return Frames(120);
+            yield return new WaitForSeconds(1.5f); // wall time, not frames: the ramp is m/s², the editor fps varies
             Assert.That(_movement.PlanarVelocity.magnitude, Is.EqualTo(4f).Within(0.2f),
                 "Walk speed never reached its target.");
 
@@ -104,7 +111,7 @@ namespace jeanf.universalplayer.tests
             Assert.That(_movement.PlanarVelocity.magnitude, Is.GreaterThan(0.5f),
                 "Velocity vanished instantly on release — deceleration (weight) is not being applied.");
 
-            yield return Frames(120);
+            yield return new WaitForSeconds(1.5f);
             Assert.That(_movement.PlanarVelocity.magnitude, Is.LessThan(0.05f),
                 "Velocity never decayed back to zero after input stopped.");
         }
@@ -114,7 +121,9 @@ namespace jeanf.universalplayer.tests
         {
             StartMoving(Vector2.up);
             _movement.SetSprintHeld(true);
-            yield return Frames(90);
+            // Wall time, not frames: reaching >5 m/s at speedChangeRate 4 m/s² needs ≥1.25s
+            // — 90 frames on a fast editor is well under that.
+            yield return new WaitForSeconds(2f);
             Assert.That(_movement.PlanarVelocity.magnitude, Is.GreaterThan(5f),
                 "Sprint did not raise the top speed above walking speed.");
             Assert.That(_movement.IsSprinting, Is.True);
@@ -124,28 +133,37 @@ namespace jeanf.universalplayer.tests
         [UnityTest]
         public IEnumerator Crouch_ShrinksCapsule_AndRefusesToStandUnderCeiling()
         {
+            SetField(_movement, "crouchIsToggle", false); // this test drives HOLD crouch semantics
             var standingHeight = _controller.height;
 
             _movement.SetCrouchHeld(true);
-            yield return Frames(30);
+            yield return new WaitForSeconds(0.5f); // wall time: the crouch blend runs on seconds, not frames
             Assert.That(_controller.height, Is.LessThan(standingHeight * 0.7f),
                 "Crouching did not shrink the CharacterController capsule.");
             Assert.That(_movement.IsCrouched, Is.True);
 
             // Ceiling above the crouched player: standing must be refused until it is gone.
-            var ceiling = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            ceiling.transform.localScale = new Vector3(4f, 0.5f, 4f);
-            ceiling.transform.position = new Vector3(0f, 1.75f, 0f);
-            yield return Frames(2); // let physics register the new collider
+            // Tracked in a fixture field so TearDown cleans it up even when an assert
+            // below throws — a leaked ceiling wedges every later test's player.
+            _ceiling = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            _ceiling.transform.localScale = new Vector3(4f, 0.5f, 4f);
+            _ceiling.transform.position = new Vector3(0f, 1.75f, 0f);
+            // Auto-sync-transforms is off in this project: the new collider is invisible
+            // to the CanStandUp headroom query until a physics step has run.
+            yield return new WaitForFixedUpdate();
+            yield return null;
 
             _movement.SetCrouchHeld(false);
-            yield return Frames(30);
+            yield return new WaitForSeconds(0.5f);
             Assert.That(_movement.IsCrouched, Is.True,
-                "Player stood up INTO a ceiling — the headroom check (CanStandUp SphereCast) is broken.");
+                "Player stood up INTO a ceiling — the headroom check (CanStandUp) is broken. " +
+                $"(root: {_player.transform.position}, height: {_controller.height:F2}, " +
+                $"blend: {_movement.CrouchBlend:F2}, " +
+                $"ceilingSeenByQuery: {Physics.Raycast(_player.transform.position, Vector3.up, 5f)})");
 
-            Object.Destroy(ceiling);
+            Object.Destroy(_ceiling);
             yield return Frames(2);
-            yield return Frames(30);
+            yield return new WaitForSeconds(0.75f);
             Assert.That(_controller.height, Is.EqualTo(standingHeight).Within(0.05f),
                 "Player never stood back up after the ceiling was removed.");
         }
@@ -187,10 +205,14 @@ namespace jeanf.universalplayer.tests
                 yield return null;
                 maxMoving = Mathf.Max(maxMoving, Mathf.Abs(feel.CurrentOffset.y));
             }
-            Assert.That(maxMoving, Is.GreaterThan(0.005f), "No head bob while walking.");
+            Assert.That(maxMoving, Is.GreaterThan(0.005f), "No head bob while walking. " +
+                $"(grounded: {_movement.IsGrounded}, commandedVel: {_movement.PlanarVelocity.magnitude:F2}, " +
+                $"actualVel: {_movement.ActualPlanarVelocity.magnitude:F2}, root: {_player.transform.position})");
 
             StopMoving();
-            yield return Frames(60);
+            // Wall time: momentum bleeds at 4 m/s² from ~4 m/s, so the bob stays live for
+            // up to a second after release — 60 frames on a fast editor is far less.
+            yield return new WaitForSeconds(1.5f);
             Assert.That(feel.CurrentOffset.magnitude, Is.LessThan(0.002f),
                 "Head bob offset never settled back after movement stopped.");
         }

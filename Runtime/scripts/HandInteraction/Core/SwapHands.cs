@@ -53,7 +53,6 @@ public class SwapHands : MonoBehaviour
             {
                 hand.sharedMesh = h.mesh;
                 hand.sharedMaterial = h.skinMaterial;
-                Debug.Log($"Setting {handType} to {hand.gameObject.name}");
             }
         }
     }

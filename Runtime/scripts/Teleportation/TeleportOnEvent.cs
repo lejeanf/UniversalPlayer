@@ -117,6 +117,10 @@ namespace jeanf.universalplayer
             
             if (teleportInformation.objectIsPlayer)
             {
+                // Authoritative "the player DID move" signal (the bridge also forwards the
+                // project channel, but only when one is wired). A seated player who gets
+                // teleported is standing by definition — SitController releases the seat on this.
+                PlayerEvents.RaisePlayerTeleported(teleportInformation);
                 PlayerEvents.RaiseCameraReset();
             }
 

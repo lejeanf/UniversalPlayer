@@ -271,18 +271,36 @@ namespace jeanf.universalplayer.tests
             Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.KeyboardMouse), "Precondition: on desktop.");
 
             // Ctrl+Alt+V — the reliable re-entry when the runtime reports no presence edge.
+            // ONE key per frame: Press() builds a FULL keyboard-state snapshot from the
+            // device's current state, and events apply one input update late here — two
+            // Press() calls in the same frame make the second snapshot miss the first
+            // key and overwrite it back to released (the trace showed ctrl:0 forever).
             Press(Keyboard.current.leftCtrlKey);
+            yield return null;
             Press(Keyboard.current.leftAltKey);
             yield return null;
             Press(Keyboard.current.vKey);
-            yield return null;
-            yield return null;
+            // Per-frame trace of what the broadcaster can see, so a failure message
+            // pinpoints WHERE the chord got lost (state not visible? entered XR and
+            // bounced back out? edges stuck stale between input updates?).
+            var kb = Keyboard.current;
+            var trace = new List<string>();
+            for (var i = 0; i < 3; i++)
+            {
+                trace.Add($"f{i}[v:{(kb.vKey.isPressed ? 1 : 0)}{(kb.vKey.wasPressedThisFrame ? "e" : "")} " +
+                          $"ctrl:{(kb.leftCtrlKey.isPressed ? 1 : 0)} alt:{(kb.leftAltKey.isPressed ? 1 : 0)} " +
+                          $"anyEdge:{(kb.anyKey.wasPressedThisFrame ? 1 : 0)} mode:{Mode} inVr:{(_broadcaster.InVr ? 1 : 0)}]");
+                yield return null;
+            }
+            // Same one-per-frame rule on release, so no key gets resurrected by a stale snapshot.
             Release(Keyboard.current.vKey);
+            yield return null;
             Release(Keyboard.current.leftAltKey);
+            yield return null;
             Release(Keyboard.current.leftCtrlKey);
 
             Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.XR),
-                "Ctrl+Alt+V must re-enter VR over a no-presence runtime.");
+                "Ctrl+Alt+V must re-enter VR over a no-presence runtime. Trace: " + string.Join(" ", trace));
         }
 
         // ---- desktop <-> desktop -------------------------------------------------

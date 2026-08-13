@@ -11,16 +11,20 @@ namespace jeanf.universalplayer
         [Header("Broadcasting on:")]
         [SerializeField] private XRBaseInteractorEventChannelSO XRBaseInteractorMessageChannel;
 
+        private bool _warnedNullInteractor;
+
         public void SendXRDirectInteractor()
         {
-            if (!baseInteractor) Debug.Log("SendXRDirectInteractor, target is null");
+            if (!baseInteractor && !_warnedNullInteractor)
+            {
+                _warnedNullInteractor = true;
+                Debug.LogWarning($"XRBaseInteractorSender on '{name}': no XRBaseInteractor found — broadcasting null.", this);
+            }
             XRBaseInteractorMessageChannel.RaiseEvent(baseInteractor);
         }
 
         private void Update()
         {
-            if (!baseInteractor) Debug.Log("update, target is null");
-
             if (baseInteractor) return;
             try
             {

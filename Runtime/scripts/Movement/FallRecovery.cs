@@ -154,6 +154,7 @@ namespace jeanf.universalplayer
             Vector3 target;
             Quaternion rotation;
             string targetDescription;
+            var targetIsGroundPoint = true; // a ground height to stand ON (vs. a known-good root pose)
             switch (recoveryTarget)
             {
                 case RecoveryTarget.OverrideTransform when safePositionOverride != null:
@@ -177,12 +178,22 @@ namespace jeanf.universalplayer
                     target = hasSafePosition ? lastSafePosition : Vector3.zero;
                     rotation = hasSafePosition ? lastSafeRotation : playerRoot.rotation;
                     targetDescription = hasSafePosition ? "the last grounded position" : "the world origin (never grounded yet)";
+                    targetIsGroundPoint = !hasSafePosition;
                     break;
             }
 
+            // Ground-point targets place the capsule's FEET just above the target, whatever
+            // the controller's center/height authoring. Placing the ROOT there buried a
+            // root-centered capsule inside the floor — the ground probe then starts inside
+            // the collider, sees nothing below, and the player hovers forever instead of
+            // settling. (A last-grounded target already IS a valid root pose: hover margin only.)
+            var hover = targetIsGroundPoint
+                ? 0.1f - (controller.center.y - controller.height * 0.5f)
+                : 0.1f;
+
             var wasEnabled = controller.enabled;
             controller.enabled = false;
-            playerRoot.SetPositionAndRotation(target + Vector3.up * 0.1f, rotation);
+            playerRoot.SetPositionAndRotation(target + Vector3.up * hover, rotation);
             controller.enabled = wasEnabled;
             ResetFallTracking();
             previousY = playerRoot.position.y;

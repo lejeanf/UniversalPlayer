@@ -52,6 +52,10 @@ public class HandManager : MonoBehaviour
         // Make sure to destroy the gameobjects (null-safe: a preview hand may have
         // been deleted manually in the hierarchy)
         #if UNITY_EDITOR
+        // Edit-mode tool cleanup only. At runtime GrabPreview instantiates this helper,
+        // harvests the PreviewHands as ghost hands and owns their lifetime — destroying
+        // them here (OnDisable fires when it discards the helper) killed the ghosts.
+        if (Application.isPlaying) return;
         if (LeftHand) DestroyImmediate(LeftHand.gameObject);
         if (RightHand) DestroyImmediate(RightHand.gameObject);
         #endif

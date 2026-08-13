@@ -122,7 +122,9 @@ namespace jeanf.universalplayer.tests
             var leftAnchor = _anchors.Resolve(left, HandType.None, out var leftHand);
 
             Assert.That(leftHand, Is.EqualTo(HandType.Left));
-            Assert.That(rightAnchor, Is.Not.EqualTo(leftAnchor), "The two hands must resolve to different docks.");
+            // SameAs, not EqualTo: NUnit enumerates Transforms as collections of children,
+            // so two distinct CHILDLESS docks compare "equal" (<empty> == <empty>).
+            Assert.That(rightAnchor, Is.Not.SameAs(leftAnchor), "The two hands must resolve to different docks.");
             Assert.That(leftAnchor.localPosition.x, Is.LessThan(rightAnchor.localPosition.x));
             UnityEngine.Object.Destroy(right.gameObject);
             UnityEngine.Object.Destroy(left.gameObject);
