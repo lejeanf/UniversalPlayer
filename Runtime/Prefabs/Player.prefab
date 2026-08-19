@@ -6596,9 +6596,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   driveEnabled: 1
   pointPose: {fileID: 0}
-  semiClosedFistPose: {fileID: 0}
-  closedFistPose: {fileID: 0}
-  fullClosedFistPose: {fileID: 0}
+  semiClosedFistPose: {fileID: 11400000, guid: 38991e7165a71a540a6455b54c7c00bb, type: 2}
+  closedFistPose: {fileID: 11400000, guid: 05e810e1654e2d14aaece3bb11e6fff2, type: 2}
+  fullClosedFistPose: {fileID: 11400000, guid: 14cd456ab7459ad40ba000f2429ca60f, type: 2}
   gripTouchThreshold: 0.15
   gripHardThreshold: 0.85
   triggerPressThreshold: 0.55
