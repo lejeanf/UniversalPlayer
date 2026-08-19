@@ -93,22 +93,11 @@ namespace jeanf.universalplayer
             return null;
         }
 
-        public override void ApplyOffset(Vector3 position, Quaternion rotation)
-        {
-            if(isDebug) Debug.Log($"ApplyOffset to: [{position}], [{rotation}]");
-            /*
-            // Invert since the we're moving the attach point instead of the hand
-            Vector3 finalPosition = position * -1.0f;
-            Quaternion finalRotation = Quaternion.Inverse(rotation);
-
-            // Since it's a local position, we can just rotate around zero
-            finalPosition = finalPosition.RotatePointAroundPivot(Vector3.zero, finalRotation.eulerAngles);
-
-            // Set the position and rotach of attach
-            targetInteractor.attachTransform.localPosition = finalPosition;
-            targetInteractor.attachTransform.localRotation = finalRotation;
-            */
-        }
+        // Required override of BaseHand.ApplyOffset, but intentionally a NO-OP at runtime:
+        // the held object's placement is handled by PoseGrabInteractable (it seats the object
+        // at the pose's wrist-relative offset via XRI's dynamic attach). Only the editor path
+        // (ApplyPoseForSetup on PreviewHand) uses ApplyOffset to move the preview hand.
+        public override void ApplyOffset(Vector3 position, Quaternion rotation) { }
 
         private void OnValidate()
         {

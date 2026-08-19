@@ -41,6 +41,9 @@ namespace jeanf.universalplayer
 
         private void SetPose(bool value)
         {
+            // While an object is held, the grip pose owns the fingers — don't reopen the hand
+            // into the pointing/default pose over the top of it.
+            if (_handPoseManager.IsPoseHeld) return;
             var poseToSet = value ? pointingPose : defaultPose ;
             if(_isDebug) Debug.Log($"setting pose: {poseToSet.name}");
             _handPoseManager.ApplyPose(poseToSet);
