@@ -97,20 +97,28 @@ namespace jeanf.universalplayer
                 return new SetupValidator.CheckResult($"Variant overrides: {variant.name}", SetupValidator.Severity.Pass,
                     "No overrides recorded.");
 
-            var orphaned = modifications
-                .Where(m => m.target == null)
-                .Select(m => m.propertyPath)
-                .Distinct()
-                .ToArray();
+            var orphaned = modifications.Where(m => m.target == null).ToArray();
 
             if (orphaned.Length == 0)
                 return new SetupValidator.CheckResult($"Variant overrides: {variant.name}", SetupValidator.Severity.Pass,
                     "All overrides target objects that still exist in the base prefab.");
 
-            var preview = string.Join(", ", orphaned.Take(6)) + (orphaned.Length > 6 ? ", ..." : "");
+            // Count ENTRIES (that is what VariantOverrideFixer strips) but summarise them
+            // BY PROPERTY, with multiplicity: the same dead property usually repeats over
+            // many objects (m_Layer on every collider), so listing each one says nothing —
+            // while counting distinct properties, as this check used to, under-reported
+            // the removal by several times.
+            var byProperty = orphaned
+                .GroupBy(m => m.propertyPath)
+                .OrderByDescending(group => group.Count())
+                .Select(group => group.Count() > 1 ? $"{group.Key} x{group.Count()}" : group.Key)
+                .ToArray();
+
+            var preview = string.Join(", ", byProperty.Take(6)) + (byProperty.Length > 6 ? ", ..." : "");
             return new SetupValidator.CheckResult($"Variant overrides: {variant.name}", SetupValidator.Severity.Fail,
-                $"{orphaned.Length} override(s) point at objects that NO LONGER EXIST in the base Player.prefab " +
-                $"(e.g. {preview}) — whatever they customized (hand models, channels, ...) is silently gone.",
+                $"{orphaned.Length} override(s) on {byProperty.Length} propert{(byProperty.Length == 1 ? "y" : "ies")} " +
+                $"point at objects that NO LONGER EXIST in the base Player.prefab ({preview}) — whatever they " +
+                "customized (hand models, channels, ...) is silently gone.",
                 $"Open '{AssetDatabase.GetAssetPath(variant)}', re-apply those customizations on the current base objects, " +
                 "then run Tools/UniversalPlayer/Remove Dead Variant Overrides (it logs every entry it strips) — " +
                 "or remove them by hand via the Overrides dropdown > Revert the entries showing missing targets.");
