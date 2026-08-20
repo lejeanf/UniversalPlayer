@@ -37,9 +37,15 @@ namespace jeanf.universalplayer
         {
             // Subscribe to selected events
             //getDirectInteractor?.Invoke(handType,ref targetInteractor);
-            if(isDebug) Debug.Log($"targetInteractor : {targetInteractor.name}");
+            // Null-check FIRST: the debug log used to dereference targetInteractor.name
+            // before it, so turning isDebug on for an unwired hand threw a NullReference.
             if (!targetInteractor)
+            {
+                if (isDebug) Debug.LogWarning($"{name}: no targetInteractor — grabbing will never pose this hand.", this);
                 return;
+            }
+
+            if (isDebug) Debug.Log($"targetInteractor : {targetInteractor.name}");
 
             //targetInteractor.onSelectEntered.AddListener(TryApplyObjectPose);
             //targetInteractor.onSelectExited.AddListener(TryApplyDefaultPose);

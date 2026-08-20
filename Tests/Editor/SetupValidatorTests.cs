@@ -44,6 +44,10 @@ namespace jeanf.universalplayer.tests.editor
             var sceneResults = ProjectSetupChecks.RunOpenSceneChecks();
             Assert.That(sceneResults, Is.Not.Empty,
                 "ProjectSetupChecks.RunOpenSceneChecks returned nothing — scene wiring checks were emptied out.");
+
+            var handResults = HandSetupChecks.RunHandChecks();
+            Assert.That(handResults, Is.Not.Empty,
+                "HandSetupChecks.RunHandChecks returned nothing — the hand checks were emptied out.");
         }
 
         [Test]
@@ -52,6 +56,7 @@ namespace jeanf.universalplayer.tests.editor
             var results = SetupValidator.RunProjectConfigChecks();
             results.AddRange(ProjectSetupChecks.RunAssetChecks());
             results.AddRange(ProjectSetupChecks.RunOpenSceneChecks());
+            results.AddRange(HandSetupChecks.RunHandChecks());
 
             foreach (var result in results.Where(r => r.Severity != SetupValidator.Severity.Pass))
             {
@@ -159,6 +164,46 @@ namespace jeanf.universalplayer.tests.editor
             NewSeat("Seat");
             Assert.That(SceneCheck("Scene: seat data bridge").Severity, Is.EqualTo(SetupValidator.Severity.Pass),
                 "With no SubScenes present, the SeatDataBridge check must pass (it only matters for baked seats).");
+        }
+
+        [Test]
+        public void HandChecks_CoverEveryHandFailureArea()
+        {
+            Spawn("Player").AddComponent<BroadcastControlsStatus>(); // lets the hand checks run
+
+            var names = HandSetupChecks.RunHandChecks().Select(r => r.Name).ToList();
+            foreach (var expected in new[]
+                     {
+                         "Scene: hand visibility", "Scene: hand visibility authority", "Scene: hand pose managers",
+                         "Scene: hand rigs", "Scene: hand poses vs rig", "Scene: hand pose bone names",
+                         "Scene: hand pose driver", "Scene: finger pointing ray", "Scene: hand colliders",
+                     })
+                Assert.That(names, Does.Contain(expected),
+                    $"'{expected}' is no longer in the hand checks — that hand failure would only surface as a " +
+                    "runtime warning in the headset again.");
+        }
+
+        [Test]
+        public void HandChecks_FlagAPlayerWithNoHands()
+        {
+            // A player with nothing hand-related must fail loudly: this is exactly the
+            // "the hands disappeared after a package update" situation.
+            var bare = Spawn("Player");
+            bare.AddComponent<BroadcastControlsStatus>();
+
+            // The checks inspect the FIRST player in the open scene; if the test scene
+            // already holds a real one, they describe that player, not this bare stand-in.
+            var found = Object.FindFirstObjectByType<BroadcastControlsStatus>(FindObjectsInactive.Include);
+            if (found == null || found.transform.root.gameObject != bare)
+                Assert.Ignore("The open scene already contains a Player — this test needs the bare stand-in.");
+
+            var results = HandSetupChecks.RunHandChecks();
+            foreach (var area in new[] { "Scene: hand visibility", "Scene: hand pose managers", "Scene: hand rigs" })
+            {
+                var result = results.First(r => r.Name == area);
+                Assert.That(result.Severity, Is.EqualTo(SetupValidator.Severity.Fail),
+                    $"'{area}' must FAIL on a player carrying no hands — it reported {result.Severity} instead.");
+            }
         }
 
         [Test]

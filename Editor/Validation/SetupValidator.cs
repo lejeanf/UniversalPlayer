@@ -17,7 +17,9 @@ namespace jeanf.universalplayer
     /// Universal Player depends on and prints actionable console feedback for every
     /// problem (what broke, likely cause, where to fix it). Covers the recurring VR
     /// issues: provider not enabled, no interaction profiles (controllers undetected),
-    /// Link focus loss, missing render pipeline, wrong input handling.
+    /// Link focus loss, missing render pipeline, wrong input handling — plus the hand
+    /// setup (see HandSetupChecks), whose failures otherwise only surface as runtime
+    /// warnings with the headset on.
     /// </summary>
     public static class SetupValidator
     {
@@ -47,6 +49,7 @@ namespace jeanf.universalplayer
             var results = RunProjectConfigChecks();
             results.AddRange(ProjectSetupChecks.RunAssetChecks());
             results.AddRange(ProjectSetupChecks.RunOpenSceneChecks());
+            results.AddRange(HandSetupChecks.RunHandChecks());
             LogResults(results);
         }
 
