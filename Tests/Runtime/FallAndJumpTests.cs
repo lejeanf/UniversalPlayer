@@ -62,6 +62,28 @@ namespace jeanf.universalplayer.tests
         }
 
         [UnityTest]
+        public IEnumerator PlayerTeleported_DropsAllAccumulatedMomentum()
+        {
+            SetField(_movement, "verticalVelocity", -25f);
+            SetField(_movement, "planarVelocity", new Vector3(6f, 0f, 6f));
+
+            var destination = new GameObject("TeleportDestination").transform;
+            destination.position = new Vector3(3f, 1.1f, 3f);
+            PlayerEvents.RaisePlayerTeleported(new jeanf.EventSystem.TeleportInformation(
+                _player.transform, destination, objectIsPlayer: true, filter: null, isUsingFilter: false));
+
+            Assert.That(_movement.VerticalVelocity, Is.EqualTo(0f),
+                "A player teleport did not zero the vertical velocity — a falling player would " +
+                "slam into the destination floor at the speed accumulated before the teleport.");
+            Assert.That(_movement.PlanarVelocity, Is.EqualTo(Vector3.zero),
+                "A player teleport did not zero the planar velocity — the player would skid " +
+                "onwards at the destination with pre-teleport momentum.");
+
+            Object.Destroy(destination.gameObject);
+            yield return null;
+        }
+
+        [UnityTest]
         public IEnumerator Jump_RisesOffTheGround_ThenLandsBack()
         {
             var startY = _player.transform.position.y;

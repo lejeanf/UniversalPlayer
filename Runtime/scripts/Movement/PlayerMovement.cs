@@ -235,6 +235,7 @@ namespace jeanf.universalplayer
                 jumpAction.performed += OnJumpPerformed;
             }
 
+            PlayerEvents.PlayerTeleported += OnPlayerTeleported;
             PlayerEvents.ObjectTeleported += SetGroundLevel;
             PlayerEvents.SceneLoadingChanged += OnSceneLoadingChanged;
             PlayerEvents.MenuStateChanged += OnMenuStateChanged;
@@ -283,6 +284,7 @@ namespace jeanf.universalplayer
                 jumpAction.performed -= OnJumpPerformed;
             }
 
+            PlayerEvents.PlayerTeleported -= OnPlayerTeleported;
             PlayerEvents.ObjectTeleported -= SetGroundLevel;
             PlayerEvents.SceneLoadingChanged -= OnSceneLoadingChanged;
             PlayerEvents.MenuStateChanged -= OnMenuStateChanged;
@@ -545,11 +547,16 @@ namespace jeanf.universalplayer
             jumpRequested = true;
         }
 
+        // Safety: ANY player teleport (TeleportOnEvent, bridge-forwarded channels) drops
+        // accumulated momentum, so a falling or sprinting player arrives standing still.
+        private void OnPlayerTeleported(TeleportInformation _) => OnExternalTeleport();
+
         /// <summary>
-        /// Call after teleporting the player from outside (FallRecovery does): drops all
-        /// accumulated momentum — a rescued player must not resume falling at terminal
-        /// velocity — and re-checks that ground exists below before gravity resumes, so
-        /// a recovery spot over the void means hovering, not another infinite fall.
+        /// Call after teleporting the player from outside (FallRecovery does; PlayerTeleported
+        /// events land here too): drops all accumulated momentum — a rescued player must not
+        /// resume falling at terminal velocity — and re-checks that ground exists below before
+        /// gravity resumes, so a recovery spot over the void means hovering, not another
+        /// infinite fall.
         /// </summary>
         public void OnExternalTeleport()
         {
