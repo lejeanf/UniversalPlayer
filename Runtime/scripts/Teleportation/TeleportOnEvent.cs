@@ -15,10 +15,10 @@ namespace jeanf.universalplayer
         }
         [SerializeField] private bool _isDebug = false;
 
-        [Validation("The player root is required — teleports have nothing to move without it.")]
+        [Tooltip("On: this listener teleports the player (player root required). Off: it only teleports the objects carried by the events (object-only listener).")]
+        [SerializeField] private bool teleportsPlayer = true;
+        [Validation("The player root is required — player teleports have nothing to move without it.", RequiredIf = nameof(teleportsPlayer))]
         [SerializeField] private GameObject player;
-        [Validation("The camera offset transform is required to keep the view height after a teleport.")]
-        [SerializeField] private Transform cameraOffset;
         [SerializeField] private List<FilterSO> listOfFilters;
 
         [Header("Fade Settings")]
@@ -53,6 +53,12 @@ namespace jeanf.universalplayer
 
         public void Teleport(TeleportInformation teleportInformation)
         {
+            if (teleportInformation.objectIsPlayer && !teleportsPlayer)
+            {
+                if (_isDebug) Debug.Log($"[{gameObject.name}] ignoring player teleport — this listener is object-only (Teleports Player is off).");
+                return;
+            }
+
             if (teleportInformation.isUsingFilter)
             {
                 if (!listOfFilters.Contains(teleportInformation.filter))
@@ -68,13 +74,24 @@ namespace jeanf.universalplayer
                 Debug.Log($"ObjectToTeleport : {teleportInformation.objectToTeleport.name}");
             }
 
+            var teleportSubject = teleportInformation.objectIsPlayer
+                ? player
+                : teleportInformation.objectToTeleport != null ? teleportInformation.objectToTeleport.gameObject : null;
+            if (teleportSubject == null)
+            {
+                Debug.LogError(teleportInformation.objectIsPlayer
+                    ? $"[{gameObject.name}] player teleport received but the Player field is not assigned — nothing to move."
+                    : $"[{gameObject.name}] object teleport received but the event carries no objectToTeleport — nothing to move.", this);
+                return;
+            }
+
             CleanupCoroutine();
 
             LastHandledFrame = Time.frameCount;
-            _teleportCoroutine = StartCoroutine(TeleportWithFade(teleportInformation));
+            _teleportCoroutine = StartCoroutine(TeleportWithFade(teleportInformation, teleportSubject));
         }
 
-        private IEnumerator TeleportWithFade(TeleportInformation teleportInformation)
+        private IEnumerator TeleportWithFade(TeleportInformation teleportInformation, GameObject teleportSubject)
         {
             if (teleportInformation.shouldFade)
             {
@@ -87,34 +104,18 @@ namespace jeanf.universalplayer
                 if (_isDebug) Debug.Log("TeleportOnEvent: Skipping fade (external system handling it)");
             }
 
-            // Perform the actual teleport
-            GameObject teleportSubject = teleportInformation.objectIsPlayer
-                ? player
-                : teleportInformation.objectToTeleport.gameObject;
-            
-            try
-            {
-                teleportSubject.GetComponent<CharacterController>().enabled = false;
-            }
-            catch
-            {
-                if (isDebug) Debug.Log("teleportation subject is not player - cannot disable player locomotion for teleportation");
-            }
-            
+            // Perform the actual teleport — a CharacterController (player) must be disabled
+            // while its transform is moved, or it snaps the transform back.
+            var characterController = teleportSubject.GetComponent<CharacterController>();
+            if (characterController != null) characterController.enabled = false;
+
             teleportSubject.transform.position = teleportInformation.targetDestination.position;
             teleportSubject.transform.rotation = teleportInformation.targetDestination.rotation;
-            
-            if (_isDebug) Debug.Log($"TELEPORT - player position = {teleportSubject.transform.position} && targetDestination.position = {teleportInformation.targetDestination.position}");
-            
-            try
-            {
-                teleportSubject.GetComponent<CharacterController>().enabled = true;
-            }
-            catch
-            {
-                if (isDebug) Debug.Log("teleportation subject is not player - cannot enable player locomotion after teleportation");
-            }
-            
+
+            if (_isDebug) Debug.Log($"TELEPORT - subject position = {teleportSubject.transform.position} && targetDestination.position = {teleportInformation.targetDestination.position}");
+
+            if (characterController != null) characterController.enabled = true;
+
             if (teleportInformation.objectIsPlayer)
             {
                 // Authoritative "the player DID move" signal (the bridge also forwards the

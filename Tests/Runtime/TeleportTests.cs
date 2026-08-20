@@ -159,6 +159,36 @@ namespace jeanf.universalplayer.tests
             Object.Destroy(crate);
         }
 
+        [UnityTest]
+        public IEnumerator Teleport_PlayerEvent_OnObjectOnlyListener_IsIgnored()
+        {
+            SetField(_teleportOnEvent, "teleportsPlayer", false);
+
+            _sender.Teleport(shouldFade: false);
+            yield return null;
+
+            Assert.That(_player.transform.position, Is.EqualTo(Vector3.zero),
+                "A listener with Teleports Player OFF still moved the player — object-only listeners " +
+                "must ignore player teleport events.");
+            Assert.That(_playerTeleportedCount, Is.EqualTo(0),
+                "An object-only listener raised PlayerTeleported for an ignored player teleport.");
+            Assert.That(_cameraResetCount, Is.EqualTo(0),
+                "An object-only listener raised CameraResetRequested for an ignored player teleport.");
+        }
+
+        [UnityTest]
+        public IEnumerator Teleport_PlayerEvent_WithoutPlayerAssigned_LogsError_AndDoesNotThrow()
+        {
+            SetField(_teleportOnEvent, "player", null);
+            LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("Player field is not assigned"));
+
+            _sender.Teleport(shouldFade: false);
+            yield return null;
+
+            Assert.That(_playerTeleportedCount, Is.EqualTo(0),
+                "PlayerTeleported was raised although no player was assigned — nothing can have moved.");
+        }
+
         private static void SetField(object target, string fieldName, object value) =>
             SetFieldOn(target.GetType(), target, fieldName, value);
 
