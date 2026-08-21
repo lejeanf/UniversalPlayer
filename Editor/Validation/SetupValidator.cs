@@ -69,7 +69,7 @@ namespace jeanf.universalplayer
             return results;
         }
 
-        private static CheckResult CheckInputSystem()
+        internal static CheckResult CheckInputSystem()
         {
 #if ENABLE_INPUT_SYSTEM
             return new CheckResult("Input System", Severity.Pass, "Input System package is the active input handler.");
@@ -80,7 +80,7 @@ namespace jeanf.universalplayer
 #endif
         }
 
-        private static CheckResult CheckRenderPipeline()
+        internal static CheckResult CheckRenderPipeline()
         {
             var pipeline = GraphicsSettings.defaultRenderPipeline;
             if (pipeline == null)
@@ -99,44 +99,52 @@ namespace jeanf.universalplayer
 
         private static IEnumerable<CheckResult> CheckXrManagement(BuildTargetGroup buildTargetGroup)
         {
+            yield return CheckXrProvider(buildTargetGroup);
+            if (TryGetXrGeneralSettings(buildTargetGroup, out _))
+                yield return CheckXrInitOnStartup(buildTargetGroup);
+        }
+
+        internal static bool TryGetXrGeneralSettings(BuildTargetGroup buildTargetGroup, out XRGeneralSettings settings)
+        {
             EditorBuildSettings.TryGetConfigObject(XRGeneralSettings.settingsKey,
                 out XRGeneralSettingsPerBuildTarget perBuildTarget);
-            var settings = perBuildTarget != null ? perBuildTarget.SettingsForBuildTarget(buildTargetGroup) : null;
+            settings = perBuildTarget != null ? perBuildTarget.SettingsForBuildTarget(buildTargetGroup) : null;
+            return settings != null && settings.Manager != null;
+        }
 
-            if (settings == null || settings.Manager == null)
-            {
-                yield return new CheckResult("XR Plug-in Management", Severity.Fail,
+        internal static CheckResult CheckXrProvider(BuildTargetGroup buildTargetGroup)
+        {
+            if (!TryGetXrGeneralSettings(buildTargetGroup, out var settings))
+                return new CheckResult("XR Plug-in Management", Severity.Fail,
                     $"No XR settings exist for build target '{buildTargetGroup}' — VR cannot start.",
                     "Project Settings > XR Plug-in Management → install/initialize it and tick a provider (OpenXR).");
-                yield break;
-            }
 
             var loaders = settings.Manager.activeLoaders;
             if (loaders == null || loaders.Count == 0)
-            {
-                yield return new CheckResult("XR provider", Severity.Fail,
+                return new CheckResult("XR provider", Severity.Fail,
                     $"No XR provider is enabled for '{buildTargetGroup}' — VR will never be detected.",
                     "Project Settings > XR Plug-in Management → tick OpenXR for this platform.");
-            }
-            else
-            {
-                var names = string.Join(", ", loaders.Where(l => l != null).Select(l => l.name));
-                yield return new CheckResult("XR provider", Severity.Pass, $"Enabled provider(s): {names}.");
-            }
 
-            if (!settings.InitManagerOnStart)
-            {
-                yield return new CheckResult("XR init on startup", Severity.Warning,
-                    "'Initialize XR on Startup' is OFF — VR only starts if the project starts it from code.",
-                    "Project Settings > XR Plug-in Management → tick 'Initialize XR on Startup' (unless the project initializes XR manually).");
-            }
-            else
-            {
-                yield return new CheckResult("XR init on startup", Severity.Pass, "XR initializes on startup.");
-            }
+            var names = string.Join(", ", loaders.Where(l => l != null).Select(l => l.name));
+            return new CheckResult("XR provider", Severity.Pass, $"Enabled provider(s): {names}.");
         }
 
-        private static CheckResult CheckOpenXrInteractionProfiles(BuildTargetGroup buildTargetGroup)
+        internal static CheckResult CheckXrInitOnStartup(BuildTargetGroup buildTargetGroup)
+        {
+            if (!TryGetXrGeneralSettings(buildTargetGroup, out var settings))
+                return new CheckResult("XR init on startup", Severity.Warning,
+                    $"No XR settings exist for build target '{buildTargetGroup}' — see the XR provider check.",
+                    "Project Settings > XR Plug-in Management → install/initialize it and tick a provider (OpenXR).");
+
+            if (!settings.InitManagerOnStart)
+                return new CheckResult("XR init on startup", Severity.Warning,
+                    "'Initialize XR on Startup' is OFF — VR only starts if the project starts it from code.",
+                    "Project Settings > XR Plug-in Management → tick 'Initialize XR on Startup' (unless the project initializes XR manually).");
+
+            return new CheckResult("XR init on startup", Severity.Pass, "XR initializes on startup.");
+        }
+
+        internal static CheckResult CheckOpenXrInteractionProfiles(BuildTargetGroup buildTargetGroup)
         {
             OpenXRSettings openXrSettings;
             try
@@ -168,7 +176,7 @@ namespace jeanf.universalplayer
                 $"Enabled profile(s): {string.Join(", ", enabledProfiles)}.");
         }
 
-        private static CheckResult CheckRunInBackground()
+        internal static CheckResult CheckRunInBackground()
         {
             if (PlayerSettings.runInBackground)
                 return new CheckResult("Run in background", Severity.Pass, "Application keeps running without focus.");

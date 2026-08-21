@@ -8,6 +8,7 @@
         "jeanf.eventsystem",
         "UnityEngine.UI",
         "Unity.XR.CoreUtils",
+        "Unity.XR.CoreUtils.Editor",
         "Unity.XR.Interaction.Toolkit",
         "Unity.XR.Management",
         "Unity.XR.Management.Editor",

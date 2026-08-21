@@ -6,6 +6,7 @@
         "UnityEditor.TestRunner",
         "jeanf.universalplayer",
         "jeanf.universalplayer.editor",
+        "Unity.XR.CoreUtils.Editor",
         "jeanf.propertyDrawer",
         "jeanf.eventsystem",
         "Unity.RenderPipelines.Core.Runtime",
