@@ -47,7 +47,7 @@ namespace jeanf.universalplayer.tests
         {
             // Layers are project-specific, so the packaged prefab legitimately ships with
             // collisionLayer = Nothing; each project sets its wall layer on its Player
-            // VARIANT (enforced by Tools/UniversalPlayer/ValidateSetup in the consuming
+            // VARIANT (enforced by Tools/Jeanf/UniversalPlayer/ValidateSetup in the consuming
             // project, and NoPeeking logs a one-shot warning at runtime when unset).
             var noPeeking = RequireComponent<NoPeeking>();
             var so = new SerializedObject(noPeeking);

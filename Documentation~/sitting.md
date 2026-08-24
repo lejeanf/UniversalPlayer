@@ -97,7 +97,7 @@ black** (default on). When the seat can't be referenced directly — it lives in
 runtime) — give the Seat a unique **Seat Id** and set the same id on the
 `SitPlayerOnEnable` instead: it resolves through the `SeatRegistry` (live Seats
 register themselves; the `SeatDataBridge` resolves baked ones), patiently
-retrying while the SubScene streams in. `Tools/UniversalPlayer/ValidateSetup`
+retrying while the SubScene streams in. `Tools/Jeanf/UniversalPlayer/ValidateSetup`
 flags duplicate ids and untargeted SitPlayerOnEnable components.
 
 `SitPlayerOnEnable` can also be authored **inside a SubScene** (e.g. right next

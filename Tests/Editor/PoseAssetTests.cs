@@ -62,7 +62,7 @@ namespace jeanf.universalplayer.tests
                 "Poses that will be SILENTLY IGNORED at runtime (rotation count != hand joint count):\n" +
                 string.Join("\n", failures) + "\n\n" +
                 "HINT: these poses were saved against a different hand rig. Open each in " +
-                "Tools/UniversalPlayer/Pose Editor (pose browser), adjust and re-save. " +
+                "Tools/Jeanf/UniversalPlayer/Pose Editor (pose browser), adjust and re-save. " +
                 "Poses with 0 rotations for a hand are treated as 'no data for this hand' and skipped.");
         }
 

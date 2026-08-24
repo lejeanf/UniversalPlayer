@@ -107,13 +107,13 @@ public class PoseWindow {}
         private bool ReadyToEdit => _handsPlaced && SetupComplete
             && handManager != null && handManager.HandsExist;
 
-        [MenuItem("Tools/UniversalPlayer/Pose Editor")]
+        [MenuItem("Tools/Jeanf/UniversalPlayer/Pose Editor")]
         public static void OpenFromMenu()
         {
             if (EditorApplication.isPlaying)
             {
                 Debug.LogWarning("Pose Editor works in Edit Mode — exit Play Mode first " +
-                    "(use Tools/UniversalPlayer/Hands Test Bench to apply poses during Play Mode).");
+                    "(use Tools/Jeanf/UniversalPlayer/Hands Test Bench to apply poses during Play Mode).");
                 return;
             }
             GetWindow<PoseWindow>("Hand Poser");
@@ -123,7 +123,7 @@ public class PoseWindow {}
         // hands (loading it exactly as the editor always did) and re-saves it, which now
         // also writes the bone names — so poses authored before name-mapping apply on the
         // right joints at runtime without opening each one. Idempotent.
-        [MenuItem("Tools/UniversalPlayer/Migrate Poses (add bone names)")]
+        [MenuItem("Tools/Jeanf/UniversalPlayer/Migrate Poses (add bone names)")]
         public static void MigrateAllPoses()
         {
             if (EditorApplication.isPlaying)

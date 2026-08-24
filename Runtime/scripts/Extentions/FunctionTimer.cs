@@ -196,7 +196,7 @@ public class FunctionTimer
 #if UNITY_EDITOR
 public static class FunctionTimerDebug
 {
-    [UnityEditor.MenuItem("Tools/UniversalPlayer/Function Timer/Show Active Timers")]
+    [UnityEditor.MenuItem("Tools/Jeanf/UniversalPlayer/Function Timer/Show Active Timers")]
     private static void ShowActiveTimers()
     {
         var timers = typeof(FunctionTimer)
@@ -215,7 +215,7 @@ public static class FunctionTimerDebug
         }
     }
 
-    [UnityEditor.MenuItem("Tools/UniversalPlayer/Function Timer/Stop All Timers")]
+    [UnityEditor.MenuItem("Tools/Jeanf/UniversalPlayer/Function Timer/Stop All Timers")]
     private static void StopAllTimersMenu()
     {
         FunctionTimer.StopAllTimers();

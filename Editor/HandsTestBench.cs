@@ -9,7 +9,7 @@ using UnityEngine.XR.Interaction.Toolkit.Interactors;
 namespace jeanf.universalplayer
 {
     /// <summary>
-    /// Tools/UniversalPlayer/Hands Test Bench — test VR features without a headset
+    /// Tools/Jeanf/UniversalPlayer/Hands Test Bench — test VR features without a headset
     /// (play mode): simulate the XR control scheme, show hands, apply any hand pose,
     /// fire a UI click through the real XRI pipeline, and trigger scene teleports.
     /// </summary>
@@ -33,7 +33,7 @@ namespace jeanf.universalplayer
         // teleport
         private bool _teleportWithFade = true;
 
-        [MenuItem("Tools/UniversalPlayer/Hands Test Bench")]
+        [MenuItem("Tools/Jeanf/UniversalPlayer/Hands Test Bench")]
         public static void Open()
         {
             var window = GetWindow<HandsTestBench>("Hands Test Bench");

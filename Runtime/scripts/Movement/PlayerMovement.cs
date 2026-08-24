@@ -412,7 +412,7 @@ namespace jeanf.universalplayer
                         $"'{LayerMask.LayerToName(playerLayer)}' ({playerLayer}) collides with NOTHING in " +
                         "Project Settings > Physics > Layer Collision Matrix, so the capsule can never land. " +
                         "Put the Player variant root on a layer that collides with your floors (or fix the matrix). " +
-                        "Tools/UniversalPlayer/ValidateSetup checks this too.", this);
+                        "Tools/Jeanf/UniversalPlayer/ValidateSetup checks this too.", this);
                 }
                 else if (Physics.Raycast(bottom, Vector3.down, out var blockedHit, 1000f,
                              Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
@@ -421,7 +421,7 @@ namespace jeanf.universalplayer
                         $"('{blockedHit.collider.name}' on layer '{LayerMask.LayerToName(blockedHit.collider.gameObject.layer)}') " +
                         $"but the player's layer '{LayerMask.LayerToName(playerLayer)}' does NOT collide with it, so the " +
                         "capsule would fall straight through. Fix the Physics Layer Collision Matrix or move the player/floor " +
-                        "to layers that collide. Tools/UniversalPlayer/ValidateSetup checks this too.", this);
+                        "to layers that collide. Tools/Jeanf/UniversalPlayer/ValidateSetup checks this too.", this);
                 }
                 else
                 {

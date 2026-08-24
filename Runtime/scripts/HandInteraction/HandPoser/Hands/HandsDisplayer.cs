@@ -23,7 +23,7 @@ namespace jeanf.universalplayer
         private void OnControlSchemeChanged(BroadcastControlsStatus.ControlScheme _) => DisplayHands();
 
         /// <summary>
-        /// Test hook (used by Tools/UniversalPlayer/Hands Test Bench): shows or hides
+        /// Test hook (used by Tools/Jeanf/UniversalPlayer/Hands Test Bench): shows or hides
         /// the hands regardless of the current control scheme, so they can be
         /// inspected without a headset. The next control-scheme change takes over again.
         /// </summary>

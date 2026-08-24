@@ -182,7 +182,7 @@ public abstract class BaseHand : MonoBehaviour, IDebugBehaviour
         {
             Debug.LogWarning($"[UniversalPlayer.XR] Pose not applied on '{name}' ({handType}): it stores {rotations?.Count ?? 0} " +
                 $"joint rotations but this hand has {Joints.Count} joints. The pose was saved against a different hand rig — " +
-                "open it in Tools/UniversalPlayer/Pose Editor and re-save it.", this);
+                "open it in Tools/Jeanf/UniversalPlayer/Pose Editor and re-save it.", this);
             return;
         }
         // Set the local rotation of each joint (index-mapped: legacy path)

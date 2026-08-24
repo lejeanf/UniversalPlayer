@@ -6,7 +6,7 @@ using UnityEngine;
 namespace jeanf.universalplayer
 {
     /// <summary>
-    /// Hand checks for Tools/UniversalPlayer/ValidateSetup. Every VR hand failure used
+    /// Hand checks for Tools/Jeanf/UniversalPlayer/ValidateSetup. Every VR hand failure used
     /// to surface only as a runtime warning — headset on, in Play Mode — or not at all:
     /// unassigned HandsDisplayer slots (hands never appear), a HandPoseManager with no
     /// interactor (grabs never pose the fingers), a pose saved against another rig
@@ -274,7 +274,7 @@ namespace jeanf.universalplayer
                 $"{failures.Count} pose/rig mismatch(es) — these poses are SILENTLY IGNORED at runtime: " +
                 string.Join("; ", failures) + ".",
                 "Each of those poses was saved against a different hand rig. Open it in " +
-                "Tools/UniversalPlayer/Pose Editor, re-apply it on the current hand and re-save.");
+                "Tools/Jeanf/UniversalPlayer/Pose Editor, re-apply it on the current hand and re-save.");
         }
 
         // 6. Poses saved before bone names existed map their rotations BY INDEX, which
@@ -301,7 +301,7 @@ namespace jeanf.universalplayer
             return new SetupValidator.CheckResult("Scene: hand pose bone names", SetupValidator.Severity.Warning,
                 $"{legacy.Count} pose(s) carry NO bone names and map by list index — the fingers can be scrambled on a " +
                 $"hand whose Finger Roots are ordered differently ({preview}).",
-                "Run Tools/UniversalPlayer/Migrate Poses (add bone names) once in Edit Mode, then re-test the poses.");
+                "Run Tools/Jeanf/UniversalPlayer/Migrate Poses (add bone names) once in Edit Mode, then re-test the poses.");
         }
 
         private static bool LacksBoneNames(HandInfo info)
@@ -364,7 +364,7 @@ namespace jeanf.universalplayer
 
             return new SetupValidator.CheckResult("Scene: hand pose driver", severity,
                 $"ControllerHandPoseDriver on '{driver.gameObject.name}': {string.Join("; ", problems)}.",
-                "Author the poses with Tools/UniversalPlayer/Pose Editor and assign them on your Player VARIANT " +
+                "Author the poses with Tools/Jeanf/UniversalPlayer/Pose Editor and assign them on your Player VARIANT " +
                 "(Point / Semi-Closed / Closed / Full Closed Fist), and keep Grip Touch below Grip Hard.");
         }
 

@@ -13,7 +13,7 @@ using UnityEditor.XR.Management;
 namespace jeanf.universalplayer
 {
     /// <summary>
-    /// Tools/UniversalPlayer/ValidateSetup — checks the project configuration the
+    /// Tools/Jeanf/UniversalPlayer/ValidateSetup — checks the project configuration the
     /// Universal Player depends on and prints actionable console feedback for every
     /// problem (what broke, likely cause, where to fix it). Covers the recurring VR
     /// issues: provider not enabled, no interaction profiles (controllers undetected),
@@ -43,7 +43,7 @@ namespace jeanf.universalplayer
 
         private const string LogPrefix = "[UniversalPlayer.Validate]";
 
-        [MenuItem("Tools/UniversalPlayer/ValidateSetup")]
+        [MenuItem("Tools/Jeanf/UniversalPlayer/ValidateSetup")]
         public static void ValidateSetup()
         {
             var results = RunProjectConfigChecks();

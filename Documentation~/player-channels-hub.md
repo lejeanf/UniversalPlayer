@@ -13,7 +13,7 @@ check reports missing bridge/asset/slots.
 
 PROJECTS MUST USE A LOCAL COPY of the channels asset: the packaged
 UniversalPlayerChannels is immutable in consumer projects (lives under Packages/)
-and package updates overwrite it. `Tools/UniversalPlayer/Create Local Player
+and package updates overwrite it. `Tools/Jeanf/UniversalPlayer/Create Local Player
 Channels` duplicates it into Assets/ and assigns it to the bridge in the open
 scene (apply the override to the variant afterwards); ValidateSetup warns whenever
 the bridge still points at the packaged asset.

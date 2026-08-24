@@ -72,7 +72,7 @@ projects swap the clips — the same split as bindings vs. types.
   binding whose state doesn't exist on the animator, logs a one-shot warning
   naming the type/state and the bindings asset.
 
-### 5. Validation (extends `Tools/UniversalPlayer/ValidateSetup`)
+### 5. Validation (extends `Tools/Jeanf/UniversalPlayer/ValidateSetup`)
 
 - every `InteractionTypeTag` in the open scene has an entry in the player's
   bindings asset (Warning: "E will do nothing visible on '<object>'");

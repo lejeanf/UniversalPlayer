@@ -42,7 +42,7 @@ namespace jeanf.universalplayer
             return new SetupValidator.CheckResult("HDRP diffusion profiles",
                 hdrpActive ? SetupValidator.Severity.Fail : SetupValidator.Severity.Warning,
                 $"Unregistered diffusion profile(s): {names} — skin/gloves materials render with a wrong pinkish tone in HDRP.",
-                "Run Tools/UniversalPlayer/Register HDRP Diffusion Profiles (one click), or add them manually to the " +
+                "Run Tools/Jeanf/UniversalPlayer/Register HDRP Diffusion Profiles (one click), or add them manually to the " +
                 "Diffusion Profile List of the default volume profile (Project Settings > Graphics > HDRP > Default Volume Profile).");
 #else
             return new SetupValidator.CheckResult("HDRP diffusion profiles", SetupValidator.Severity.Pass,
@@ -51,7 +51,7 @@ namespace jeanf.universalplayer
         }
 
 #if UNIVERSALPLAYER_HDRP
-        [MenuItem("Tools/UniversalPlayer/Register HDRP Diffusion Profiles")]
+        [MenuItem("Tools/Jeanf/UniversalPlayer/Register HDRP Diffusion Profiles")]
         public static void RegisterPackageProfiles()
         {
             var packageProfiles = FindPackageProfiles();

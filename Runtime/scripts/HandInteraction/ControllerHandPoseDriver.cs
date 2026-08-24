@@ -8,7 +8,7 @@ namespace jeanf.universalplayer
     /// <summary>
     /// Drives the VR hand poses from the controller's analog inputs so idle hands feel
     /// alive (ships on the Player root, pose assets assigned per project — author them
-    /// with Tools/UniversalPlayer/Pose Editor):
+    /// with Tools/Jeanf/UniversalPlayer/Pose Editor):
     ///   trigger released            → point
     ///   grip slightly touched       → semi-closed fist
     ///   trigger pressed             → closed fist
@@ -35,7 +35,7 @@ namespace jeanf.universalplayer
         [Tooltip("Master switch. Off = hands keep their default/select poses exactly as before.")]
         [SerializeField] private bool driveEnabled = true;
 
-        [Header("Poses (author with Tools/UniversalPlayer/Pose Editor)")]
+        [Header("Poses (author with Tools/Jeanf/UniversalPlayer/Pose Editor)")]
         //[Tooltip("Idle pose while the trigger is released. Empty = the hand's default pose.")]
         //[SerializeField] private Pose defaultPose;
         [Tooltip("Idle pose while the trigger is released. Empty = the hand's default pose.")]
@@ -176,7 +176,7 @@ namespace jeanf.universalplayer
                 missingPosesWarned = true;
                 Debug.LogWarning($"{LogPrefix} ControllerHandPoseDriver on '{name}': no fist/point poses assigned — " +
                     "grip and trigger fall back to the hands' default pose. Author the poses with " +
-                    "Tools/UniversalPlayer/Pose Editor and assign them on your Player variant (or disable the driver).", this);
+                    "Tools/Jeanf/UniversalPlayer/Pose Editor and assign them on your Player variant (or disable the driver).", this);
             }
             return pose;
         }

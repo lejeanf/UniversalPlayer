@@ -11,7 +11,7 @@ This package was built for a hospital simulator (the UVS project) where the same
 
 1. **One player, every input.** The player watches all connected devices and switches to whichever one you actually use — no menu, no setup, *"most recent meaningful input wins"*. Using the mouse, keyboard or gamepad switches to desktop; picking up and pressing a VR controller (or donning the headset where the runtime reports presence) switches to VR — with `Ctrl`+`Alt`+`K` / `Ctrl`+`Alt`+`V` as explicit fallbacks for runtimes that don't report headset presence (e.g. some setups over Link).
 2. **Feature parity across modes.** Interacting, grabbing, sitting, teleporting, menus — every feature raises the *same events* whatever the input device. If it works in VR it works on desktop, and vice versa. Gameplay code never needs to know which mode is active.
-3. **Simple to set up, loud when broken.** One menu click creates a working player for your render pipeline. A validation tool (`Tools/UniversalPlayer/ValidateSetup`) and runtime guards report misconfiguration with actionable messages instead of failing silently.
+3. **Simple to set up, loud when broken.** One menu click creates a working player for your render pipeline. A validation tool (`Tools/Jeanf/UniversalPlayer/ValidateSetup`) and runtime guards report misconfiguration with actionable messages instead of failing silently.
 4. **The project owns the game; the package owns the player.** Communication happens through ScriptableObject event channels and C# delegates (single `PlayerChannels` hub — see `Documentation~/player-channels-hub.md`). The map, the inventory, the menus, the scenario logic all live in *your* project; the player just reports what the user did.
 
 ---
@@ -51,7 +51,7 @@ Make sure the **new Input System** is active: `Edit → Project Settings → Pla
 ## Getting started
 
 1. In your scene's Hierarchy: **Right click → Create Universal Player**. This creates a player for your current rendering pipeline, with the camera bound to everything that needs it.
-2. Run **`Tools/UniversalPlayer/ValidateSetup`** — it checks the scene wiring and tells you exactly what to fix if anything is off.
+2. Run **`Tools/Jeanf/UniversalPlayer/ValidateSetup`** — it checks the scene wiring and tells you exactly what to fix if anything is off.
 3. Press Play. Move with WASD, plug in a gamepad and touch a stick, or put on a headset — the player follows you.
 
 To integrate with your project, copy the `PlayerChannels` asset locally (the player offers a project-local copy on request) and subscribe to its events — teleports, map/inventory toggles, interactions — from your own systems. This keeps your wiring safe from package updates.
@@ -149,7 +149,7 @@ wiring — it's a static call. Tune the color and duration on the `CursorStateCo
 
 ## Hand pose authoring
 
-Open **`Tools/UniversalPlayer/Pose Editor`**. The window is a step-by-step wizard:
+Open **`Tools/Jeanf/UniversalPlayer/Pose Editor`**. The window is a step-by-step wizard:
 
 1. **Pose** — select an existing pose asset or create a new one
 2. **Target** — is the pose for a **held object** or a bare **hand gesture**?

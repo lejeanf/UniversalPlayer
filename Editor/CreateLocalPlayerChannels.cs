@@ -15,7 +15,7 @@ namespace jeanf.universalplayer
     {
         private const string LogPrefix = "[UniversalPlayer]";
 
-        [MenuItem("Tools/UniversalPlayer/Create Local Player Channels")]
+        [MenuItem("Tools/Jeanf/UniversalPlayer/Create Local Player Channels")]
         public static void Run()
         {
             var sourcePath = AssetDatabase.FindAssets("t:PlayerChannelsSO")

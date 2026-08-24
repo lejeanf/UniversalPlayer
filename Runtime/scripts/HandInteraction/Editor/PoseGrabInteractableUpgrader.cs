@@ -20,7 +20,7 @@ namespace jeanf.universalplayer
         // each upgraded component at, independent of where the file sits.
         private const string PoseGrabScriptGuid = "7c1e9a4b3d2f60849a5b9c0d1e2f3041";
 
-        [MenuItem("Tools/UniversalPlayer/Upgrade grab objects to PoseGrabInteractable")]
+        [MenuItem("Tools/Jeanf/UniversalPlayer/Upgrade grab objects to PoseGrabInteractable")]
         public static void UpgradeGrabObjects()
         {
             if (EditorApplication.isPlaying)

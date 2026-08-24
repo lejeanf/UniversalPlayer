@@ -24,7 +24,7 @@ model whose head the camera sits in:
   The `MoveX`/`MoveY` animator parameters are the planar velocity in the
   body's local space divided by the walk speed (forward walk = (0,1),
   sprint ≈ (0,1.8)) — velocity-based so animation follows momentum.
-  `Tools/UniversalPlayer/Setup Template Body` rebuilds the packaged
+  `Tools/Jeanf/UniversalPlayer/Setup Template Body` rebuilds the packaged
   controller (2D locomotion blend tree + Airborne + Seated) from the
   Mixamo clip pack and switches all the FBX rigs to Humanoid;
 - M&K/gamepad only — in XR the body stays hidden (a mismatched fake body in
@@ -90,7 +90,7 @@ from the rig's head height when possible, exposed for tweaking). Crouch: the
 camera already lowers via PlayerMovement's crouch handling; the body plays the
 crouch animation — the `CrouchBlend` drive keeps them in sync.
 
-### 5. Validation (`Tools/UniversalPlayer/ValidateSetup`)
+### 5. Validation (`Tools/Jeanf/UniversalPlayer/ValidateSetup`)
 
 - Player variant has a `FirstPersonBody` with an assigned animator → else
   Warning: "M&K mode shows floating hands only — assign a body model on your

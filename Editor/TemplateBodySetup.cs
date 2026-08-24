@@ -19,7 +19,7 @@ namespace jeanf.universalplayer
     {
         private const string LogPrefix = "[UniversalPlayer]";
 
-        [MenuItem("Tools/UniversalPlayer/Setup Template Body (import + controller)")]
+        [MenuItem("Tools/Jeanf/UniversalPlayer/Setup Template Body (import + controller)")]
         public static void Run()
         {
             var controllerPath = FindAssetPath("TemplateCharacter t:AnimatorController");

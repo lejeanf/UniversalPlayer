@@ -6,7 +6,7 @@ using UnityEngine;
 namespace jeanf.universalplayer
 {
     /// <summary>
-    /// Tools/UniversalPlayer/Remove Dead Variant Overrides — strips variant
+    /// Tools/Jeanf/UniversalPlayer/Remove Dead Variant Overrides — strips variant
     /// overrides whose target object no longer exists in the base Player.prefab
     /// (the 'Variant overrides' failure in ValidateSetup). Dead overrides are
     /// already inert — whatever they customized stopped applying when the base
@@ -16,7 +16,7 @@ namespace jeanf.universalplayer
     /// </summary>
     public static class VariantOverrideFixer
     {
-        [MenuItem("Tools/UniversalPlayer/Remove Dead Variant Overrides")]
+        [MenuItem("Tools/Jeanf/UniversalPlayer/Remove Dead Variant Overrides")]
         public static void RemoveDeadOverrides()
         {
             var packageRoot = ProjectSetupChecks.PackageRoot();

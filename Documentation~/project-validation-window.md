@@ -7,7 +7,7 @@ Decisions: build targets = Standalone + Android; category = "Universal Player".
 
 Surface the Universal Player setup checks in a Project-Validation-style window with
 per-issue **Fix** / **Edit** buttons, instead of (only) a console dump from
-`Tools/UniversalPlayer/ValidateSetup`.
+`Tools/Jeanf/UniversalPlayer/ValidateSetup`.
 
 ## Is it possible? Yes — and we don't even need to build the window
 
@@ -121,8 +121,8 @@ requiring judgment stays an Edit/ping action — same philosophy as the existing
 | `Tests/Editor/ProjectValidationRuleTests.cs` | **new** — rules registered, categories/severities correct, predicates agree with `CheckResult` severities |
 | `package.json` / `CHANGELOG.md` | bump to 1.11.0 (required for registry publish) |
 
-`Tools/UniversalPlayer/ValidateSetup` stays as-is (tests/CI use it); add a sibling
-`Tools/UniversalPlayer/Project Validation` menu item that opens the window
+`Tools/Jeanf/UniversalPlayer/ValidateSetup` stays as-is (tests/CI use it); add a sibling
+`Tools/Jeanf/UniversalPlayer/Project Validation` menu item that opens the window
 (`SettingsService.OpenProjectSettings("Project/XR Plug-in Management/Project Validation")`).
 
 ## Open questions

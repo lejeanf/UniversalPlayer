@@ -11,7 +11,7 @@ namespace jeanf.universalplayer
     /// Registers every Universal Player setup check as a rule of Unity's Project
     /// Validation window (Project Settings > XR Plug-in Management > Project
     /// Validation) under the "Universal Player" category. Same checks as
-    /// Tools/UniversalPlayer/ValidateSetup — the console validator stays the source
+    /// Tools/Jeanf/UniversalPlayer/ValidateSetup — the console validator stays the source
     /// of truth; this file only wraps its checks in BuildValidationRules so each
     /// issue gets a status icon and a Fix/Edit button next to the XR/XRI rules.
     /// </summary>
@@ -34,7 +34,7 @@ namespace jeanf.universalplayer
                 BuildValidator.AddRules(group, BuildRules(group));
         }
 
-        [MenuItem("Tools/UniversalPlayer/Project Validation")]
+        [MenuItem("Tools/Jeanf/UniversalPlayer/Project Validation")]
         private static void OpenProjectValidation() =>
             SettingsService.OpenProjectSettings("Project/XR Plug-in Management/Project Validation");
 

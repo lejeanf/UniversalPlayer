@@ -208,7 +208,7 @@ namespace jeanf.universalplayer
             Debug.LogWarning($"{LogPrefix} FallRecovery: {message}" +
                 (recoveryCount > 1
                     ? $" This is recovery #{recoveryCount} — the player keeps falling. Likely causes: no collider under " +
-                      "the spawn/safe position, or two gravity systems enabled (run Tools/UniversalPlayer/ValidateSetup, " +
+                      "the spawn/safe position, or two gravity systems enabled (run Tools/Jeanf/UniversalPlayer/ValidateSetup, " +
                       "'single gravity system' check)."
                     : " If this was not a level design hole, check for a missing floor collider under the player."), this);
             PlayerEvents.RaiseFallRecovered(message);

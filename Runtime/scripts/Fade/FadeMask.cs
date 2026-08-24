@@ -99,7 +99,7 @@ namespace jeanf.universalplayer
             Debug.LogWarning($"FadeMask: the camera '{camera.name}' volume mask did not include layer " +
                 $"'{LayerMask.LayerToName(volume.gameObject.layer)}' where the fade volume lives — every fade was being " +
                 "ignored. The mask was repaired; apply/save it on your Player variant to make it permanent " +
-                "(Tools/UniversalPlayer/ValidateSetup verifies it).", camera);
+                "(Tools/Jeanf/UniversalPlayer/ValidateSetup verifies it).", camera);
             return data;
         }
 

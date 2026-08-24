@@ -6,7 +6,7 @@ using UnityEngine;
 namespace jeanf.universalplayer
 {
     /// <summary>
-    /// Project-level checks for Tools/UniversalPlayer/ValidateSetup: enforces the
+    /// Project-level checks for Tools/Jeanf/UniversalPlayer/ValidateSetup: enforces the
     /// prefab-VARIANT workflow (projects must use a variant of the package
     /// Player.prefab so custom SO/event links survive package updates), detects
     /// orphaned variant overrides (the failure mode that silently removed the VR
@@ -120,7 +120,7 @@ namespace jeanf.universalplayer
                 $"point at objects that NO LONGER EXIST in the base Player.prefab ({preview}) — whatever they " +
                 "customized (hand models, channels, ...) is silently gone.",
                 $"Open '{AssetDatabase.GetAssetPath(variant)}', re-apply those customizations on the current base objects, " +
-                "then run Tools/UniversalPlayer/Remove Dead Variant Overrides (it logs every entry it strips) — " +
+                "then run Tools/Jeanf/UniversalPlayer/Remove Dead Variant Overrides (it logs every entry it strips) — " +
                 "or remove them by hand via the Overrides dropdown > Revert the entries showing missing targets.");
         }
 
@@ -544,7 +544,7 @@ namespace jeanf.universalplayer
                 return new SetupValidator.CheckResult("Scene: player event bridge", SetupValidator.Severity.Warning,
                     $"The bridge uses the PACKAGED '{channels.name}' — that asset cannot be edited in consumer " +
                     "projects and package updates overwrite it.",
-                    "Run Tools/UniversalPlayer/Create Local Player Channels (duplicates it into Assets/ and assigns " +
+                    "Run Tools/Jeanf/UniversalPlayer/Create Local Player Channels (duplicates it into Assets/ and assigns " +
                     "it to the bridge), then apply the override to your Player variant.");
 
             // Optional slots: features a project may legitimately not use (no fall-recovery
