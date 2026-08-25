@@ -2234,7 +2234,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1087630076354472105
 Transform:
   m_ObjectHideFlags: 0
@@ -4471,6 +4471,34 @@ MonoBehaviour:
   exitOnJump: 1
   exitOnMoveInput: 0
   exitGraceSeconds: 0.3
+  standUpHoldSeconds: 0.6
+  standUpChargeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.05
+      inSlope: 0
+      outSlope: 0.1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0.7
+      inSlope: 1.6
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  standUpBurstAmplitude: 1
+  standUpBurstSeconds: 0.12
+  vrTransitionSeconds: 0.5
   sitTransitionSeconds: 0.85
   standTransitionSeconds: 1.1
   glanceDownDegrees: 22
