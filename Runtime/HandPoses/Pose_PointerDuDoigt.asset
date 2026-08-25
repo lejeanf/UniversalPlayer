@@ -1,0 +1,126 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c8e3d99d60d6524f8be69e66aa81662, type: 3}
+  m_Name: Pose_PointerDuDoigt
+  m_EditorClassIdentifier: 
+  leftHandInfo:
+    attachPosition: {x: 0, y: 0, z: 0}
+    attachRotation: {x: 0, y: 0, z: 0, w: 1}
+    fingerRotations:
+    - {x: 0, y: 0, z: 0, w: 1}
+    - {x: 0.151882, y: 0.076982684, z: -0.041177794, w: 0.9845354}
+    - {x: 0.13075915, y: -0.0037599164, z: 0.026288582, w: 0.99105847}
+    - {x: 0.18167529, y: -0.022593394, z: 0.020966647, w: 0.98287547}
+    - {x: 0, y: 4.3368087e-19, z: 0, w: 1}
+    - {x: 0.018333552, y: -0.14033656, z: 0.2070356, w: 0.96804225}
+    - {x: 0.82965326, y: -0.049239162, z: -0.047760356, w: 0.5540487}
+    - {x: 0.48487532, y: -0.015924867, z: 0.07062548, w: 0.87158155}
+    - {x: 0.30794317, y: 0.047561657, z: -0.010669458, w: 0.9501553}
+    - {x: -2.7755576e-17, y: 2.7755576e-17, z: -1.3877788e-17, w: 1}
+    - {x: 0, y: 0, z: 0, w: 1}
+    - {x: 0.7583881, y: -0.06050344, z: 0.060541138, w: 0.6461592}
+    - {x: 0.60006195, y: 0.0034374574, z: 0.011981263, w: 0.7998564}
+    - {x: 0.37251753, y: 0.01451033, z: 0.03781075, w: 0.9271411}
+    - {x: 2.7755576e-17, y: 3.469447e-18, z: 6.938894e-18, w: 1}
+    - {x: 0, y: 0, z: 0, w: 1}
+    - {x: 0.7392497, y: -0.024344014, z: 0.09976145, w: 0.66555613}
+    - {x: 0.595304, y: 0.019769387, z: 0.035028353, w: 0.80249316}
+    - {x: 0.44965458, y: 0.030801378, z: -0.0024797835, w: 0.89266783}
+    - {x: -0.000029424828, y: -2.7755576e-17, z: -8.16703e-22, w: 1}
+    - {x: 0.17928274, y: 0.4385358, z: -0.6422584, w: 0.6025348}
+    - {x: 0.45153612, y: -0.028610647, z: 0.09144201, w: 0.8870936}
+    - {x: 0.45137236, y: 0.019809682, z: -0.09186599, w: 0.88737327}
+    - {x: -9.62965e-35, y: -2.7755576e-17, z: -3.469447e-18, w: 1}
+    jointNames:
+    - L_IndexMetacarpal
+    - L_IndexProximal
+    - L_IndexIntermediate
+    - L_IndexDistal
+    - L_IndexTip
+    - L_LittleMetacarpal
+    - L_LittleProximal
+    - L_LittleIntermediate
+    - L_LittleDistal
+    - L_LittleTip
+    - L_MiddleMetacarpal
+    - L_MiddleProximal
+    - L_MiddleIntermediate
+    - L_MiddleDistal
+    - L_MiddleTip
+    - L_RingMetacarpal
+    - L_RingProximal
+    - L_RingIntermediate
+    - L_RingDistal
+    - L_RingTip
+    - L_ThumbMetacarpal
+    - L_ThumbProximal
+    - L_ThumbDistal
+    - L_ThumbTip
+    hasAnchorOffset: 1
+    anchorLocalPosition: {x: 0.03906004, y: -0.056861814, z: 0.14321509}
+    anchorLocalRotation: {x: 0.1359826, y: 0.09193012, z: -0.7182448, w: 0.67615235}
+  rightHandInfo:
+    attachPosition: {x: 0, y: 0, z: 0}
+    attachRotation: {x: -0, y: -0, z: -0, w: 1}
+    fingerRotations:
+    - {x: -0.000000006974382, y: -6.8207206e-16, z: -0.000000010244548, w: 1}
+    - {x: 0.151882, y: -0.07698271, z: 0.041177735, w: 0.98453546}
+    - {x: 0.13075922, y: 0.0037599653, z: -0.026288565, w: 0.99105847}
+    - {x: 0.18167527, y: 0.022593332, z: -0.02096682, w: 0.98287547}
+    - {x: -0.000000014901158, y: -0.0000000018626447, z: -4.6566118e-10, w: 1}
+    - {x: -0.018333545, y: -0.14033656, z: 0.20703566, w: -0.9680423}
+    - {x: 0.8296533, y: 0.04923936, z: 0.047760297, w: 0.55404866}
+    - {x: 0.48487523, y: 0.015924979, z: -0.07062537, w: 0.8715816}
+    - {x: 0.30794322, y: -0.047561612, z: 0.010669521, w: 0.95015526}
+    - {x: -0.000000029802315, y: -0, z: 9.3132235e-10, w: 1}
+    - {x: -0.000000006974382, y: -6.8207206e-16, z: -0.000000010244548, w: 1}
+    - {x: -0.75838816, y: -0.06050345, z: 0.060541205, w: -0.6461591}
+    - {x: 0.6000619, y: -0.0034373028, z: -0.011981325, w: 0.7998565}
+    - {x: 0.37251744, y: -0.014510197, z: -0.037810747, w: 0.92714113}
+    - {x: 0.000000029802315, y: 9.3132235e-10, z: -0.000000004656612, w: 1}
+    - {x: -0.000000006974382, y: -6.8207206e-16, z: -0.000000010244548, w: 1}
+    - {x: -0.73924977, y: -0.024344042, z: 0.09976139, w: -0.665556}
+    - {x: 0.595304, y: -0.019769445, z: -0.035028327, w: 0.8024933}
+    - {x: 0.44965452, y: -0.030801352, z: 0.0024797954, w: 0.89266795}
+    - {x: -0.000029474493, y: -0.00000004097819, z: -0.000000094063566, w: 1}
+    - {x: 0.17928272, y: -0.43853587, z: 0.6422584, w: 0.6025348}
+    - {x: 0.45153606, y: 0.028610643, z: -0.091442, w: 0.88709354}
+    - {x: 0.45137256, y: -0.019809823, z: 0.09186585, w: 0.88737315}
+    - {x: -0, y: -0, z: 0.000000004656613, w: 1}
+    jointNames:
+    - R_IndexMetacarpal
+    - R_IndexProximal
+    - R_IndexIntermediate
+    - R_IndexDistal
+    - R_IndexTip
+    - R_LittleMetacarpal
+    - R_LittleProximal
+    - R_LittleIntermediate
+    - R_LittleDistal
+    - R_LittleTip
+    - R_MiddleMetacarpal
+    - R_MiddleProximal
+    - R_MiddleIntermediate
+    - R_MiddleDistal
+    - R_MiddleTip
+    - R_RingMetacarpal
+    - R_RingProximal
+    - R_RingIntermediate
+    - R_RingDistal
+    - R_RingTip
+    - R_ThumbMetacarpal
+    - R_ThumbProximal
+    - R_ThumbDistal
+    - R_ThumbTip
+    hasAnchorOffset: 1
+    anchorLocalPosition: {x: -0.03906004, y: -0.056861814, z: 0.14321509}
+    anchorLocalRotation: {x: 0.1359826, y: -0.09193012, z: 0.7182448, w: 0.67615235}
