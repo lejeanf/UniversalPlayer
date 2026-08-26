@@ -753,9 +753,16 @@ namespace jeanf.universalplayer
             return transform;
         }
 
+        private bool wasGroundedForLanding = true;
+
         private void UpdateMomentumMove(float dt)
         {
             var grounded = IsGroundedForMovement();
+            // Landing: the frame the feet regain the ground while still carrying downward
+            // velocity — captured BEFORE the grounded clamp below resets it to -2.
+            if (grounded && !wasGroundedForLanding && verticalVelocity < 0f)
+                PlayerEvents.RaisePlayerLanded(-verticalVelocity);
+            wasGroundedForLanding = grounded;
             if (grounded)
             {
                 var look = LookTransform();
@@ -793,6 +800,7 @@ namespace jeanf.universalplayer
                 if (jumpRequested && crouchBlend < 0.1f)
                 {
                     verticalVelocity = Mathf.Sqrt(2f * gravity * Mathf.Max(0.01f, jumpHeight));
+                    PlayerEvents.RaisePlayerJumped();
                 }
             }
             jumpRequested = false;
@@ -851,7 +859,9 @@ namespace jeanf.universalplayer
             var target = wantCrouch || !CanStandUp() ? 1f : 0f;
 
             if (Mathf.Approximately(crouchBlend, target)) return;
+            var wasCrouched = crouchBlend > 0.5f;
             crouchBlend = Mathf.MoveTowards(crouchBlend, target, dt / Mathf.Max(0.01f, crouchTransitionSeconds));
+            if (crouchBlend > 0.5f != wasCrouched) PlayerEvents.RaiseCrouchState(crouchBlend > 0.5f);
             ApplyCrouchState();
         }
 

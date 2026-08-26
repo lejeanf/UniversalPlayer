@@ -22,6 +22,12 @@ namespace jeanf.universalplayer.tests
         private AudioSource _scuffSource;
         private AudioClip _stepClip;
         private AudioClip _scuffClip;
+        private AudioClip _jumpClip;
+        private AudioClip _landClip;
+        private AudioClip _crouchClip;
+        private AudioClip _standClip;
+        private AudioClip _sneakClip;
+        private FootstepAudio.SurfaceProfile _defaultSurface;
         private bool _prevIgnoreDefaultCollision;
 
         [UnitySetUp]
@@ -39,6 +45,11 @@ namespace jeanf.universalplayer.tests
             // Long silent clips so isPlaying stays observable across a few frames.
             _stepClip = AudioClip.Create("TestStep", 44100, 1, 44100, false);
             _scuffClip = AudioClip.Create("TestScuff", 44100, 1, 44100, false);
+            _jumpClip = AudioClip.Create("TestJump", 44100, 1, 44100, false);
+            _landClip = AudioClip.Create("TestLand", 44100, 1, 44100, false);
+            _crouchClip = AudioClip.Create("TestCrouch", 44100, 1, 44100, false);
+            _standClip = AudioClip.Create("TestStand", 44100, 1, 44100, false);
+            _sneakClip = AudioClip.Create("TestSneak", 44100, 1, 44100, false);
 
             _player = new GameObject("Player");
             _player.SetActive(false);
@@ -62,8 +73,11 @@ namespace jeanf.universalplayer.tests
             SetField(_footsteps, "movement", _movement);
             SetField(_footsteps, "footstepSource", _stepSource);
             SetField(_footsteps, "scuffSource", _scuffSource);
-            var defaultSurface = new FootstepAudio.SurfaceProfile { footsteps = _stepClip, scuffs = _scuffClip };
-            SetField(_footsteps, "defaultSurface", defaultSurface);
+            _defaultSurface = new FootstepAudio.SurfaceProfile { footsteps = _stepClip, scuffs = _scuffClip };
+            SetField(_footsteps, "defaultSurface", _defaultSurface);
+            SetField(_footsteps, "jumpSound", _jumpClip);
+            SetField(_footsteps, "crouchDownSound", _crouchClip);
+            SetField(_footsteps, "standUpSound", _standClip);
 
             _player.SetActive(true);
 
@@ -80,6 +94,11 @@ namespace jeanf.universalplayer.tests
             Object.Destroy(_floor);
             Object.Destroy(_stepClip);
             Object.Destroy(_scuffClip);
+            Object.Destroy(_jumpClip);
+            Object.Destroy(_landClip);
+            Object.Destroy(_crouchClip);
+            Object.Destroy(_standClip);
+            Object.Destroy(_sneakClip);
             yield return null;
         }
 
@@ -165,6 +184,81 @@ namespace jeanf.universalplayer.tests
             StartMoving(Vector2.down);
             yield return new WaitForSeconds(0.5f);
             Assert.That(_scuffSource.isPlaying, Is.False, "A scuff played in XR mode.");
+            StopMoving();
+        }
+
+        [UnityTest]
+        public IEnumerator Jump_PlaysTheJumpSound()
+        {
+            _movement.RequestJump();
+            var played = false;
+            var deadline = Time.time + 0.5f;
+            while (Time.time < deadline && !played)
+            {
+                if (_scuffSource.isPlaying && ReferenceEquals(_scuffSource.resource, _jumpClip)) played = true;
+                yield return null;
+            }
+            Assert.That(played, Is.True,
+                "The jump sound did not play on takeoff — is PlayerEvents.PlayerJumped raised and subscribed?");
+        }
+
+        [UnityTest]
+        public IEnumerator Landing_PlaysTheSurfaceLandingSound()
+        {
+            _defaultSurface.landings = _landClip;
+
+            // Drop from 3 m: touchdown at ~7.7 m/s, well past the 3 m/s landing threshold.
+            _controller.enabled = false;
+            _player.transform.position += Vector3.up * 3f;
+            _controller.enabled = true;
+
+            var played = false;
+            var deadline = Time.time + 3f;
+            while (Time.time < deadline && !played)
+            {
+                if (_stepSource.isPlaying && ReferenceEquals(_stepSource.resource, _landClip)) played = true;
+                yield return null;
+            }
+            Assert.That(played, Is.True,
+                "No landing sound after a 3 m fall — is PlayerEvents.PlayerLanded raised with the impact speed?");
+        }
+
+        [UnityTest]
+        public IEnumerator CrouchTransitions_PlayCrouchAndStandSounds()
+        {
+            _movement.SetCrouchHeld(true); // toggle mode: crouch down
+            var deadline = Time.time + 2f;
+            while (Time.time < deadline && !_movement.IsCrouched) yield return null;
+            Assert.That(_movement.IsCrouched, Is.True, "The crouch never engaged — cannot test its sound.");
+            Assert.That(ReferenceEquals(_scuffSource.resource, _crouchClip), Is.True,
+                "Crossing into the crouch did not play the crouch-down sound.");
+
+            _movement.SetCrouchHeld(true); // toggle mode: stand back up
+            deadline = Time.time + 2f;
+            while (Time.time < deadline && _movement.IsCrouched) yield return null;
+            Assert.That(_movement.IsCrouched, Is.False, "The player never stood back up.");
+            Assert.That(ReferenceEquals(_scuffSource.resource, _standClip), Is.True,
+                "Standing back up did not play the stand-up sound.");
+        }
+
+        [UnityTest]
+        public IEnumerator CrouchedSteps_UseTheSneakSet_WhenAuthored()
+        {
+            _defaultSurface.crouchFootsteps = _sneakClip;
+            _movement.SetCrouchHeld(true);
+            var deadline = Time.time + 2f;
+            while (Time.time < deadline && !_movement.IsCrouched) yield return null;
+
+            StartMoving(Vector2.up);
+            var sneaked = false;
+            deadline = Time.time + 2f; // crouch speed is halved — give the stride time
+            while (Time.time < deadline && !sneaked)
+            {
+                if (_stepSource.isPlaying && ReferenceEquals(_stepSource.resource, _sneakClip)) sneaked = true;
+                yield return null;
+            }
+            Assert.That(sneaked, Is.True,
+                "Crouched walking never used the dedicated crouch footstep set.");
             StopMoving();
         }
 

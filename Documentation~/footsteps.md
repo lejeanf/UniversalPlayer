@@ -52,6 +52,28 @@ resource plays, louder the faster the player was moving. `scuffCooldown` stops c
 Desktop modes only: XRI locomotion snaps velocity, so every VR stick reversal would
 squeak.
 
+## Jump, landing & crouch foley
+
+`PlayerMovement` raises real events for its locomotion moments —
+`PlayerEvents.PlayerJumped`, `PlayerEvents.PlayerLanded(float impactSpeed)` and
+`PlayerEvents.CrouchStateChanged(bool crouched)` (desktop modes; XR has no jump and
+XRI owns its locomotion). Anything can subscribe (animation, VFX, project code);
+`FootstepAudio` plays foley off them:
+
+- **Jump** (`jumpSound`, global): the push-off, played on takeoff.
+- **Landing** (per-surface `landings`, falling back to `defaultSurface.landings`,
+  then to a regular footstep): the touchdown thud, louder the harder the fall
+  (below `minLandingFallSpeed` nothing plays — a step off a curb is not a landing).
+- **Crouch transitions** (`crouchDownSound` / `standUpSound`, global): cloth/gear
+  rustle when crossing the crouch midpoint in either direction (stand-up falls back
+  to the crouch-down sound).
+- **Crouched footsteps** (per-surface `crouchFootsteps`): a dedicated sneak set used
+  while crouched when authored; otherwise the regular set plays at `crouchVolume`.
+
+Jump and crouch sounds play on the scuff source so they can ring over a footstep;
+all of them respect the same freeze gates as footsteps (pause, menu, loading,
+seated, FreeCam).
+
 ## Validation (every footstep failure mode is silence — so everything is loud)
 
 - **Inspector** (`jeanf.validationTools`): `movement` and `footstepSource` carry

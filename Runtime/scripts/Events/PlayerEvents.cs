@@ -47,6 +47,16 @@ namespace jeanf.universalplayer
         // here"). CursorStateController flashes the reticle its invalid color. ----
         public static event Action InvalidActionSignaled;
 
+        // ---- internal: locomotion moments raised by PlayerMovement (desktop modes —
+        // XR has no jump and XRI owns its locomotion). FootstepAudio plays foley off
+        // these; animation/VFX/project code can subscribe too. Not bridged to SO
+        // channels yet — ask for a PlayerChannelsSO slot if a project needs one. ----
+        public static event Action PlayerJumped;
+        /// <summary>Feet regained the ground; the payload is the downward impact speed in m/s (positive).</summary>
+        public static event Action<float> PlayerLanded;
+        /// <summary>Crossed the crouch midpoint: true = now crouched, false = stood back up.</summary>
+        public static event Action<bool> CrouchStateChanged;
+
         public static void RaiseHmdState(bool mounted) => HmdStateChanged?.Invoke(mounted);
         public static void RaiseHmdConnection(bool connected) => HmdConnectionChanged?.Invoke(connected);
         public static void RaiseXrIssue(string message) => XrIssueReported?.Invoke(message);
@@ -67,5 +77,9 @@ namespace jeanf.universalplayer
 
         /// <summary>Flash the cursor's "invalid request" color — call when a click/interaction is rejected.</summary>
         public static void RaiseInvalidAction() => InvalidActionSignaled?.Invoke();
+
+        public static void RaisePlayerJumped() => PlayerJumped?.Invoke();
+        public static void RaisePlayerLanded(float impactSpeed) => PlayerLanded?.Invoke(impactSpeed);
+        public static void RaiseCrouchState(bool crouched) => CrouchStateChanged?.Invoke(crouched);
     }
 }

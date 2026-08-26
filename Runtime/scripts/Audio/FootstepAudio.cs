@@ -33,8 +33,12 @@ namespace jeanf.universalplayer
             public string surfaceTag;
             [Tooltip("Played each step — an AudioClip or an Audio Random Container.")]
             public AudioResource footsteps;
+            [Tooltip("Played each step while crouched (sneaking). Optional — falls back to 'footsteps' at crouch volume.")]
+            public AudioResource crouchFootsteps;
             [Tooltip("Played on abrupt turns/stops (shoe friction). Optional — silent when empty.")]
             public AudioResource scuffs;
+            [Tooltip("Played on touchdown after a jump/fall (the thud). Optional — falls back to a regular footstep.")]
+            public AudioResource landings;
             [Range(0f, 2f)] public float volume = 1f;
         }
 
@@ -77,11 +81,19 @@ namespace jeanf.universalplayer
         [Tooltip("Each step offsets the source this far (m) left/right of center — the L/R foot alternation. Needs a 3D (spatialized) source.")]
         [SerializeField] private float stepStereoSeparation = 0.25f;
 
-        [Header("Landing")]
-        [Tooltip("Play a footstep when the feet hit the ground after a jump or fall.")]
+        [Header("Jump & landing (driven by PlayerEvents from PlayerMovement)")]
+        [Tooltip("Played on jump takeoff (the push-off / effort). Global — not surface-dependent. Optional.")]
+        [SerializeField] private AudioResource jumpSound;
+        [Tooltip("Play a landing sound when the feet hit the ground after a jump or fall (per-surface 'landings', falling back to a regular footstep).")]
         [SerializeField] private bool stepOnLanding = true;
         [Tooltip("Minimum downward speed (m/s) on touchdown that counts as a landing (a step off a curb should not thump).")]
         [SerializeField] private float minLandingFallSpeed = 3f;
+
+        [Header("Crouch transitions")]
+        [Tooltip("Played when entering the crouch (cloth/gear rustle). Global. Optional.")]
+        [SerializeField] private AudioResource crouchDownSound;
+        [Tooltip("Played when standing back up. Optional — falls back to the crouch-down sound.")]
+        [SerializeField] private AudioResource standUpSound;
 
         [Header("Friction scuffs (abrupt turns & hard stops, desktop modes)")]
         [Tooltip("Horizontal acceleration (m/s²) opposing travel that counts as friction. Compare with PlayerMovement.speedChangeRate (default 8): braking/turning at full rate crosses this, gentle corrections do not.")]
@@ -101,8 +113,6 @@ namespace jeanf.universalplayer
         private bool _stepIsLeft;
         private float _footstepSourceLocalY;
 
-        private bool _wasGrounded = true;
-        private float _prevVerticalVelocity;
         private Vector3 _prevCommandedVelocity;
         private float _lastScuffTime = float.NegativeInfinity;
 
@@ -167,6 +177,9 @@ namespace jeanf.universalplayer
             PlayerEvents.PauseRequested += OnPauseRequested;
             PlayerEvents.MenuStateChanged += OnMenuStateChanged;
             PlayerEvents.SceneLoadingChanged += OnSceneLoadingChanged;
+            PlayerEvents.PlayerJumped += OnPlayerJumped;
+            PlayerEvents.PlayerLanded += OnPlayerLanded;
+            PlayerEvents.CrouchStateChanged += OnCrouchStateChanged;
         }
 
         private void OnDisable() => Unsubscribe();
@@ -177,6 +190,9 @@ namespace jeanf.universalplayer
             PlayerEvents.PauseRequested -= OnPauseRequested;
             PlayerEvents.MenuStateChanged -= OnMenuStateChanged;
             PlayerEvents.SceneLoadingChanged -= OnSceneLoadingChanged;
+            PlayerEvents.PlayerJumped -= OnPlayerJumped;
+            PlayerEvents.PlayerLanded -= OnPlayerLanded;
+            PlayerEvents.CrouchStateChanged -= OnCrouchStateChanged;
         }
 
         private void OnPauseRequested(bool paused) => _paused = paused;
@@ -188,23 +204,14 @@ namespace jeanf.universalplayer
             if (movement == null || footstepSource == null) return;
 
             var grounded = movement.IsGrounded;
-            var verticalVelocity = movement.VerticalVelocity;
             var commandedVelocity = movement.PlanarVelocity;
 
-            if (_paused || _menuOpen || _sceneLoading || movement.LocomotionLocked
-                || BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.Freecam)
+            if (Frozen)
             {
                 // Frozen or flying: silence and forget momentum so nothing fires on resume.
                 _strideAccumulated = 0f;
-                RememberFrame(grounded, verticalVelocity, commandedVelocity);
+                _prevCommandedVelocity = commandedVelocity;
                 return;
-            }
-
-            if (stepOnLanding && grounded && !_wasGrounded && _prevVerticalVelocity < -minLandingFallSpeed)
-            {
-                if (isDebug) Debug.Log($"{LogPrefix} FootstepAudio: landed at {-_prevVerticalVelocity:F1} m/s — landing step.", this);
-                _strideAccumulated = 0f;
-                PlayFootstep();
             }
 
             if (grounded)
@@ -232,14 +239,66 @@ namespace jeanf.universalplayer
                 _strideAccumulated = 0f; // feet are off the ground
             }
 
-            RememberFrame(grounded, verticalVelocity, commandedVelocity);
+            _prevCommandedVelocity = commandedVelocity;
         }
 
-        private void RememberFrame(bool grounded, float verticalVelocity, Vector3 commandedVelocity)
+        /// <summary>Every state in which feet must be silent: paused, menu open, scene loading, seated, or flying the FreeCam.</summary>
+        private bool Frozen =>
+            _paused || _menuOpen || _sceneLoading || movement.LocomotionLocked
+            || BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.Freecam;
+
+        // ---- locomotion moments (PlayerEvents raised by PlayerMovement) ----
+
+        private void OnPlayerJumped()
         {
-            _wasGrounded = grounded;
-            _prevVerticalVelocity = verticalVelocity;
-            _prevCommandedVelocity = commandedVelocity;
+            if (movement == null || footstepSource == null || Frozen) return;
+            if (isDebug) Debug.Log($"{LogPrefix} FootstepAudio: jump takeoff.", this);
+            PlayFoley(jumpSound, 1f);
+        }
+
+        private void OnPlayerLanded(float impactSpeed)
+        {
+            if (movement == null || footstepSource == null || Frozen) return;
+            if (!stepOnLanding || impactSpeed < minLandingFallSpeed) return;
+
+            _strideAccumulated = 0f; // touchdown IS this stride's step
+            var profile = ResolveSurfaceProfile();
+            var resource = profile.landings != null ? profile.landings : defaultSurface.landings;
+            if (resource == null)
+            {
+                // No dedicated thud authored: keep the old behavior, a regular footstep.
+                if (isDebug) Debug.Log($"{LogPrefix} FootstepAudio: landed at {impactSpeed:F1} m/s — no landing resource, playing a footstep.", this);
+                PlayFootstep();
+                return;
+            }
+
+            if (footstepSource.resource != resource) footstepSource.resource = resource;
+            // The harder the fall, the louder the thud (a minimal landing still clearly reads).
+            footstepSource.volume = profile.volume * Mathf.Clamp(impactSpeed / 8f, 0.5f, 1f)
+                                    * Mathf.Lerp(1f, crouchVolume, movement.CrouchBlend);
+            if (footstepSource.isPlaying) footstepSource.Stop();
+            footstepSource.Play();
+            if (isDebug) Debug.Log($"{LogPrefix} FootstepAudio: landing on '{_cachedSurfaceTag ?? "default"}' at {impactSpeed:F1} m/s (volume {footstepSource.volume:F2})", this);
+        }
+
+        private void OnCrouchStateChanged(bool crouched)
+        {
+            if (movement == null || footstepSource == null || Frozen) return;
+            var resource = crouched ? crouchDownSound
+                : (standUpSound != null ? standUpSound : crouchDownSound);
+            if (isDebug) Debug.Log($"{LogPrefix} FootstepAudio: {(crouched ? "crouching down" : "standing up")}{(resource == null ? " (no sound assigned)" : "")}.", this);
+            PlayFoley(resource, 0.9f);
+        }
+
+        /// <summary>Non-surface character sounds (jump push-off, crouch rustle) — played on the scuff source so they can ring over a footstep.</summary>
+        private void PlayFoley(AudioResource resource, float volume)
+        {
+            if (resource == null) return;
+            var source = scuffSource != null ? scuffSource : footstepSource;
+            if (source.resource != resource) source.resource = resource;
+            source.volume = volume;
+            if (source.isPlaying) source.Stop();
+            source.Play();
         }
 
         private float CurrentStrideLength()
@@ -282,6 +341,13 @@ namespace jeanf.universalplayer
         {
             var profile = ResolveSurfaceProfile();
             var resource = profile.footsteps != null ? profile.footsteps : defaultSurface.footsteps;
+            // Sneaking: a dedicated crouch set wins when authored; otherwise the regular
+            // set simply plays at crouch volume (the pre-1.13 behavior).
+            if (movement.IsCrouched)
+            {
+                var crouchResource = profile.crouchFootsteps != null ? profile.crouchFootsteps : defaultSurface.crouchFootsteps;
+                if (crouchResource != null) resource = crouchResource;
+            }
             if (resource == null)
             {
                 WarnOnceNoSounds();
