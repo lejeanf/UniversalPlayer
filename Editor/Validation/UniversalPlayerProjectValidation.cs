@@ -133,6 +133,8 @@ namespace jeanf.universalplayer
             yield return ("Scene: hand pose driver", First<ControllerHandPoseDriver>);
             yield return ("Scene: finger pointing ray", First<FingerPointingRay>);
             yield return ("Scene: hand colliders", First<BlendableHand>);
+            yield return ("Scene: footsteps", First<FootstepAudio>);
+            yield return ("Scene: footstep surfaces", First<FootstepAudio>);
         }
 
         /// <summary>
@@ -236,6 +238,7 @@ namespace jeanf.universalplayer
             {
                 s_SceneResults = ProjectSetupChecks.RunOpenSceneChecks()
                     .Concat(HandSetupChecks.RunHandChecks())
+                    .Concat(FootstepSetupChecks.RunFootstepChecks())
                     .GroupBy(result => result.Name)
                     .ToDictionary(group => group.Key, group => group.First());
                 s_SceneTime = EditorApplication.timeSinceStartup;

@@ -50,6 +50,7 @@ namespace jeanf.universalplayer
             results.AddRange(ProjectSetupChecks.RunAssetChecks());
             results.AddRange(ProjectSetupChecks.RunOpenSceneChecks());
             results.AddRange(HandSetupChecks.RunHandChecks());
+            results.AddRange(FootstepSetupChecks.RunFootstepChecks());
             LogResults(results);
         }
 

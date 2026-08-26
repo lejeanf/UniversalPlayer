@@ -152,6 +152,17 @@ namespace jeanf.universalplayer
         }
         /// <summary>Current vertical velocity in m/s (M&K/gamepad modes; negative while falling).</summary>
         public float VerticalVelocity => verticalVelocity;
+        /// <summary>World position of the bottom of the capsule — where the feet touch the ground.</summary>
+        public Vector3 FootPosition
+        {
+            get
+            {
+                if (controller == null) return transform.position;
+                return transform.TransformPoint(controller.center) + Vector3.down * (controller.height * 0.5f);
+            }
+        }
+        /// <summary>Every layer the capsule collides with per the Physics Layer Collision Matrix — the set of layers the player can stand on (0 when no controller is wired).</summary>
+        public int CollidableLayers() => controller == null ? 0 : CollidableLayersMask();
         /// <summary>When true (e.g. while seated) movement, crouch and gravity are suspended. Input is still read.</summary>
         public bool LocomotionLocked { get; set; }
 

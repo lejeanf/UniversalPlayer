@@ -148,6 +148,32 @@ namespace jeanf.universalplayer.tests
         }
 
         [Test]
+        public void FootstepAudio_ShipsWiredOnThePlayer()
+        {
+            // Regression guard: the old project-side footstep controller was NEVER part of
+            // this prefab, so the 1.0 rewrite shipped without footsteps and nobody noticed
+            // until playtesting. The component now lives in the package and must stay wired.
+            var footsteps = RequireComponent<FootstepAudio>();
+            RequireAssigned(footsteps, "movement",
+                "Without PlayerMovement, FootstepAudio has no grounded/velocity state — footsteps are silent.");
+            RequireAssigned(footsteps, "footstepSource",
+                "Without an AudioSource there is nothing to play footsteps through.");
+            RequireAssigned(footsteps, "scuffSource",
+                "Without the scuff source, friction sounds steal the footstep source mid-step.");
+
+            // Sound resources are legitimately empty in the package (sounds are project
+            // audio, e.g. the AudioSystems sample containers, assigned on the Player
+            // variant) — but the surface list must ship pre-seeded so projects only fill
+            // in resources instead of rediscovering the tag convention.
+            var so = new SerializedObject(footsteps);
+            var surfaces = so.FindProperty("surfaces");
+            Assert.That(surfaces, Is.Not.Null,
+                "Field 'surfaces' no longer exists on FootstepAudio — update this test alongside the refactor.");
+            Assert.That(surfaces.arraySize, Is.GreaterThanOrEqualTo(2),
+                "The packaged FootstepAudio must ship with the Concrete + Linoleum surface profiles pre-seeded.");
+        }
+
+        [Test]
         public void ControllerHandPoseDriver_ShipsOnThePlayer()
         {
             // Pose slots are legitimately empty in the package (poses are project art,

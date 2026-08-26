@@ -20,6 +20,7 @@ This package was built for a hospital simulator (the UVS project) where the same
 
 - **Automatic input switching** between Mouse & Keyboard, Gamepad and VR (plus a free-fly debug camera)
 - **Locomotion & camera feel**: walk, sprint, crouch, jump, momentum, head bob, turn tilt, landing dip
+- **Footsteps & friction audio**: surface-aware footsteps (cadence follows speed, crouch sneaks, landings thump) plus shoe-scuff sounds on abrupt turns and hard stops (`Documentation~/footsteps.md`)
 - **True first-person body**: a visible, animated body (Mixamo locomotion set) with one-click template setup
 - **Sitting** on chairs in every mode (`Documentation~/sitting.md`)
 - **Teleportation**: XRI-style stick teleport in VR, event-driven teleports (SO channels) everywhere
@@ -180,6 +181,7 @@ Design docs live in `Documentation~/`:
 - `player-channels-hub.md` — how the package talks to your project (delegates + one channel bridge)
 - `true-first-person-body.md` — the visible body architecture
 - `sitting.md` — Seat + SitController across modes
+- `footsteps.md` — surface-aware footsteps + friction scuffs (FootstepAudio)
 - `action-animation-binding.md` — SO-based action → animation binding (proposal)
 - `gesture-wheel.md` — controller gesture radial menu (design, upcoming)
 

@@ -66,6 +66,7 @@ namespace jeanf.universalplayer.tests.editor
             {
                 var batchNames = ProjectSetupChecks.RunOpenSceneChecks()
                     .Concat(HandSetupChecks.RunHandChecks())
+                    .Concat(FootstepSetupChecks.RunFootstepChecks())
                     .Select(r => r.Name)
                     .Where(n => !n.StartsWith("Variant overrides"));
                 foreach (var expected in batchNames)
