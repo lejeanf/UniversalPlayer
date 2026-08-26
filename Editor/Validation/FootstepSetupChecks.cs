@@ -34,7 +34,8 @@ namespace jeanf.universalplayer
             return results;
         }
 
-        internal static SetupValidator.CheckResult CheckFootsteps(FootstepAudio footsteps)
+        /// <summary>Public so the editor tests can exercise each severity path (no InternalsVisibleTo in this package).</summary>
+        public static SetupValidator.CheckResult CheckFootsteps(FootstepAudio footsteps)
         {
             const string check = "Scene: footsteps";
 
@@ -59,7 +60,8 @@ namespace jeanf.universalplayer
                 $"FootstepAudio wired and audible ({footsteps.ConfiguredSurfaceTags.Count()} tagged surface profile(s) + default).");
         }
 
-        internal static SetupValidator.CheckResult CheckFootstepSurfaces(FootstepAudio footsteps)
+        /// <summary>Public so the editor tests can exercise each severity path (no InternalsVisibleTo in this package).</summary>
+        public static SetupValidator.CheckResult CheckFootstepSurfaces(FootstepAudio footsteps)
         {
             const string check = "Scene: footstep surfaces";
 
