@@ -874,6 +874,31 @@ namespace jeanf.universalplayer
             // Never stand up into an obstacle.
             var target = wantCrouch || !CanStandUp() ? 1f : 0f;
 
+            // Loud one-shot diagnostic: the player WANTS to stand but the headroom check
+            // keeps refusing. Real crawl spaces trip this too, but a persistent refusal is
+            // exactly how the crouch-lock bugs manifested — name the blocker so a bad
+            // obstruction (own rig, invisible volume) is identifiable without debugInput.
+            if (!wantCrouch && crouchBlend > 0.5f && target >= 1f)
+            {
+                blockedStandSeconds += dt;
+                if (!blockedStandWarned && blockedStandSeconds > 2f)
+                {
+                    blockedStandWarned = true;
+                    var blocker = _lastStandUpBlocker;
+                    var blockerInfo = blocker != null
+                        ? $"'{blocker.name}' (layer '{LayerMask.LayerToName(blocker.gameObject.layer)}', root '{blocker.transform.root.name}')"
+                        : "an unidentified collider";
+                    Debug.LogWarning($"{LogPrefix} PlayerMovement on '{name}': stand-up has been refused for 2s — blocked by " +
+                        $"{blockerInfo}. If that is not real geometry above the player's head, exclude its layer from " +
+                        "standUpObstructionMask (or fix the object).", blocker);
+                }
+            }
+            else
+            {
+                blockedStandSeconds = 0f;
+                blockedStandWarned = false;
+            }
+
             if (Mathf.Approximately(crouchBlend, target))
             {
                 // Steady state still re-applies while crouched: a control-scheme switch
@@ -907,6 +932,8 @@ namespace jeanf.universalplayer
 
         private static readonly Collider[] StandUpHits = new Collider[16];
         private Collider _lastStandUpBlocker;
+        private float blockedStandSeconds;
+        private bool blockedStandWarned;
         /// <summary>Diagnostics: the collider currently refusing a stand-up (null when none). Shown by the debug HUD snapshot.</summary>
         public Collider StandUpBlocker => _lastStandUpBlocker;
 
