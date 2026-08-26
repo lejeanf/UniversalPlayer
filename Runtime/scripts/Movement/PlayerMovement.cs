@@ -931,6 +931,7 @@ namespace jeanf.universalplayer
         }
 
         private static readonly Collider[] StandUpHits = new Collider[16];
+        private static readonly Collider[] InsideHits = new Collider[16];
         private Collider _lastStandUpBlocker;
         private float blockedStandSeconds;
         private bool blockedStandWarned;
@@ -966,12 +967,29 @@ namespace jeanf.universalplayer
             var effectiveMask = standUpObstructionMask & CollidableLayersMask();
             if (effectiveMask == 0) return true;
 
+            // Colliders the CROUCHED body is already inside (engulfing proxy volumes:
+            // acoustic geometry boxes, audio/scene zones left non-trigger) can never be
+            // stand-up obstacles — standing does not newly enter them, and CharacterController
+            // sweeps ignore them too, so the player lives inside them permanently. Tested
+            // against a slightly shrunk body capsule so a ceiling grazing the crouched head
+            // does NOT count as "inside" and still blocks.
+            var bodyTop = worldCenter + Vector3.up * (controller.height * 0.5f - controller.radius);
+            var bodyBottom = worldCenter - Vector3.up * (controller.height * 0.5f - controller.radius);
+            var insideCount = Physics.OverlapCapsuleNonAlloc(bodyBottom, bodyTop, controller.radius * 0.8f,
+                InsideHits, effectiveMask, QueryTriggerInteraction.Ignore);
+
             var count = Physics.OverlapCapsuleNonAlloc(currentTopSphere, standingTopSphere, radius,
                 StandUpHits, effectiveMask, QueryTriggerInteraction.Ignore);
             for (var i = 0; i < count; i++)
             {
                 var hit = StandUpHits[i];
-                if (hit != null && !hit.transform.IsChildOf(capsuleRoot))
+                if (hit == null || hit.transform.IsChildOf(capsuleRoot)) continue;
+                var alreadyInside = false;
+                for (var j = 0; j < insideCount; j++)
+                {
+                    if (InsideHits[j] == hit) { alreadyInside = true; break; }
+                }
+                if (!alreadyInside)
                 {
                     // Name the blocker (once per distinct collider): a stand-up refused by
                     // something that is actually part of the player rig is THE crouch-lock

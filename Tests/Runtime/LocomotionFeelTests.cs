@@ -226,6 +226,35 @@ namespace jeanf.universalplayer.tests
         }
 
         [UnityTest]
+        public IEnumerator Crouch_IgnoresEngulfingVolume_OnACollidingLayer()
+        {
+            SetField(_movement, "crouchIsToggle", false);
+            var standingHeight = _controller.height;
+
+            // The uvs lobby case: a non-trigger proxy volume on a COLLIDING layer (an
+            // acoustic-geometry box on Default) engulfing the whole player. The capsule
+            // starts inside it so sweeps ignore it and the player lives in it permanently
+            // — it must not read as a ceiling when standing up.
+            _ceiling = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            _ceiling.name = "EngulfingAudioVolume";
+            _ceiling.transform.localScale = new Vector3(8f, 6f, 8f);
+            _ceiling.transform.position = new Vector3(0f, 1.5f, 0f);
+            yield return new WaitForFixedUpdate();
+            yield return null;
+
+            _movement.SetCrouchHeld(true);
+            yield return new WaitForSeconds(0.5f);
+            Assert.That(_movement.IsCrouched, Is.True, "Crouching failed inside the engulfing volume.");
+
+            _movement.SetCrouchHeld(false);
+            yield return new WaitForSeconds(0.75f);
+            Assert.That(_movement.IsCrouched, Is.False,
+                "An engulfing volume the crouched body is already inside blocked the stand-up — " +
+                "standing does not newly enter it, so it must be ignored (Env_*_AudioCollider crouch-lock).");
+            Assert.That(_controller.height, Is.EqualTo(standingHeight).Within(0.05f));
+        }
+
+        [UnityTest]
         public IEnumerator CrouchToggle_SecondPress_StandsBackUp()
         {
             // Default (shipped) semantics: press toggles down, press again toggles up.
