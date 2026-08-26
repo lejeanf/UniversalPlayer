@@ -2253,6 +2253,39 @@
                     "isPartOfComposite": false
                 },
                 {
+                    "name": "Shoulder Scroll",
+                    "id": "c74730c7-5741-4b1e-8449-fe667c23661c",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "ScaleVector2(x=0,y=0.2)",
+                    "groups": "",
+                    "action": "ScrollWheel",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "69324172-c1ee-407f-aa93-36e6a658d6a2",
+                    "path": "<Gamepad>/rightShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "ScrollWheel",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "66a6e37c-62a9-4537-86cf-55e8ca705bc3",
+                    "path": "<Gamepad>/leftShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "ScrollWheel",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
                     "name": "",
                     "id": "718b4164-596f-4c83-bfb4-946c191f87fc",
                     "path": "<Mouse>/middleButton",

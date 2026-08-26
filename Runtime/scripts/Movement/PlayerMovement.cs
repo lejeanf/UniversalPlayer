@@ -144,9 +144,11 @@ namespace jeanf.universalplayer
             }
             var actualVel = controller != null && controller.enabled ? controller.velocity : Vector3.zero;
             var groundedRobust = controller != null && controller.enabled && IsGroundedForMovement();
+            var canStand = controller != null && controller.enabled && CanStandUp();
             return
                 $"movement: scheme={BroadcastControlsStatus.controlScheme} ctrlEnabled={ControllerEnabled} grounded={IsGrounded} groundedRobust={groundedRobust} " +
                 $"locomotionLocked={LocomotionLocked} menuOpen={menuOpen} paused={paused} sceneLoading={sceneIsLoading} isFreeCamOn={isFreeCamOn}\n" +
+                $"    crouch: blend={crouchBlend:F2} toggled={crouchToggled} held={crouchHeld} canStand={canStand} blocker={(_lastStandUpBlocker != null ? _lastStandUpBlocker.name : "none")}\n" +
                 $"    moveInput={moveValue} isMoving={isMoving} planarVel={planarVelocity} actualVel={actualVel} rootPos={transform.position}\n" +
                 $"    Keyboard={(kb != null ? "Yes" : "NULL")} wPressed={wPressed}  fpsMoveAction(legacy route): enabled={actionEnabled} controls={controlsCount} devices=[{boundDevices}]";
         }
@@ -158,7 +160,7 @@ namespace jeanf.universalplayer
             get
             {
                 if (controller == null) return transform.position;
-                return transform.TransformPoint(controller.center) + Vector3.down * (controller.height * 0.5f);
+                return controller.transform.TransformPoint(controller.center) + Vector3.down * (controller.height * 0.5f);
             }
         }
         /// <summary>Every layer the capsule collides with per the Physics Layer Collision Matrix — the set of layers the player can stand on (0 when no controller is wired).</summary>
@@ -395,7 +397,7 @@ namespace jeanf.universalplayer
                 return true;
             }
 
-            var worldCenter = transform.TransformPoint(controller.center);
+            var worldCenter = controller.transform.TransformPoint(controller.center);
             var bottom = worldCenter + Vector3.down * (controller.height * 0.5f - controller.radius);
             var collidable = CollidableLayersMask();
             if (collidable != 0 && Physics.SphereCast(bottom, controller.radius * 0.5f, Vector3.down, out _, 1000f,
@@ -829,7 +831,7 @@ namespace jeanf.universalplayer
             var collidable = CollidableLayersMask();
             if (collidable == 0) return false;
 
-            var worldCenter = transform.TransformPoint(controller.center);
+            var worldCenter = controller.transform.TransformPoint(controller.center);
             var bottom = worldCenter + Vector3.down * (controller.height * 0.5f - controller.radius);
             // A little beyond the skin width — enough to catch "resting but isGrounded==false",
             // not so much that the player walks on air over a real ledge.
@@ -855,10 +857,33 @@ namespace jeanf.universalplayer
                 wantCrouch = false;
                 crouchToggled = false;
             }
+            // A jump press while crouched is a stand-up request, not a jump: consume it
+            // here (UpdateMomentumMove only ever launches standing) and break a toggled
+            // crouch. In hold mode the key is still physically down, so only the buffered
+            // jump is discarded.
+            if (jumpRequested && crouchBlend >= 0.1f)
+            {
+                jumpRequested = false;
+                if (crouchIsToggle && CanStandUp())
+                {
+                    if (debugInput) Debug.Log($"{LogPrefix} jump while crouched -> standing up", this);
+                    crouchToggled = false;
+                    wantCrouch = false;
+                }
+            }
             // Never stand up into an obstacle.
             var target = wantCrouch || !CanStandUp() ? 1f : 0f;
 
-            if (Mathf.Approximately(crouchBlend, target)) return;
+            if (Mathf.Approximately(crouchBlend, target))
+            {
+                // Steady state still re-applies while crouched: a control-scheme switch
+                // resets the camera rig to the authored standing eye height
+                // (FPSCameraMovement.ResetCameraOffset) while the crouch survives —
+                // without this the camera popped back up while speed and head bob stayed
+                // crouched after a gamepad<->keyboard switch.
+                if (crouchBlend > 0f) ApplyCrouchState();
+                return;
+            }
             var wasCrouched = crouchBlend > 0.5f;
             crouchBlend = Mathf.MoveTowards(crouchBlend, target, dt / Mathf.Max(0.01f, crouchTransitionSeconds));
             if (crouchBlend > 0.5f != wasCrouched) PlayerEvents.RaiseCrouchState(crouchBlend > 0.5f);
@@ -881,6 +906,9 @@ namespace jeanf.universalplayer
         }
 
         private static readonly Collider[] StandUpHits = new Collider[16];
+        private Collider _lastStandUpBlocker;
+        /// <summary>Diagnostics: the collider currently refusing a stand-up (null when none). Shown by the debug HUD snapshot.</summary>
+        public Collider StandUpBlocker => _lastStandUpBlocker;
 
         private bool CanStandUp()
         {
@@ -890,11 +918,16 @@ namespace jeanf.universalplayer
             // rather than an upward SphereCast: a cast is blind to any obstacle it already
             // starts inside (e.g. crawling under a very low shelf) and would allow
             // standing straight into it. The player's own colliders overlap this volume
-            // by construction, so they are filtered out explicitly.
-            var worldCenter = transform.TransformPoint(controller.center);
+            // by construction, so they are filtered out explicitly — relative to the
+            // CONTROLLER's transform, not this component's: the prefab ships PlayerMovement
+            // on a child ('Player > Locomotion > Move') of the capsule root, and filtering
+            // against the child read the player's own capsule as a ceiling, silently
+            // locking the crouch forever (no stand, no jump) in every control scheme.
+            var capsuleRoot = controller.transform;
+            var worldCenter = capsuleRoot.TransformPoint(controller.center);
             var radius = controller.radius * 0.95f;
             var currentTopSphere = worldCenter + Vector3.up * (controller.height * 0.5f - radius);
-            var standingTopSphere = transform.TransformPoint(standingCenter)
+            var standingTopSphere = capsuleRoot.TransformPoint(standingCenter)
                                     + Vector3.up * (standingHeight * 0.5f - radius);
             if (standingTopSphere.y <= currentTopSphere.y) return true;
 
@@ -903,8 +936,19 @@ namespace jeanf.universalplayer
             for (var i = 0; i < count; i++)
             {
                 var hit = StandUpHits[i];
-                if (hit != null && !hit.transform.IsChildOf(transform)) return false;
+                if (hit != null && !hit.transform.IsChildOf(capsuleRoot))
+                {
+                    // Name the blocker (once per distinct collider): a stand-up refused by
+                    // something that is actually part of the player rig is THE crouch-lock
+                    // failure mode — it must be identifiable from the log, not guessed at.
+                    if (debugInput && hit != _lastStandUpBlocker)
+                        Debug.Log($"{LogPrefix} stand-up blocked by '{hit.name}' " +
+                            $"(layer '{LayerMask.LayerToName(hit.gameObject.layer)}', root '{hit.transform.root.name}')", hit);
+                    _lastStandUpBlocker = hit;
+                    return false;
+                }
             }
+            _lastStandUpBlocker = null;
             return true;
         }
 

@@ -17,6 +17,8 @@ namespace jeanf.universalplayer.tests
         private GameObject _floor;
         private GameObject _player;
         private GameObject _ceiling;
+        private GameObject _lookRig;
+        private Transform _cameraOffset;
         private CharacterController _controller;
         private PlayerMovement _movement;
         private bool _prevIgnoreDefaultCollision;
@@ -39,8 +41,29 @@ namespace jeanf.universalplayer.tests
             _player.SetActive(false);
             _player.transform.position = new Vector3(0f, 1.1f, 0f);
             _controller = _player.AddComponent<CharacterController>();
-            _movement = _player.AddComponent<PlayerMovement>();
+            // Prefab-faithful layout: the shipped Player prefab has PlayerMovement on a
+            // GRANDCHILD ('Player > Locomotion > Move') of the root that owns the
+            // CharacterController. The crouch stand-up regression (the player's own
+            // capsule read as an obstruction) only reproduces with this split — a
+            // same-object rig silently passes.
+            var locomotion = new GameObject("Locomotion");
+            locomotion.transform.SetParent(_player.transform, false);
+            var move = new GameObject("Move");
+            move.transform.SetParent(locomotion.transform, false);
+            _movement = move.AddComponent<PlayerMovement>();
             SetField(_movement, "controller", _controller);
+
+            // Camera rig for the crouch camera-height tests. The FPSCameraMovement
+            // component's own lifecycle needs a full camera + input wiring, so its
+            // GameObject stays INACTIVE forever — PlayerMovement only reads CameraOffset.
+            _lookRig = new GameObject("LookRig");
+            _lookRig.SetActive(false);
+            _cameraOffset = new GameObject("CameraOffset").transform;
+            _cameraOffset.SetParent(_lookRig.transform, false);
+            _cameraOffset.localPosition = new Vector3(0f, 1.65f, 0f);
+            var look = _lookRig.AddComponent<FPSCameraMovement>();
+            SetField(look, "cameraOffset", _cameraOffset);
+            SetField(_movement, "mouseLook", look);
             SetField(_movement, "speed", 4f);
             // Gentle ramp so even a slow editor frame cannot reach top speed in one step
             // (keeps the momentum assertions deterministic).
@@ -58,6 +81,8 @@ namespace jeanf.universalplayer.tests
             BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.KeyboardMouse;
             Object.Destroy(_player);
             Object.Destroy(_floor);
+            if (_lookRig != null) Object.Destroy(_lookRig);
+            _lookRig = null;
             // The crouch test's ceiling: destroyed HERE, not only mid-test — when its
             // assert throws, the in-test Destroy never runs and the leaked ceiling
             // wedges every later player (spawned overlapping it, Move() achieves
@@ -166,6 +191,80 @@ namespace jeanf.universalplayer.tests
             yield return new WaitForSeconds(0.75f);
             Assert.That(_controller.height, Is.EqualTo(standingHeight).Within(0.05f),
                 "Player never stood back up after the ceiling was removed.");
+        }
+
+        [UnityTest]
+        public IEnumerator CrouchToggle_SecondPress_StandsBackUp()
+        {
+            // Default (shipped) semantics: press toggles down, press again toggles up.
+            SetField(_movement, "crouchIsToggle", true);
+            var standingHeight = _controller.height;
+
+            _movement.SetCrouchHeld(true);  // press
+            _movement.SetCrouchHeld(false); // release
+            yield return new WaitForSeconds(0.5f);
+            Assert.That(_movement.IsCrouched, Is.True, "First crouch press did not crouch the player.");
+
+            _movement.SetCrouchHeld(true);
+            _movement.SetCrouchHeld(false);
+            yield return new WaitForSeconds(0.75f);
+            Assert.That(_movement.IsCrouched, Is.False,
+                "Second crouch press did not stand the player back up. With PlayerMovement on a child of the " +
+                "capsule root (the prefab layout) the stand-up self-filter used to read the player's own capsule " +
+                "as a ceiling and lock the crouch forever — in every control scheme.");
+            Assert.That(_controller.height, Is.EqualTo(standingHeight).Within(0.05f),
+                "Capsule height never returned to standing.");
+        }
+
+        [UnityTest]
+        public IEnumerator Jump_WhileCrouchToggled_StandsUp_WithoutJumping()
+        {
+            SetField(_movement, "crouchIsToggle", true);
+            _movement.SetCrouchHeld(true);
+            _movement.SetCrouchHeld(false);
+            yield return new WaitForSeconds(0.5f);
+            Assert.That(_movement.IsCrouched, Is.True);
+
+            var jumped = false;
+            System.Action onJump = () => jumped = true;
+            PlayerEvents.PlayerJumped += onJump;
+            try
+            {
+                _movement.RequestJump();
+                yield return new WaitForSeconds(0.75f);
+                Assert.That(_movement.IsCrouched, Is.False,
+                    "A jump press while crouch-toggled must stand the player up (it used to be silently swallowed).");
+                Assert.That(jumped, Is.False,
+                    "The stand-up press must not ALSO launch a jump once standing.");
+            }
+            finally
+            {
+                PlayerEvents.PlayerJumped -= onJump;
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator Crouch_CameraHeight_ReappliesAfterSchemeSwitchReset()
+        {
+            SetField(_movement, "crouchIsToggle", true);
+            var standingCameraY = _cameraOffset.localPosition.y;
+
+            _movement.SetCrouchHeld(true);
+            _movement.SetCrouchHeld(false);
+            yield return new WaitForSeconds(0.5f);
+            var crouchedCameraY = _cameraOffset.localPosition.y;
+            Assert.That(crouchedCameraY, Is.LessThan(standingCameraY - 0.2f),
+                "Crouching did not lower the camera offset.");
+
+            // A control-scheme switch resets the camera rig to the authored standing eye
+            // height (FPSCameraMovement.ResetCameraOffset). The crouch is still active, so
+            // the crouched height must win back within a frame — otherwise the player is
+            // left with a standing camera but crouched speed/head-bob (the gamepad->mkb
+            // desync bug).
+            _cameraOffset.localPosition = new Vector3(0f, standingCameraY, 0f);
+            yield return Frames(3);
+            Assert.That(_cameraOffset.localPosition.y, Is.EqualTo(crouchedCameraY).Within(0.05f),
+                "Camera height was not re-applied after an external rig reset — standing camera with crouched movement.");
         }
 
         [UnityTest]

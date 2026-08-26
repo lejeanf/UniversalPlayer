@@ -83,6 +83,8 @@ All bindings live in `Runtime/InputActions/UniversalPlayer_InputActions.inputact
 | Sprint | `Left Shift` | Left stick press (L3) |
 | Crouch (toggle) | `C` | Right stick press (R3) |
 | Jump | `Space` | `Y` |
+| Stand up from crouch | `C` again, `Space` or sprint | R3 again, `Y` or L3 |
+| Scroll UI lists/tables (element under the cursor/reticle) | Mouse wheel | `RB` (up) / `LB` (down) |
 | Interact / take object | `E` / left click | `A` or right trigger |
 | Draw primary item | `1` | D-pad up |
 | Draw secondary item | `2` | D-pad down |
