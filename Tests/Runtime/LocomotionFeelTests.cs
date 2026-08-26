@@ -194,6 +194,38 @@ namespace jeanf.universalplayer.tests
         }
 
         [UnityTest]
+        public IEnumerator Crouch_IgnoresObstructions_OnLayersTheCapsuleCannotCollideWith()
+        {
+            SetField(_movement, "crouchIsToggle", false);
+            var standingHeight = _controller.height;
+
+            // A volume collider (scene-streaming zone, audio/quest volume...) on a layer
+            // the capsule does NOT physically collide with, engulfing the player. Walking
+            // passes straight through it, so it must never read as a ceiling either —
+            // it used to lock the crouch anywhere inside such a volume.
+            var prevIgnore = Physics.GetIgnoreLayerCollision(0, 1);
+            Physics.IgnoreLayerCollision(0, 1, true);
+            _ceiling = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            _ceiling.layer = 1;
+            _ceiling.transform.localScale = new Vector3(4f, 4f, 4f);
+            _ceiling.transform.position = new Vector3(0f, 2f, 0f);
+            yield return new WaitForFixedUpdate();
+            yield return null;
+
+            _movement.SetCrouchHeld(true);
+            yield return new WaitForSeconds(0.5f);
+            Assert.That(_movement.IsCrouched, Is.True, "Crouching failed inside the non-colliding volume.");
+
+            _movement.SetCrouchHeld(false);
+            yield return new WaitForSeconds(0.75f);
+            Physics.IgnoreLayerCollision(0, 1, prevIgnore);
+            Assert.That(_movement.IsCrouched, Is.False,
+                "A collider on a layer the capsule cannot collide with blocked the stand-up — " +
+                "the headroom check must respect the Physics Layer Collision Matrix.");
+            Assert.That(_controller.height, Is.EqualTo(standingHeight).Within(0.05f));
+        }
+
+        [UnityTest]
         public IEnumerator CrouchToggle_SecondPress_StandsBackUp()
         {
             // Default (shipped) semantics: press toggles down, press again toggles up.

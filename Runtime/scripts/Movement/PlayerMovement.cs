@@ -931,8 +931,16 @@ namespace jeanf.universalplayer
                                     + Vector3.up * (standingHeight * 0.5f - radius);
             if (standingTopSphere.y <= currentTopSphere.y) return true;
 
+            // Only layers the capsule can PHYSICALLY collide with can block standing —
+            // same collision-matrix rule the grounding code uses. Without this, large
+            // non-trigger volume colliders on non-colliding layers (scene-streaming
+            // zones, audio/quest volumes) were read as ceilings and locked the crouch
+            // anywhere inside them, while normal walking passed straight through.
+            var effectiveMask = standUpObstructionMask & CollidableLayersMask();
+            if (effectiveMask == 0) return true;
+
             var count = Physics.OverlapCapsuleNonAlloc(currentTopSphere, standingTopSphere, radius,
-                StandUpHits, standUpObstructionMask, QueryTriggerInteraction.Ignore);
+                StandUpHits, effectiveMask, QueryTriggerInteraction.Ignore);
             for (var i = 0; i < count; i++)
             {
                 var hit = StandUpHits[i];
