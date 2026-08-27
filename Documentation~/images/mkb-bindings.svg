@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 640" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+  <rect x="0" y="0" width="1000" height="640" rx="10" fill="#16181c"/>
+  <text x="28" y="44" fill="#6b7078" font-size="13" font-weight="600" letter-spacing="3">UNIVERSAL PLAYER — MOUSE &amp; KEYBOARD</text>
+
+  <!-- ===================== keyboard ===================== -->
+  <!-- key template: 40x40 rx6; dim = unbound -->
+  <g font-size="12" font-weight="600" text-anchor="middle">
+    <!-- row 0: Esc -->
+    <rect x="230" y="204" width="40" height="40" rx="6" fill="#17191c" stroke="#e0574f" stroke-width="2"/>
+    <text x="250" y="228" fill="#e0574f" font-size="10">ESC</text>
+    <!-- row 1: 1 2 -->
+    <rect x="230" y="250" width="40" height="40" rx="6" fill="#17191c" stroke="#ff9a4d" stroke-width="2"/>
+    <text x="250" y="275" fill="#ff9a4d">1</text>
+    <rect x="272" y="250" width="40" height="40" rx="6" fill="#17191c" stroke="#ff9a4d" stroke-width="2"/>
+    <text x="292" y="275" fill="#ff9a4d">2</text>
+    <rect x="314" y="250" width="40" height="40" rx="6" fill="#17191c" stroke="#33363c" stroke-width="1.5"/>
+    <text x="334" y="275" fill="#4a4e55">3</text>
+    <!-- row 2: Q W E R T Y U I O P -->
+    <rect x="230" y="296" width="40" height="40" rx="6" fill="#17191c" stroke="#54575e" stroke-width="1.5"/>
+    <text x="250" y="321" fill="#9aa0a8">Q</text>
+    <rect x="272" y="296" width="40" height="40" rx="6" fill="#17191c" stroke="#4da3ff" stroke-width="2"/>
+    <text x="292" y="321" fill="#4da3ff">W</text>
+    <rect x="314" y="296" width="40" height="40" rx="6" fill="#17191c" stroke="#e8c04a" stroke-width="2"/>
+    <text x="334" y="321" fill="#e8c04a">E</text>
+    <rect x="356" y="296" width="40" height="40" rx="6" fill="#17191c" stroke="#33363c" stroke-width="1.5"/>
+    <text x="376" y="321" fill="#4a4e55">R</text>
+    <rect x="398" y="296" width="40" height="40" rx="6" fill="#17191c" stroke="#33363c" stroke-width="1.5"/>
+    <text x="418" y="321" fill="#4a4e55">T</text>
+    <rect x="440" y="296" width="40" height="40" rx="6" fill="#17191c" stroke="#33363c" stroke-width="1.5"/>
+    <text x="460" y="321" fill="#4a4e55">Y</text>
+    <rect x="482" y="296" width="40" height="40" rx="6" fill="#17191c" stroke="#33363c" stroke-width="1.5"/>
+    <text x="502" y="321" fill="#4a4e55">U</text>
+    <rect x="524" y="296" width="40" height="40" rx="6" fill="#17191c" stroke="#ff9a4d" stroke-width="2"/>
+    <text x="544" y="321" fill="#ff9a4d">I</text>
+    <rect x="566" y="296" width="40" height="40" rx="6" fill="#17191c" stroke="#33363c" stroke-width="1.5"/>
+    <text x="586" y="321" fill="#4a4e55">O</text>
+    <rect x="608" y="296" width="40" height="40" rx="6" fill="#17191c" stroke="#e0574f" stroke-width="2"/>
+    <text x="628" y="321" fill="#e0574f">P</text>
+    <!-- row 3: A S D F G -->
+    <rect x="240" y="342" width="40" height="40" rx="6" fill="#17191c" stroke="#4da3ff" stroke-width="2"/>
+    <text x="260" y="367" fill="#4da3ff">A</text>
+    <rect x="282" y="342" width="40" height="40" rx="6" fill="#17191c" stroke="#4da3ff" stroke-width="2"/>
+    <text x="302" y="367" fill="#4da3ff">S</text>
+    <rect x="324" y="342" width="40" height="40" rx="6" fill="#17191c" stroke="#4da3ff" stroke-width="2"/>
+    <text x="344" y="367" fill="#4da3ff">D</text>
+    <rect x="366" y="342" width="40" height="40" rx="6" fill="#17191c" stroke="#33363c" stroke-width="1.5"/>
+    <text x="386" y="367" fill="#4a4e55">F</text>
+    <rect x="408" y="342" width="40" height="40" rx="6" fill="#17191c" stroke="#33363c" stroke-width="1.5"/>
+    <text x="428" y="367" fill="#4a4e55">G</text>
+    <!-- row 4: Shift Z X C V B N M -->
+    <rect x="230" y="388" width="60" height="40" rx="6" fill="#17191c" stroke="#4da3ff" stroke-width="2"/>
+    <text x="260" y="412" fill="#4da3ff" font-size="10">SHIFT</text>
+    <rect x="296" y="388" width="40" height="40" rx="6" fill="#17191c" stroke="#33363c" stroke-width="1.5"/>
+    <text x="316" y="413" fill="#4a4e55">Z</text>
+    <rect x="338" y="388" width="40" height="40" rx="6" fill="#17191c" stroke="#33363c" stroke-width="1.5"/>
+    <text x="358" y="413" fill="#4a4e55">X</text>
+    <rect x="380" y="388" width="40" height="40" rx="6" fill="#17191c" stroke="#45d0b5" stroke-width="2"/>
+    <text x="400" y="413" fill="#45d0b5">C</text>
+    <rect x="422" y="388" width="40" height="40" rx="6" fill="#17191c" stroke="#33363c" stroke-width="1.5"/>
+    <text x="442" y="413" fill="#4a4e55">V</text>
+    <rect x="464" y="388" width="40" height="40" rx="6" fill="#17191c" stroke="#33363c" stroke-width="1.5"/>
+    <text x="484" y="413" fill="#4a4e55">B</text>
+    <rect x="506" y="388" width="40" height="40" rx="6" fill="#17191c" stroke="#33363c" stroke-width="1.5"/>
+    <text x="526" y="413" fill="#4a4e55">N</text>
+    <rect x="548" y="388" width="40" height="40" rx="6" fill="#17191c" stroke="#ff9a4d" stroke-width="2"/>
+    <text x="568" y="413" fill="#ff9a4d">M</text>
+    <!-- row 5: Ctrl Alt Space -->
+    <rect x="230" y="434" width="50" height="40" rx="6" fill="#17191c" stroke="#54575e" stroke-width="1.5"/>
+    <text x="255" y="458" fill="#9aa0a8" font-size="10">CTRL</text>
+    <rect x="286" y="434" width="50" height="40" rx="6" fill="#17191c" stroke="#54575e" stroke-width="1.5"/>
+    <text x="311" y="458" fill="#9aa0a8" font-size="10">ALT</text>
+    <rect x="342" y="434" width="220" height="40" rx="6" fill="#17191c" stroke="#7dcf5a" stroke-width="2"/>
+    <text x="452" y="458" fill="#7dcf5a" font-size="10" letter-spacing="2">SPACE</text>
+  </g>
+
+  <!-- ===================== mouse ===================== -->
+  <g>
+    <!-- body -->
+    <path d="M 745 260 Q 745 240 790 240 Q 835 240 835 260 L 835 340 Q 835 390 790 390 Q 745 390 745 340 Z" fill="#24272c" stroke="#383c44" stroke-width="2"/>
+    <!-- button split lines -->
+    <path d="M 790 240 L 790 300 M 745 300 L 835 300" stroke="#383c44" stroke-width="2" fill="none"/>
+    <!-- left button highlight -->
+    <path d="M 748 262 Q 748 244 786 243 L 786 296 L 748 296 Z" fill="none" stroke="#e8c04a" stroke-width="2"/>
+    <!-- wheel -->
+    <rect x="782" y="258" width="16" height="30" rx="8" fill="#17191c" stroke="#c9ccd1" stroke-width="2"/>
+  </g>
+
+  <!-- ===================== callouts ===================== -->
+  <g stroke-dasharray="4 4" stroke-width="1.5" fill="none">
+    <polyline points="230,224 160,224" stroke="#e0574f"/>
+    <polyline points="230,270 160,270" stroke="#ff9a4d"/>
+    <polyline points="240,362 160,362" stroke="#4da3ff"/>
+    <polyline points="230,408 160,408" stroke="#4da3ff"/>
+    <polyline points="334,296 334,172 400,172" stroke="#e8c04a"/>
+    <polyline points="544,296 544,140 610,140" stroke="#ff9a4d"/>
+    <polyline points="628,296 628,196 680,196" stroke="#e0574f"/>
+    <polyline points="400,428 400,500 300,500" stroke="#45d0b5"/>
+    <polyline points="568,428 568,480 640,480" stroke="#ff9a4d"/>
+    <polyline points="452,474 452,530 560,530" stroke="#7dcf5a"/>
+    <!-- mouse -->
+    <polyline points="766,243 766,160 850,160" stroke="#e8c04a"/>
+    <polyline points="790,254 790,120 860,120" stroke="#c9ccd1"/>
+    <polyline points="790,392 790,445" stroke="#45d0b5"/>
+  </g>
+  <g>
+    <circle cx="230" cy="224" r="3" fill="#e0574f"/>
+    <circle cx="230" cy="270" r="3" fill="#ff9a4d"/>
+    <circle cx="240" cy="362" r="3" fill="#4da3ff"/>
+    <circle cx="230" cy="408" r="3" fill="#4da3ff"/>
+    <circle cx="334" cy="296" r="3" fill="#e8c04a"/>
+    <circle cx="544" cy="296" r="3" fill="#ff9a4d"/>
+    <circle cx="628" cy="296" r="3" fill="#e0574f"/>
+    <circle cx="400" cy="428" r="3" fill="#45d0b5"/>
+    <circle cx="568" cy="428" r="3" fill="#ff9a4d"/>
+    <circle cx="452" cy="474" r="3" fill="#7dcf5a"/>
+    <circle cx="766" cy="243" r="3" fill="#e8c04a"/>
+    <circle cx="790" cy="254" r="3" fill="#c9ccd1"/>
+    <circle cx="790" cy="392" r="3" fill="#45d0b5"/>
+  </g>
+
+  <g font-size="13" font-weight="600" letter-spacing="1.5">
+    <text x="154" y="228" fill="#e0574f" text-anchor="end">MAIN MENU</text>
+    <text x="154" y="274" fill="#ff9a4d" text-anchor="end">ITEMS</text>
+    <text x="154" y="366" fill="#4da3ff" text-anchor="end">MOVE</text>
+    <text x="154" y="412" fill="#4da3ff" text-anchor="end">SPRINT</text>
+    <text x="406" y="176" fill="#e8c04a">INTERACT / TAKE</text>
+    <text x="616" y="144" fill="#ff9a4d">INVENTORY</text>
+    <text x="686" y="200" fill="#e0574f">PAUSE</text>
+    <text x="294" y="504" fill="#45d0b5" text-anchor="end">CROUCH (TOGGLE)</text>
+    <text x="646" y="484" fill="#ff9a4d">MAP</text>
+    <text x="566" y="534" fill="#7dcf5a">JUMP</text>
+    <text x="856" y="164" fill="#e8c04a">INTERACT / TAKE</text>
+    <text x="866" y="124" fill="#c9ccd1">SCROLL LISTS</text>
+    <text x="790" y="468" fill="#45d0b5" text-anchor="middle">LOOK AROUND</text>
+  </g>
+  <g font-size="11" font-weight="600" letter-spacing="1">
+    <text x="154" y="292" fill="#a06432" text-anchor="end">1 PRIMARY · 2 SECONDARY</text>
+    <text x="154" y="384" fill="#3d7fc4" text-anchor="end">ALSO ARROW KEYS</text>
+    <text x="154" y="430" fill="#3d7fc4" text-anchor="end">HOLD</text>
+    <text x="294" y="522" fill="#359e8a" text-anchor="end">AGAIN / SPACE / SPRINT — STAND UP</text>
+  </g>
+
+  <!-- footnotes -->
+  <g font-size="11" letter-spacing="1" fill="#6b7078">
+    <text x="230" y="560">FREE CAMERA — CTRL+ALT+F · FLY WITH WASD, E / Q UP / DOWN, HOLD RIGHT CLICK TO ROTATE</text>
+    <text x="230" y="582">CHORDS — CTRL+ALT+K FORCE DESKTOP · CTRL+ALT+V FORCE VR · CTRL+ALT+H DEBUG HUD · CTRL+ALT+J STATE SNAPSHOT</text>
+    <text x="972" y="618" text-anchor="end">ALL BINDINGS REMAPPABLE (FPS ACTION MAP)</text>
+  </g>
+</svg>

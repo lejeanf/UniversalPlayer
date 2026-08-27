@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+  <!-- background -->
+  <rect x="0" y="0" width="960" height="640" rx="10" fill="#16181c"/>
+  <text x="28" y="44" fill="#6b7078" font-size="13" font-weight="600" letter-spacing="3">UNIVERSAL PLAYER — GAMEPAD (DESKTOP MODE)</text>
+
+  <!-- ===================== controller body ===================== -->
+  <g>
+    <!-- grips -->
+    <ellipse cx="368" cy="345" rx="42" ry="78" fill="#24272c" stroke="#383c44" stroke-width="2" transform="rotate(16 368 345)"/>
+    <ellipse cx="592" cy="345" rx="42" ry="78" fill="#24272c" stroke="#383c44" stroke-width="2" transform="rotate(-16 592 345)"/>
+    <!-- body -->
+    <rect x="330" y="235" width="300" height="140" rx="65" fill="#24272c" stroke="#383c44" stroke-width="2"/>
+    <rect x="332" y="237" width="296" height="136" rx="63" fill="#24272c"/>
+  </g>
+
+  <!-- triggers / bumpers -->
+  <g font-size="9" font-weight="700" letter-spacing="1">
+    <rect x="352" y="196" width="64" height="16" rx="8" fill="#17191c" stroke="#54575e" stroke-width="1.5"/>
+    <text x="384" y="207" fill="#9aa0a8" text-anchor="middle">LT</text>
+    <rect x="352" y="218" width="72" height="14" rx="7" fill="#17191c" stroke="#a7abb3" stroke-width="1.5"/>
+    <text x="388" y="228" fill="#c9ccd1" text-anchor="middle">LB</text>
+    <rect x="544" y="196" width="64" height="16" rx="8" fill="#17191c" stroke="#e8c04a" stroke-width="1.5"/>
+    <text x="576" y="207" fill="#e8c04a" text-anchor="middle">RT</text>
+    <rect x="536" y="218" width="72" height="14" rx="7" fill="#17191c" stroke="#a7abb3" stroke-width="1.5"/>
+    <text x="572" y="228" fill="#c9ccd1" text-anchor="middle">RB</text>
+  </g>
+
+  <!-- left stick -->
+  <circle cx="390" cy="290" r="30" fill="#17191c" stroke="#4da3ff" stroke-width="2.5"/>
+  <circle cx="390" cy="290" r="18" fill="#2a2e34" stroke="#52565e" stroke-width="1.5"/>
+
+  <!-- right stick -->
+  <circle cx="525" cy="350" r="25" fill="#17191c" stroke="#45d0b5" stroke-width="2.5"/>
+  <circle cx="525" cy="350" r="15" fill="#2a2e34" stroke="#52565e" stroke-width="1.5"/>
+
+  <!-- d-pad -->
+  <g fill="#17191c" stroke="#ff9a4d" stroke-width="2">
+    <rect x="440" y="326" width="16" height="48" rx="4"/>
+    <rect x="424" y="342" width="48" height="16" rx="4"/>
+    <rect x="441" y="343" width="14" height="14" fill="#17191c" stroke="none"/>
+  </g>
+
+  <!-- face buttons -->
+  <g font-size="11" font-weight="700">
+    <circle cx="575" cy="264" r="12" fill="#17191c" stroke="#7dcf5a" stroke-width="2"/>
+    <text x="575" y="268" fill="#7dcf5a" text-anchor="middle">Y</text>
+    <circle cx="548" cy="291" r="12" fill="#17191c" stroke="#4a4f58" stroke-width="2"/>
+    <text x="548" y="295" fill="#767b83" text-anchor="middle">X</text>
+    <circle cx="602" cy="291" r="12" fill="#17191c" stroke="#4a4f58" stroke-width="2"/>
+    <text x="602" y="295" fill="#767b83" text-anchor="middle">B</text>
+    <circle cx="575" cy="318" r="12" fill="#17191c" stroke="#e8c04a" stroke-width="2"/>
+    <text x="575" y="322" fill="#e8c04a" text-anchor="middle">A</text>
+  </g>
+
+  <!-- select / start -->
+  <circle cx="460" cy="265" r="7" fill="#17191c" stroke="#e0574f" stroke-width="2"/>
+  <circle cx="500" cy="265" r="7" fill="#17191c" stroke="#e0574f" stroke-width="2"/>
+  <text x="460" y="283" fill="#6b7078" font-size="8" text-anchor="middle" letter-spacing="1">SELECT</text>
+  <text x="500" y="283" fill="#6b7078" font-size="8" text-anchor="middle" letter-spacing="1">START</text>
+
+  <!-- ===================== callouts ===================== -->
+  <g stroke-dasharray="4 4" stroke-width="1.5" fill="none">
+    <!-- LT / LB (left) -->
+    <polyline points="352,204 240,204" stroke="#54575e"/>
+    <polyline points="352,225 240,225" stroke="#a7abb3"/>
+    <!-- RT / RB (right) -->
+    <polyline points="608,204 720,204" stroke="#e8c04a"/>
+    <polyline points="608,225 720,225" stroke="#a7abb3"/>
+    <!-- left stick -->
+    <polyline points="390,322 390,468 150,468" stroke="#4da3ff"/>
+    <!-- right stick -->
+    <polyline points="525,377 525,475 770,475" stroke="#45d0b5"/>
+    <!-- d-pad -->
+    <polyline points="448,382 448,555 320,555" stroke="#ff9a4d"/>
+    <!-- Y (jump) -->
+    <polyline points="589,258 660,180 750,180" stroke="#7dcf5a"/>
+    <!-- A (interact) -->
+    <polyline points="589,318 770,318" stroke="#e8c04a"/>
+    <!-- select (pause) -->
+    <polyline points="460,257 460,120 240,120" stroke="#e0574f"/>
+    <!-- start (main menu) -->
+    <polyline points="500,257 500,130 696,130" stroke="#e0574f"/>
+  </g>
+  <!-- leader dots at controls -->
+  <g>
+    <circle cx="352" cy="204" r="3" fill="#54575e"/>
+    <circle cx="352" cy="225" r="3" fill="#a7abb3"/>
+    <circle cx="608" cy="204" r="3" fill="#e8c04a"/>
+    <circle cx="608" cy="225" r="3" fill="#a7abb3"/>
+    <circle cx="390" cy="322" r="3" fill="#4da3ff"/>
+    <circle cx="525" cy="377" r="3" fill="#45d0b5"/>
+    <circle cx="448" cy="382" r="3" fill="#ff9a4d"/>
+    <circle cx="589" cy="258" r="3" fill="#7dcf5a"/>
+    <circle cx="589" cy="318" r="3" fill="#e8c04a"/>
+    <circle cx="460" cy="257" r="3" fill="#e0574f"/>
+    <circle cx="500" cy="257" r="3" fill="#e0574f"/>
+  </g>
+
+  <!-- ===================== labels ===================== -->
+  <g font-size="13" font-weight="600" letter-spacing="1.5">
+    <!-- top left -->
+    <text x="234" y="208" fill="#c9ccd1" text-anchor="end">HOLD + R-STICK — SCROLL</text>
+    <text x="234" y="229" fill="#c9ccd1" text-anchor="end">SCROLL LIST ▼</text>
+    <!-- top right -->
+    <text x="726" y="208" fill="#e8c04a">INTERACT / TAKE (HOLD)</text>
+    <text x="726" y="229" fill="#c9ccd1">SCROLL LIST ▲</text>
+    <!-- select / start -->
+    <text x="234" y="124" fill="#e0574f" text-anchor="end">PAUSE</text>
+    <text x="702" y="134" fill="#e0574f">MAIN MENU</text>
+    <!-- Y / A -->
+    <text x="756" y="184" fill="#7dcf5a">JUMP</text>
+    <text x="776" y="322" fill="#e8c04a">INTERACT / TAKE</text>
+    <!-- left stick -->
+    <text x="144" y="472" fill="#4da3ff" text-anchor="end">MOVE</text>
+    <!-- right stick -->
+    <text x="776" y="479" fill="#45d0b5">LOOK AROUND</text>
+    <!-- d-pad block -->
+    <text x="314" y="528" fill="#6b7078" text-anchor="end" font-size="10" letter-spacing="2">D-PAD</text>
+    <text x="314" y="548" fill="#ff9a4d" text-anchor="end">▲ DRAW PRIMARY ITEM</text>
+    <text x="314" y="568" fill="#ff9a4d" text-anchor="end">▼ DRAW SECONDARY ITEM</text>
+    <text x="314" y="588" fill="#ff9a4d" text-anchor="end">◀ MAP&#160;&#160;&#160;▶ INVENTORY</text>
+  </g>
+  <g font-size="11" font-weight="600" letter-spacing="1">
+    <text x="144" y="492" fill="#3d7fc4" text-anchor="end">PRESS (L3) — SPRINT</text>
+    <text x="776" y="499" fill="#359e8a">PRESS (R3) — CROUCH</text>
+    <text x="776" y="517" fill="#6b7078">MENU / ITEM: CURSOR</text>
+    <text x="234" y="190" fill="#6b7078" text-anchor="end">FREE CAM: DOWN</text>
+    <text x="726" y="248" fill="#6b7078">FREE CAM: UP (RT)</text>
+    <text x="314" y="608" fill="#a06432" text-anchor="end">HOLD ▼ + Y — FREE CAMERA</text>
+    <text x="776" y="341" fill="#6b7078">MENUS: A SUBMIT · B BACK</text>
+  </g>
+
+  <!-- footnote -->
+  <text x="932" y="618" fill="#6b7078" font-size="11" letter-spacing="1" text-anchor="end">X · B — UNBOUND IN GAMEPLAY · ALL BINDINGS REMAPPABLE (FPS ACTION MAP)</text>
+</svg>

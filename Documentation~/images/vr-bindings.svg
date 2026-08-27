@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 640" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+  <rect x="0" y="0" width="1000" height="640" rx="10" fill="#16181c"/>
+  <text x="28" y="44" fill="#6b7078" font-size="13" font-weight="600" letter-spacing="3">UNIVERSAL PLAYER — VR (XR INTERACTION TOOLKIT RIG)</text>
+
+  <!-- ===================== controllers ===================== -->
+  <!-- LEFT controller -->
+  <g>
+    <rect x="340" y="300" width="44" height="115" rx="22" fill="#24272c" stroke="#383c44" stroke-width="2"/>
+    <ellipse cx="362" cy="278" rx="58" ry="30" fill="none" stroke="#383c44" stroke-width="10"/>
+    <circle cx="362" cy="250" r="34" fill="#24272c" stroke="#383c44" stroke-width="2"/>
+    <!-- thumbstick -->
+    <circle cx="352" cy="242" r="13" fill="#17191c" stroke="#4da3ff" stroke-width="2.5"/>
+    <circle cx="352" cy="242" r="6" fill="#2a2e34"/>
+    <!-- Y / X -->
+    <circle cx="378" cy="236" r="7" fill="#17191c" stroke="#c9ccd1" stroke-width="2"/>
+    <circle cx="374" cy="256" r="7" fill="#17191c" stroke="#e8c04a" stroke-width="2"/>
+    <!-- menu -->
+    <circle cx="356" cy="268" r="5" fill="#17191c" stroke="#e0574f" stroke-width="2"/>
+    <!-- trigger (front) -->
+    <rect x="322" y="296" width="20" height="30" rx="9" fill="#17191c" stroke="#e8c04a" stroke-width="2"/>
+    <!-- grip (side) -->
+    <rect x="378" y="320" width="14" height="44" rx="7" fill="#17191c" stroke="#ff9a4d" stroke-width="2"/>
+  </g>
+  <!-- RIGHT controller (mirrored geometry) -->
+  <g transform="translate(1000,0) scale(-1,1)">
+    <rect x="340" y="300" width="44" height="115" rx="22" fill="#24272c" stroke="#383c44" stroke-width="2"/>
+    <ellipse cx="362" cy="278" rx="58" ry="30" fill="none" stroke="#383c44" stroke-width="10"/>
+    <circle cx="362" cy="250" r="34" fill="#24272c" stroke="#383c44" stroke-width="2"/>
+    <circle cx="352" cy="242" r="13" fill="#17191c" stroke="#45d0b5" stroke-width="2.5"/>
+    <circle cx="352" cy="242" r="6" fill="#2a2e34"/>
+    <circle cx="378" cy="236" r="7" fill="#17191c" stroke="#c9ccd1" stroke-width="2"/>
+    <circle cx="374" cy="256" r="7" fill="#17191c" stroke="#e8c04a" stroke-width="2"/>
+    <rect x="322" y="296" width="20" height="30" rx="9" fill="#17191c" stroke="#e8c04a" stroke-width="2"/>
+    <rect x="378" y="320" width="14" height="44" rx="7" fill="#17191c" stroke="#ff9a4d" stroke-width="2"/>
+  </g>
+  <!-- button letters (not mirrored) -->
+  <g font-size="9" font-weight="700" text-anchor="middle">
+    <text x="378" y="240" fill="#9aa0a8">Y</text>
+    <text x="374" y="260" fill="#e8c04a">X</text>
+    <text x="622" y="240" fill="#9aa0a8">B</text>
+    <text x="626" y="260" fill="#e8c04a">A</text>
+    <text x="356" y="271" fill="#e0574f" font-size="7">≡</text>
+  </g>
+  <text x="300" y="205" fill="#6b7078" font-size="10" letter-spacing="2" text-anchor="middle">LEFT</text>
+  <text x="700" y="205" fill="#6b7078" font-size="10" letter-spacing="2" text-anchor="middle">RIGHT</text>
+
+  <!-- ===================== callouts ===================== -->
+  <g stroke-dasharray="4 4" stroke-width="1.5" fill="none">
+    <!-- left stick: walk -->
+    <polyline points="339,242 186,242" stroke="#4da3ff"/>
+    <!-- menu -->
+    <polyline points="350,272 240,420 186,420" stroke="#e0574f"/>
+    <!-- Y + B (draw item) — shared centered label -->
+    <polyline points="378,229 378,152 415,152" stroke="#c9ccd1"/>
+    <polyline points="622,229 622,152 585,152" stroke="#c9ccd1"/>
+    <!-- right stick: turn / teleport -->
+    <polyline points="661,242 814,242" stroke="#45d0b5"/>
+    <!-- grips (both hands) — shared centered label -->
+    <polyline points="385,366 385,400 455,400" stroke="#ff9a4d"/>
+    <polyline points="615,366 615,400 545,400" stroke="#ff9a4d"/>
+    <!-- interact: triggers + X/A (both hands) — shared centered label -->
+    <polyline points="332,328 332,460 668,460 668,328" stroke="#e8c04a"/>
+    <polyline points="374,263 374,460" stroke="#e8c04a"/>
+    <polyline points="626,263 626,460" stroke="#e8c04a"/>
+    <polyline points="500,460 500,472" stroke="#e8c04a"/>
+  </g>
+  <!-- leader dots at controls -->
+  <g>
+    <circle cx="339" cy="242" r="3" fill="#4da3ff"/>
+    <circle cx="350" cy="272" r="3" fill="#e0574f"/>
+    <circle cx="378" cy="229" r="3" fill="#c9ccd1"/>
+    <circle cx="622" cy="229" r="3" fill="#c9ccd1"/>
+    <circle cx="661" cy="242" r="3" fill="#45d0b5"/>
+    <circle cx="385" cy="366" r="3" fill="#ff9a4d"/>
+    <circle cx="615" cy="366" r="3" fill="#ff9a4d"/>
+    <circle cx="332" cy="328" r="3" fill="#e8c04a"/>
+    <circle cx="668" cy="328" r="3" fill="#e8c04a"/>
+    <circle cx="374" cy="263" r="3" fill="#e8c04a"/>
+    <circle cx="626" cy="263" r="3" fill="#e8c04a"/>
+  </g>
+
+  <!-- ===================== labels ===================== -->
+  <g font-size="13" font-weight="600" letter-spacing="1.5">
+    <text x="180" y="246" fill="#4da3ff" text-anchor="end">WALK</text>
+    <text x="180" y="424" fill="#e0574f" text-anchor="end">MAIN MENU</text>
+    <text x="500" y="156" fill="#c9ccd1" text-anchor="middle">DRAW PRIMARY ITEM</text>
+    <text x="820" y="246" fill="#45d0b5">SNAP TURN</text>
+    <text x="500" y="420" fill="#ff9a4d" text-anchor="middle">GRAB</text>
+    <text x="500" y="490" fill="#e8c04a" text-anchor="middle">INTERACT / USE / UI CLICK</text>
+  </g>
+  <g font-size="11" font-weight="600" letter-spacing="1">
+    <text x="180" y="264" fill="#3d7fc4" text-anchor="end">LEFT THUMBSTICK</text>
+    <text x="180" y="442" fill="#8a4640" text-anchor="end">MENU BUTTON (LEFT ONLY)</text>
+    <text x="500" y="176" fill="#6b7078" text-anchor="middle">Y / B — UPPER FACE BUTTON</text>
+    <text x="820" y="264" fill="#359e8a">RIGHT THUMBSTICK</text>
+    <text x="820" y="282" fill="#359e8a">PUSH FWD — TELEPORT</text>
+    <text x="820" y="300" fill="#6b7078">AIM THE ARC, RELEASE</text>
+    <text x="500" y="438" fill="#a06432" text-anchor="middle">GRIP — BOTH HANDS</text>
+    <text x="500" y="508" fill="#a58a35" text-anchor="middle">TRIGGER OR X / A — BOTH HANDS</text>
+    <text x="500" y="526" fill="#6b7078" text-anchor="middle">FINGERTIP RAY FOR UI</text>
+  </g>
+
+  <!-- footnotes -->
+  <g font-size="11" letter-spacing="1" fill="#6b7078">
+    <text x="500" y="566" text-anchor="middle">GRAB PREVIEW — HIGHLIGHT + GHOST HAND · HAND TRACKING — PINCH = SELECT / UI PRESS</text>
+    <text x="500" y="588" text-anchor="middle">ENTER VR — ANY CONTROLLER BUTTON (OR CTRL+ALT+V) · LEAVE — DELIBERATE KEYBOARD / MOUSE / GAMEPAD INPUT (OR CTRL+ALT+K)</text>
+    <text x="972" y="618" text-anchor="end">SAME EVENTS AS DESKTOP — FEATURE PARITY ACROSS MODES</text>
+  </g>
+</svg>

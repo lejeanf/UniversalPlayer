@@ -72,44 +72,100 @@ To integrate with your project, copy the `PlayerChannels` asset locally (the pla
 
 ---
 
-## Default bindings (Mouse & Keyboard / Gamepad)
+## Controls & bindings
 
-All bindings live in `Runtime/InputActions/UniversalPlayer_InputActions.inputactions` (FPS action map) and can be remapped per project.
-
-| Action | Mouse & Keyboard | Gamepad |
-|---|---|---|
-| Move | `W` `A` `S` `D` / arrow keys | Left stick |
-| Look around | Mouse | Right stick |
-| Sprint | `Left Shift` | Left stick press (L3) |
-| Crouch (toggle) | `C` | Right stick press (R3) |
-| Jump | `Space` | `Y` |
-| Stand up from crouch | `C` again, `Space` or sprint | R3 again, `Y` or L3 |
-| Scroll UI lists/tables (element under the cursor/reticle) | Mouse wheel | `RB` (up) / `LB` (down) |
-| Interact / take object | `E` / left click | `A` or right trigger |
-| Draw primary item | `1` | D-pad up |
-| Draw secondary item | `2` | D-pad down |
-| Map (raises `toggleMap` channel) | `M` | D-pad left |
-| Inventory (raises `toggleInventory` channel) | `I` | D-pad right |
-| Main menu | `Esc` | `Start` |
-| Pause | `P` | `Select` |
-| Toggle free camera | `Ctrl`+`Alt`+`F` | Hold D-pad down + `Y` |
-| Force Keyboard & Mouse (leave VR) | `Ctrl`+`Alt`+`K` | — |
-| Force VR | `Ctrl`+`Alt`+`V` | Press any controller button |
+All desktop/gamepad bindings live in `Runtime/InputActions/UniversalPlayer_InputActions.inputactions` (`FPS` action map; UI in the `XRI UI` map, VR in the `XRI Head`/`XRI LeftHand`/`XRI RightHand` maps) and can be remapped per project.
 
 Map and Inventory only *report the press* on their ScriptableObject event channels (`PlayerChannelsSO.toggleMap` / `toggleInventory`) — the project owns both UIs and their open/close state.
 
-Free camera, while active:
+Opening the main menu (any mode) pauses the game and fades the world to black; closing it fades back to whatever the world was doing (still loading → stays black, head in wall → desaturated, otherwise clear).
+
+### Mouse & Keyboard
+
+<img src="Documentation~/images/mkb-bindings.svg" alt="Mouse &amp; Keyboard default bindings" width="760"/>
+
+| Action | Binding |
+|---|---|
+| Move | `W` `A` `S` `D` / arrow keys |
+| Look around | Mouse |
+| Sprint | `Left Shift` (hold) |
+| Crouch (toggle) | `C` |
+| Jump | `Space` |
+| Stand up from crouch | `C` again, `Space` or sprint |
+| Interact / take object | `E` / left click |
+| Scroll UI lists/tables (element under the cursor) | Mouse wheel |
+| Draw primary item | `1` |
+| Draw secondary item | `2` |
+| Map (raises `toggleMap` channel) | `M` |
+| Inventory (raises `toggleInventory` channel) | `I` |
+| Main menu | `Esc` |
+| Pause | `P` |
+| Toggle free camera | `Ctrl`+`Alt`+`F` (also `Ctrl`+`Shift`+`C`) |
+
+### Gamepad
+
+<img src="Documentation~/images/gamepad-bindings.svg" alt="Gamepad default bindings" width="760"/>
+
+| Action | Binding |
+|---|---|
+| Move | Left stick |
+| Look around | Right stick |
+| Sprint | Left stick press (L3) |
+| Crouch (toggle) | Right stick press (R3) |
+| Jump | `Y` |
+| Stand up from crouch | R3 again, `Y` or L3 |
+| Interact / take object | `A` or `RT` (right trigger) |
+| Scroll UI lists/tables (element under the reticle) | `RB` (up) / `LB` (down) |
+| Free cursor (menu open / primary item drawn) | Right stick moves the cursor, `A` / `RT` click |
+| Scroll the content under the free cursor | Hold `LT` + right stick |
+| Draw primary item | D-pad up |
+| Draw secondary item | D-pad down |
+| Map (raises `toggleMap` channel) | D-pad left |
+| Inventory (raises `toggleInventory` channel) | D-pad right |
+| Main menu | `Start` |
+| Pause | `Select` |
+| Toggle free camera | Hold D-pad down + `Y` |
+| Menu navigation | Sticks / D-pad, `A` submit, `B` cancel |
+
+`X` and `B` are otherwise unbound in gameplay.
+
+### VR
+
+The VR rig follows the XR Interaction Toolkit conventions; item, seat and UI interactions raise the same events as on desktop.
+
+<img src="Documentation~/images/vr-bindings.svg" alt="VR default bindings" width="760"/>
+
+| Action | Binding |
+|---|---|
+| Walk | Left thumbstick |
+| Turn | Right thumbstick (snap turn) |
+| Teleport | Push a thumbstick forward, aim the arc, release |
+| Grab | Grip, both hands (highlight + ghost-hand grab preview) |
+| Interact / use / UI click | Trigger or `X` / `A` (lower face button), both hands — fingertip ray for UI |
+| Draw primary item | `Y` / `B` (upper face button, either hand) |
+| Main menu | Menu button (left controller) |
+| Hand tracking | Pinch = select / UI press |
+
+Gaze-timed validation applies where the scene uses it.
+
+### Free camera (while active)
 
 | Action | Mouse & Keyboard | Gamepad |
 |---|---|---|
 | Move | `W` `A` `S` `D` | Left stick |
 | Look around | Mouse (hold right click to rotate) | Right stick |
 | Up / down | `E` / `Q` | Right trigger / left trigger |
-| Exit | `Ctrl`+`Alt`+`F` | Hold D-pad down + `Y` |
+| Exit | `Ctrl`+`Alt`+`F` (or `Ctrl`+`Shift`+`C`) | Hold D-pad down + `Y` |
 
-VR uses the standard XR Interaction Toolkit bindings: sticks for locomotion/turning, grip to grab (with highlight + ghost-hand grab preview), trigger to select and click UI, plus gaze-timed validation where the scene uses it. The **menu button** (left controller) opens the main menu, like `Esc`/`Start` on desktop. Item, seat and UI interactions are the same events as on desktop — features behave identically across modes.
+### System & debug chords (keyboard, any mode)
 
-Opening the main menu (any mode) pauses the game and fades the world to black; closing it fades back to whatever the world was doing (still loading → stays black, head in wall → desaturated, otherwise clear).
+| Chord | Effect |
+|---|---|
+| `Ctrl`+`Alt`+`K` | Force Keyboard & Mouse (leave VR, even if the headset still reports as worn) |
+| `Ctrl`+`Alt`+`V` | Force VR (also: press any VR controller button) |
+| `Ctrl`+`Alt`+`F` | Toggle free camera |
+| `Ctrl`+`Alt`+`H` | Toggle the XR mode debug HUD |
+| `Ctrl`+`Alt`+`J` | Log a full XR state snapshot to the Console |
 
 ---
 
