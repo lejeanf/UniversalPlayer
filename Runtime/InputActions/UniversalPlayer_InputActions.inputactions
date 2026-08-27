@@ -2789,6 +2789,28 @@
                 },
                 {
                     "name": "",
+                    "id": "6439772f-0517-4f13-9056-faaeae3834d5",
+                    "path": "<XRController>{RightHand}/primaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0059decd-8eed-4b62-82c9-80a2db2dc99a",
+                    "path": "<XRController>{LeftHand}/primaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "b15897f3-430d-495a-9e79-311bdfb541d3",
                     "path": "<Gamepad>/rightTrigger",
                     "interactions": "",
