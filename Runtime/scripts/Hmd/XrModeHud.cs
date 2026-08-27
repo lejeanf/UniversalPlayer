@@ -37,6 +37,24 @@ namespace jeanf.universalplayer
         // immediate one shows stale pre-setup camera state).
         private float _settledLogAt = -1f;
         private string _settledTrigger;
+        private bool _vrChordWasDown;
+
+        // Held-state chord (not press edges) so it fires once no matter which
+        // InputSystem.Update consumed the edges; four simultaneous controls make an
+        // accidental trigger during normal two-handed grabbing unlikely.
+        private static bool VrSnapshotChordDown()
+        {
+            return GripAndTriggerHeld(UnityEngine.InputSystem.XR.XRController.leftHand)
+                && GripAndTriggerHeld(UnityEngine.InputSystem.XR.XRController.rightHand);
+        }
+
+        private static bool GripAndTriggerHeld(UnityEngine.InputSystem.XR.XRController controller)
+        {
+            if (controller == null) return false;
+            var grip = controller.TryGetChildControl<UnityEngine.InputSystem.Controls.ButtonControl>("gripPressed");
+            var trigger = controller.TryGetChildControl<UnityEngine.InputSystem.Controls.ButtonControl>("triggerPressed");
+            return grip != null && grip.isPressed && trigger != null && trigger.isPressed;
+        }
 
         private void OnEnable()
         {
@@ -62,6 +80,16 @@ namespace jeanf.universalplayer
             {
                 _settledLogAt = -1f;
                 LogSnapshot(_settledTrigger);
+            }
+
+            // VR-side snapshot chord: BOTH grips + BOTH triggers held. Needed because the
+            // keyboard chord (Ctrl+Alt+J) cannot be reached while wearing the headset,
+            // and any other keyboard input is unavailable in VR by definition.
+            if (logSnapshots)
+            {
+                var chordDown = VrSnapshotChordDown();
+                if (chordDown && !_vrChordWasDown) LogSnapshot("manual (VR chord: both grips + both triggers)");
+                _vrChordWasDown = chordDown;
             }
 
             var kb = Keyboard.current;
@@ -115,6 +143,11 @@ namespace jeanf.universalplayer
                   .Append(" activeAndEnabled=").Append(cam.isActiveAndEnabled)
                   .Append(" stereoEnabled=").Append(cam.stereoEnabled)
                   .Append(" stereoTargetEye=").Append(cam.stereoTargetEye)
+                  // fov + the projection's off-center term: after leaving VR, m02 != 0
+                  // means the camera is stranded on a per-eye (asymmetric) projection —
+                  // the flat view then still looks like the left-eye mirror.
+                  .Append(" fov=").Append(cam.fieldOfView.ToString("F1"))
+                  .Append(" projM02=").Append(cam.projectionMatrix.m02.ToString("F4"))
                   .Append(" targetTexture=").Append(cam.targetTexture != null ? cam.targetTexture.name : "null")
                   .Append(" cullingMask=0x").Append(cam.cullingMask.ToString("X"))
                   .Append(" nearClip=").Append(cam.nearClipPlane)

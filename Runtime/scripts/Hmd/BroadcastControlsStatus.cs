@@ -330,6 +330,22 @@ namespace jeanf.universalplayer
             return rising;
         }
 
+        // Every Ctrl+Alt combo is a tool chord (Ctrl+Alt+H overlay, Ctrl+Alt+J snapshot,
+        // Ctrl+Alt+F freecam, Ctrl+Alt+V force-VR...), i.e. meta input — NOT a hand
+        // returning to the keyboard to play — so none of them may read as a deliberate
+        // "leave VR" gesture (Ctrl+Alt+J used to dump a diagnostic snapshot AND kick the
+        // player out of VR). Ctrl+Alt+K still exits VR through its own force-keyboard
+        // path, which is evaluated before the deliberate-exit scan.
+        private static bool CtrlAltHeld(Keyboard keyboard) =>
+            (keyboard.leftCtrlKey.isPressed || keyboard.rightCtrlKey.isPressed)
+            && (keyboard.leftAltKey.isPressed || keyboard.rightAltKey.isPressed);
+
+        // The stricter VR-exit variant: EITHER modifier suppresses the scan, because a
+        // chord's first keydown (just Ctrl) precedes the frame where both are held.
+        private static bool CtrlOrAltHeld(Keyboard keyboard) =>
+            keyboard.leftCtrlKey.isPressed || keyboard.rightCtrlKey.isPressed
+            || keyboard.leftAltKey.isPressed || keyboard.rightAltKey.isPressed;
+
         // Rising edge latched on isPressed, NOT wasPressedThisFrame: the press edge is
         // consumed by whichever InputSystem.Update ran last (a manual update from tooling
         // or tests eats it before this component polls), while the pressed STATE survives
@@ -373,8 +389,14 @@ namespace jeanf.universalplayer
             if (ComboDown(forceVrKey, forceVrRequiresCtrl, forceVrRequiresAlt))
                 return ControlModeArbiter.DesktopInput.None;
 
+            // Ctrl/Alt suppress the key scan entirely: tool chords (Ctrl+Alt+J snapshot,
+            // Ctrl+Alt+H overlay...) arrive as Ctrl, THEN Alt, THEN the letter — the
+            // very first Ctrl keydown must not already read as "leaving VR". Nobody
+            // returns to the keyboard by pressing only Ctrl; a real exit is WASD, a
+            // mouse move/click, or the gamepad — all still detected below/afterwards.
             var keyboard = Keyboard.current;
-            if (keyboard != null && keyboard.anyKey.wasPressedThisFrame) return ControlModeArbiter.DesktopInput.KeyboardMouse;
+            if (keyboard != null && !CtrlOrAltHeld(keyboard) && keyboard.anyKey.wasPressedThisFrame)
+                return ControlModeArbiter.DesktopInput.KeyboardMouse;
 
             var mouse = Mouse.current;
             if (mouse != null)
@@ -390,7 +412,11 @@ namespace jeanf.universalplayer
         private static ControlModeArbiter.DesktopInput DesktopInputThisFrame()
         {
             var keyboard = Keyboard.current;
-            if (keyboard != null && keyboard.anyKey.wasPressedThisFrame) return ControlModeArbiter.DesktopInput.KeyboardMouse;
+            // Tool chords don't count here either: toggling the overlay (Ctrl+Alt+H) or
+            // dumping a snapshot (Ctrl+Alt+J) while playing on gamepad must not flip the
+            // mode to Keyboard&Mouse.
+            if (keyboard != null && keyboard.anyKey.wasPressedThisFrame && !CtrlAltHeld(keyboard))
+                return ControlModeArbiter.DesktopInput.KeyboardMouse;
 
             var mouse = Mouse.current;
             if (mouse != null)

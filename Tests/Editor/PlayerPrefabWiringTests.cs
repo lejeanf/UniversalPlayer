@@ -105,6 +105,24 @@ namespace jeanf.universalplayer.tests
         }
 
         [Test]
+        public void XrModeManager_ManagesCameraXrRendering_AndNeverStopsTheDisplay()
+        {
+            var manager = RequireComponent<XrModeManager>();
+            var so = new SerializedObject(manager);
+            Assert.That(so.FindProperty("manageCameraXrRendering").boolValue, Is.True,
+                "manageCameraXrRendering must ship enabled — the camera switch (plus its projection reset) " +
+                "is what returns a correct flat desktop view after leaving VR, in URP and HDRP alike.");
+            Assert.That(so.FindProperty("stopXrDisplayOnDesktop").intValue,
+                Is.EqualTo((int)XrModeManager.DisplayStopMode.Never),
+                "stopXrDisplayOnDesktop must ship Never: stopping the display buys only Editor chrome " +
+                "(the eye dropdown) but costs a full Link re-handshake — seconds of black headset — on " +
+                "every VR re-entry. See XrModeManager's class comment.");
+            Assert.That(so.FindProperty("keepXrSessionAlive").boolValue, Is.True,
+                "keepXrSessionAlive must ship enabled — without desktop frames the OpenXR runtime idles " +
+                "the session and every VR entry (the first included) pays a slow session start over Link.");
+        }
+
+        [Test]
         public void XrModeHud_ShipsOnThePlayer_OverlayOffByDefault()
         {
             // Diagnostic HUD for the presence signals + resolved mode. Ships present but

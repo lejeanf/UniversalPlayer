@@ -303,6 +303,40 @@ namespace jeanf.universalplayer.tests
                 "Ctrl+Alt+V must re-enter VR over a no-presence runtime. Trace: " + string.Join(" ", trace));
         }
 
+        [UnityTest]
+        public IEnumerator ToolChord_CtrlAltJ_DoesNotLeaveVr()
+        {
+            _fakeState = Worn;
+            yield return Begin();
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.XR), "Precondition: VR.");
+
+            // The diagnostic snapshot chord, pressed the way a human presses it: Ctrl
+            // lands first, then Alt, then J (one key per frame — see the Ctrl+Alt+V test
+            // for why). NONE of these keydowns may read as a deliberate 'leave VR'
+            // gesture — the lone leading Ctrl included.
+            Press(Keyboard.current.leftCtrlKey);
+            yield return null;
+            Press(Keyboard.current.leftAltKey);
+            yield return null;
+            Press(Keyboard.current.jKey);
+            yield return null;
+            yield return null;
+
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.XR),
+                "Ctrl+Alt+J (diagnostic snapshot) kicked the player out of VR — tool chords and their " +
+                "leading modifier keydowns must not count as deliberate desktop input.");
+
+            Release(Keyboard.current.jKey);
+            yield return null;
+            Release(Keyboard.current.leftAltKey);
+            yield return null;
+            Release(Keyboard.current.leftCtrlKey);
+            yield return null;
+
+            Assert.That(Mode, Is.EqualTo(BroadcastControlsStatus.ControlScheme.XR),
+                "Releasing the Ctrl+Alt+J chord must not leave VR either.");
+        }
+
         // ---- desktop <-> desktop -------------------------------------------------
 
         [UnityTest]

@@ -10,7 +10,9 @@
         "jeanf.propertyDrawer",
         "jeanf.eventsystem",
         "Unity.RenderPipelines.Core.Runtime",
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "Unity.RenderPipelines.Universal.Runtime",
+        "Unity.RenderPipelines.HighDefinition.Runtime"
     ],
     "includePlatforms": [
         "Editor"
@@ -25,6 +27,17 @@
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
     ],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.render-pipelines.universal",
+            "expression": "12.0.0",
+            "define": "UNIVERSALPLAYER_URP"
+        },
+        {
+            "name": "com.unity.render-pipelines.high-definition",
+            "expression": "12.0.0",
+            "define": "UNIVERSALPLAYER_HDRP"
+        }
+    ],
     "noEngineReferences": false
 }
