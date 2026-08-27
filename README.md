@@ -171,6 +171,8 @@ Gaze-timed validation applies where the scene uses it.
 
 ## Cursor feedback
 
+<img src="Documentation~/images/cursor-states.svg" alt="Animated reticle states" width="760"/>
+
 The desktop / gamepad reticle is driven by a single **`CursorStateController`** on the
 Player's `_settings` object — one place for every cursor color and icon:
 
