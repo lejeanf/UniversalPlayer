@@ -1,3 +1,4 @@
+using System;
 using jeanf.EventSystem;
 using jeanf.validationTools;
 using System.Collections;
@@ -27,14 +28,16 @@ namespace jeanf.universalplayer
             RightHand
         }
 
+        private Action<InputAction.CallbackContext> _onActionPerformed;
+
         private void OnEnable()
         {
-            uiClick.action.performed += ctx => AssignLastUsedHand(ctx.action, ctx.control);
-            xrLeftGrab.action.performed += ctx => AssignLastUsedHand(ctx.action, ctx.control);
-            xrRightGrab.action.performed += ctx => AssignLastUsedHand(ctx.action, ctx.control);
-            drawPrimaryItem_LeftHand.action.performed += ctx => AssignLastUsedHand(ctx.action, ctx.control);
-            drawPrimaryItem_RightHand.action.performed += ctx => AssignLastUsedHand(ctx.action, ctx.control);
-
+            _onActionPerformed ??= ctx => AssignLastUsedHand(ctx.action, ctx.control);
+            uiClick.action.performed += _onActionPerformed;
+            xrLeftGrab.action.performed += _onActionPerformed;
+            xrRightGrab.action.performed += _onActionPerformed;
+            drawPrimaryItem_LeftHand.action.performed += _onActionPerformed;
+            drawPrimaryItem_RightHand.action.performed += _onActionPerformed;
         }
 
         private void OnDisable() => Unsubscribe();
@@ -43,11 +46,12 @@ namespace jeanf.universalplayer
 
         private void Unsubscribe()
         {
-            uiClick.action.performed -= ctx => AssignLastUsedHand(ctx.action, ctx.control);
-            xrLeftGrab.action.performed -= ctx => AssignLastUsedHand(ctx.action, ctx.control);
-            xrRightGrab.action.performed -= ctx => AssignLastUsedHand(ctx.action, ctx.control);
-            drawPrimaryItem_LeftHand.action.performed -= ctx => AssignLastUsedHand(ctx.action, ctx.control);
-            drawPrimaryItem_RightHand.action.performed -= ctx => AssignLastUsedHand(ctx.action, ctx.control);
+            if (_onActionPerformed == null) return;
+            uiClick.action.performed -= _onActionPerformed;
+            xrLeftGrab.action.performed -= _onActionPerformed;
+            xrRightGrab.action.performed -= _onActionPerformed;
+            drawPrimaryItem_LeftHand.action.performed -= _onActionPerformed;
+            drawPrimaryItem_RightHand.action.performed -= _onActionPerformed;
         }
 
 
@@ -55,7 +59,6 @@ namespace jeanf.universalplayer
         {
             InputBinding inputBinding;
             inputBinding = (InputBinding)action.GetBindingForControl(control);
-            //This needs to be done properly later
             if (inputBinding.effectivePath.Contains("RightHand"))
             {
                 if (action == drawPrimaryItem_RightHand.action)

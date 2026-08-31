@@ -33,6 +33,9 @@ namespace jeanf.universalplayer
         [SerializeField] private ActionContainerSO _actionContainer;
         [Validation("A reference to ActionRebindEventChannelSO is required.")]
         [SerializeField] private ActionRebindEventChannelSO actionRebindedListener;
+
+        private readonly Dictionary<InputAction, Action<InputAction.CallbackContext>> _actionHandlers =
+            new Dictionary<InputAction, Action<InputAction.CallbackContext>>();
         #endregion
 
         private void Awake()
@@ -86,10 +89,18 @@ namespace jeanf.universalplayer
         {
             foreach (var action in _inputActionList)
             {
-                action.Enable();
-                action.performed += ctx => ForwardActionToSO(_actionContainer._actions[action], ctx);
+                var capturedAction = action;
+                if (_actionHandlers.TryGetValue(capturedAction, out var existing))
+                {
+                    capturedAction.performed -= existing;
+                }
+                Action<InputAction.CallbackContext> handler =
+                    ctx => ForwardActionToSO(_actionContainer._actions[capturedAction], ctx);
+                _actionHandlers[capturedAction] = handler;
+                capturedAction.Enable();
+                capturedAction.performed += handler;
             }
-            actionRebindedListener.OnEventRaised += (input, value) => RebindInput(input, value);
+            actionRebindedListener.OnEventRaised += RebindInput;
         }
 
         private void OnDisable() => Unsubscribe();
@@ -98,16 +109,17 @@ namespace jeanf.universalplayer
 
         private void Unsubscribe()
         {
-            foreach (var action in _inputActionList)
+            foreach (var pair in _actionHandlers)
             {
-                action.performed -= ctx => ForwardActionToSO(_actionContainer._actions[action], ctx);
-                action.Disable();
+                pair.Key.performed -= pair.Value;
+                pair.Key.Disable();
             }
+            _actionHandlers.Clear();
             _actionContainer._actions.Clear();
             _actionContainer._actions.TrimExcess();
             _inputActionList.Clear();
             _inputActionList.TrimExcess();
-            actionRebindedListener.OnEventRaised -= (input, value) => RebindInput(input, value);
+            actionRebindedListener.OnEventRaised -= RebindInput;
         }
 
         #if UNITY_EDITOR

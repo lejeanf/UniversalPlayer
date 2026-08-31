@@ -101,7 +101,7 @@ namespace jeanf.universalplayer
 
         private void OnEnable()
         {
-            actionRebindedListener.OnEventRaised += (InputAction, Int) => ChangeActionBindingOnDeltaScript(InputAction, Int);
+            actionRebindedListener.OnEventRaised += ChangeActionBindingOnDeltaScript;
         }
 
         private void OnDisable() => Unsubscribe();
@@ -111,7 +111,7 @@ namespace jeanf.universalplayer
 
         private void Unsubscribe()
         {
-            actionRebindedListener.OnEventRaised -= (InputAction, Int) => ChangeActionBindingOnDeltaScript(InputAction, Int);
+            actionRebindedListener.OnEventRaised -= ChangeActionBindingOnDeltaScript;
 
         }
 

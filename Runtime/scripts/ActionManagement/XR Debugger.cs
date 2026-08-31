@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,21 +10,25 @@ namespace jeanf.universalplayer
         [SerializeField] InputActionReference snapTurnAction;
         [SerializeField] PlayerInput PlayerInput;
 
-
+        private Action<InputAction.CallbackContext> _onMove;
+        private Action<InputAction.CallbackContext> _onSnapTurn;
 
         private void OnEnable()
         {
-            moveAction.action.performed += ctx => Move(ctx.ReadValue<Vector2>());
-            moveAction.action.performed += ctx => SnapTurn(ctx.ReadValue<Vector2>());
-
+            _onMove ??= ctx => Move(ctx.ReadValue<Vector2>());
+            _onSnapTurn ??= ctx => SnapTurn(ctx.ReadValue<Vector2>());
+            moveAction.action.performed += _onMove;
+            snapTurnAction.action.performed += _onSnapTurn;
         }
 
-        private void OnDisable()
+        private void OnDisable() => Unsubscribe();
+
+        private void OnDestroy() => Unsubscribe();
+
+        private void Unsubscribe()
         {
-            moveAction.action.performed -= ctx => Move(ctx.ReadValue<Vector2>());
-            snapTurnAction.action.performed -= ctx => SnapTurn(ctx.ReadValue<Vector2>());
-
-
+            if (_onMove != null) moveAction.action.performed -= _onMove;
+            if (_onSnapTurn != null) snapTurnAction.action.performed -= _onSnapTurn;
         }
 
         private void Move(Vector2 value)

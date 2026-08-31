@@ -113,6 +113,8 @@ namespace jeanf.universalplayer
         internal bool DebugUiOwnsPress => UiOwnsThePress();
 
         bool objectIsSnapping;
+        private Action<InputAction.CallbackContext> _onTakePerformed;
+        private Action<InputAction.CallbackContext> _onScrollPerformed;
         #endregion
 
         #region Default MonoBehaviour Methods
@@ -124,11 +126,13 @@ namespace jeanf.universalplayer
 
         private void Subscribe()
         {
-            if (takeAction) takeAction.action.performed += ctx => DispatchAction();
+            _onTakePerformed ??= ctx => DispatchAction();
+            _onScrollPerformed ??= ctx => UpdateObjectDistance(ctx.ReadValue<float>());
+            if (takeAction) takeAction.action.performed += _onTakePerformed;
             else
                 Debug.LogWarning($"{LogPrefix} TakeObject on '{name}': the Take action is not assigned — nothing can " +
                     "EVER be picked up (no press ever reaches this component). Wire FPS/TakeObject on the Player prefab.", this);
-            if(scrollAction) scrollAction.action.performed += ctx => UpdateObjectDistance(ctx.ReadValue<float>());
+            if(scrollAction) scrollAction.action.performed += _onScrollPerformed;
             try
             {
                 roomIdChannelSO.OnEventRaised += AssignRoomId;
@@ -142,8 +146,8 @@ namespace jeanf.universalplayer
 
         private void Unsubscribe()
         {
-            if(takeAction) takeAction.action.performed -= ctx => DispatchAction();
-            if(scrollAction) scrollAction.action.performed -= ctx => UpdateObjectDistance(ctx.ReadValue<float>());
+            if (takeAction && _onTakePerformed != null) takeAction.action.performed -= _onTakePerformed;
+            if (scrollAction && _onScrollPerformed != null) scrollAction.action.performed -= _onScrollPerformed;
             try
             {
                 roomIdChannelSO.OnEventRaised -= AssignRoomId;

@@ -85,7 +85,7 @@ namespace jeanf.universalplayer
 
         private void OnEnable()
         {
-            actionRebindListenerSO.OnEventRaised += (input, index) => StartRebinding(input, index);
+            actionRebindListenerSO.OnEventRaised += StartRebinding;
         }
 
         private void OnDisable() => Unsubscribe();
@@ -94,8 +94,7 @@ namespace jeanf.universalplayer
 
         private void Unsubscribe()
         {
-            actionRebindListenerSO.OnEventRaised -= (input, index) => StartRebinding(input, index);
-
+            actionRebindListenerSO.OnEventRaised -= StartRebinding;
         }
 
         private void StartRebinding(InputAction action, int bindingIndex)

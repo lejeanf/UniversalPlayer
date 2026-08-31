@@ -29,18 +29,21 @@ namespace jeanf.universalplayer
         private void OnEnable()
         {
             TakeObject.OnGrabDeactivateCollider += HandleColliders;
-            GetPrimaryInHandItemWithVRController.OnIpadStateChanged += ctx => HandleCollidersForSpecificHand(ctx);
+            GetPrimaryInHandItemWithVRController.OnIpadStateChanged += HandleCollidersForSpecificHand;
             controlSchemeChangeEvent.OnEventRaised += CheckXRStatus;
             PrimaryItemController.TriggerLastUsedHand += HandleColliders;
         }
-        private void OnDisable()
+
+        private void OnDisable() => Unsubscribe();
+
+        private void OnDestroy() => Unsubscribe();
+
+        private void Unsubscribe()
         {
             TakeObject.OnGrabDeactivateCollider -= HandleColliders;
-            GetPrimaryInHandItemWithVRController.OnIpadStateChanged -= ctx => HandleCollidersForSpecificHand(ctx);
+            GetPrimaryInHandItemWithVRController.OnIpadStateChanged -= HandleCollidersForSpecificHand;
             controlSchemeChangeEvent.OnEventRaised -= CheckXRStatus;
             PrimaryItemController.TriggerLastUsedHand -= HandleColliders;
-
-
         }
         private void Update()
         {
@@ -78,7 +81,7 @@ namespace jeanf.universalplayer
                 transform.parent.gameObject.SetActive(false);
             }
         }
-        void HandleCollidersForSpecificHand(IpadState value)
+        private void HandleCollidersForSpecificHand(IpadState value)
         {
             switch (value)
             {
@@ -128,7 +131,7 @@ namespace jeanf.universalplayer
                     break;
             }
         }
-        void HandleColliders(bool value, HandType side)
+        private void HandleColliders(bool value, HandType side)
         {
             if (side == handType)
             {
@@ -149,7 +152,7 @@ namespace jeanf.universalplayer
             }
         }
 
-        void HandleColliders(XRHandsInteractionManager.LastUsedHand hand, bool state)
+        private void HandleColliders(XRHandsInteractionManager.LastUsedHand hand, bool state)
         {
             switch (hand)
             {
