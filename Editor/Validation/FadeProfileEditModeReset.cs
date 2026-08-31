@@ -37,7 +37,7 @@ namespace jeanf.universalplayer
             foreach (var guid in AssetDatabase.FindAssets("FadeGlobalVolume t:VolumeProfile"))
                 ResetProfile(AssetDatabase.LoadAssetAtPath<VolumeProfile>(AssetDatabase.GUIDToAssetPath(guid)));
 
-            foreach (var fadeMask in Object.FindObjectsByType<FadeMask>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            foreach (var fadeMask in Object.FindObjectsByType<FadeMask>(FindObjectsInactive.Include))
             {
                 var serialized = new SerializedObject(fadeMask);
                 ResetProfile(serialized.FindProperty("volumeProfile")?.objectReferenceValue as VolumeProfile);

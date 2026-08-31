@@ -398,7 +398,7 @@ namespace jeanf.universalplayer
             if (primaryItemController == null && !primaryItemControllerSearched)
             {
                 primaryItemControllerSearched = true;
-                primaryItemController = FindFirstObjectByType<PrimaryItemController>(FindObjectsInactive.Include);
+                primaryItemController = FindAnyObjectByType<PrimaryItemController>(FindObjectsInactive.Include);
             }
             return primaryItemController;
         }
@@ -546,7 +546,7 @@ namespace jeanf.universalplayer
             {
                 anchorsSearched = true;
                 itemAnchors = GetComponentInParent<PlayerItemAnchors>()
-                              ?? FindFirstObjectByType<PlayerItemAnchors>(FindObjectsInactive.Include);
+                              ?? FindAnyObjectByType<PlayerItemAnchors>(FindObjectsInactive.Include);
             }
             return itemAnchors;
         }

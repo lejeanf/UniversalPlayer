@@ -138,11 +138,11 @@ namespace jeanf.universalplayer
         // ---- 1b. the gaze-ray press pipeline (the pointer in locked desktop mode) ----
         private void AppendGazePressPipeline()
         {
-            var moduleCount = Object.FindObjectsByType<XRUIInputModule>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length;
+            var moduleCount = Object.FindObjectsByType<XRUIInputModule>(FindObjectsInactive.Include).Length;
             if (moduleCount > 1)
                 _text.AppendLine($"!! {moduleCount} XRUIInputModules exist (incl. inactive) — duplicate EventSystems can hijack the pointer.");
 
-            var gazeClick = Object.FindFirstObjectByType<GazeDesktopClick>(FindObjectsInactive.Include);
+            var gazeClick = Object.FindAnyObjectByType<GazeDesktopClick>(FindObjectsInactive.Include);
             if (gazeClick == null)
             {
                 _text.AppendLine("GazeDesktopClick: MISSING — locked-mode ray has no click/drag/scroll path (M&K falls back to the frozen mouse pointer, gamepad has nothing).");
@@ -181,7 +181,7 @@ namespace jeanf.universalplayer
         // ---- 1c. the world-canvas click path (TrackedDeviceGraphicRaycaster canvases) ----
         private void AppendWorldUiInteractor()
         {
-            var interactor = Object.FindFirstObjectByType<DesktopWorldUiInteractor>(FindObjectsInactive.Include);
+            var interactor = Object.FindAnyObjectByType<DesktopWorldUiInteractor>(FindObjectsInactive.Include);
             if (interactor == null)
             {
                 _text.AppendLine("DesktopWorldUiInteractor: MISSING — world-space canvases (TrackedDevice-only) have NO desktop click/drag path.");
@@ -202,7 +202,7 @@ namespace jeanf.universalplayer
         // no PickableObject on it or its parents. Walk the whole chain, live.
         private void AppendPickup()
         {
-            var take = Object.FindFirstObjectByType<TakeObject>(FindObjectsInactive.Include);
+            var take = Object.FindAnyObjectByType<TakeObject>(FindObjectsInactive.Include);
             if (take == null)
             {
                 _text.AppendLine("PICKUP: no TakeObject in the scene — nothing can be picked up.");
@@ -281,7 +281,7 @@ namespace jeanf.universalplayer
         // off — so one that is stuck on holds the reticle lit forever. Show each.
         private void AppendReticleHover()
         {
-            var reticle = Object.FindFirstObjectByType<ReticleHoverFeedback>(FindObjectsInactive.Include);
+            var reticle = Object.FindAnyObjectByType<ReticleHoverFeedback>(FindObjectsInactive.Include);
             if (reticle == null)
             {
                 _text.AppendLine("RETICLE: no ReticleHoverFeedback — the reticle cannot tint at all.");
@@ -309,7 +309,7 @@ namespace jeanf.universalplayer
         // ---- 2. every canvas and whether the mouse can click it ----
         private void AppendCanvasInventory()
         {
-            var canvases = Object.FindObjectsByType<Canvas>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            var canvases = Object.FindObjectsByType<Canvas>(FindObjectsInactive.Exclude);
             _text.AppendLine($"Canvases (active, root): probing raycasters...");
             var shown = 0;
             foreach (var canvas in canvases)

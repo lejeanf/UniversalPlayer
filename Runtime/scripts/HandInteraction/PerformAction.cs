@@ -40,7 +40,7 @@ namespace jeanf.universalplayer
             // player's Interact binding — same resolve-by-name pattern as SitController.
             resolvedAction = performAction != null
                 ? performAction.action
-                : FindFirstObjectByType<PlayerInput>(FindObjectsInactive.Include)?.actions
+                : FindAnyObjectByType<PlayerInput>(FindObjectsInactive.Include)?.actions
                     ?.FindAction("FPS/Interact", throwIfNotFound: false);
 
             if (resolvedAction != null) resolvedAction.performed += OnPerformAction;

@@ -90,7 +90,7 @@ namespace jeanf.universalplayer.editor
         /// </summary>
         private void DrawPickableLayerAudit(int mask, SerializedProperty layerMaskProperty, float maxDistance)
         {
-            var pickables = Object.FindObjectsByType<PickableObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var pickables = Object.FindObjectsByType<PickableObject>(FindObjectsInactive.Include);
             if (pickables.Length == 0)
             {
                 EditorGUILayout.HelpBox(

@@ -41,7 +41,7 @@ namespace jeanf.universalplayer
             // instantly closes again.
             if (mainMenuAction != null)
             {
-                var menuOwner = FindFirstObjectByType<MainMenuController>();
+                var menuOwner = FindAnyObjectByType<MainMenuController>();
                 if (menuOwner != null)
                 {
                     Debug.Log($"{LogPrefix} UiToggleInput on '{name}': '{menuOwner.name}' has a MainMenuController — " +

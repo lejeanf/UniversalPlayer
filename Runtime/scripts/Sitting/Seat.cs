@@ -167,7 +167,7 @@ namespace jeanf.universalplayer
                 // Cheap cached lookup — gizmos draw every repaint.
                 if (UnityEditor.EditorApplication.timeSinceStartup > _gizmoSitControllerLookupTime + 5d || _gizmoSitController == null)
                 {
-                    _gizmoSitController = FindFirstObjectByType<SitController>(FindObjectsInactive.Include);
+                    _gizmoSitController = FindAnyObjectByType<SitController>(FindObjectsInactive.Include);
                     _gizmoSitControllerLookupTime = UnityEditor.EditorApplication.timeSinceStartup;
                 }
                 var standingHeight = _gizmoSitController != null ? _gizmoSitController.StandingCameraHeight : 1.7f;

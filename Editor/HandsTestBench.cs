@@ -79,7 +79,7 @@ namespace jeanf.universalplayer
             EditorGUILayout.LabelField("Control scheme (all listeners react)", EditorStyles.boldLabel);
             EditorGUILayout.LabelField("Current", BroadcastControlsStatus.controlScheme.ToString());
 
-            var broadcaster = FindFirstObjectByType<BroadcastControlsStatus>(FindObjectsInactive.Include);
+            var broadcaster = FindAnyObjectByType<BroadcastControlsStatus>(FindObjectsInactive.Include);
             if (broadcaster == null)
             {
                 EditorGUILayout.HelpBox("No BroadcastControlsStatus in the scene — is the Player (variant) present?", MessageType.Warning);
@@ -113,7 +113,7 @@ namespace jeanf.universalplayer
         private void DrawHandsSection()
         {
             EditorGUILayout.LabelField("Hands", EditorStyles.boldLabel);
-            var displayer = FindFirstObjectByType<HandsDisplayer>(FindObjectsInactive.Include);
+            var displayer = FindAnyObjectByType<HandsDisplayer>(FindObjectsInactive.Include);
             if (displayer == null)
             {
                 EditorGUILayout.HelpBox("No HandsDisplayer in the scene — is the Player (variant) present?", MessageType.Warning);
@@ -191,8 +191,8 @@ namespace jeanf.universalplayer
         private IEnumerable<BaseHand> ActiveHands(HandType handType)
         {
             // ensure the hands are active so BaseHand.Awake has collected its joints
-            FindFirstObjectByType<HandsDisplayer>(FindObjectsInactive.Include)?.ForceDisplay(true);
-            return FindObjectsByType<BaseHand>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)
+            FindAnyObjectByType<HandsDisplayer>(FindObjectsInactive.Include)?.ForceDisplay(true);
+            return FindObjectsByType<BaseHand>(FindObjectsInactive.Exclude)
                 .Where(hand => hand.HandType == handType && hand.Joints.Count > 0);
         }
 
@@ -206,7 +206,7 @@ namespace jeanf.universalplayer
 
             if (GUILayout.Button("Find ray interactors"))
             {
-                _rayInteractors = FindObjectsByType<XRRayInteractor>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)
+                _rayInteractors = FindObjectsByType<XRRayInteractor>(FindObjectsInactive.Exclude)
                     .Where(interactor => interactor.enableUIInteraction)
                     .ToArray();
                 _rayInteractorNames = _rayInteractors.Select(FullPath).ToArray();
@@ -275,7 +275,7 @@ namespace jeanf.universalplayer
         {
             EditorGUILayout.LabelField("Teleport", EditorStyles.boldLabel);
 
-            var targets = FindObjectsByType<SendTeleportTarget>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)
+            var targets = FindObjectsByType<SendTeleportTarget>(FindObjectsInactive.Exclude)
                 .OrderBy(target => target.name)
                 .ToArray();
             if (targets.Length == 0)
@@ -284,7 +284,7 @@ namespace jeanf.universalplayer
                 return;
             }
 
-            var listeners = FindObjectsByType<TeleportOnEvent>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            var listeners = FindObjectsByType<TeleportOnEvent>(FindObjectsInactive.Exclude);
             if (listeners.Length == 0)
             {
                 EditorGUILayout.HelpBox("No TeleportOnEvent in the scene — teleport events go nowhere. " +

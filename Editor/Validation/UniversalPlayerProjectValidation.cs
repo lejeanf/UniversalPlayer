@@ -105,7 +105,7 @@ namespace jeanf.universalplayer
         private static IEnumerable<(string name, Func<UnityEngine.Object> select)> SceneRuleTargets()
         {
             UnityEngine.Object First<T>() where T : Component =>
-                UnityEngine.Object.FindFirstObjectByType<T>(FindObjectsInactive.Include);
+                UnityEngine.Object.FindAnyObjectByType<T>(FindObjectsInactive.Include);
 
             yield return ("Scene: player is a variant", PlayerRoot);
             yield return ("Scene: player camera", PlayerRoot);
@@ -179,7 +179,7 @@ namespace jeanf.universalplayer
 
         private static GameObject PlayerRoot()
         {
-            var broadcaster = UnityEngine.Object.FindFirstObjectByType<BroadcastControlsStatus>(FindObjectsInactive.Include);
+            var broadcaster = UnityEngine.Object.FindAnyObjectByType<BroadcastControlsStatus>(FindObjectsInactive.Include);
             return broadcaster != null ? broadcaster.transform.root.gameObject : null;
         }
 

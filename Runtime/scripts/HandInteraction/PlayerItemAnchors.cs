@@ -63,7 +63,7 @@ namespace jeanf.universalplayer
         private void Awake()
         {
             if (playerCamera == null) playerCamera = Camera.main;
-            if (body == null) body = FindFirstObjectByType<FirstPersonBody>(FindObjectsInactive.Include);
+            if (body == null) body = FindAnyObjectByType<FirstPersonBody>(FindObjectsInactive.Include);
         }
 
         /// <summary>
@@ -237,7 +237,7 @@ namespace jeanf.universalplayer
             if (!poseManagersSearched)
             {
                 poseManagersSearched = true;
-                foreach (var manager in FindObjectsByType<HandPoseManager>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                foreach (var manager in FindObjectsByType<HandPoseManager>(FindObjectsInactive.Include))
                 {
                     if (manager.HandType == HandType.Right) rightPose = manager;
                     else if (manager.HandType == HandType.Left) leftPose = manager;

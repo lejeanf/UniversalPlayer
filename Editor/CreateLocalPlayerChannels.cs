@@ -37,7 +37,7 @@ namespace jeanf.universalplayer
             var copy = AssetDatabase.LoadAssetAtPath<PlayerChannelsSO>(destination);
             Debug.Log($"{LogPrefix} Created '{destination}' from '{sourcePath}'. Point its slots at your project's channels.");
 
-            var bridge = Object.FindFirstObjectByType<PlayerEventBridge>(FindObjectsInactive.Include);
+            var bridge = Object.FindAnyObjectByType<PlayerEventBridge>(FindObjectsInactive.Include);
             if (bridge == null)
             {
                 Debug.LogWarning($"{LogPrefix} No PlayerEventBridge in the open scene — assign '{destination}' on your " +

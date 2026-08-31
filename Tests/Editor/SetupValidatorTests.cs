@@ -193,7 +193,7 @@ namespace jeanf.universalplayer.tests.editor
 
             // The checks inspect the FIRST player in the open scene; if the test scene
             // already holds a real one, they describe that player, not this bare stand-in.
-            var found = Object.FindFirstObjectByType<BroadcastControlsStatus>(FindObjectsInactive.Include);
+            var found = Object.FindAnyObjectByType<BroadcastControlsStatus>(FindObjectsInactive.Include);
             if (found == null || found.transform.root.gameObject != bare)
                 Assert.Ignore("The open scene already contains a Player — this test needs the bare stand-in.");
 

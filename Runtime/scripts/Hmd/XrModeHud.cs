@@ -106,10 +106,10 @@ namespace jeanf.universalplayer
 
         private void EnsureRefs()
         {
-            if (_broadcaster == null) _broadcaster = FindFirstObjectByType<BroadcastControlsStatus>();
-            if (_movement == null) _movement = FindFirstObjectByType<PlayerMovement>();
-            if (_camera == null) _camera = FindFirstObjectByType<FPSCameraMovement>();
-            if (_noPeeking == null) _noPeeking = FindFirstObjectByType<NoPeeking>();
+            if (_broadcaster == null) _broadcaster = FindAnyObjectByType<BroadcastControlsStatus>();
+            if (_movement == null) _movement = FindAnyObjectByType<PlayerMovement>();
+            if (_camera == null) _camera = FindAnyObjectByType<FPSCameraMovement>();
+            if (_noPeeking == null) _noPeeking = FindAnyObjectByType<NoPeeking>();
         }
 
         private void LogSnapshot(string trigger)

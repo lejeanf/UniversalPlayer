@@ -69,7 +69,7 @@ namespace jeanf.universalplayer.editor
                 return;
             }
 
-            var anchors = Object.FindFirstObjectByType<PlayerItemAnchors>(FindObjectsInactive.Include);
+            var anchors = Object.FindAnyObjectByType<PlayerItemAnchors>(FindObjectsInactive.Include);
             if (anchors == null || anchors.CameraTransform == null)
             {
                 EditorGUILayout.HelpBox(
@@ -141,7 +141,7 @@ namespace jeanf.universalplayer.editor
             if (target == null) { StopPreview(); return; }
 
             var pickable = (PickableObject)target;
-            var anchors = Object.FindFirstObjectByType<PlayerItemAnchors>(FindObjectsInactive.Include);
+            var anchors = Object.FindAnyObjectByType<PlayerItemAnchors>(FindObjectsInactive.Include);
             if (anchors == null || !anchors.TryGetHeldPose(pickable, out var position, out var rotation))
             {
                 StopPreview();
@@ -154,7 +154,7 @@ namespace jeanf.universalplayer.editor
         {
             // The body may live on a Player that is not in this scene (additive loading),
             // so a missing body here is "unknown", not "broken" — say so rather than cry wolf.
-            var body = Object.FindFirstObjectByType<FirstPersonBody>(FindObjectsInactive.Include);
+            var body = Object.FindAnyObjectByType<FirstPersonBody>(FindObjectsInactive.Include);
 
             if (body == null)
             {

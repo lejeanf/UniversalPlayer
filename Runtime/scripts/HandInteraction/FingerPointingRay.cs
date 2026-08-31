@@ -79,7 +79,7 @@ namespace jeanf.universalplayer
             }
 
             cursorColors = GetComponentInParent<CursorStateController>()
-                           ?? FindFirstObjectByType<CursorStateController>();
+                           ?? FindAnyObjectByType<CursorStateController>();
 
             // Same interact binding as the desktop reticle click-flash, resolved by name
             // so no wiring is needed; ClickColor is shown while it is held on a usable target.

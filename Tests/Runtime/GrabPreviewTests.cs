@@ -49,7 +49,7 @@ namespace jeanf.universalplayer.tests
             BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.KeyboardMouse;
             Object.Destroy(_cube);
             Object.Destroy(_player);
-            var manager = Object.FindFirstObjectByType<UnityEngine.XR.Interaction.Toolkit.XRInteractionManager>();
+            var manager = Object.FindAnyObjectByType<UnityEngine.XR.Interaction.Toolkit.XRInteractionManager>();
             if (manager != null) Object.Destroy(manager.gameObject);
             yield return null;
         }

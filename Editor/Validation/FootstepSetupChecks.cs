@@ -19,7 +19,7 @@ namespace jeanf.universalplayer
         {
             var results = new List<SetupValidator.CheckResult>();
 
-            var footsteps = Object.FindFirstObjectByType<FootstepAudio>(FindObjectsInactive.Include);
+            var footsteps = Object.FindAnyObjectByType<FootstepAudio>(FindObjectsInactive.Include);
             if (footsteps == null)
             {
                 results.Add(new SetupValidator.CheckResult("Scene: footsteps", SetupValidator.Severity.Warning,

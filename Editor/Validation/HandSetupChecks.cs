@@ -22,7 +22,7 @@ namespace jeanf.universalplayer
         {
             var results = new List<SetupValidator.CheckResult>();
 
-            var broadcaster = Object.FindFirstObjectByType<BroadcastControlsStatus>(FindObjectsInactive.Include);
+            var broadcaster = Object.FindAnyObjectByType<BroadcastControlsStatus>(FindObjectsInactive.Include);
             if (broadcaster == null)
             {
                 results.Add(new SetupValidator.CheckResult("Scene: hands", SetupValidator.Severity.Warning,
@@ -465,10 +465,10 @@ namespace jeanf.universalplayer
                     Add(so.FindProperty(slot)?.objectReferenceValue as Pose, $"pose driver: {slot}");
             }
 
-            foreach (var container in Object.FindObjectsByType<PoseContainer>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            foreach (var container in Object.FindObjectsByType<PoseContainer>(FindObjectsInactive.Include))
                 Add(container.pose, $"{container.name} (PoseContainer)");
 
-            foreach (var pickable in Object.FindObjectsByType<PickableObject>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            foreach (var pickable in Object.FindObjectsByType<PickableObject>(FindObjectsInactive.Include))
                 Add(pickable.HandPose, $"{pickable.name} (PickableObject)");
 
             return poses;

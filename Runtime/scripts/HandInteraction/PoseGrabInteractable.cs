@@ -149,7 +149,7 @@ namespace jeanf.universalplayer
         // other fail at random between grabs).
         private HandPoseManager ResolveGrabbingHand(IXRSelectInteractor interactor)
         {
-            var found = FindObjectsByType<HandPoseManager>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            var found = FindObjectsByType<HandPoseManager>(FindObjectsInactive.Exclude);
 
             // This rig has TWO HandPoseManagers per side: an invisible CC_*Hand_Controller
             // (tracking skeleton — what the Pose Editor authors against) and a visible physics

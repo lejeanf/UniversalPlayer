@@ -598,7 +598,7 @@ namespace jeanf.universalplayer
             if (playerMovement == null && !playerMovementSearched)
             {
                 playerMovementSearched = true;
-                playerMovement = FindFirstObjectByType<PlayerMovement>();
+                playerMovement = FindAnyObjectByType<PlayerMovement>();
             }
             if (playerMovement == null) return;
             locomotionLockedBefore = playerMovement.LocomotionLocked;
@@ -622,7 +622,7 @@ namespace jeanf.universalplayer
             if (cameraFeel == null && !cameraFeelSearched)
             {
                 cameraFeelSearched = true;
-                cameraFeel = FindFirstObjectByType<FpsCameraFeel>();
+                cameraFeel = FindAnyObjectByType<FpsCameraFeel>();
             }
             if (cameraFeel == null) return;
             cameraFeel.TargetWeight = 0f;

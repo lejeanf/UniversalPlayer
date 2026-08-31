@@ -230,7 +230,7 @@ namespace jeanf.universalplayer
             if (_resolvedCamera != null) return _resolvedCamera;
 
             var fpsCamera = GetComponentInChildren<FPSCameraMovement>(true);
-            if (fpsCamera == null) fpsCamera = FindFirstObjectByType<FPSCameraMovement>(FindObjectsInactive.Include);
+            if (fpsCamera == null) fpsCamera = FindAnyObjectByType<FPSCameraMovement>(FindObjectsInactive.Include);
             _resolvedCamera = fpsCamera != null ? fpsCamera.playerCamera : null;
 
             if (_resolvedCamera == null && _isDebug)

@@ -69,7 +69,7 @@ namespace jeanf.universalplayer
             }
             sb.AppendLine(anyDevice ? "" : "NONE — the runtime delivered no XR input devices.");
 
-            var manager = Object.FindFirstObjectByType<UnityEngine.XR.Interaction.Toolkit.Inputs.InputActionManager>(
+            var manager = Object.FindAnyObjectByType<UnityEngine.XR.Interaction.Toolkit.Inputs.InputActionManager>(
                 FindObjectsInactive.Include);
             var asset = manager != null && manager.actionAssets != null && manager.actionAssets.Count > 0
                 ? manager.actionAssets[0]

@@ -77,9 +77,9 @@ namespace jeanf.universalplayer
         {
             playerCamera = Camera.main;
             cursorColors = GetComponentInParent<CursorStateController>()
-                           ?? FindFirstObjectByType<CursorStateController>();
+                           ?? FindAnyObjectByType<CursorStateController>();
             worldUiInteractor = GetComponentInParent<DesktopWorldUiInteractor>()
-                                ?? FindFirstObjectByType<DesktopWorldUiInteractor>();
+                                ?? FindAnyObjectByType<DesktopWorldUiInteractor>();
             foreach (var interactor in GetComponentsInChildren<XRBaseInteractor>(true))
             {
                 interactor.hoverEntered.AddListener(OnHoverEntered);

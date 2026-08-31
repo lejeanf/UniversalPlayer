@@ -153,7 +153,7 @@ namespace jeanf.universalplayer
         {
             var results = new List<SetupValidator.CheckResult>();
 
-            var broadcaster = Object.FindFirstObjectByType<BroadcastControlsStatus>(FindObjectsInactive.Include);
+            var broadcaster = Object.FindAnyObjectByType<BroadcastControlsStatus>(FindObjectsInactive.Include);
             if (broadcaster == null)
             {
                 results.Add(new SetupValidator.CheckResult("Scene: player", SetupValidator.Severity.Warning,
@@ -168,7 +168,7 @@ namespace jeanf.universalplayer
             results.Add(CheckPlayerGroundCollision(broadcaster.transform.root.gameObject));
             results.Add(CheckPlayerEventBridge(broadcaster.transform.root.gameObject));
 
-            var noPeeking = Object.FindFirstObjectByType<NoPeeking>(FindObjectsInactive.Include);
+            var noPeeking = Object.FindAnyObjectByType<NoPeeking>(FindObjectsInactive.Include);
             if (noPeeking == null)
             {
                 results.Add(new SetupValidator.CheckResult("Scene: NoPeeking", SetupValidator.Severity.Warning,
@@ -186,7 +186,7 @@ namespace jeanf.universalplayer
                         "Collision layer is configured."));
             }
 
-            if (Object.FindFirstObjectByType<TeleportOnEvent>(FindObjectsInactive.Include) == null)
+            if (Object.FindAnyObjectByType<TeleportOnEvent>(FindObjectsInactive.Include) == null)
                 results.Add(new SetupValidator.CheckResult("Scene: teleport listener", SetupValidator.Severity.Warning,
                     "No TeleportOnEvent in the scene — SendTeleportTarget events go nowhere (nothing teleports).",
                     "Add a TeleportOnEvent (usually on the Player variant), listening on your TeleportEventChannel, " +
@@ -195,7 +195,7 @@ namespace jeanf.universalplayer
                 results.Add(new SetupValidator.CheckResult("Scene: teleport listener", SetupValidator.Severity.Pass,
                     "TeleportOnEvent present."));
 
-            if (Object.FindFirstObjectByType<XrHealthMonitor>(FindObjectsInactive.Include) == null)
+            if (Object.FindAnyObjectByType<XrHealthMonitor>(FindObjectsInactive.Include) == null)
                 results.Add(new SetupValidator.CheckResult("Scene: XR health monitor", SetupValidator.Severity.Warning,
                     "No XrHealthMonitor in the scene — headset/controller disconnects and low battery will not be reported.",
                     "Add XrHealthMonitor to the Player variant and assign its message/HMD channels."));
@@ -222,13 +222,13 @@ namespace jeanf.universalplayer
         private static SetupValidator.CheckResult CheckScenarioSeating()
         {
             const string check = "Scene: scenario seating";
-            var sitController = Object.FindFirstObjectByType<SitController>(FindObjectsInactive.Include);
+            var sitController = Object.FindAnyObjectByType<SitController>(FindObjectsInactive.Include);
             if (sitController == null)
                 return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
                     "No SitController in the scene — neither manual nor scenario-driven sitting can work.",
                     "It ships on the Player prefab (Move object); is the player missing or your variant outdated?");
 
-            var bridge = Object.FindFirstObjectByType<PlayerEventBridge>(FindObjectsInactive.Include);
+            var bridge = Object.FindAnyObjectByType<PlayerEventBridge>(FindObjectsInactive.Include);
             var channelsAsset = bridge != null ? new SerializedObject(bridge).FindProperty("channels")?.objectReferenceValue : null;
             if (channelsAsset == null)
                 return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
@@ -253,11 +253,11 @@ namespace jeanf.universalplayer
         private static SetupValidator.CheckResult CheckSeatHeights()
         {
             const string check = "Scene: seat heights";
-            var seats = Object.FindObjectsByType<Seat>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var seats = Object.FindObjectsByType<Seat>(FindObjectsInactive.Include);
             if (seats.Length == 0)
                 return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass, "No Seat in the scene.");
 
-            var sitController = Object.FindFirstObjectByType<SitController>(FindObjectsInactive.Include);
+            var sitController = Object.FindAnyObjectByType<SitController>(FindObjectsInactive.Include);
             var standingHeight = sitController != null ? sitController.StandingCameraHeight : 1.7f;
 
             var offenders = new List<string>();
@@ -289,7 +289,7 @@ namespace jeanf.universalplayer
         private static SetupValidator.CheckResult CheckSeatIds()
         {
             const string check = "Scene: seat ids (scenario targeting)";
-            var seats = Object.FindObjectsByType<Seat>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var seats = Object.FindObjectsByType<Seat>(FindObjectsInactive.Include);
 
             var byId = new Dictionary<int, List<string>>();
             foreach (var seat in seats)
@@ -303,7 +303,7 @@ namespace jeanf.universalplayer
                 if (kv.Value.Count > 1) duplicates.Add($"id {kv.Key}: {string.Join(", ", kv.Value)}");
 
             var untargeted = new List<string>();
-            foreach (var forceSit in Object.FindObjectsByType<SitPlayerOnEnable>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            foreach (var forceSit in Object.FindObjectsByType<SitPlayerOnEnable>(FindObjectsInactive.Include))
             {
                 var so = new SerializedObject(forceSit);
                 if (so.FindProperty("seat").objectReferenceValue == null && so.FindProperty("seatId").intValue == 0)
@@ -330,7 +330,7 @@ namespace jeanf.universalplayer
         private static SetupValidator.CheckResult CheckSeatColliders()
         {
             const string check = "Scene: seat colliders";
-            var seats = Object.FindObjectsByType<Seat>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var seats = Object.FindObjectsByType<Seat>(FindObjectsInactive.Include);
             if (seats.Length == 0)
                 return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass, "No Seat in the scene.");
 
@@ -365,12 +365,12 @@ namespace jeanf.universalplayer
         {
             const string check = "Scene: seat data bridge";
 
-            var usesSubScenes = Object.FindObjectsByType<Unity.Scenes.SubScene>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length > 0;
+            var usesSubScenes = Object.FindObjectsByType<Unity.Scenes.SubScene>(FindObjectsInactive.Include).Length > 0;
             if (!usesSubScenes)
                 return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
                     "No SubScenes in the scene — a SeatDataBridge only matters for seats baked into a SubScene.");
 
-            if (Object.FindFirstObjectByType<SeatDataBridge>(FindObjectsInactive.Include) != null)
+            if (Object.FindAnyObjectByType<SeatDataBridge>(FindObjectsInactive.Include) != null)
                 return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
                     "A SeatDataBridge is present for baked seats.");
 
@@ -389,7 +389,7 @@ namespace jeanf.universalplayer
         private static SetupValidator.CheckResult CheckFadeVolumeVisibleToCamera()
         {
             const string check = "Scene: fade volume vs camera mask";
-            var fadeMask = Object.FindFirstObjectByType<FadeMask>(FindObjectsInactive.Include);
+            var fadeMask = Object.FindAnyObjectByType<FadeMask>(FindObjectsInactive.Include);
             if (fadeMask == null)
                 return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
                     "No FadeMask in the scene — nothing to check.", "See the 'Scene: fade profile' result.");
@@ -401,7 +401,7 @@ namespace jeanf.universalplayer
                     "FadeMask has no Volume assigned — nothing to check.", "See the 'Scene: fade profile' result.");
 
             var camera = fadeMask.GetComponentInParent<Camera>(true);
-            if (camera == null) camera = Object.FindFirstObjectByType<Camera>(FindObjectsInactive.Include);
+            if (camera == null) camera = Object.FindAnyObjectByType<Camera>(FindObjectsInactive.Include);
             if (camera == null)
                 return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
                     "No Camera found — cannot verify the volume mask.", "Add the Player variant to the scene.");
@@ -439,13 +439,13 @@ namespace jeanf.universalplayer
         private static SetupValidator.CheckResult CheckCameraPostProcessing()
         {
             const string check = "Scene: camera post-processing (URP)";
-            var fadeMask = Object.FindFirstObjectByType<FadeMask>(FindObjectsInactive.Include);
+            var fadeMask = Object.FindAnyObjectByType<FadeMask>(FindObjectsInactive.Include);
             if (fadeMask == null)
                 return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
                     "No FadeMask in the scene — nothing to check.", "See the 'Scene: fade profile' result.");
 
             var camera = fadeMask.GetComponentInParent<Camera>(true);
-            if (camera == null) camera = Object.FindFirstObjectByType<Camera>(FindObjectsInactive.Include);
+            if (camera == null) camera = Object.FindAnyObjectByType<Camera>(FindObjectsInactive.Include);
             if (camera == null)
                 return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
                     "No Camera found — cannot verify post-processing.", "Add the Player variant to the scene.");
@@ -474,7 +474,7 @@ namespace jeanf.universalplayer
         private static SetupValidator.CheckResult CheckFadeMaskProfile()
         {
             const string check = "Scene: fade profile";
-            var fadeMask = Object.FindFirstObjectByType<FadeMask>(FindObjectsInactive.Include);
+            var fadeMask = Object.FindAnyObjectByType<FadeMask>(FindObjectsInactive.Include);
             if (fadeMask == null)
                 return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
                     "No FadeMask in the scene — no black loading screen, no head-in-wall fade, no menu fade.",
@@ -668,7 +668,7 @@ namespace jeanf.universalplayer
 
         private static SetupValidator.CheckResult CheckWorldSpaceCanvases()
         {
-            var interactiveCanvases = Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+            var interactiveCanvases = Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include)
                 .Where(canvas => canvas.renderMode == RenderMode.WorldSpace && HasInteractiveUi(canvas))
                 .ToArray();
             if (interactiveCanvases.Length == 0)

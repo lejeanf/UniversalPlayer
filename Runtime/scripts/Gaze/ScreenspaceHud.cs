@@ -146,7 +146,7 @@ namespace jeanf.universalplayer
                 return false;
             }
 
-            _cursorColors = GetComponentInParent<CursorStateController>() ?? FindFirstObjectByType<CursorStateController>();
+            _cursorColors = GetComponentInParent<CursorStateController>() ?? FindAnyObjectByType<CursorStateController>();
 
             // Loading events can arrive before the tree exists — replay the latest so the
             // bar is never stuck on a stale/blank frame just because we came up late.

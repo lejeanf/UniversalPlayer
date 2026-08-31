@@ -335,9 +335,9 @@ namespace jeanf.universalplayer
             // whose gaze rig predates the component miss it silently (M&K limps
             // along on the frozen center mouse pointer, gamepad UI is dead), so
             // self-heal it onto the gaze controller like the pieces above.
-            if (FindFirstObjectByType<GazeDesktopClick>(FindObjectsInactive.Include) == null)
+            if (FindAnyObjectByType<GazeDesktopClick>(FindObjectsInactive.Include) == null)
             {
-                var gate = FindFirstObjectByType<TrackedPoseSchemeGate>(FindObjectsInactive.Include);
+                var gate = FindAnyObjectByType<TrackedPoseSchemeGate>(FindObjectsInactive.Include);
                 var gazeController = gate != null
                     ? gate.GetComponentInChildren<UnityEngine.XR.Interaction.Toolkit.ActionBasedController>(true)
                     : null;

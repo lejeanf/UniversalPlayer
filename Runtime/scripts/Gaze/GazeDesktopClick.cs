@@ -244,7 +244,7 @@ namespace jeanf.universalplayer
         }
 
         // The LIVE module first: a scene can hold more than one EventSystem (menu
-        // prefabs, demo benches ship their own) — a cached FindFirstObjectByType
+        // prefabs, demo benches ship their own) — a cached FindAnyObjectByType
         // that landed on an inactive one would wire actions nobody reads.
         private XRUIInputModule ResolveModule()
         {
@@ -254,7 +254,7 @@ namespace jeanf.universalplayer
             if (uiModule == null && !moduleSearched)
             {
                 moduleSearched = true;
-                uiModule = FindFirstObjectByType<XRUIInputModule>();
+                uiModule = FindAnyObjectByType<XRUIInputModule>();
             }
             return uiModule;
         }
