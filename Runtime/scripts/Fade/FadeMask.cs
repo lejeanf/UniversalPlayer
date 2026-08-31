@@ -256,6 +256,9 @@ namespace jeanf.universalplayer
                 return;
             }
 
+            // The prefab ships the Volume DISABLED so the fade never tints the
+            // world outside play mode — play mode is where fades live.
+            postProcessVolume.enabled = true;
             postProcessVolume.weight = 1f;
             postProcessVolume.blendDistance = 10.0f;
             // The fade must WIN: a scene color-grading volume at default priority

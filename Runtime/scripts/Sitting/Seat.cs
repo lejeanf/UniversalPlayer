@@ -52,7 +52,9 @@ namespace jeanf.universalplayer
         {
             var anchor = SitAnchor;
             return new SeatData(
-                seatId: seatId != 0 ? seatId : GetInstanceID(),
+                // No authored id: fall back to a per-instance runtime id. EntityId's hash is
+                // stable for this object's lifetime, same guarantee the old instance id gave us.
+                seatId: seatId != 0 ? seatId : GetEntityId().GetHashCode(),
                 name: name,
                 sitPosition: anchor.position,
                 sitFacingYaw: anchor.eulerAngles.y,

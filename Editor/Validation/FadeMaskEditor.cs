@@ -87,8 +87,10 @@ namespace jeanf.universalplayer
                 {
                     Undo.RecordObject(volume, "Assign fade profile");
                     volume.sharedProfile = bundled;
-                    // Weight 1 so the EDIT-MODE preview (volumes evaluate without
-                    // play mode) matches what the runtime enforces at Awake.
+                    // Weight 1 matches what the runtime enforces at Awake. The
+                    // Volume itself stays DISABLED here: it ships disabled so the
+                    // fade never tints the world in edit mode, and FadeMask
+                    // enables it when play mode starts.
                     volume.weight = 1f;
                     EditorUtility.SetDirty(volume);
                 }

@@ -51,6 +51,11 @@ namespace jeanf.universalplayer
             var stick = gamepad.rightStick.ReadValue();
             if (stick.magnitude < Deadzone) return;
 
+            // LT is the scroll modifier: while held, the right stick SCROLLS the
+            // content under the cursor (e.g. the tablet page) instead of moving
+            // the cursor — moving both at once would drift the aim mid-scroll.
+            if (gamepad.leftTrigger.ReadValue() > 0.5f) return;
+
             // Unscaled time: the menu (the main reason the cursor is free) may pause the game.
             var position = mouse.position.ReadValue() + stick * (SpeedPixelsPerSecond * Time.unscaledDeltaTime);
             position.x = Mathf.Clamp(position.x, 0f, Screen.width - 1);

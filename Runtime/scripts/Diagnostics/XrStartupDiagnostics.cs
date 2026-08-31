@@ -11,6 +11,12 @@ namespace jeanf.universalplayer
     /// Logs one console report when play starts, explaining whether XR is running
     /// and — when it is not — the most likely reasons why (no provider enabled,
     /// Link/Air Link not connected, wrong active OpenXR runtime, init-on-startup off).
+    /// The report is logged AGAIN on every switch into VR (the state that matters
+    /// there — controllers registered, input actions bound — may have changed since
+    /// launch), then including the INPUT-ACTION layer: the enabled/bound state of
+    /// the hand Position and DrawPrimaryItem actions, which separates "the runtime
+    /// delivered no controller device" from "the device is there but the actions
+    /// never bound" when hands stop tracking or buttons stop responding.
     /// Runs automatically, no scene setup required. For ongoing monitoring
     /// (disconnects, battery) add <see cref="XrHealthMonitor"/> to the player.
     /// </summary>
@@ -24,6 +30,65 @@ namespace jeanf.universalplayer
             var report = BuildReport(out var xrRunning);
             if (xrRunning) Debug.Log(report);
             else Debug.LogWarning(report);
+
+            // Statics survive when Enter Play Mode skips the domain reload — always
+            // re-subscribe from a clean slate.
+            BroadcastControlsStatus.SendControlScheme -= OnControlSchemeChanged;
+            BroadcastControlsStatus.SendControlScheme += OnControlSchemeChanged;
+        }
+
+        private static void OnControlSchemeChanged(BroadcastControlsStatus.ControlScheme scheme)
+        {
+            if (scheme != BroadcastControlsStatus.ControlScheme.XR) return;
+            var report = BuildReport(out var xrRunning) + BuildInputActionReport();
+            if (xrRunning) Debug.Log(report);
+            else Debug.LogWarning(report);
+        }
+
+        /// <summary>
+        /// The INPUT-ACTION layer of the report: enabled/bound state of the actions
+        /// VR hands live on. boundControls = 0 with a controller device present means
+        /// the binding never resolved (wrong asset, map disabled, missing profile).
+        /// </summary>
+        public static string BuildInputActionReport()
+        {
+            var sb = new StringBuilder();
+
+            // Input System DEVICE layer first: layout + usages. Controllers arriving
+            // as auto-built fallback layouts ("XRInputV1::...") with EMPTY usages
+            // cannot match any '{LeftHand}/{RightHand}' binding — hands freeze and
+            // buttons go dead while the device list looks superficially fine.
+            sb.Append("• InputSystem XR devices: ");
+            var anyDevice = false;
+            foreach (var device in UnityEngine.InputSystem.InputSystem.devices)
+            {
+                if (!(device is UnityEngine.InputSystem.XR.XRController)
+                    && !(device is UnityEngine.InputSystem.XR.XRHMD)) continue;
+                sb.Append($"[{device.layout} usages:{string.Join("/", device.usages)}] ");
+                anyDevice = true;
+            }
+            sb.AppendLine(anyDevice ? "" : "NONE — the runtime delivered no XR input devices.");
+
+            var manager = Object.FindFirstObjectByType<UnityEngine.XR.Interaction.Toolkit.Inputs.InputActionManager>(
+                FindObjectsInactive.Include);
+            var asset = manager != null && manager.actionAssets != null && manager.actionAssets.Count > 0
+                ? manager.actionAssets[0]
+                : null;
+            if (asset == null)
+                return $"• No XRI InputActionManager with an action asset found — XRI actions are never enabled.\n";
+
+            foreach (var path in new[]
+                     {
+                         "XRI LeftHand/Position", "XRI RightHand/Position",
+                         "XRI LeftHand/DrawPrimaryItem", "XRI RightHand/DrawPrimaryItem",
+                     })
+            {
+                var action = asset.FindAction(path);
+                sb.AppendLine(action == null
+                    ? $"✗ Action '{path}' not found on '{asset.name}'."
+                    : $"{(action.enabled && action.controls.Count > 0 ? "✓" : "✗")} {path}: enabled={action.enabled}, boundControls={action.controls.Count}");
+            }
+            return sb.ToString();
         }
 
         /// <summary>Builds the human-readable XR state report. xrRunning is true when a loader started and an HMD is registered.</summary>

@@ -43,6 +43,20 @@ namespace jeanf.universalplayer.tests
         }
 
         [Test]
+        public void FadeVolume_ShipsDisabled_SoEditModeNeverRendersTheFade()
+        {
+            var fadeMask = RequireComponent<FadeMask>();
+            var volume = (UnityEngine.Rendering.Volume)new SerializedObject(fadeMask)
+                .FindProperty("postProcessVolume").objectReferenceValue;
+            Assert.That(volume, Is.Not.Null,
+                "FadeMask has no Volume assigned — see FadeMask_HasVolumeAndProfileAssigned.");
+            Assert.That(volume.enabled, Is.False,
+                "The fade Volume must ship DISABLED on Player.prefab: enabled, its ColorAdjustments tint " +
+                "(or black out) the world in EDIT mode. FadeMask.SetupVolumeProfile enables it when play " +
+                "mode starts, and FadeProfileEditModeReset switches it back off after a play session.");
+        }
+
+        [Test]
         public void NoPeeking_CollisionLayerField_Exists()
         {
             // Layers are project-specific, so the packaged prefab legitimately ships with
@@ -192,12 +206,22 @@ namespace jeanf.universalplayer.tests
         }
 
         [Test]
-        public void ControllerHandPoseDriver_ShipsOnThePlayer()
+        public void ControllerHandPoseDriver_ShipsOnThePlayer_WithResolvableFistPoses()
         {
-            // Pose slots are legitimately empty in the package (poses are project art,
-            // authored in the Pose Editor and assigned on the Player variant); only the
-            // component's presence is packaged wiring.
-            RequireComponent<ControllerHandPoseDriver>();
+            // Regression: the prefab once referenced pose guids that existed in no
+            // repository — a DANGLING reference resolves to null in every consumer,
+            // so the fingers never closed anywhere (ValidateSetup: 'no fist pose
+            // assigned') while the prefab YAML looked wired. The packaged defaults
+            // now point at the bundled Runtime/HandPoses assets; projects still
+            // override them with their own art on the Player variant.
+            // (pointPose is deliberately empty = the hand's own default idle pose.)
+            var driver = RequireComponent<ControllerHandPoseDriver>();
+            RequireAssigned(driver, "semiClosedFistPose",
+                "Grip-touch never curls the fingers. Assign a bundled Runtime/HandPoses asset.");
+            RequireAssigned(driver, "closedFistPose",
+                "Trigger never closes the fist. Assign a bundled Runtime/HandPoses asset.");
+            RequireAssigned(driver, "fullClosedFistPose",
+                "Hard grip never closes the fist. Assign a bundled Runtime/HandPoses asset.");
         }
 
         [Test]
