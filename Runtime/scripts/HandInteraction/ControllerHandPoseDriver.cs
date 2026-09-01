@@ -5,19 +5,6 @@ using UnityEngine.XR;
 
 namespace jeanf.universalplayer
 {
-    /// <summary>
-    /// Drives the VR hand poses from the controller's analog inputs so idle hands feel
-    /// alive (ships on the Player root, pose assets assigned per project — author them
-    /// with Tools/Jeanf/UniversalPlayer/Pose Editor):
-    ///   trigger released            → point
-    ///   grip slightly touched       → semi-closed fist
-    ///   trigger pressed             → closed fist
-    ///   grip pressed hard           → fully closed fist
-    /// Everything that owns the pose for a reason keeps priority: grabbed objects
-    /// (XRI selection pose), pose detector zones (SetPoseOnTrigger) and the primary
-    /// item hold all suspend the driver via HandPoseManager.IsPoseHeld / hasSelection,
-    /// and the driver resumes when they let go. XR scheme only.
-    /// </summary>
     public class ControllerHandPoseDriver : MonoBehaviour
     {
         private const string LogPrefix = "[UniversalPlayer]";
@@ -28,24 +15,21 @@ namespace jeanf.universalplayer
             Default,
             Point,
             SemiClosedFist,
-            ClosedFist,
-            FullClosedFist
+            ClosedFist
         }
 
         [Tooltip("Master switch. Off = hands keep their default/select poses exactly as before.")]
         [SerializeField] private bool driveEnabled = true;
 
         [Header("Poses (author with Tools/Jeanf/UniversalPlayer/Pose Editor)")]
-        //[Tooltip("Idle pose while the trigger is released. Empty = the hand's default pose.")]
-        //[SerializeField] private Pose defaultPose;
         [Tooltip("Idle pose while the trigger is released. Empty = the hand's default pose.")]
-        [SerializeField] private Pose pointPose;
+        [SerializeField] private Pose defaultPose;
         [Tooltip("Grip slightly touched. Empty = falls back to the closest assigned pose.")]
         [SerializeField] private Pose semiClosedFistPose;
-        [Tooltip("Trigger pressed. Empty = falls back to the closest assigned pose.")]
-        [SerializeField] private Pose closedFistPose;
         [Tooltip("Grip pressed hard. Empty = falls back to the closest assigned pose.")]
-        [SerializeField] private Pose fullClosedFistPose;
+        [SerializeField] private Pose closedFistPose;
+        [Tooltip("Trigger pressed. Empty = falls back to the closest assigned pose.")]
+        [SerializeField] private Pose pointPose;
 
         [Header("Thresholds")]
         [Range(0.01f, 0.5f)][SerializeField] private float gripTouchThreshold = 0.15f;
@@ -129,14 +113,10 @@ namespace jeanf.universalplayer
             hand.GripTouched = WithHysteresis(grip, gripTouchThreshold, hand.GripTouched);
             hand.TriggerPressed = WithHysteresis(trigger, triggerPressThreshold, hand.TriggerPressed);
 
-            /*var state = hand.GripHard ? PoseState.FullClosedFist
-                : hand.TriggerPressed ? PoseState.ClosedFist
+            var state = hand.GripHard ? PoseState.ClosedFist
                 : hand.GripTouched ? PoseState.SemiClosedFist
-                : PoseState.Point;*/
-            var state = hand.GripHard ? PoseState.FullClosedFist
-                : hand.TriggerPressed ? PoseState.ClosedFist
-                : hand.GripTouched ? PoseState.SemiClosedFist
-                : PoseState.Point;
+                : hand.TriggerPressed ? PoseState.Point
+                : PoseState.Default;
             if (state == hand.Applied) return;
 
             hand.Applied = state;
@@ -152,22 +132,20 @@ namespace jeanf.universalplayer
 
         private Pose PoseFor(PoseState state)
         {
-            // Missing slots degrade to the nearest assigned pose so a half-configured
-            // project still gets sensible hands.
             Pose pose = null;
             switch (state)
             {
-                case PoseState.FullClosedFist:
-                    pose = FirstAssigned(fullClosedFistPose, closedFistPose, semiClosedFistPose, pointPose);
-                    break;
                 case PoseState.ClosedFist:
-                    pose = FirstAssigned(closedFistPose, fullClosedFistPose, semiClosedFistPose, pointPose);
+                    pose = FirstAssigned(closedFistPose, semiClosedFistPose, pointPose, defaultPose);
                     break;
                 case PoseState.SemiClosedFist:
-                    pose = FirstAssigned(semiClosedFistPose, closedFistPose, fullClosedFistPose, pointPose);
+                    pose = FirstAssigned(semiClosedFistPose, closedFistPose, defaultPose, pointPose);
                     break;
                 case PoseState.Point:
-                    pose = pointPose; // empty point = the hand's own default pose
+                    pose = FirstAssigned(pointPose, closedFistPose, semiClosedFistPose, defaultPose);
+                    break;
+                case PoseState.Default:
+                    pose = defaultPose; // empty point = the hand's own default pose
                     break;
             }
 

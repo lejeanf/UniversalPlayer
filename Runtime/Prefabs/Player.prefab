@@ -7005,10 +7005,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   driveEnabled: 1
-  pointPose: {fileID: 0}
+  defaultPose: {fileID: 0}
   semiClosedFistPose: {fileID: 11400000, guid: 205342254884cf5498d3575e43eaa4b1, type: 2}
   closedFistPose: {fileID: 11400000, guid: 0c93de3bcfea2ac438e5e57be69b3230, type: 2}
-  fullClosedFistPose: {fileID: 11400000, guid: aaf1a3b01255b28419ea9c07f688c4b7, type: 2}
+  pointPose: {fileID: 11400000, guid: aaf1a3b01255b28419ea9c07f688c4b7, type: 2}
   gripTouchThreshold: 0.15
   gripHardThreshold: 0.85
   triggerPressThreshold: 0.55

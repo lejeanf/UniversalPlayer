@@ -6,11 +6,6 @@ using UnityEngine.TestTools;
 
 namespace jeanf.universalplayer.tests
 {
-    /// <summary>
-    /// ControllerHandPoseDriver: grip/trigger analog values map to the pose ladder
-    /// (point → semi-closed → closed → full fist), pose holds (detector zones, the
-    /// primary item) suspend the driver until released, and nothing runs outside XR.
-    /// </summary>
     public class ControllerHandPoseTests
     {
         private GameObject _player;
@@ -23,8 +18,6 @@ namespace jeanf.universalplayer.tests
         public IEnumerator SetUp()
         {
             BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.XR;
-            // NUnit reuses the fixture instance across tests: without this reset, the
-            // grip/trigger a previous test ended on leaks into the next one's probe.
             _grip = 0f;
             _trigger = 0f;
 
@@ -51,7 +44,6 @@ namespace jeanf.universalplayer.tests
 
         private void AssignPoses()
         {
-            // Empty poses are fine: the test hand has zero joints, we only observe states.
             foreach (var slot in new[] { "pointPose", "semiClosedFistPose", "closedFistPose", "fullClosedFistPose" })
                 SetField(_driver, slot, ScriptableObject.CreateInstance<Pose>());
         }
@@ -78,51 +70,50 @@ namespace jeanf.universalplayer.tests
         {
             _grip = 0f; _trigger = 0f;
             yield return null;
-            Assert.That(_driver.StateOf(HandType.Right), Is.EqualTo(ControllerHandPoseDriver.PoseState.Point),
+            Assert.That(_driver.StateOf(HandType.Right), Is.EqualTo(ControllerHandPoseDriver.PoseState.Default),
                 "Idle hand (trigger released) must point.");
 
-            _grip = 0.3f;
+            _grip = 0.15f;
             yield return null;
             Assert.That(_driver.StateOf(HandType.Right), Is.EqualTo(ControllerHandPoseDriver.PoseState.SemiClosedFist),
                 "A lightly touched grip must semi-close the fist.");
 
-            _grip = 0f; _trigger = 0.8f;
+            _grip = 0f; _trigger = 0.55f;
             yield return null;
-            Assert.That(_driver.StateOf(HandType.Right), Is.EqualTo(ControllerHandPoseDriver.PoseState.ClosedFist),
+            Assert.That(_driver.StateOf(HandType.Right), Is.EqualTo(ControllerHandPoseDriver.PoseState.Point),
                 "A pressed trigger must close the fist.");
 
-            _grip = 0.95f;
+            _grip = 0.85f;
             yield return null;
-            Assert.That(_driver.StateOf(HandType.Right), Is.EqualTo(ControllerHandPoseDriver.PoseState.FullClosedFist),
+            Assert.That(_driver.StateOf(HandType.Right), Is.EqualTo(ControllerHandPoseDriver.PoseState.ClosedFist),
                 "A hard grip must fully close the fist (it outranks the trigger).");
         }
 
         [UnityTest]
         public IEnumerator Hysteresis_KeepsTheState_OnASlightDip()
         {
-            _grip = 0.16f; // just above the 0.15 touch threshold
+            _grip = 0.16f;
             yield return null;
             Assert.That(_driver.StateOf(HandType.Right), Is.EqualTo(ControllerHandPoseDriver.PoseState.SemiClosedFist));
 
-            _grip = 0.10f; // below the threshold but inside the 0.08 hysteresis band
+            _grip = 0.10f;
             yield return null;
             Assert.That(_driver.StateOf(HandType.Right), Is.EqualTo(ControllerHandPoseDriver.PoseState.SemiClosedFist),
                 "A tiny dip below the threshold must not flicker the pose back open.");
 
             _grip = 0.02f;
             yield return null;
-            Assert.That(_driver.StateOf(HandType.Right), Is.EqualTo(ControllerHandPoseDriver.PoseState.Point),
+            Assert.That(_driver.StateOf(HandType.Right), Is.EqualTo(ControllerHandPoseDriver.PoseState.Default),
                 "Fully releasing the grip must reopen the hand.");
         }
 
         [UnityTest]
         public IEnumerator PoseHold_SuspendsTheDriver_AndItResumesOnRelease()
         {
-            _grip = 0.95f;
+            _grip = 0.85f;
             yield return null;
-            Assert.That(_driver.StateOf(HandType.Right), Is.EqualTo(ControllerHandPoseDriver.PoseState.FullClosedFist));
+            Assert.That(_driver.StateOf(HandType.Right), Is.EqualTo(ControllerHandPoseDriver.PoseState.ClosedFist));
 
-            // A detector zone (or the primary item) takes the pose.
             _hand.AcquirePoseHold();
             yield return null;
             Assert.That(_driver.StateOf(HandType.Right), Is.EqualTo(ControllerHandPoseDriver.PoseState.Suspended),
@@ -130,7 +121,7 @@ namespace jeanf.universalplayer.tests
 
             _hand.ReleasePoseHold();
             yield return null;
-            Assert.That(_driver.StateOf(HandType.Right), Is.EqualTo(ControllerHandPoseDriver.PoseState.FullClosedFist),
+            Assert.That(_driver.StateOf(HandType.Right), Is.EqualTo(ControllerHandPoseDriver.PoseState.ClosedFist),
                 "Releasing the hold must hand the pose back to the controller state.");
         }
 
@@ -138,7 +129,7 @@ namespace jeanf.universalplayer.tests
         public IEnumerator OutsideXr_TheDriverIsInert()
         {
             BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.KeyboardMouse;
-            _grip = 0.95f;
+            _grip = 0.85f;
             yield return null;
             Assert.That(_driver.StateOf(HandType.Right), Is.EqualTo(ControllerHandPoseDriver.PoseState.Suspended),
                 "Controller-driven posing is a VR-only affordance.");
