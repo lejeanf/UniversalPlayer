@@ -1,4 +1,5 @@
 using jeanf.EventSystem;
+using jeanf.validationTools;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
@@ -6,9 +7,11 @@ namespace jeanf.universalplayer
 {
     public class HandsPhysics : MonoBehaviour
     {
+        [Validation("The tracked target the physics hand follows is required — its position/rotation are read every Update/FixedUpdate unguarded (a null reference throws).")]
         [SerializeField] private Transform target;
         private Rigidbody rb;
         [SerializeField] private Quaternion offset;
+        [Validation("The non-physical (ghost) hand is required — it is toggled every Update unguarded (a null reference throws).")]
         [SerializeField] private GameObject nonPhysicalHand;
         [SerializeField] private float showNonPhysicalHandDistance = 0.5f;
         [Header("Divergence ghost look")]
@@ -21,6 +24,7 @@ namespace jeanf.universalplayer
         GameObject pokeInteractor;
         [SerializeField] HandType handType;
 
+        [Validation("The control-scheme change channel is required — subscribed unguarded at startup (a null reference throws); the physics hands never follow XR on/off without it.")]
         [SerializeField] VoidEventChannelSO controlSchemeChangeEvent;
 
         void Start()

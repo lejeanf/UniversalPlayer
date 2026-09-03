@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using LitMotion;
+using jeanf.validationTools;
 using UnityEngine;
 
 namespace jeanf.universalplayer
@@ -15,6 +16,7 @@ namespace jeanf.universalplayer
         }
         [SerializeField] private bool _isDebug = false;
 
+        [Validation("The target point is required — its position is read unguarded when an object enters the trigger (a null reference throws).")]
         [SerializeField] private GameObject targetPoint;
         [SerializeField] private LayerMask layerMask;
         [Range(0,1f)][SerializeField] private float transitionTime = .2f;

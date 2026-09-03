@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using jeanf.validationTools;
 using UnityEditor;
 using UnityEngine;
 
@@ -21,6 +22,7 @@ namespace jeanf.universalplayer.editor
     {
         public override void OnInspectorGUI()
         {
+            ValidationUi.DrawIssuesBanner(target as Component); // keep the shared orange "needs setup" banner this custom editor would otherwise replace
             DrawDefaultInspector();
 
             var takeObject = (TakeObject)target;

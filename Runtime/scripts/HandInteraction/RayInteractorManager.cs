@@ -1,4 +1,5 @@
 using System;
+using jeanf.validationTools;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,6 +9,7 @@ public class RayInteractorManager : MonoBehaviour
 {
     [Space(10)]
     private UnityEngine.XR.Interaction.Toolkit.Interactors.Visuals.XRInteractorLineVisual rayInteractor;
+    [Validation("Select action is required — it is enabled and subscribed unguarded on enable (a null reference throws).")]
     [SerializeField] private InputActionReference selectAction;
     [Space(10)]
     [SerializeField] private Gradient _white;

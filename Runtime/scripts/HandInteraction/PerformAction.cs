@@ -1,4 +1,5 @@
 using jeanf.EventSystem;
+using jeanf.validationTools;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -18,6 +19,7 @@ namespace jeanf.universalplayer
         // Start is called before the first frame update
         private Transform cameraTransform;
         [Space(20)]
+        [Validation("Object to interact with is required — it is dereferenced unguarded on every press that hits something (a null reference throws).")]
         [SerializeField] private GameObject objectToInteractWith;
         [Tooltip("Optional override. Empty = the player's FPS/Interact action (E / click / gamepad A).")]
         [SerializeField] private InputActionReference performAction;
@@ -25,6 +27,7 @@ namespace jeanf.universalplayer
         [SerializeField] private float maxDistanceCheck = 2f;
 
         [Header("Broadcasting on:")]
+        [Validation("Action-made channel is required — it is this component's only output; a matched press does nothing without it.")]
         [SerializeField] private TransformEventChannelSO actionMade;
 
         private InputAction resolvedAction;

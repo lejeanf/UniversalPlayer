@@ -37,6 +37,7 @@ namespace jeanf.universalplayer
         [Tooltip("Time constant (seconds) for look smoothing: the camera eases toward the aimed rotation instead of snapping. 0 = raw input.")]
         [Range(0f, 0.3f)][SerializeField] private float lookSmoothingSeconds = 0.05f;
         float sensitivity;
+        [Validation("Look-around action (mouse XY) is required — mouse/gamepad look is dead without it, and it is subscribed unguarded at startup (a null reference throws).")]
         [SerializeField] private InputActionReference mouseXY;
         public InputActionReference mouseXYInputAction {
             get { return mouseXY; }
@@ -59,6 +60,7 @@ namespace jeanf.universalplayer
         [SerializeField] private bool _isHmdActive = false;
         [SerializeField] private float min = -60.0f;
         [SerializeField] private float max = 75.0f;
+        [Validation("PrimaryItemController is required — every camera reset reads whether the tablet is drawn before re-enabling mouselook (dereferenced unguarded on Awake; a null reference throws).")]
         [SerializeField] private PrimaryItemController primaryItemController;
         private Vector2 _rotation = Vector2.zero;
         private Vector2 _smoothedRotation = Vector2.zero;

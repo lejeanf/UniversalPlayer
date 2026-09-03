@@ -1,3 +1,4 @@
+using jeanf.validationTools;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -12,6 +13,7 @@ namespace jeanf.universalplayer
 	
     public class XRBaseInteractorListener : MonoBehaviour
     {
+        [Validation("The XRBaseInteractor event channel is required — the listener never fires OnEventRaised (e.g. HandPoseManager.SetXRDirectInteractor) without it.")]
         public XRBaseInteractorEventChannelSO _channel = default;
 
         public XRBaseInteractorEvent OnEventRaised;

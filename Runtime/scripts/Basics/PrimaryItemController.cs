@@ -12,6 +12,7 @@ namespace jeanf.universalplayer
         [SerializeField] private InputActionReference drawPrimaryItem;
         [SerializeField] public PlayerInput playerInput;
         [Header("Listening On")]
+        [Validation("Login-field-open channel is required — the draw action is enabled/disabled from it, and it is subscribed unguarded at startup (a null reference throws).")]
         [SerializeField] private BoolEventChannelSO loginFieldIsOpened;
 
         [Header("Broadcasting on:")]

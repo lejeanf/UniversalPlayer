@@ -1,6 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 using jeanf.universalplayer;
+using jeanf.validationTools;
 
 namespace jeanf.universalplayer.editor
 {
@@ -17,10 +18,8 @@ namespace jeanf.universalplayer.editor
     [CustomEditor(typeof(SnapObject))]
     public class SnapObjectEditor : PickableObjectEditor
     {
-        // Matches jeanf.validationTools.ValidationUi (that assembly isn't referenced by
-        // this editor asmdef, so the shared attention colours are mirrored here).
-        private static readonly Color Orange = new Color(1f, 0.6f, 0.1f);
-        private static readonly Color OrangeWash = new Color(1f, 0.6f, 0.1f, 0.14f);
+        private static readonly Color Orange = ValidationUi.Orange;         // the shared attention colour
+        private static readonly Color OrangeWash = ValidationUi.OrangeWash;
         private static GUIStyle _title;
         private static GUIStyle _body;
 

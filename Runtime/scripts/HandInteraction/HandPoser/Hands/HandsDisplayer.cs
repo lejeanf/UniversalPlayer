@@ -1,10 +1,13 @@
+using jeanf.validationTools;
 using UnityEngine;
 
 namespace jeanf.universalplayer
 {
     public class HandsDisplayer : MonoBehaviour
     {
+        [Validation("Right hand object is required — HandsDisplayer is the only thing that shows/hides the VR hands; the right hand never appears in VR without it.")]
         [SerializeField] GameObject rightHand;
+        [Validation("Left hand object is required — HandsDisplayer is the only thing that shows/hides the VR hands; the left hand never appears in VR without it.")]
         [SerializeField] GameObject leftHand;
 
         private void Awake()

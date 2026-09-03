@@ -1,14 +1,18 @@
 using jeanf.EventSystem;
+using jeanf.validationTools;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Inputs.Haptics;
 public class HandVibration : MonoBehaviour
 {
+    [Validation("The left-hand HapticImpulsePlayer is required — every 'Left' haptic request dereferences it unguarded (a null reference throws).")]
     [SerializeField] HapticImpulsePlayer leftHandHapticImpulse;
+    [Validation("The right-hand HapticImpulsePlayer is required — every 'Right' haptic request dereferences it unguarded (a null reference throws).")]
     [SerializeField] HapticImpulsePlayer rightHandHapticImpulse;
     [Range(0.01f, 1.0f)][SerializeField] float amplitude;
     [Range(0.01f, 1.0f)][SerializeField] float duration;
 
     [Header("Listening On")]
+    [Validation("The haptic feedback channel is required — subscribed unguarded at startup (a null reference throws).")]
     [SerializeField] StringEventChannelSO hapticFeedbackOnSpecificHandSO;
     public delegate void VibrateHandDelegate(string hand, float amplitude, float duration);
 

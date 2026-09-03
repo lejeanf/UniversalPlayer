@@ -33,6 +33,7 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour, IValidatable
     [Validation("A reference to bool event channel SO (from UI opening) is required.")]
     [Header("Listening on:")]
     [SerializeField] private BoolEventChannelSO isInputFieldFocused;
+    [Validation("A reference to bool event channel SO (from scene loading) is required — subscribed unguarded on enable (a null reference throws).")]
     [SerializeField] private BoolEventChannelSO isLoadingScene;
 
 

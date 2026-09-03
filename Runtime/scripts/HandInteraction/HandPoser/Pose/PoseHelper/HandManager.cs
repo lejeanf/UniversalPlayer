@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using jeanf.validationTools;
+using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -9,7 +10,9 @@ public class HandManager : MonoBehaviour
 {
     // The hand prefabs we're using
     [SerializeField] private bool hideHands = true;
+    [Validation("Left preview-hand prefab is required — it is instantiated unguarded on enable (a null reference throws) and the pose editor has no left hand to pose.")]
     [SerializeField] private GameObject leftHandPrefab = null;
+    [Validation("Right preview-hand prefab is required — it is instantiated unguarded on enable (a null reference throws) and the pose editor has no right hand to pose.")]
     [SerializeField] private GameObject rightHandPrefab = null;
 
     // The references to the hands being manipulated

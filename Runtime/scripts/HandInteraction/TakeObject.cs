@@ -81,7 +81,9 @@ namespace jeanf.universalplayer
         [SerializeField] GameObjectEventChannelSO snapEventChannelSO;
 
         [Header("XR")]
+        [Validation("Right Near-Far interactor is required — the VR grab callbacks dereference it unguarded on every right-hand select (a null reference throws).")]
         [SerializeField] NearFarInteractor rightInteractor;
+        [Validation("Left Near-Far interactor is required — the VR grab callbacks dereference it unguarded on every left-hand select (a null reference throws).")]
         [SerializeField] NearFarInteractor leftInteractor;
 
         [Header("Item anchors")]

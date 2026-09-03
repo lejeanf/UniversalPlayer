@@ -1,4 +1,5 @@
 using jeanf.EventSystem;
+using jeanf.validationTools;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -40,8 +41,10 @@ namespace jeanf.universalplayer
 
         [Header("Listening on:")]
         [Tooltip("Loading status text (SceneManagement's LoadingInformation broadcasts it). Empty string = not loading.")]
+        [Validation("The loading status channel is required — without it the HUD never hears a scene load and the loading bar/status line silently never appear.")]
         [SerializeField] private StringEventChannelSO loadingStatusChannel;
         [Tooltip("Loading progress 0..1 (real progress, measured by the loaders).")]
+        [Validation("The loading progress channel is required — without it the loading bar stays at 0% for the whole load (progress is never received).")]
         [SerializeField] private FloatEventChannelSO loadingProgressChannel;
 
         [Header("Loading bar")]

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using jeanf.EventSystem;
+using jeanf.validationTools;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,6 +15,7 @@ namespace jeanf.universalplayer
         }
         [SerializeField] private bool _isDebug = false;
         
+        [Validation("Teleport positions are required — with an empty list no keyboard 0-9 spawn actions are built and this component does nothing.")]
         [SerializeField] List<Transform> teleportPositions;
         readonly List<InputAction> inputActions = new List<InputAction>();
 

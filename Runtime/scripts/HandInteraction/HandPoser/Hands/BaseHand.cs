@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using jeanf.EventSystem;
+using jeanf.validationTools;
 using UnityEngine;
 using LitMotion;
 
@@ -18,10 +19,12 @@ public abstract class BaseHand : MonoBehaviour, IDebugBehaviour
     [SerializeField] private bool _isDebug = false;
     
     // Neutral pose for the hand
+    [Validation("Default pose is required — every grab/point release calls ApplyDefaultPose, so the fingers stay stuck in their last pose without it.")]
     [SerializeField] protected Pose defaultPose = null;
     public Pose DefaultPose => defaultPose;
 
     // Serialized so it can be used in editor by the preview hand
+    [Validation("Finger roots are required — the joint list is built from them at Awake (a null entry throws; an empty list means no pose can ever move a finger).")]
     [SerializeField] protected List<Transform> fingerRoots = new List<Transform>();
 
     // What kind of hand is this?
@@ -36,7 +39,7 @@ public abstract class BaseHand : MonoBehaviour, IDebugBehaviour
     private bool _warnedNoBoneNames;
 
     [FormerlySerializedAs("isLerpingOverTipe")] public bool isLerpingOverTime = true;
-    [DrawIf("isLerpingOverTipe", true, ComparisonType.Equals)]
+    [DrawIf("isLerpingOverTime", true, ComparisonType.Equals)]
     [SerializeField] private float lerpTime = .2f;
 
     protected virtual void Awake()

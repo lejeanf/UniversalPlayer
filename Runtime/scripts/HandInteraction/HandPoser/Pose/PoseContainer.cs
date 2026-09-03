@@ -1,4 +1,5 @@
 using jeanf.EventSystem;
+using jeanf.validationTools;
 using UnityEngine;
 
 namespace jeanf.universalplayer
@@ -16,6 +17,7 @@ namespace jeanf.universalplayer
         // (HandPoseManager.ResolveGrabPose / PoseGrabInteractable). The legacy manual
         // attach-transform fields and SetAttachTransform() were removed — the held object's
         // offset is now the pose's wrist-relative anchor, applied by PoseGrabInteractable.
+        [Validation("Pose is required — a PoseContainer with no pose does nothing (the grab keeps XRI's default attach and the fingers never close).")]
         public Pose pose = null;
     }
 }

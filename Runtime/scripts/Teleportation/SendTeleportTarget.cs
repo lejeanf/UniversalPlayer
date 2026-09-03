@@ -1,4 +1,5 @@
 using jeanf.EventSystem;
+using jeanf.validationTools;
 using UnityEngine;
 using UnityEngine.Events;
 #if UNITY_EDITOR
@@ -19,14 +20,17 @@ namespace jeanf.universalplayer
         [SerializeField] private bool _isDebug = false;
         
         [Header("Broadcasting on:")] 
+        [Validation("Teleport channel is required — Teleport() raises on it unguarded (a null reference throws) and no teleport is ever sent.")]
         [SerializeField] private TeleportEventChannelSO _teleportChannel;
         
         [Header("Teleportation parameters:")] 
         public bool isTeleportPlayer = false;
         [DrawIf("isTeleportPlayer", false, ComparisonType.Equals, DisablingType.DontDraw)]
+        [Validation("Object To Teleport is required while Is Teleport Player is off — the teleport event carries nothing to move without it.", RequiredIf = "!" + nameof(isTeleportPlayer))]
         [SerializeField] public Transform objectToTeleport;
         [SerializeField] public bool isUsingFilter = true;
         [DrawIf("isUsingFilter", true, ComparisonType.Equals, DisablingType.DontDraw)]
+        [Validation("Filter is required while Is Using Filter is on — listeners match on it, so an empty filter is accepted by no one (and the debug log dereferences it).", RequiredIf = nameof(isUsingFilter))]
         public FilterSO _filter;
         [SerializeField] private bool sendEventOnEnable = false;
         

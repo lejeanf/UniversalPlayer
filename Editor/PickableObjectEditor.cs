@@ -1,3 +1,4 @@
+using jeanf.validationTools;
 using UnityEditor;
 using UnityEngine;
 using jeanf.universalplayer;
@@ -25,6 +26,7 @@ namespace jeanf.universalplayer.editor
 
         public override void OnInspectorGUI()
         {
+            ValidationUi.DrawIssuesBanner(target as Component); // keep the shared orange "needs setup" banner this custom editor would otherwise replace
             DrawDefaultInspector();
 
             var pickable = (PickableObject)target;

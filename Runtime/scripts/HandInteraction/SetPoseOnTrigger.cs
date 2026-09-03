@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using jeanf.validationTools;
 using UnityEngine;
 
 namespace jeanf.universalplayer
@@ -7,6 +8,7 @@ namespace jeanf.universalplayer
     public class SetPoseOnTrigger : MonoBehaviour
     {
         [SerializeField] private Pose defaultPose;
+        [Validation("Pose to set is required — applying it is this zone's whole job; a hand entering the trigger does nothing without it.")]
         [SerializeField] private Pose poseToSet;
 
         [SerializeField] private bool isUsingGrabCheck = true;

@@ -28,7 +28,7 @@ namespace jeanf.universalplayer
 
         [Header("Cursor look (free-cursor pointer)")]
         [Tooltip("The ONE palette for pointer colours — resting / hover / click / invalid. The VR interaction ray (InteractionRayHoverVisual) reads the SAME asset through this component, so cursor and ray can never drift apart. Duplicate the packaged CursorPalette for a project-specific look.")]
-        [Validation("No CursorPaletteSO — cursor and interaction ray have no colours to show.")]
+        [Validation("No CursorPaletteSO — cursor and interaction ray fall back to the packaged code-default colours and the project cannot restyle them.")]
         [SerializeField] private CursorPaletteSO palette;
         [Tooltip("Cursor size while the primary item is drawn (lerped in and back out).")]
         [Range(0.1f, 1f)][SerializeField] private float tabletCursorScale = 0.5f;

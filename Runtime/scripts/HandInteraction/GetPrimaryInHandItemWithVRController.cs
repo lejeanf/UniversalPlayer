@@ -22,12 +22,16 @@ namespace jeanf.universalplayer
         }
         [SerializeField] private bool _isDebug = false;
         [Header("Inputs")]
+        [Validation("Left draw-primary-item action is required — it is subscribed unguarded at startup (a null reference throws).")]
         [SerializeField] private InputActionReference drawPrimaryItem_LeftHand;
+        [Validation("Right draw-primary-item action is required — it is subscribed unguarded at startup (a null reference throws).")]
         [SerializeField] private InputActionReference drawPrimaryItem_RightHand;
 
 
         [Header("Hands Information")]
+        [Validation("Left hand transform is required — a VR grab swap dereferences it unguarded (a null reference throws); it is also the legacy attach parent.")]
         [SerializeField] private Transform _leftHand;
+        [Validation("Right hand transform is required — a VR grab swap dereferences it unguarded (a null reference throws); it is also the legacy attach parent.")]
         [SerializeField] private Transform _rightHand;
         [SerializeField] private HandPoseManager _leftHandPoseManager;
         [SerializeField] private HandPoseManager _rightHandPoseManager;
@@ -44,6 +48,7 @@ namespace jeanf.universalplayer
         [SerializeField] private Vector3 heldItemRotationOffset;
         [Validation("The primary item state channel is required (shared with PrimaryItemController and the cursor).")]
         [SerializeField] private BoolEventChannelSO _PrimaryItemStateChannel;
+        [Validation("Primary-item-with-hand channel is required — it is subscribed unguarded at startup (a null reference throws).")]
         [SerializeField] private StringEventChannelSO _primaryItemStateWithUsedHandChannel;
         [SerializeField] private VoidEventChannelSO _leftGrab;
         [SerializeField] private VoidEventChannelSO _rightGrab;

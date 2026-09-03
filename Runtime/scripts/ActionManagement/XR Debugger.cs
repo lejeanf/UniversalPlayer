@@ -1,4 +1,5 @@
 using System;
+using jeanf.validationTools;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -6,8 +7,11 @@ namespace jeanf.universalplayer
 {
     public class XRDebugger : MonoBehaviour
     {
+        [Validation("Move action is required — subscribed unguarded on enable (a null reference throws).")]
         [SerializeField] InputActionReference moveAction;
+        [Validation("Snap-turn action is required — subscribed unguarded on enable (a null reference throws).")]
         [SerializeField] InputActionReference snapTurnAction;
+        [Validation("PlayerInput is required — its control scheme is read unguarded on every move/snap-turn log (a null reference throws).")]
         [SerializeField] PlayerInput PlayerInput;
 
         private Action<InputAction.CallbackContext> _onMove;

@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using jeanf.validationTools;
 using UnityEngine;
 
 public class SwapHands : MonoBehaviour
 {
     [SerializeField] public HandType handType;
     [Space(20)]
+    [Validation("The hand renderers list is required — SetHands has no SkinnedMeshRenderer to re-skin without it.")]
     [SerializeField] private List<SkinnedMeshRenderer> hands;
     [SerializeField] private List<Hand> handTypes;
     

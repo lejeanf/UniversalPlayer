@@ -4,6 +4,7 @@
     "references": [
         "jeanf.universalplayer",
         "jeanf.universalplayer.entities",
+        "jeanf.propertyDrawer",
         "Unity.Scenes",
         "jeanf.eventsystem",
         "UnityEngine.UI",

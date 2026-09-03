@@ -1,4 +1,5 @@
 using jeanf.EventSystem;
+using jeanf.validationTools;
 using UnityEngine;
 using jeanf.propertyDrawer;
 namespace jeanf.universalplayer
@@ -16,22 +17,31 @@ namespace jeanf.universalplayer
         [Space(10)] [SerializeField] private int grabCount = 0;
         [SerializeField] private int handsInDetectionzone = 0;
 
-        [Header("Listening on:")] [SerializeField]
+        [Header("Listening on:")]
+        [Validation("Left hand grab-state channel is required — left grabs are never counted and the opposite-hand pointing pose never triggers without it.")]
+        [SerializeField]
         private BoolEventChannelSO _LeftHandState = default;
 
+        [Validation("Right hand grab-state channel is required — right grabs are never counted and the opposite-hand pointing pose never triggers without it.")]
         [SerializeField] private BoolEventChannelSO _RightHandState = default;
+        [Validation("Hand-detected channel is required while 'Set Pointing Pose On Opposite Hand Grab' is on — the pointing pose never triggers without it.", RequiredIf = nameof(setPointingPoseOnOppositeHandGrab))]
         [SerializeField] private VoidEventChannelSO _HandDetectedEvent = default;
+        [Validation("Hand-disappeared channel is required while 'Set Pointing Pose On Opposite Hand Grab' is on — the hand never returns to its default pose without it.", RequiredIf = nameof(setPointingPoseOnOppositeHandGrab))]
         [SerializeField] private VoidEventChannelSO _HandDisapearedEvent = default;
 
-        [Header("Broadcasting on:")] [SerializeField]
+        [Header("Broadcasting on:")]
+        [Validation("Grab-count channel is required — it is raised unguarded on every hand grab/release (a null reference throws).")]
+        [SerializeField]
         private IntEventChannelSO grabCountChannelSO;
 
         [SerializeField] private bool setPointingPoseOnOppositeHandGrab = false;
 
         [DrawIf("setPointingPoseOnOppositeHandGrab", true, ComparisonType.Equals)] [SerializeField]
+        [Validation("Left 'is pointing' channel is required while Set Pointing Pose On Opposite Hand Grab is on — it is raised unguarded when the left hand points (a null reference throws).", RequiredIf = nameof(setPointingPoseOnOppositeHandGrab))]
         private BoolEventChannelSO leftHandIsPointingChannelSO;
 
         [DrawIf("setPointingPoseOnOppositeHandGrab", true, ComparisonType.Equals)] [SerializeField]
+        [Validation("Right 'is pointing' channel is required while Set Pointing Pose On Opposite Hand Grab is on — it is raised unguarded when the right hand points (a null reference throws).", RequiredIf = nameof(setPointingPoseOnOppositeHandGrab))]
         private BoolEventChannelSO rightHandIsPointingChannelSO;
 
         [SerializeField] private bool leftHandGrabState = false;
