@@ -1,8 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using jeanf.EventSystem;
 using NUnit.Framework;
+using UnityEditor;
+using UnityEditor.Events;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace jeanf.universalplayer.tests.editor
 {
@@ -86,11 +90,15 @@ namespace jeanf.universalplayer.tests.editor
 
         private readonly List<GameObject> _spawned = new List<GameObject>();
 
+        private readonly List<ScriptableObject> _spawnedAssets = new List<ScriptableObject>();
+
         [TearDown]
         public void DestroySpawned()
         {
             foreach (var go in _spawned) if (go != null) Object.DestroyImmediate(go);
             _spawned.Clear();
+            foreach (var asset in _spawnedAssets) if (asset != null) Object.DestroyImmediate(asset);
+            _spawnedAssets.Clear();
         }
 
         private GameObject Spawn(string name)
@@ -98,6 +106,24 @@ namespace jeanf.universalplayer.tests.editor
             var go = new GameObject(name);
             _spawned.Add(go);
             return go;
+        }
+
+        private T NewAsset<T>() where T : ScriptableObject
+        {
+            var asset = ScriptableObject.CreateInstance<T>();
+            _spawnedAssets.Add(asset);
+            return asset;
+        }
+
+        // Sets a serialized object reference the way the Inspector would — reaches private
+        // fields declared on base classes too (reflection on the concrete type does not).
+        private static void SetSerialized(Object target, string property, Object value)
+        {
+            var so = new SerializedObject(target);
+            var prop = so.FindProperty(property);
+            Assert.That(prop, Is.Not.Null, $"Serialized property '{property}' not found on {target.GetType().Name} — was it renamed?");
+            prop.objectReferenceValue = value;
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private Seat NewSeat(string name) => Spawn(name).AddComponent<Seat>();
@@ -116,6 +142,41 @@ namespace jeanf.universalplayer.tests.editor
             var info = target.GetType().GetField(field, BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.That(info, Is.Not.Null, $"Field '{field}' not found on {target.GetType().Name} — was it renamed?");
             info.SetValue(target, value);
+        }
+
+        [Test]
+        public void CursorPaletteCheck_RequiresAProjectLocalPalette()
+        {
+            var player = Spawn("Player");
+            player.AddComponent<BroadcastControlsStatus>(); // lets the scene checks run
+            var cursor = player.AddComponent<CursorStateController>();
+
+            Assert.That(SceneCheck("Scene: cursor palette").Severity, Is.EqualTo(SetupValidator.Severity.Fail),
+                "A CursorStateController without a CursorPaletteSO must fail: cursor and ray have no project-owned colours.");
+
+            var packaged = AssetDatabase.FindAssets("t:CursorPaletteSO")
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Where(p => p.StartsWith(ProjectSetupChecks.PackageRoot() ?? "<none>"))
+                .Select(AssetDatabase.LoadAssetAtPath<CursorPaletteSO>)
+                .FirstOrDefault();
+            Assert.That(packaged, Is.Not.Null, "The package must ship a default CursorPalette asset.");
+            SetPrivate(cursor, "palette", packaged);
+            Assert.That(SceneCheck("Scene: cursor palette").Severity, Is.EqualTo(SetupValidator.Severity.Warning),
+                "Using the PACKAGED palette must warn: consumers cannot edit it and updates overwrite it.");
+
+            var localPath = AssetDatabase.GenerateUniqueAssetPath("Assets/CursorPalette_ValidatorTest.asset");
+            var local = ScriptableObject.CreateInstance<CursorPaletteSO>();
+            AssetDatabase.CreateAsset(local, localPath);
+            try
+            {
+                SetPrivate(cursor, "palette", local);
+                Assert.That(SceneCheck("Scene: cursor palette").Severity, Is.EqualTo(SetupValidator.Severity.Pass),
+                    "A project-local palette is the recommended setup and must pass.");
+            }
+            finally
+            {
+                AssetDatabase.DeleteAsset(localPath);
+            }
         }
 
         [Test]
@@ -214,6 +275,113 @@ namespace jeanf.universalplayer.tests.editor
             foreach (var expected in new[] { "Scene: seat heights", "Scene: seat colliders", "Scene: seat data bridge" })
                 Assert.That(names, Does.Contain(expected),
                     $"'{expected}' is no longer in the open-scene checks — a seat setup regression would go unvalidated.");
+        }
+
+        [Test]
+        public void OpenSceneChecks_IncludeTheWiringChecksThatUsedToBeRuntimeWarnings()
+        {
+            Spawn("Player").AddComponent<BroadcastControlsStatus>();
+            var names = ProjectSetupChecks.RunOpenSceneChecks().Select(r => r.Name).ToList();
+            foreach (var expected in new[]
+                     {
+                         "Scene: teleport listener", "Scene: XR mode manager",
+                         "Scene: player action assets", "Scene: pickable rigidbodies",
+                     })
+                Assert.That(names, Does.Contain(expected),
+                    $"'{expected}' is no longer in the open-scene checks — that failure would only surface as a " +
+                    "play-mode warning again.");
+        }
+
+        [Test]
+        public void TeleportCheck_RequiresAWiredListenerOnTheTargetsChannel()
+        {
+            if (Object.FindAnyObjectByType<TeleportOnEvent>(FindObjectsInactive.Include) != null
+                || Object.FindAnyObjectByType<SendTeleportTarget>(FindObjectsInactive.Include) != null)
+                Assert.Ignore("The open scene already contains teleport wiring — this test needs a clean slate.");
+
+            var channelA = NewAsset<TeleportEventChannelSO>();
+            var channelB = NewAsset<TeleportEventChannelSO>();
+
+            var listenerGo = Spawn("Listener");
+            listenerGo.SetActive(false); // never subscribes to the channel in edit mode
+            var listener = listenerGo.AddComponent<TeleportOnEvent>();
+            var targetGo = Spawn("Target");
+            targetGo.SetActive(false);
+            var target = targetGo.AddComponent<SendTeleportTarget>();
+            SetSerialized(target, "_teleportChannel", channelA);
+
+            Assert.That(ProjectSetupChecks.CheckTeleportWiring().Severity, Is.EqualTo(SetupValidator.Severity.Fail),
+                "A listener with no channel and nothing on OnEventRaised must FAIL — every teleport on it is dropped.");
+
+            SetSerialized(listener, "_channel", channelB);
+            UnityEventTools.AddPersistentListener(listener.OnEventRaised, listener.Teleport);
+            Assert.That(ProjectSetupChecks.CheckTeleportWiring().Severity, Is.EqualTo(SetupValidator.Severity.Warning),
+                "A target broadcasting on a channel no listener receives must WARN — that teleport does nothing at runtime.");
+
+            SetSerialized(listener, "_channel", channelA);
+            Assert.That(ProjectSetupChecks.CheckTeleportWiring().Severity, Is.EqualTo(SetupValidator.Severity.Pass),
+                "A listener on the target's channel with Teleport wired must pass.");
+        }
+
+        [Test]
+        public void XrModeManagerCheck_NeedsAResolvableCamera()
+        {
+            var player = Spawn("Player");
+            player.AddComponent<BroadcastControlsStatus>();
+            Assert.That(ProjectSetupChecks.CheckXrModeManager(player).Severity, Is.EqualTo(SetupValidator.Severity.Warning),
+                "A player without XrModeManager must WARN — the flat desktop view / instant VR re-entry are gone.");
+
+            var holder = new GameObject("Hmd");
+            holder.transform.SetParent(player.transform);
+            holder.SetActive(false);
+            var manager = holder.AddComponent<XrModeManager>();
+            Assert.That(ProjectSetupChecks.CheckXrModeManager(player).Severity, Is.EqualTo(SetupValidator.Severity.Fail),
+                "XrModeManager with no override and no FPSCameraMovement camera must FAIL — it has nothing to switch.");
+
+            manager.playerCameraOverride = Spawn("Camera").AddComponent<Camera>();
+            Assert.That(ProjectSetupChecks.CheckXrModeManager(player).Severity, Is.EqualTo(SetupValidator.Severity.Pass),
+                "With a Player Camera Override and the default Never stop mode the check must pass.");
+        }
+
+        [Test]
+        public void PlayerActionAssetsCheck_FlagsMissingReferencesThenMissingAssets()
+        {
+            var player = Spawn("Player");
+            player.AddComponent<BroadcastControlsStatus>();
+            Assert.That(ProjectSetupChecks.CheckPlayerActionAssets(player).Severity, Is.EqualTo(SetupValidator.Severity.Warning),
+                "A player without PlayerActionManager must WARN.");
+
+            var manager = player.AddComponent<PlayerActionManager>();
+            Assert.That(ProjectSetupChecks.CheckPlayerActionAssets(player).Severity, Is.EqualTo(SetupValidator.Severity.Fail),
+                "A PlayerActionManager with its references unassigned must FAIL — it NullRefs at play.");
+
+            var asset = NewAsset<InputActionAsset>();
+            asset.AddActionMap("ValidatorTest").AddAction("Probe", InputActionType.Button);
+            SetSerialized(manager, "m_InputActionAsset", asset);
+            SetSerialized(manager, "_actionContainer", NewAsset<ActionContainerSO>());
+            SetSerialized(manager, "actionRebindedListener", NewAsset<ActionRebindEventChannelSO>());
+
+            var result = ProjectSetupChecks.CheckPlayerActionAssets(player);
+            Assert.That(result.Severity, Is.EqualTo(SetupValidator.Severity.Warning),
+                "An action with no ActionSO under Resources/Player/Actions must WARN (the 'Did not found actionSO' case).");
+            Assert.That(result.Message, Does.Contain("ValidatorTest_Probe"),
+                "The warning must name the missing ActionSO so it can be created.");
+        }
+
+        [Test]
+        public void PickableCheck_WantsARigidbody()
+        {
+            if (Object.FindAnyObjectByType<PickableObject>(FindObjectsInactive.Include) != null)
+                Assert.Ignore("The open scene already contains PickableObjects — this test needs a clean slate.");
+
+            var pickable = Spawn("Pickable");
+            pickable.AddComponent<PickableObject>();
+            Assert.That(ProjectSetupChecks.CheckPickableRigidbodies().Severity, Is.EqualTo(SetupValidator.Severity.Warning),
+                "A PickableObject without a Rigidbody must WARN — its physics cannot be suspended while held.");
+
+            pickable.AddComponent<Rigidbody>();
+            Assert.That(ProjectSetupChecks.CheckPickableRigidbodies().Severity, Is.EqualTo(SetupValidator.Severity.Pass),
+                "With a Rigidbody the pickable check must pass.");
         }
     }
 }

@@ -29,8 +29,10 @@ namespace jeanf.universalplayer
 
         [Header("Ghost hand")]
         [SerializeField] private bool ghostHandEnabled = true;
-        [Tooltip("Translucent material for the ghost hands (the packaged GhostHands material). Empty keeps the hands' own materials.")]
+        [Tooltip("Translucent material for the ghost hands under URP / Built-in (packaged: GhostHands_URP). Empty keeps the hands' own materials.")]
         [SerializeField] private Material ghostMaterial;
+        [Tooltip("Translucent material for the ghost hands under HDRP (packaged: GhostHands, an HD Unlit graph). The active pipeline picks between the two automatically.")]
+        [SerializeField] private Material ghostMaterialHdrp;
 
         private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
         private static readonly int ColorId = Shader.PropertyToID("_Color");
@@ -259,12 +261,13 @@ namespace jeanf.universalplayer
                     Destroy(hand.gameObject);
                     continue;
                 }
+                var ghostLook = PipelineMaterials.Pick(ghostMaterial, ghostMaterialHdrp);
                 foreach (var handRenderer in hand.GetComponentsInChildren<Renderer>(true))
                 {
-                    if (ghostMaterial != null)
+                    if (ghostLook != null)
                     {
                         var materials = new Material[handRenderer.sharedMaterials.Length];
-                        for (var i = 0; i < materials.Length; i++) materials[i] = ghostMaterial;
+                        for (var i = 0; i < materials.Length; i++) materials[i] = ghostLook;
                         handRenderer.sharedMaterials = materials;
                     }
                     handRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;

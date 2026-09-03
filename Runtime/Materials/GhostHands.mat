@@ -24,8 +24,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: GhostHands
-  m_Shader: {fileID: -6465566751694194690, guid: 8c7224b8167e861479594f0d84cfbdf4,
-    type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 8c7224b8167e861479594f0d84cfbdf4, type: 3}
   m_Parent: {fileID: 2100000, guid: 8fd865cc87a89af4db6a0012e68edc1e, type: 2}
   m_ModifiedSerializedProperties: 16
   m_ValidKeywords:

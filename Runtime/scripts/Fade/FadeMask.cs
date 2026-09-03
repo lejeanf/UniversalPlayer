@@ -334,6 +334,17 @@ namespace jeanf.universalplayer
             }
         }
 
+        // Unity's own assembly enumeration (UAC0005: AppDomain.GetAssemblies can hand back
+        // already-unloaded assemblies after a domain reload).
+        private static System.Collections.Generic.IEnumerable<System.Reflection.Assembly> LoadedAssemblies()
+        {
+#if UNITY_6000_4_OR_NEWER
+            return UnityEngine.Assemblies.CurrentAssemblies.GetLoadedAssemblies();
+#else
+            return System.AppDomain.CurrentDomain.GetAssemblies();
+#endif
+        }
+
         private bool TryGetHDRPColorAdjustments()
         {
             try
@@ -342,7 +353,7 @@ namespace jeanf.universalplayer
                 
                 if (hdrpColorAdjustmentsType == null)
                 {
-                    foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
+                    foreach (var assembly in LoadedAssemblies())
                     {
                         if (assembly.GetName().Name.Contains("HighDefinition"))
                         {
@@ -398,7 +409,7 @@ namespace jeanf.universalplayer
                 
                 if (urpColorAdjustmentsType == null)
                 {
-                    foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
+                    foreach (var assembly in LoadedAssemblies())
                     {
                         if (assembly.GetName().Name.Contains("Universal"))
                         {

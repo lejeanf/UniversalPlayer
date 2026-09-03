@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using jeanf.validationTools;
-using Unity.VectorGraphics;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -34,21 +33,13 @@ namespace jeanf.universalplayer
     ///      camera-forward so it follows a free cursor. Set the SAME LayerMask on the
     ///      Player variant as the project's click handler uses; layers are
     ///      project-specific so the packaged default is empty (source disabled).
-    /// The validation fill (validationFeedbackImage) is a separate image and stays
-    /// untouched. M&K and gamepad modes only.
+    /// Colours come from the CursorStateController's CursorPaletteSO (hover / click /
+    /// resting) — one palette for the reticle, the pointing ray and the interaction ray.
+    /// M&K and gamepad modes only.
     /// </summary>
     public class ReticleHoverFeedback : MonoBehaviour
     {
         private const string LogPrefix = "[UniversalPlayer]";
-
-        [Tooltip("LEGACY optional. Hover/click colour is pushed through CursorStateController, which drives the " +
-                 "ScreenspaceUI HUD's #Cursor element. Leave EMPTY once the old cursor canvas is deleted; assign only " +
-                 "to also tint the old SVG reticle.")]
-        [SerializeField] private SVGImage reticleImage;
-        [Tooltip("Fallback only — the CursorStateController's Hover Color overrides this when a manager is present (it always is on the shipped prefab).")]
-        [SerializeField] private Color hoverColor = new Color(0.35f, 0.95f, 0.6f);
-        [Tooltip("Fallback only — the CursorStateController's Click Color overrides this. Shown while Interact/TakeObject is held on something usable.")]
-        [SerializeField] private Color interactFlashColor = new Color(1f, 0.85f, 0.25f);
 
         [Header("Physics hover (project click-handler parity)")]
         [Tooltip("Layers holding the project's raycast interactables (uvs: the layers UIClickHandler raycasts). Empty = this hover source is off.")]
@@ -65,13 +56,11 @@ namespace jeanf.universalplayer
         private InputAction interactAction;
         private InputAction takeAction;
         private bool interactHeld;
-        private Color defaultColor;
-        private bool defaultCaptured;
-        private CursorStateController cursorColors; // single color authority (normal/tablet/hover/click)
+        private CursorStateController cursorColors; // the palette's carrier (resting/hover/click)
         private DesktopWorldUiInteractor worldUiInteractor; // world-canvas hover (tracks the reticle even off-center in tablet mode)
         private bool currentlyTinted;
         private bool currentlyFlashing;
-        private bool missingImageWarned;
+        private bool missingCursorWarned;
 
         private void OnEnable()
         {
@@ -366,38 +355,21 @@ namespace jeanf.universalplayer
             // behind our back and the reticle then stays tinted forever — the resting
             // color is only re-applied on a CHANGE that never comes. Re-asserting it every
             // frame costs one color write and makes this the single authority.
-            // No image is FINE when a CursorStateController is present: it forwards the
-            // colour to the UI Toolkit HUD. Only bail when there is no output at ALL —
-            // otherwise deleting the legacy cursor canvas silently kills the hover tint.
-            if (reticleImage == null && cursorColors == null)
+            if (cursorColors == null)
             {
-                if (!missingImageWarned && tinted)
+                if (!missingCursorWarned && tinted)
                 {
-                    missingImageWarned = true;
-                    Debug.LogWarning($"{LogPrefix} ReticleHoverFeedback on '{name}': no reticleImage AND no " +
-                        "CursorStateController — the reticle cannot signal hover anywhere.", this);
+                    missingCursorWarned = true;
+                    Debug.LogWarning($"{LogPrefix} ReticleHoverFeedback on '{name}': no CursorStateController — " +
+                        "the reticle cannot signal hover anywhere.", this);
                 }
                 return;
             }
-            if (!defaultCaptured && reticleImage != null)
-            {
-                defaultCaptured = true;
-                defaultColor = reticleImage.color;
-            }
-            // All four reticle colors come from the CursorStateController when present
-            // (the single color authority under _settings); the serialized fields here
-            // are only a fallback. Resting is the manager's CURRENT normal/tablet color,
-            // so the reticle returns to the right base after a tablet toggle.
-            var hover = cursorColors != null ? cursorColors.HoverColor : hoverColor;
-            var flash = cursorColors != null ? cursorColors.ClickColor : interactFlashColor;
-            var resting = cursorColors != null ? cursorColors.RestingColor : defaultColor;
-            var resolved = flashing ? flash : tinted ? hover : resting;
-
-            // Push through the cursor manager: it forwards to the UI Toolkit HUD AND to the
-            // legacy image. Writing the image directly would strand the HUD the moment the
-            // old cursor canvas is deleted.
-            if (cursorColors != null) cursorColors.SetResolvedColor(resolved);
-            else reticleImage.color = resolved;
+            // Hover / click / resting all come from the CursorStateController's palette.
+            // Resting is its CURRENT colour, so the reticle returns to the right base after
+            // a tablet toggle. The controller forwards the result to the UI Toolkit HUD.
+            var resolved = flashing ? cursorColors.ClickColor : tinted ? cursorColors.HoverColor : cursorColors.RestingColor;
+            cursorColors.SetResolvedColor(resolved);
 
             currentlyTinted = tinted;
             currentlyFlashing = flashing;

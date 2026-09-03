@@ -100,14 +100,18 @@ namespace jeanf.universalplayer
                 return Decision.Keep;
             }
 
-            var wornEdge = _pendingWornEdge;
-            _pendingWornEdge = false;
-
             // VR entry: a debounced presence edge or an explicit request, but only when a
             // real headset is present (otherwise a stray Ctrl+Alt+V would strand _inVr
             // true while the scheme could not actually switch to XR).
-            if ((vrEntryRequested || wornEdge) && hmdValid)
+            //
+            // The presence edge is consumed ONLY when it can fire. Over Link the HMD
+            // device registers a beat AFTER the proximity sensor reports "worn" (a sleeping
+            // headset wakes when it is put on), so an edge that arrives while hmdValid is
+            // still false must wait for the device — dropping it left the player on the
+            // desktop with a black headset until they took it off and put it back on.
+            if (hmdValid && (vrEntryRequested || _pendingWornEdge))
             {
+                _pendingWornEdge = false;
                 _inVr = true;
                 return Decision.To(Scheme.XR);
             }

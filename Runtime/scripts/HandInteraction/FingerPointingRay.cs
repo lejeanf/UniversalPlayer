@@ -12,10 +12,10 @@ namespace jeanf.universalplayer
     /// physicsHoverMask layer). Sweeping the hand across an interactable makes the ray
     /// appear with a haptic tick, exactly like the desktop reticle lighting up on hover.
     ///
-    /// Colours come from the same single authority as the desktop cursor
-    /// (CursorStateController): the ray shows HoverColor while hovering and ClickColor
-    /// while the Interact button is held on a usable target, so VR and desktop feel
-    /// cohesive. Pressing Interact (A / X) performs the action along this ray:
+    /// Colours come from the same CursorPaletteSO as the desktop cursor, read through
+    /// the CursorStateController: the ray shows the palette's hover colour while
+    /// hovering and its click colour while the Interact button is held on a usable
+    /// target, so VR and desktop feel cohesive. Pressing Interact (A / X) performs the action along this ray:
     /// PerformAction raycasts along it in XR.
     /// </summary>
     public class FingerPointingRay : MonoBehaviour
@@ -24,10 +24,6 @@ namespace jeanf.universalplayer
 
         [SerializeField] private float rayLength = 2.5f;
         [SerializeField] private float rayWidth = 0.006f;
-        [Tooltip("Fallback hover colour if no CursorStateController is present (the cursor's HoverColor overrides this).")]
-        [SerializeField] private Color hoverColorFallback = new Color(0.35f, 0.95f, 0.6f, 0.9f);
-        [Tooltip("Fallback click colour if no CursorStateController is present (the cursor's ClickColor overrides this).")]
-        [SerializeField] private Color clickColorFallback = new Color(1f, 0.85f, 0.25f, 0.95f);
         [Tooltip("Project raycast-interactable layers (same mask as the desktop reticle / click handler). Empty = only XRI interactables, seats, pickables and tooltips show the ray.")]
         [SerializeField] private LayerMask physicsHoverMask;
 
@@ -46,7 +42,7 @@ namespace jeanf.universalplayer
 
         private readonly List<HandRay> hands = new List<HandRay>();
         private ControllerHandPoseDriver poseDriver;
-        private CursorStateController cursorColors; // shared colour authority (hover/click)
+        private CursorStateController cursorColors; // the palette's carrier (hover/click)
         private InputAction interactAction;
         private bool interactHeld;
         private Material lineMaterial;
@@ -80,6 +76,11 @@ namespace jeanf.universalplayer
 
             cursorColors = GetComponentInParent<CursorStateController>()
                            ?? FindAnyObjectByType<CursorStateController>();
+            if (cursorColors == null)
+            {
+                Debug.LogWarning($"{LogPrefix} FingerPointingRay on '{name}': no CursorStateController — " +
+                    "the ray falls back to the packaged CursorPalette defaults.", this);
+            }
 
             // Same interact binding as the desktop reticle click-flash, resolved by name
             // so no wiring is needed; ClickColor is shown while it is held on a usable target.
@@ -221,8 +222,8 @@ namespace jeanf.universalplayer
             hand.Line.SetPosition(1, origin + direction * distance);
         }
 
-        private Color HoverColor() => cursorColors != null ? cursorColors.HoverColor : hoverColorFallback;
-        private Color ClickColor() => cursorColors != null ? cursorColors.ClickColor : clickColorFallback;
+        private Color HoverColor() => cursorColors != null ? cursorColors.HoverColor : CursorPaletteSO.Fallback.hover;
+        private Color ClickColor() => cursorColors != null ? cursorColors.ClickColor : CursorPaletteSO.Fallback.click;
 
         private void PulseHover(HandType handType)
         {

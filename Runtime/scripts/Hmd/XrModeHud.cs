@@ -143,6 +143,9 @@ namespace jeanf.universalplayer
                   .Append(" activeAndEnabled=").Append(cam.isActiveAndEnabled)
                   .Append(" stereoEnabled=").Append(cam.stereoEnabled)
                   .Append(" stereoTargetEye=").Append(cam.stereoTargetEye)
+                  // The pipeline gate XrModeManager drives (HDRP xrRendering / URP allowXRRendering / built-in eye mask):
+                  // false on desktop = flat view + no mirror blit; true in VR = stereo to the headset.
+                  .Append(" xrRendering=").Append(CameraXrRendering.IsXrEnabled(cam))
                   // fov + the projection's off-center term: after leaving VR, m02 != 0
                   // means the camera is stranded on a per-eye (asymmetric) projection —
                   // the flat view then still looks like the left-eye mirror.
@@ -163,7 +166,8 @@ namespace jeanf.universalplayer
             var all = Camera.allCameras;
             sb.Append("activeCameras(").Append(all.Length).Append("): ");
             for (var i = 0; i < all.Length; i++)
-                sb.Append(all[i].name).Append("(en=").Append(all[i].enabled).Append(",depth=").Append(all[i].depth).Append(") ");
+                sb.Append(all[i].name).Append("(en=").Append(all[i].enabled).Append(",depth=").Append(all[i].depth)
+                  .Append(",xr=").Append(CameraXrRendering.IsXrEnabled(all[i])).Append(") ");
             sb.Append('\n');
         }
 

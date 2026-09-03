@@ -9,7 +9,7 @@ namespace jeanf.universalplayer
     [ScriptableObjectDrawer]
     public class ActionContainerSO : ScriptableObject, ISerializationCallbackReceiver
     {
-        public Dictionary<InputAction, ActionSO> _actions = new Dictionary<InputAction, ActionSO>();
+        [System.NonSerialized] public Dictionary<InputAction, ActionSO> _actions = new Dictionary<InputAction, ActionSO>();
         [SerializeField] private List<InputAction> _keys = new List<InputAction>();
         [SerializeField] private List<ActionSO> _values = new List<ActionSO>();    
 

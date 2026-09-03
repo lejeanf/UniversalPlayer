@@ -2,7 +2,7 @@
 
 Status: **implemented** (2026-07-11) in 0.10.0 — `Runtime/scripts/Events/`
 (PlayerEvents, PlayerChannelsSO, PlayerEventBridge + the packaged
-UniversalPlayerChannels asset, wired on the Player prefab root). Migrated:
+UniversalPlayerChannels asset, wired on the Player prefab under Settings/Events). Migrated:
 FPSCameraMovement, PlayerMovement, BroadcastControlsStatus, SitController,
 XrHealthMonitor, FallRecovery, HandsDisplayer, NoPeeking (its BoolEventListener
 left the prefab), CursorStateController, TeleportOnEvent's camera reset.
@@ -62,7 +62,7 @@ history is why).
 Unchanged from v1: one field per logical channel, package ships a default asset
 pointing at the sample channels; projects duplicate and repoint it once.
 
-### 3. `PlayerEventBridge` — the single wiring point (Player root)
+### 3. `PlayerEventBridge` — the single wiring point (`Settings/Events/PlayerEventBridge`)
 
 Holds the `PlayerChannelsSO`. Pipes BOTH directions:
 - outbound: internal event fires → `channel.RaiseEvent(...)` (skipped when the slot

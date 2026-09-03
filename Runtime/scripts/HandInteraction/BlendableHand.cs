@@ -17,7 +17,11 @@ namespace jeanf.universalplayer
 
             // The authored MeshCollider stays frozen in bind pose (skinned meshes never
             // move their collider) — swap it for per-phalanx boxes that follow the fingers.
-            if (Application.isPlaying && _hand != null)
+            // Only for a PHYSICS hand (one riding a Rigidbody, e.g. Left/RightHandPhysics):
+            // the non-physical "ghost" hand HandsPhysics shows when the physics hand is held
+            // back by the world must stay collider-free, or it pushes objects through walls
+            // and blocks the very hand it mirrors.
+            if (Application.isPlaying && _hand != null && GetComponentInParent<Rigidbody>() != null)
                 HandColliderBuilder.ReplaceWithFingerBoxes(transform, _hand.rootBone != null ? _hand.rootBone : transform);
         }
 

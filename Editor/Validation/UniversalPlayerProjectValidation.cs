@@ -86,6 +86,14 @@ namespace jeanf.universalplayer
             };
 
             // --- open scene ------------------------------------------------------
+            // The one scene rule with a safe automatic fix: generating the missing
+            // ActionSO assets is exactly what the component's own button does.
+            rules.Add(Rule("Scene: player action assets", () => SceneResult("Scene: player action assets"),
+                CreateMissingPlayerActionAssets,
+                fixItAutomatic: true,
+                isRuleEnabled: () => PlayerRoot() != null,
+                sceneOnly: true));
+
             // One rule per named check of RunOpenSceneChecks/RunHandChecks; the Fix
             // button pings the object to repair (these need judgment, never auto-fix).
             foreach (var (name, select) in SceneRuleTargets())
@@ -114,7 +122,9 @@ namespace jeanf.universalplayer
             yield return ("Scene: player event bridge", First<PlayerEventBridge>);
             yield return ("Scene: NoPeeking", First<NoPeeking>);
             yield return ("Scene: teleport listener", First<TeleportOnEvent>);
+            yield return ("Scene: XR mode manager", First<XrModeManager>);
             yield return ("Scene: XR health monitor", First<XrHealthMonitor>);
+            yield return ("Scene: pickable rigidbodies", First<PickableObject>);
             yield return ("Scene: fade profile", First<FadeMask>);
             yield return ("Scene: fade volume vs camera mask", First<FadeMask>);
             yield return ("Scene: camera post-processing (URP)", First<FadeMask>);
@@ -169,6 +179,26 @@ namespace jeanf.universalplayer
         }
 
         private static Action OpenSettings(string path) => () => SettingsService.OpenProjectSettings(path);
+
+        // Same work as the component's "Create Player Actions" button; only generates the
+        // assets that are missing. Falls back to pinging the component when it is not wired
+        // (the check reports what is missing — that part needs a human).
+        private static void CreateMissingPlayerActionAssets()
+        {
+            var root = PlayerRoot();
+            var manager = root != null ? root.GetComponentInChildren<PlayerActionManager>(true) : null;
+            if (manager == null) { Ping(root); return; }
+
+            if (new SerializedObject(manager).FindProperty("m_InputActionAsset")?.objectReferenceValue == null)
+            {
+                Ping(manager);
+                return;
+            }
+
+            manager.CreatePlayerActions();
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+        }
 
         private static void Ping(UnityEngine.Object target)
         {

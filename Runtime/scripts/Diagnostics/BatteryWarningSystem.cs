@@ -120,8 +120,11 @@ namespace jeanf.universalplayer
             if (Time.unscaledTime - _criticalSince < failsafeSwitchSeconds) return;
 
             _failsafeFired = true;
+            // This lives under Settings/Diagnostics while BroadcastControlsStatus sits on
+            // Settings/XR/HmdStatus (a cousin, not a parent or child) — fall back to a scene search.
             var broadcaster = GetComponentInParent<BroadcastControlsStatus>();
             if (broadcaster == null) broadcaster = GetComponentInChildren<BroadcastControlsStatus>(true);
+            if (broadcaster == null) broadcaster = FindAnyObjectByType<BroadcastControlsStatus>(FindObjectsInactive.Include);
             if (broadcaster != null) broadcaster.ForceDesktopControls("battery critical for too long");
             else Debug.LogWarning($"{LogPrefix} BatteryWarningSystem: failsafe elapsed but no BroadcastControlsStatus found — cannot switch to desktop controls.", this);
         }

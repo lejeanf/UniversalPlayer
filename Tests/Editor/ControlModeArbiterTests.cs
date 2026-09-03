@@ -163,6 +163,30 @@ namespace jeanf.universalplayer.tests
             Assert.That(d.ChangeScheme, Is.False);
         }
 
+        [Test]
+        public void WornEdge_WaitsForTheHmdDevice_ThenEntersVr()
+        {
+            // Over Link the proximity sensor reports "worn" a beat before the HMD device
+            // registers (a sleeping headset wakes when put on). The edge must survive the
+            // polls where no HMD is valid yet instead of being consumed and lost.
+            var a = New(stablePolls: 2);
+            a.SeedLaunch(false);
+            a.NotifyWornPoll(true);
+            a.NotifyWornPoll(true); // stable → rising edge armed
+            var d1 = a.Decide(NotFreecam, hmdValid: false, NoVrRequest, None, None);
+            Assert.That(a.InVr, Is.False, "No HMD device yet: must not enter VR.");
+            Assert.That(d1.ChangeScheme, Is.False);
+
+            var d2 = a.Decide(NotFreecam, HmdValid, NoVrRequest, None, None);
+            Assert.That(a.InVr, Is.True, "The pending presence edge must fire once the HMD device is valid.");
+            Assert.That(d2.Scheme, Is.EqualTo(ControlModeArbiter.Scheme.XR));
+
+            var d3 = a.Decide(NotFreecam, HmdValid, NoVrRequest, deliberateExit: Kbm, desktopInput: None);
+            Assert.That(a.InVr, Is.False, "The edge is one-shot: after a deliberate exit it must not re-fire.");
+            var d4 = a.Decide(NotFreecam, HmdValid, NoVrRequest, None, None);
+            Assert.That(a.InVr, Is.False);
+        }
+
         // ---- presence-supporting runtime: re-don re-enters (no sticky intent) -------
 
         [Test]

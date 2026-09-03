@@ -7,6 +7,7 @@
         "Unity.Scenes",
         "jeanf.eventsystem",
         "UnityEngine.UI",
+        "Unity.InputSystem",
         "Unity.XR.CoreUtils",
         "Unity.XR.CoreUtils.Editor",
         "Unity.XR.Interaction.Toolkit",

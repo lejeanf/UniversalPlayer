@@ -7,7 +7,7 @@ namespace jeanf.universalplayer
     /// <summary>
     /// The single wiring point between the player's internal delegate surface
     /// (<see cref="PlayerEvents"/>) and the project's SO event channels
-    /// (<see cref="PlayerChannelsSO"/>). Sits on the Player prefab root.
+    /// (<see cref="PlayerChannelsSO"/>). Sits on the Player prefab under Settings/Events.
     ///
     /// Outbound: internal events are forwarded onto the assigned channels so the
     /// project keeps hearing everything it heard before.

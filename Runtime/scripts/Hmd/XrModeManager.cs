@@ -126,6 +126,7 @@ namespace jeanf.universalplayer
             if (Time.unscaledTime < _nextReconcile) return;
             _nextReconcile = Time.unscaledTime + reconcileIntervalSeconds;
             if (ShouldManageDisplay) SetDisplayRunning(_wantXr);
+            else if (_wantXr) EnsureDisplayRunningForXr(); // the display can (re)appear or idle mid-session
             ReconcileSessionKeeper(); // also catches a display appearing mid-session
         }
 
@@ -159,9 +160,28 @@ namespace jeanf.universalplayer
                 }
             }
             if (ShouldManageDisplay) SetDisplayRunning(_wantXr);
+            // "Never stop the display on desktop" is not "never START it": a display that
+            // appeared while the keeper had nothing to warm (headset/Link connected after
+            // launch, or asleep at launch) can still be present-but-idle when the player
+            // dons the headset — the camera then renders XR into a stopped display and the
+            // headset stays black. Entering VR always brings the display up.
+            if (_wantXr) EnsureDisplayRunningForXr();
             // Same frame as the mode change, so leaving VR hands the frame stream to
             // the keeper with no gap — a gap is what lets the runtime idle the session.
             ReconcileSessionKeeper();
+        }
+
+        private void EnsureDisplayRunningForXr()
+        {
+            SubsystemManager.GetSubsystems(DisplaySubsystems);
+            for (int i = 0; i < DisplaySubsystems.Count; i++)
+            {
+                var display = DisplaySubsystems[i];
+                if (display == null || display.running) continue;
+                display.Start();
+                DpadLayoutGuard.RepairIfNeeded();
+                if (_isDebug) Debug.Log($"{XrStartupDiagnostics.LogPrefix} XrModeManager: XR display was idle on VR entry — started it.");
+            }
         }
 
         // See the class comment: without frames the OpenXR runtime winds the session

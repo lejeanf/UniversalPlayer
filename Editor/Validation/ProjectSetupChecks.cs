@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace jeanf.universalplayer
 {
@@ -126,9 +127,9 @@ namespace jeanf.universalplayer
 
         private static SetupValidator.CheckResult CheckStaleImportedSamples()
         {
+            const string check = "Stale imported samples";
             if (!AssetDatabase.IsValidFolder("Assets/Samples"))
-                return new SetupValidator.CheckResult("Stale imported samples", SetupValidator.Severity.Pass,
-                    "No Assets/Samples folder.");
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass, "No Assets/Samples folder.");
 
             var stale = AssetDatabase.GetSubFolders("Assets/Samples")
                 .Where(folder =>
@@ -137,16 +138,63 @@ namespace jeanf.universalplayer
                     return name.Contains("VR Player") || name.Contains("Universal Player") || name.Contains("UniversalPlayer");
                 })
                 .ToArray();
+            var outdated = OutdatedPackageSampleFolders();
 
-            if (stale.Length == 0)
-                return new SetupValidator.CheckResult("Stale imported samples", SetupValidator.Severity.Pass,
-                    "No imported Universal Player samples found.");
+            if (stale.Length == 0 && outdated.Count == 0)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
+                    "No imported Universal Player samples, and every XR sample folder matches its installed package version.");
 
-            return new SetupValidator.CheckResult("Stale imported samples", SetupValidator.Severity.Warning,
-                $"Old imported sample folder(s): {string.Join(", ", stale)} — these are stale copies " +
-                "(hands and prefabs now ship inside the package Runtime) and can shadow or confuse references.",
-                "Delete the folder(s) after confirming nothing in your scenes references them " +
-                "(the broken-reference check in this validator will tell you if something did).");
+            var problems = new List<string>();
+            var hints = new List<string>();
+            if (stale.Length > 0)
+            {
+                problems.Add($"Old imported Universal Player sample folder(s): {string.Join(", ", stale)} — stale copies " +
+                             "(hands and prefabs now ship inside the package Runtime) that can shadow or confuse references.");
+                hints.Add("Delete the Universal Player sample folder(s) after confirming nothing in your scenes references them.");
+            }
+            if (outdated.Count > 0)
+            {
+                problems.Add($"XR sample folder(s) from ANOTHER version than the installed package: {string.Join(", ", outdated)} — " +
+                             "their scripts (GazeInputManager, hand visualizers, ...) keep compiling against the new package: " +
+                             "obsolete-API warnings, duplicate types, demo scenes that no longer load.");
+                hints.Add("Delete the old version folder(s); if the project still needs that sample, re-import it from " +
+                          "Package Manager > <package> > Samples (it lands under the installed version).");
+            }
+
+            return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
+                string.Join(" ", problems), string.Join(" ", hints));
+        }
+
+        // Package samples import as versioned copies: Assets/Samples/<Display Name>/<version>/.
+        // After a package update the old folder stays behind and keeps compiling.
+        private static readonly (string packageName, string displayFolder)[] VersionedSamplePackages =
+        {
+            ("com.unity.xr.interaction.toolkit", "XR Interaction Toolkit"),
+            ("com.unity.xr.hands", "XR Hands"),
+        };
+
+        internal static List<string> OutdatedPackageSampleFolders()
+        {
+            var outdated = new List<string>();
+            var installed = UnityEditor.PackageManager.PackageInfo.GetAllRegisteredPackages()
+                .ToDictionary(package => package.name, package => package.version);
+
+            foreach (var (packageName, displayFolder) in VersionedSamplePackages)
+            {
+                var folder = $"Assets/Samples/{displayFolder}";
+                if (!AssetDatabase.IsValidFolder(folder)) continue;
+                if (!installed.TryGetValue(packageName, out var version))
+                {
+                    outdated.Add($"{folder} ({packageName} is not installed)");
+                    continue;
+                }
+                foreach (var versionFolder in AssetDatabase.GetSubFolders(folder))
+                {
+                    if (System.IO.Path.GetFileName(versionFolder) != version)
+                        outdated.Add($"{versionFolder} (installed: {version})");
+                }
+            }
+            return outdated;
         }
 
         public static List<SetupValidator.CheckResult> RunOpenSceneChecks()
@@ -167,6 +215,7 @@ namespace jeanf.universalplayer
             results.Add(CheckSingleGravitySystem(broadcaster.transform.root.gameObject));
             results.Add(CheckPlayerGroundCollision(broadcaster.transform.root.gameObject));
             results.Add(CheckPlayerEventBridge(broadcaster.transform.root.gameObject));
+            results.Add(CheckCursorPalette(broadcaster.transform.root.gameObject));
 
             var noPeeking = Object.FindAnyObjectByType<NoPeeking>(FindObjectsInactive.Include);
             if (noPeeking == null)
@@ -186,14 +235,9 @@ namespace jeanf.universalplayer
                         "Collision layer is configured."));
             }
 
-            if (Object.FindAnyObjectByType<TeleportOnEvent>(FindObjectsInactive.Include) == null)
-                results.Add(new SetupValidator.CheckResult("Scene: teleport listener", SetupValidator.Severity.Warning,
-                    "No TeleportOnEvent in the scene — SendTeleportTarget events go nowhere (nothing teleports).",
-                    "Add a TeleportOnEvent (usually on the Player variant), listening on your TeleportEventChannel, " +
-                    "with OnEventRaised wired to its Teleport method."));
-            else
-                results.Add(new SetupValidator.CheckResult("Scene: teleport listener", SetupValidator.Severity.Pass,
-                    "TeleportOnEvent present."));
+            results.Add(CheckTeleportWiring());
+            results.Add(CheckXrModeManager(broadcaster.transform.root.gameObject));
+            results.Add(CheckPlayerActionAssets(broadcaster.transform.root.gameObject));
 
             if (Object.FindAnyObjectByType<XrHealthMonitor>(FindObjectsInactive.Include) == null)
                 results.Add(new SetupValidator.CheckResult("Scene: XR health monitor", SetupValidator.Severity.Warning,
@@ -212,7 +256,186 @@ namespace jeanf.universalplayer
             results.Add(CheckSeatDataBridge());
             results.Add(CheckScenarioSeating());
             results.Add(CheckWorldSpaceCanvases());
+            results.Add(CheckPickableRigidbodies());
             return results;
+        }
+
+        // The runtime only says "NO TeleportOnEvent accepted it" in play mode, AFTER the
+        // teleport already failed. Every fact it lists is visible at edit time: a listener
+        // exists, it receives on the SAME channel the scene's targets broadcast on, and its
+        // OnEventRaised actually reaches Teleport. (Filters can still reject a matching
+        // event — that part needs the runtime.) Public so the editor tests can drive it.
+        public static SetupValidator.CheckResult CheckTeleportWiring()
+        {
+            const string check = "Scene: teleport listener";
+            var listeners = Object.FindObjectsByType<TeleportOnEvent>(FindObjectsInactive.Include);
+            var targets = Object.FindObjectsByType<SendTeleportTarget>(FindObjectsInactive.Include);
+
+            if (listeners.Length == 0)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
+                    "No TeleportOnEvent in the scene — SendTeleportTarget events go nowhere (nothing teleports).",
+                    "Add a TeleportOnEvent (usually on the Player variant), listening on your TeleportEventChannel, " +
+                    "with OnEventRaised wired to its Teleport method.");
+
+            var receivedChannels = new HashSet<Object>();
+            var broken = new List<string>();
+            foreach (var listener in listeners)
+            {
+                var so = new SerializedObject(listener);
+                var channel = so.FindProperty("_channel")?.objectReferenceValue;
+                if (channel == null) broken.Add($"'{listener.name}' has no 'Receiving on channel' asset");
+                else receivedChannels.Add(channel);
+
+                if (!PersistentCallsReach(so.FindProperty("OnEventRaised"), nameof(TeleportOnEvent.Teleport)))
+                    broken.Add($"'{listener.name}': OnEventRaised is not wired to TeleportOnEvent.Teleport");
+            }
+
+            var unreceived = new List<string>();
+            foreach (var target in targets)
+            {
+                var channel = new SerializedObject(target).FindProperty("_teleportChannel")?.objectReferenceValue;
+                if (channel == null) unreceived.Add($"'{target.name}' broadcasts on NO channel");
+                else if (!receivedChannels.Contains(channel))
+                    unreceived.Add($"'{target.name}' broadcasts on '{channel.name}', which no listener here receives");
+            }
+
+            if (broken.Count > 0)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Fail,
+                    $"TeleportOnEvent misconfigured: {string.Join("; ", broken)} — every teleport on that listener is dropped.",
+                    "On the TeleportOnEvent (Player variant): set 'Receiving on channel' to the TeleportEventChannel your " +
+                    "targets broadcast on, and add TeleportOnEvent.Teleport to its OnEventRaised (dynamic parameter).");
+
+            if (unreceived.Count > 0)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
+                    $"SendTeleportTarget(s) nobody in the loaded scenes listens to: {string.Join("; ", unreceived)} — " +
+                    "those teleports do nothing (the runtime warns 'NO TeleportOnEvent accepted it'). Ignore if the " +
+                    "matching listener lives in a scene that is only loaded at runtime.",
+                    $"Point those targets at the channel the listener receives ({string.Join(", ", receivedChannels.Select(c => $"'{c.name}'"))}), " +
+                    "or add a TeleportOnEvent for their channel. Still nothing moving? Check the listener's filters.");
+
+            return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
+                $"{listeners.Length} TeleportOnEvent(s) wired on {receivedChannels.Count} channel(s); " +
+                $"all {targets.Length} SendTeleportTarget(s) in the loaded scenes are received.");
+        }
+
+        // True when at least one persistent UnityEvent call targets the named method.
+        private static bool PersistentCallsReach(SerializedProperty unityEvent, string methodName)
+        {
+            var calls = unityEvent?.FindPropertyRelative("m_PersistentCalls.m_Calls");
+            if (calls == null) return false;
+            for (var i = 0; i < calls.arraySize; i++)
+            {
+                var call = calls.GetArrayElementAtIndex(i);
+                if (call.FindPropertyRelative("m_Target")?.objectReferenceValue != null
+                    && call.FindPropertyRelative("m_MethodName")?.stringValue == methodName)
+                    return true;
+            }
+            return false;
+        }
+
+        // XrModeManager (v1.16.0) owns the desktop<->VR rendering switch: flat view after
+        // VR, instant re-entry via the session keeper. Without a resolvable camera it does
+        // nothing, and the two failure modes it exists to prevent come back silently.
+        public static SetupValidator.CheckResult CheckXrModeManager(GameObject playerRoot)
+        {
+            const string check = "Scene: XR mode manager";
+            var manager = playerRoot.GetComponentInChildren<XrModeManager>(true);
+            if (manager == null)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
+                    "No XrModeManager on the player — after leaving VR the desktop view stays a stereo left-eye " +
+                    "mirror, and every VR re-entry restarts the XR display (seconds of black headset over Link).",
+                    "It ships on the Player prefab (Settings/XR/XrModeManager) since v1.16.0 — update the package, or re-add it on your Player variant.");
+
+            var so = new SerializedObject(manager);
+            var managesCamera = so.FindProperty("manageCameraXrRendering")?.boolValue ?? true;
+            var overrideCamera = so.FindProperty("playerCameraOverride")?.objectReferenceValue;
+            var look = playerRoot.GetComponentInChildren<FPSCameraMovement>(true);
+            var lookCamera = look != null ? new SerializedObject(look).FindProperty("playerCamera")?.objectReferenceValue : null;
+            if (managesCamera && overrideCamera == null && lookCamera == null)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Fail,
+                    "XrModeManager cannot resolve the player camera (no Player Camera Override, and FPSCameraMovement." +
+                    "playerCamera is unassigned) — the camera never goes stereo in VR nor flat on desktop.",
+                    "Assign the player's Camera on FPSCameraMovement (see 'Scene: player camera'), or set XrModeManager's " +
+                    "Player Camera Override on your variant.");
+
+            var stopMode = so.FindProperty("stopXrDisplayOnDesktop");
+            if (stopMode != null && stopMode.enumValueIndex != (int)XrModeManager.DisplayStopMode.Never)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
+                    $"Stop Xr Display On Desktop is '{stopMode.enumDisplayNames[stopMode.enumValueIndex]}' — every VR " +
+                    "re-entry pays a full Link re-handshake (seconds of black headset) and the session keeper is defeated.",
+                    "Set it back to Never on your Player variant unless a fully XR-free desktop state matters more than fast re-entry.");
+
+            return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
+                "XrModeManager present, camera resolvable, XR display kept warm on desktop.");
+        }
+
+        // PlayerActionManager maps every action of the input asset to an ActionSO under
+        // Resources/Player/Actions (rebinding + SO forwarding). A missing asset is only a
+        // play-mode warning ("Did not found actionSO") — and the generated assets are
+        // project files that are easy to forget after adding an action.
+        public static SetupValidator.CheckResult CheckPlayerActionAssets(GameObject playerRoot)
+        {
+            const string check = "Scene: player action assets";
+            var manager = playerRoot.GetComponentInChildren<PlayerActionManager>(true);
+            if (manager == null)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
+                    "No PlayerActionManager on the player — action rebinding and the per-action ScriptableObjects are unavailable.",
+                    "It ships on the Player prefab root; re-add it on your variant if it was removed.");
+
+            var so = new SerializedObject(manager);
+            var missingRefs = new List<string>();
+            if (so.FindProperty("_actionContainer")?.objectReferenceValue == null) missingRefs.Add("ActionContainerSO");
+            if (so.FindProperty("actionRebindedListener")?.objectReferenceValue == null) missingRefs.Add("ActionRebindEventChannelSO");
+            var asset = so.FindProperty("m_InputActionAsset")?.objectReferenceValue as InputActionAsset;
+            if (asset == null) missingRefs.Add("InputActionAsset");
+            if (missingRefs.Count > 0)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Fail,
+                    $"PlayerActionManager on '{manager.gameObject.name}' has unassigned: {string.Join(", ", missingRefs)} — " +
+                    "it cannot list, forward or rebind any action (NullReference at play).",
+                    "Assign them on the PlayerActionManager of your Player variant (the package prefab ships them wired).");
+
+            var missing = new List<string>();
+            var total = 0;
+            foreach (var action in asset)
+            {
+                total++;
+                var assetName = $"{action.actionMap.name}_{action.name}";
+                if (Resources.Load<ActionSO>($"Player/Actions/{assetName}") == null) missing.Add(assetName);
+            }
+
+            if (missing.Count > 0)
+            {
+                var preview = string.Join(", ", missing.Take(6)) + (missing.Count > 6 ? ", ..." : "");
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
+                    $"{missing.Count} of {total} action(s) have no ActionSO under Resources/Player/Actions ({preview}) — " +
+                    "the runtime warns 'Did not found actionSO' and those actions cannot be rebound or forwarded to their SO.",
+                    "Press 'Create Player Actions' on the PlayerActionManager (or the Fix button in the Project Validation " +
+                    "window), then commit Assets/Resources/Player/Actions.");
+            }
+
+            return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
+                $"All {total} action(s) of '{asset.name}' have their ActionSO under Resources/Player/Actions.");
+        }
+
+        // A PickableObject without a Rigidbody still grabs, but its physics cannot be
+        // suspended while held or restored on release — the runtime warns once per object,
+        // in play mode, with the headset on.
+        public static SetupValidator.CheckResult CheckPickableRigidbodies()
+        {
+            const string check = "Scene: pickable rigidbodies";
+            var pickables = Object.FindObjectsByType<PickableObject>(FindObjectsInactive.Include);
+            if (pickables.Length == 0)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass, "No PickableObject in the scene.");
+
+            var missing = pickables.Where(p => p.GetComponent<Rigidbody>() == null).Select(p => $"'{p.name}'").ToArray();
+            if (missing.Length == 0)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
+                    $"All {pickables.Length} pickable(s) have a Rigidbody.");
+
+            return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
+                $"PickableObject without a Rigidbody: {string.Join(", ", missing)} — they can be picked up, but their " +
+                "physics cannot be suspended while held or restored on release.",
+                "Add a Rigidbody to each (tick Is Kinematic if the object must not fall when placed).");
         }
 
         // Scenario-driven seating: scenarios raise a Seat's GameObject on the
@@ -526,7 +749,7 @@ namespace jeanf.universalplayer
                 return new SetupValidator.CheckResult("Scene: player event bridge", SetupValidator.Severity.Fail,
                     "No PlayerEventBridge on the player — EVERY event between the player and the project is silent " +
                     "(teleports in, movement/seated/XR reports out).",
-                    "The package prefab ships one on the Player root since 0.10.0 — update the package, or re-add the " +
+                    "The package prefab ships one under Settings/Events/PlayerEventBridge since 0.10.0 — update the package, or re-add the " +
                     "component and assign a PlayerChannelsSO if the variant removed it.");
 
             var channels = new SerializedObject(bridge).FindProperty("channels").objectReferenceValue as PlayerChannelsSO;
@@ -566,6 +789,39 @@ namespace jeanf.universalplayer
 
             return new SetupValidator.CheckResult("Scene: player event bridge", SetupValidator.Severity.Pass,
                 $"Bridge present, '{channels.name}' fully wired.");
+        }
+
+        private static SetupValidator.CheckResult CheckCursorPalette(GameObject playerRoot)
+        {
+            const string name = "Scene: cursor palette";
+            var cursor = playerRoot.GetComponentInChildren<CursorStateController>(true);
+            if (cursor == null)
+                return new SetupValidator.CheckResult(name, SetupValidator.Severity.Fail,
+                    "No CursorStateController on the player — no cursor/reticle, and the interaction ray has no colours.",
+                    "The package prefab ships one under Settings/UI/CursorStateController; re-add it if the variant removed it.");
+
+            var palette = new SerializedObject(cursor).FindProperty("palette").objectReferenceValue as CursorPaletteSO;
+            if (palette == null)
+                return new SetupValidator.CheckResult(name, SetupValidator.Severity.Fail,
+                    "CursorStateController has no CursorPaletteSO — cursor AND interaction ray fall back to code defaults, " +
+                    "and the project cannot restyle them.",
+                    "Run Tools/Jeanf/UniversalPlayer/Create Local Cursor Palette (duplicates the packaged CursorPalette into " +
+                    "Assets/ and assigns it), then apply the override to your Player variant.");
+
+            // The packaged default proves the wiring but belongs to the package: consumers
+            // cannot edit assets under Packages/, and dev-repo edits ship to everyone. The
+            // project must own its palette so cursor and ray can be restyled together.
+            var palettePath = AssetDatabase.GetAssetPath(palette);
+            var packageRoot = PackageRoot();
+            if (!string.IsNullOrEmpty(packageRoot) && palettePath.StartsWith(packageRoot))
+                return new SetupValidator.CheckResult(name, SetupValidator.Severity.Warning,
+                    $"The cursor uses the PACKAGED '{palette.name}' — that asset cannot be edited in consumer projects and " +
+                    "package updates overwrite it.",
+                    "Run Tools/Jeanf/UniversalPlayer/Create Local Cursor Palette (duplicates it into Assets/ and assigns it), " +
+                    "then apply the override to your Player variant.");
+
+            return new SetupValidator.CheckResult(name, SetupValidator.Severity.Pass,
+                $"Project-local palette '{palette.name}' drives the cursor and the interaction ray.");
         }
 
         private static SetupValidator.CheckResult CheckPlayerGroundCollision(GameObject playerRoot)

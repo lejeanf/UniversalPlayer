@@ -244,6 +244,157 @@ namespace jeanf.universalplayer.tests
                 "Without PlayerInput the Map/Inventory bindings (M / I, gamepad dpad left/right) never raise their channels.");
         }
 
+        [Test]
+        public void TeleportRays_CastFromAnEditableOriginTransform()
+        {
+            // Each teleport ray (projectile curve) must cast from its own Ray Origin
+            // Transform — the "Left/Right Teleport Ray Origin" child of the controller —
+            // so designers place/aim the ray by editing that transform, and StickTeleport
+            // never has to rotate the interactor itself (which compounded the aim offset
+            // every frame). Same transform for the line visual so the arc starts where it casts.
+            var rays = 0;
+            foreach (var ray in _player.GetComponentsInChildren<UnityEngine.XR.Interaction.Toolkit.Interactors.XRRayInteractor>(true))
+            {
+                if (ray.lineType != UnityEngine.XR.Interaction.Toolkit.Interactors.XRRayInteractor.LineType.ProjectileCurve) continue;
+                rays++;
+                Assert.That(ray.rayOriginTransform, Is.Not.Null,
+                    $"Teleport ray '{ray.name}' has no Ray Origin Transform — assign its controller's 'Teleport Ray Origin' child.");
+                Assert.That(ray.rayOriginTransform, Is.Not.EqualTo(ray.transform),
+                    $"Teleport ray '{ray.name}' casts from its own transform — the aim must live on a separate, editable origin transform.");
+                Assert.That(ray.rayOriginTransform.name, Does.Contain("Teleport Ray Origin"),
+                    $"Teleport ray '{ray.name}' origin is '{ray.rayOriginTransform.name}'; expected the controller's 'Teleport Ray Origin' child.");
+                var line = ray.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactors.Visuals.XRInteractorLineVisual>();
+                if (line != null)
+                    Assert.That(line.lineOriginTransform, Is.EqualTo(ray.rayOriginTransform),
+                        $"Teleport ray '{ray.name}': the line visual starts somewhere else than the cast origin.");
+            }
+            Assert.That(rays, Is.EqualTo(2), "Expected one teleport ray per controller on the Player prefab.");
+        }
+
+        [Test]
+        public void HandsPhysics_DivergenceGhostIsWiredOnBothHands()
+        {
+            // Each physics hand (Left/RightHandPhysics) follows a tracked target and shows
+            // the non-physical "ghost" hand when the world holds the physics hand back
+            // (HandsPhysics.showNonPhysicalHandDistance). The ghost must ship hidden and
+            // collider-free — it is an indicator, not a second physical hand.
+            var sides = new System.Collections.Generic.HashSet<HandType>();
+            foreach (var physics in _player.GetComponentsInChildren<HandsPhysics>(true))
+            {
+                var so = new SerializedObject(physics);
+                var target = so.FindProperty("target").objectReferenceValue as Transform;
+                var ghost = so.FindProperty("nonPhysicalHand").objectReferenceValue as GameObject;
+                var distance = so.FindProperty("showNonPhysicalHandDistance").floatValue;
+                var side = (HandType)so.FindProperty("handType").enumValueIndex;
+                sides.Add(side);
+                Assert.That(target, Is.Not.Null, $"'{physics.name}': no tracked target — the physics hand has nothing to follow.");
+                Assert.That(ghost, Is.Not.Null, $"'{physics.name}': no non-physical hand — divergence is never shown.");
+                Assert.That(ghost.activeSelf, Is.False, $"'{physics.name}': the ghost hand '{ghost.name}' must ship hidden (HandsPhysics shows it on divergence).");
+                Assert.That(ghost.transform.IsChildOf(target), Is.True, $"'{physics.name}': the ghost hand must sit under the tracked target so it follows the real hand.");
+                Assert.That(ghost.GetComponentsInChildren<Collider>(true), Is.Empty, $"'{physics.name}': the ghost hand '{ghost.name}' carries colliders — it would collide/push instead of merely indicating.");
+                Assert.That(ghost.GetComponentsInChildren<Rigidbody>(true), Is.Empty, $"'{physics.name}': the ghost hand '{ghost.name}' carries a Rigidbody.");
+                Assert.That(ghost.GetComponentInChildren<BlendableHand>(true), Is.Not.Null, $"'{physics.name}': the ghost hand '{ghost.name}' has no BlendableHand — HandsAppearanceManager never applies the chosen appearance to it.");
+                Assert.That(so.FindProperty("ghostMaterialUrp").objectReferenceValue, Is.Not.Null, $"'{physics.name}': no URP/Built-in ghost material — the divergence hand would keep the opaque skin look.");
+                Assert.That(so.FindProperty("ghostMaterialHdrp").objectReferenceValue, Is.Not.Null, $"'{physics.name}': no HDRP ghost material — the divergence hand renders magenta under HDRP.");
+                Assert.That(distance, Is.InRange(0.02f, 0.3f), $"'{physics.name}': showNonPhysicalHandDistance = {distance} m is outside a sensible divergence threshold.");
+                var body = physics.GetComponent<Rigidbody>();
+                Assert.That(body, Is.Not.Null, $"'{physics.name}': no Rigidbody — HandsPhysics drives the hand by velocity.");
+                Assert.That(body.isKinematic, Is.False, $"'{physics.name}': a kinematic Rigidbody ignores the velocity HandsPhysics sets.");
+                Assert.That(body.useGravity, Is.False, $"'{physics.name}': gravity fights the velocity follower and sags the hand between physics steps.");
+            }
+            Assert.That(sides, Is.EquivalentTo(new[] { HandType.Left, HandType.Right }), "Expected one HandsPhysics per side on the Player prefab.");
+        }
+
+        [Test]
+        public void GrabPreview_ShipsAGhostLookForBothPipelines()
+        {
+            var preview = RequireComponent<GrabPreview>();
+            RequireAssigned(preview, "ghostMaterial", "Grab-preview ghost hands keep the opaque skin look under URP.");
+            RequireAssigned(preview, "ghostMaterialHdrp", "Grab-preview ghost hands render magenta under HDRP.");
+        }
+
+        [Test]
+        public void PipelineMaterials_PicksByActivePipeline_AndFallsBack()
+        {
+            var urp = new Material(Shader.Find("Hidden/InternalErrorShader")) { name = "urp" };
+            var hdrp = new Material(Shader.Find("Hidden/InternalErrorShader")) { name = "hdrp" };
+            try
+            {
+                Assert.That(PipelineMaterials.Pick(urp, hdrp, "UnityEngine.Rendering.HighDefinition.HDRenderPipelineAsset"), Is.SameAs(hdrp));
+                Assert.That(PipelineMaterials.Pick(urp, hdrp, "UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset"), Is.SameAs(urp));
+                Assert.That(PipelineMaterials.Pick(urp, hdrp, null), Is.SameAs(urp), "Built-in uses the URP/Built-in material.");
+                Assert.That(PipelineMaterials.Pick(null, hdrp, "UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset"), Is.SameAs(hdrp), "A missing pipeline material falls back to the other one rather than to nothing.");
+                Assert.That(PipelineMaterials.Pick(null, null, null), Is.Null);
+            }
+            finally
+            {
+                Object.DestroyImmediate(urp);
+                Object.DestroyImmediate(hdrp);
+            }
+        }
+
+        [Test]
+        public void FarRays_CastAndHitUi_OnBothControllers()
+        {
+            // The controllers' far ray IS the Near-Far interactor: with far casting off it
+            // never raycasts — no distant grab, no UI hover/click, and the curve visual stays
+            // hidden ("the ray is gone"). uvs used to re-enable it on its variant; the
+            // package must ship it on so no project has to know.
+            var found = 0;
+            foreach (var interactor in _player.GetComponentsInChildren<UnityEngine.XR.Interaction.Toolkit.Interactors.NearFarInteractor>(true))
+            {
+                found++;
+                Assert.That(interactor.enableFarCasting, Is.True, $"'{interactor.name}': far casting is off — the ray cannot reach interactables or UI.");
+                Assert.That(interactor.enableUIInteraction, Is.True, $"'{interactor.name}': UI interaction is off — the ray cannot hover/click world-space UI.");
+                Assert.That(interactor.GetComponentInChildren<UnityEngine.XR.Interaction.Toolkit.Interactors.Visuals.CurveVisualController>(true), Is.Not.Null,
+                    $"'{interactor.name}': no CurveVisualController — the ray has no line to show (InteractionRayHoverVisual gates it on hover).");
+            }
+            Assert.That(found, Is.EqualTo(2), "Expected one Near-Far interactor per controller.");
+        }
+
+        [Test]
+        public void CursorStateController_HasThePointerPalette()
+        {
+            var cursor = RequireComponent<CursorStateController>();
+            RequireAssigned(cursor, "palette",
+                "Without a CursorPaletteSO the cursor AND the interaction ray fall back to code defaults — the shared look is gone.");
+        }
+
+        [Test]
+        public void InteractionRayHoverVisual_PaintsTheRayFromThePalette()
+        {
+            var go = new GameObject("curve visual under test");
+            try
+            {
+                go.AddComponent<LineRenderer>();
+                var visual = go.AddComponent<UnityEngine.XR.Interaction.Toolkit.Interactors.Visuals.CurveVisualController>();
+                var palette = ScriptableObject.CreateInstance<CursorPaletteSO>();
+                palette.resting = Color.red;
+                palette.hover = Color.green;
+                palette.click = Color.blue;
+                try
+                {
+                    InteractionRayHoverVisual.ApplyPalette(visual, palette);
+                    Assert.That(visual.customizeLinePropertiesForState, Is.True, "Per-state line properties must be on for hover/click colours to apply.");
+                    Assert.That(visual.noValidHitProperties.gradient.Evaluate(0.5f), Is.EqualTo(Color.red).Using(ColorComparer), "Pointing at nothing = resting colour.");
+                    Assert.That(visual.hoverHitProperties.gradient.Evaluate(0.5f), Is.EqualTo(Color.green).Using(ColorComparer), "Hovering an interactable = hover colour.");
+                    Assert.That(visual.uiHitProperties.gradient.Evaluate(0.5f), Is.EqualTo(Color.green).Using(ColorComparer), "Hovering UI = hover colour.");
+                    Assert.That(visual.selectHitProperties.gradient.Evaluate(0.5f), Is.EqualTo(Color.blue).Using(ColorComparer), "Selecting = click colour.");
+                    Assert.That(visual.uiPressHitProperties.gradient.Evaluate(0.5f), Is.EqualTo(Color.blue).Using(ColorComparer), "Pressing UI = click colour.");
+                    Assert.That(visual.hoverHitProperties.adjustGradient, Is.True);
+                }
+                finally { Object.DestroyImmediate(palette); }
+            }
+            finally { Object.DestroyImmediate(go); }
+        }
+
+        private static readonly System.Collections.Generic.IEqualityComparer<Color> ColorComparer = new ApproxColor();
+        private sealed class ApproxColor : System.Collections.Generic.IEqualityComparer<Color>
+        {
+            public bool Equals(Color a, Color b) => Mathf.Abs(a.r - b.r) < 0.01f && Mathf.Abs(a.g - b.g) < 0.01f && Mathf.Abs(a.b - b.b) < 0.01f;
+            public int GetHashCode(Color c) => 0;
+        }
+
         private T RequireComponent<T>() where T : Component
         {
             var component = _player.GetComponentInChildren<T>(true);

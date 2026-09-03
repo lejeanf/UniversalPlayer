@@ -12,13 +12,13 @@ Shader "Unlit/GhostHands"
     }
     SubShader
     {
-        Tags { "RenderType"="Transparent" }
+        Tags { "RenderType"="Transparent" "Queue"="Transparent" "IgnoreProjector"="True" }
         LOD 100
-      //  Blend SrcAlpha OneMinusSrcAlpha
         Pass
         {
-            //ZTest LEquals
-            //ZWrite Off
+            // Additive rim: black (no fresnel) is invisible, so the hand reads as a hologram.
+            Blend One One
+            ZWrite Off
             ColorMask RGB
 
             CGPROGRAM

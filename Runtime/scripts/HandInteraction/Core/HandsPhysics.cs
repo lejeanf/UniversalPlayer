@@ -11,6 +11,11 @@ namespace jeanf.universalplayer
         [SerializeField] private Quaternion offset;
         [SerializeField] private GameObject nonPhysicalHand;
         [SerializeField] private float showNonPhysicalHandDistance = 0.5f;
+        [Header("Divergence ghost look")]
+        [Tooltip("Translucent material for the non-physical hand under URP / Built-in (packaged: GhostHands_URP). Applied to every renderer under Non Physical Hand at start; empty keeps the hand's own look.")]
+        [SerializeField] private Material ghostMaterialUrp;
+        [Tooltip("Translucent material for the non-physical hand under HDRP (packaged: GhostHands, an HD Unlit graph). The active pipeline picks between the two automatically.")]
+        [SerializeField] private Material ghostMaterialHdrp;
         Collider[] handColliders;
         [SerializeField] LayerMask ignoreTheseOnGrab;
         GameObject pokeInteractor;
@@ -23,6 +28,9 @@ namespace jeanf.universalplayer
             rb = GetComponent<Rigidbody>();
             handColliders = GetComponentsInChildren<Collider>();
             pokeInteractor = GetComponentInChildren<XRPokeInteractor>().gameObject;
+            // The ghost is an indicator (the real hand kept going while the physics hand was
+            // held back): give it the translucent look authored for the running pipeline.
+            PipelineMaterials.ApplyToRenderers(nonPhysicalHand, PipelineMaterials.Pick(ghostMaterialUrp, ghostMaterialHdrp));
             CheckXRStatus();
         }
 

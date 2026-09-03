@@ -271,24 +271,3 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 419256512369406636}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &8007709202400555515 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7705771681301267287, guid: c90da81e463fe0e44a3fcb2435c686a0,
-    type: 3}
-  m_PrefabInstance: {fileID: 419256512369406636}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1298321975892423556
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8007709202400555515}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 98835eb9a4b01ef41b5a17e73817c96f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _handPoseManager: {fileID: 7711447818570943638}
-  defaultPose: {fileID: 11400000, guid: 547a2e0e82cf3084786548d39808494f, type: 2}
-  poseToSet: {fileID: 11400000, guid: ea306bf6523757048950f570597df0a7, type: 2}

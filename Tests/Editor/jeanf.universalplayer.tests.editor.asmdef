@@ -11,6 +11,7 @@
         "jeanf.eventsystem",
         "Unity.RenderPipelines.Core.Runtime",
         "Unity.InputSystem",
+        "Unity.XR.Interaction.Toolkit",
         "Unity.RenderPipelines.Universal.Runtime",
         "Unity.RenderPipelines.HighDefinition.Runtime"
     ],

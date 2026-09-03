@@ -104,6 +104,11 @@ the rule declarations (they are editor-window concerns, not check concerns).
 | Scene: XR health monitor present | Warning | Edit → ping |
 | Scene: seating scenario sane | Warning | Edit → ping |
 | Scene: hands visible + authority + pose managers | Fail | Edit → pings the offending hand object |
+| Scene: teleport listener wired on the targets' channel (1.17.0) | Fail/Warn | Edit → pings the listener |
+| Scene: XR mode manager present, camera resolvable, display kept warm (1.17.0) | Fail/Warn | Edit → pings the XrModeManager |
+| Scene: player action assets exist under Resources/Player/Actions (1.17.0) | Fail/Warn | **Fix** (auto): runs the component's Create Player Actions |
+| Scene: pickable objects carry a Rigidbody (1.17.0) | Warning | Edit → pings a PickableObject |
+| No stale imported samples — now also XRI / XR Hands sample folders from another version than the installed package (1.17.0) | Warning | Edit → pings the folder |
 
 (Scene rules: `SceneOnlyValidation = true`, `IsRuleEnabled` = player found in open scene.)
 

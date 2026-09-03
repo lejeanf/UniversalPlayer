@@ -30,9 +30,9 @@ namespace jeanf.universalplayer
         [Tooltip("Curve velocity at full deflection — how far the longest teleport reaches.")]
         [SerializeField] private float maxCurveVelocity = 13f;
 
-        [Tooltip("Override the teleport ray's aim while summoned, so it fires forward out of the hand instead of along whatever the finger/stabilizer points at. Turn OFF to use the interactor's own ray origin unchanged.")]
+        [Tooltip("Legacy fallback for rigs whose teleport interactor has NO Ray Origin Transform: re-aims the interactor itself forward out of the controller while summoned. The packaged Player wires each Teleport Interactor to a 'Left/Right Teleport Ray Origin' child of the controller instead — edit THAT transform's position/rotation to place and aim the ray; this override is then ignored.")]
         [SerializeField] private bool overrideAim = true;
-        [Tooltip("Aim offset (Euler) applied on top of the controller's orientation while aiming. X tilts the launch DOWN. Tune live in Play mode until the arc points where you expect — this is the 'rotate the anchor' knob.")]
+        [Tooltip("Legacy fallback only (see Override Aim): Euler offset applied on top of the controller's orientation. X tilts the launch DOWN. With an authored Teleport Ray Origin this is unused — rotate the origin transform instead.")]
         [SerializeField] private Vector3 aimEulerOffset = new Vector3(35f, 0f, 0f);
 
         /// <summary>Test seam: stick value per hand. Null = read the real XR device.</summary>
@@ -80,11 +80,12 @@ namespace jeanf.universalplayer
             foreach (var hand in hands) DriveHand(hand);
         }
 
-        // The ray origin is driven by an XRTransformStabilizer (position + rotation) that
-        // aims along the finger/controller in a way that reads "sideways" for a natural
-        // hand pose. We keep its stabilized POSITION but re-aim its ROTATION forward out
-        // of the controller here in LateUpdate — after the stabilizer has run this frame,
-        // so our aim wins. Only while the ray is actually summoned.
+        // Aim ownership: the packaged Player gives each Teleport Interactor a Ray Origin
+        // Transform ("Left/Right Teleport Ray Origin", a child of the controller). Its LOCAL
+        // pose is the authored position/aim of the ray, so nothing here may touch it.
+        // Legacy rigs without an origin fall back to re-aiming the interactor itself — from
+        // the CONTROLLER's rotation, never from the interactor's own (that compounded the
+        // offset every frame and sent the arc spinning).
         private void LateUpdate()
         {
             if (!overrideAim) return;
@@ -94,9 +95,9 @@ namespace jeanf.universalplayer
                 if (!hand.Aiming || hand.Ray == null) continue;
                 if (hand.RayOrigin == null)
                     hand.RayOrigin = hand.Ray.rayOriginTransform != null ? hand.Ray.rayOriginTransform : hand.Ray.transform;
-                // The interactor transform tracks the controller (identity-local under it),
-                // so its rotation is the controller's aim; offset it forward/down.
-                hand.RayOrigin.rotation = hand.Ray.transform.rotation * Quaternion.Euler(aimEulerOffset);
+                if (hand.RayOrigin != hand.Ray.transform) continue; // authored origin: its local pose IS the aim
+                var basis = hand.Ray.transform.parent != null ? hand.Ray.transform.parent.rotation : hand.Ray.transform.rotation;
+                hand.RayOrigin.rotation = basis * Quaternion.Euler(aimEulerOffset);
             }
         }
 
