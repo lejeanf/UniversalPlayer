@@ -83,6 +83,9 @@ namespace jeanf.universalplayer
                 Rule("Stale imported samples", () => AssetResult("Stale imported samples"),
                     () => Ping(AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(
                         AssetDatabase.IsValidFolder("Assets/Samples") ? "Assets/Samples" : "Assets"))),
+                Rule(InputActionAssetChecks.ProjectCheck, () => AssetResult(InputActionAssetChecks.ProjectCheck),
+                    InputActionAssetChecks.RepairProjectInputActions,
+                    fixItAutomatic: true),
             };
 
             // --- open scene ------------------------------------------------------
@@ -102,6 +105,18 @@ namespace jeanf.universalplayer
 
             rules.Add(Rule("Scene: hand pose driver", () => SceneResult("Scene: hand pose driver"),
                 HandPoseDriverFixer.RestoreScenePrefabPoses,
+                fixItAutomatic: true,
+                isRuleEnabled: () => PlayerRoot() != null,
+                sceneOnly: true));
+
+            rules.Add(Rule(InputActionAssetChecks.SceneCheck, () => SceneResult(InputActionAssetChecks.SceneCheck),
+                InputActionAssetChecks.WireSceneInputActionAssets,
+                fixItAutomatic: true,
+                isRuleEnabled: () => PlayerRoot() != null,
+                sceneOnly: true));
+
+            rules.Add(Rule(TrackedControllerChecks.SceneCheck, () => SceneResult(TrackedControllerChecks.SceneCheck),
+                TrackedControllerChecks.RepairScene,
                 fixItAutomatic: true,
                 isRuleEnabled: () => PlayerRoot() != null,
                 sceneOnly: true));
