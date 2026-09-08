@@ -32,6 +32,7 @@ public abstract class BaseHand : MonoBehaviour, IDebugBehaviour
     public HandType HandType => handType;
 
     public List<Transform> Joints { get; protected set; } = new List<Transform>();
+    public Pose LastAppliedPose { get; private set; }
 
     /// <summary>The serialized finger chain roots (used by the pose editor's scene tools).</summary>
     public IReadOnlyList<Transform> FingerRoots => fingerRoots;
@@ -115,7 +116,7 @@ public abstract class BaseHand : MonoBehaviour, IDebugBehaviour
     public void ApplyPose(Pose pose)
     {
         if (pose == null) return;
-        //Pose name
+        LastAppliedPose = pose;
         if(isDebug) Debug.Log($"pose.name : {pose.name}");
 
         // Get the proper info using hand's type

@@ -30,7 +30,6 @@ namespace jeanf.universalplayer
         private PlayerMovement _movement;
         private FPSCameraMovement _camera;
         private NoPeeking _noPeeking;
-        private static readonly List<XRDisplaySubsystem> _displays = new List<XRDisplaySubsystem>();
 
         // A mode change captures TWO snapshots: one immediately (transition), and one a
         // moment later once camera/rig setup has settled (the steady-state truth — the
@@ -173,16 +172,20 @@ namespace jeanf.universalplayer
 
         private static void AppendXrState(StringBuilder sb)
         {
-            SubsystemManager.GetSubsystems(_displays);
-            var display = _displays.Count > 0 ? _displays[0].running.ToString() : "no-display-subsystem";
-            var displayOpaque = _displays.Count > 0 ? _displays[0].displayOpaque.ToString() : "?";
+            var display = XrDisplayLifecycle.FirstDisplay;
+            var displayRunning = display != null ? display.running.ToString() : "no-display-subsystem";
+            var displayOpaque = display != null ? display.displayOpaque.ToString() : "?";
             var pipeline = GraphicsSettings.currentRenderPipeline;
             sb.Append("XR: settings.enabled=").Append(XRSettings.enabled)
               .Append(" isDeviceActive=").Append(XRSettings.isDeviceActive)
               .Append(" stereoMode=").Append(XRSettings.stereoRenderingMode)
               .Append(" device='").Append(XRSettings.loadedDeviceName)
-              .Append("' displayRunning=").Append(display)
+              .Append("' displayRunning=").Append(displayRunning)
               .Append(" displayOpaque=").Append(displayOpaque)
+              .Append(" sessionFocused=").Append(XrDisplayLifecycle.SessionFocused)
+              .Append(" loaderStartRequests=").Append(XrDisplayLifecycle.StartRequests)
+              .Append(" loaderStopRequests=").Append(XrDisplayLifecycle.StopRequests)
+              .Append(" mirrorBlitMode=").Append(XrDisplayLifecycle.LastRequestedMirrorBlitMode)
               .Append(" renderScale=").Append(XRSettings.eyeTextureResolutionScale).Append('\n');
             sb.Append("pipeline: ").Append(pipeline != null ? pipeline.GetType().Name : "Built-in").Append('\n');
         }

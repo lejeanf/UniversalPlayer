@@ -249,5 +249,40 @@ namespace jeanf.universalplayer.tests
             var d = a.Decide(NotFreecam, HmdValid, NoVrRequest, None, None);
             Assert.That(d.ChangeScheme, Is.False, "After a forced exit the caller has already switched; idle keeps desktop.");
         }
+
+        // ---- stale worn edge ---------------------------------------------------------
+
+        [Test]
+        public void WornEdge_IsDroppedWhenTheHeadsetComesOff_BeforeTheHmdRegisters()
+        {
+            var a = New(stablePolls: 2);
+            a.SeedLaunch(false);
+            a.NotifyWornPoll(true);
+            a.NotifyWornPoll(true); // armed, waiting for the HMD device
+            a.Decide(NotFreecam, hmdValid: false, NoVrRequest, None, None);
+
+            a.NotifyWornPoll(false); // headset back on the desk
+
+            var d = a.Decide(NotFreecam, HmdValid, NoVrRequest, None, None);
+            Assert.That(a.InVr, Is.False,
+                "A worn edge armed while the HMD was still registering must not fire after the headset was taken off — it would yank a keyboard user into VR the moment the device appears.");
+            Assert.That(d.ChangeScheme, Is.False);
+        }
+
+        [Test]
+        public void WornEdge_IsClearedByAForcedExit()
+        {
+            var a = New(stablePolls: 2);
+            a.SeedLaunch(false);
+            a.NotifyWornPoll(true);
+            a.NotifyWornPoll(true);
+            a.Decide(NotFreecam, hmdValid: false, NoVrRequest, None, None);
+
+            a.ForceExitVr();
+
+            var d = a.Decide(NotFreecam, HmdValid, NoVrRequest, None, None);
+            Assert.That(a.InVr, Is.False, "Leaving VR must discard any pending entry edge.");
+            Assert.That(d.ChangeScheme, Is.False);
+        }
     }
 }

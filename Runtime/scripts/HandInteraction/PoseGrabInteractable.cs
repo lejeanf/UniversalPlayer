@@ -111,8 +111,7 @@ namespace jeanf.universalplayer
             if (pose == null) return;
             var manager = ResolveGrabbingHand(args.interactorObject);
             if (manager == null) return;
-            manager.AcquirePoseHold();
-            manager.ApplyPose(pose);
+            manager.TryClaimPose(this, HandPoseSource.Grab, pose);
         }
 
         protected override void OnSelectExited(SelectExitEventArgs args)
@@ -123,8 +122,7 @@ namespace jeanf.universalplayer
             if (ResolveGrabPose() == null) return;
             var manager = ResolveGrabbingHand(args.interactorObject);
             if (manager == null) return;
-            manager.ReleasePoseHold();
-            manager.ApplyDefaultPose();
+            manager.ReleasePoseClaim(this);
         }
 
         private void Log(string message)

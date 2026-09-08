@@ -415,5 +415,20 @@ namespace jeanf.universalplayer.tests
                 $"{component.GetType().Name}.{fieldName} is not assigned on Player.prefab " +
                 $"(object '{component.gameObject.name}'). {consequence}");
         }
+
+        [Test]
+        public void XrModeManager_AndFpsCameraMovement_ShareThePrefabRoot()
+        {
+            var manager = _player.GetComponentInChildren<XrModeManager>(true);
+            var look = _player.GetComponentInChildren<FPSCameraMovement>(true);
+            Assert.That(manager, Is.Not.Null, "Player.prefab lost its XrModeManager.");
+            Assert.That(look, Is.Not.Null, "Player.prefab lost its FPSCameraMovement.");
+            Assert.That(manager.transform.root, Is.SameAs(look.transform.root),
+                "XrModeManager resolves the player camera from its rig root; both components must live under the same prefab root or the camera is never switched between stereo and flat.");
+            Assert.That(look.playerCamera, Is.Not.Null,
+                "FPSCameraMovement.playerCamera is unassigned on Player.prefab — XrModeManager cannot resolve the camera.");
+            Assert.That(look.playerCamera.transform.root, Is.SameAs(manager.transform.root),
+                "The player camera must be part of the same rig as XrModeManager.");
+        }
     }
 }

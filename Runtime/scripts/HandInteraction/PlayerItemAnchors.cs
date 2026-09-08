@@ -218,8 +218,7 @@ namespace jeanf.universalplayer
             if (pose == null || hand == HandType.None) return;
             var manager = GetPoseManager(hand);
             if (manager == null) return;
-            manager.ApplyPose(pose);
-            manager.AcquirePoseHold(); // hold it, or the controller pose driver opens the fingers again
+            manager.TryClaimPose(this, HandPoseSource.Grab, pose);
         }
 
         /// <summary>Releases a pose acquired by <see cref="ApplyHandPose"/> and returns the hand to its default.</summary>
@@ -228,8 +227,7 @@ namespace jeanf.universalplayer
             if (pose == null || hand == HandType.None) return;
             var manager = GetPoseManager(hand);
             if (manager == null) return;
-            manager.ReleasePoseHold();
-            manager.ApplyDefaultPose();
+            manager.ReleasePoseClaim(this);
         }
 
         private HandPoseManager GetPoseManager(HandType hand)

@@ -117,6 +117,7 @@ namespace jeanf.universalplayer
 
             yield return ("Scene: player is a variant", PlayerRoot);
             yield return ("Scene: player camera", PlayerRoot);
+            yield return ("Scene: camera pipeline data", PlayerRoot);
             yield return ("Scene: single gravity system", PlayerRoot);
             yield return ("Scene: player ground collision", PlayerRoot);
             yield return ("Scene: player event bridge", First<PlayerEventBridge>);

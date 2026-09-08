@@ -68,6 +68,7 @@ namespace jeanf.universalplayer
                 camera.ResetProjectionMatrix();
                 camera.ResetCullingMatrix();
                 camera.ResetAspect();
+                camera.rect = new Rect(0f, 0f, 1f, 1f);
             }
         }
 

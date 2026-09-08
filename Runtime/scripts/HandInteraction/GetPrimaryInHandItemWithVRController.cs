@@ -62,16 +62,13 @@ namespace jeanf.universalplayer
 
         private IpadState _ipadState = IpadState.Disabled;
 
-        // The hand currently posed around the primary item: it holds its pose so
-        // ControllerHandPoseDriver does not open the fingers while the item sits in it.
         private HandPoseManager _heldPoseManager;
 
-        private void HoldPose(HandPoseManager manager)
+        private void ClaimPrimaryItemPose(HandPoseManager manager)
         {
-            if (_heldPoseManager == manager) return;
-            if (_heldPoseManager != null) _heldPoseManager.ReleasePoseHold();
+            if (_heldPoseManager != manager && _heldPoseManager != null) _heldPoseManager.ReleasePoseClaim(this);
             _heldPoseManager = manager;
-            if (_heldPoseManager != null) _heldPoseManager.AcquirePoseHold();
+            if (_heldPoseManager != null) _heldPoseManager.TryClaimPose(this, HandPoseSource.PrimaryItem, primaryItemPose);
         }
 
         private void OnEnable()
@@ -90,7 +87,7 @@ namespace jeanf.universalplayer
 
         private void Unsubscribe()
         {
-            HoldPose(null);
+            ClaimPrimaryItemPose(null);
             _hands.Clear();
             _hands.TrimExcess();
 
@@ -171,19 +168,13 @@ namespace jeanf.universalplayer
         {
             var handTransform = isLeft ? _leftHand : _rightHand;
             var handPose = isLeft ? _leftHandPoseManager : _rightHandPoseManager;
-            var otherPose = isLeft ? _rightHandPoseManager : _leftHandPoseManager;
 
+            if (handPose) handPose.ReleaseHeldObjects();
             SetIpadStateForASpecificHand(handInfo, handTransform, handPose);
-            // Own the item's visibility here rather than relying on a PrimaryItemBehaviour
-            // being present and wired to the same channel — the VR hand flow already owns
-            // the item's PLACEMENT, so it must own show/hide too or "hide" silently no-ops.
             SetPrimaryItemVisible(true);
             _ipadState = isLeft ? IpadState.InLeftHand : IpadState.InRightHand;
             (isLeft ? _leftGrab : _rightGrab)?.RaiseEvent();
-            HoldPose(handPose);
-            if (handPose) handPose.ApplyPose(primaryItemPose);
-            // Open the hand it moved away from (the switch case); guarded, never early-returns.
-            if (otherPose) otherPose.ApplyDefaultPose();
+            ClaimPrimaryItemPose(handPose);
             _noGrab?.RaiseEvent();
             OnIpadStateChanged?.Invoke(_ipadState);
             _PrimaryItemStateChannel.RaiseEvent(true);
@@ -192,14 +183,10 @@ namespace jeanf.universalplayer
         private void HidePrimaryItem(HandPoseManager fromHand)
         {
             _ipadState = IpadState.Disabled;
-            // Actually hide it — the previous code only flipped state and raised the
-            // channel, so with no PrimaryItemBehaviour listening the tablet stayed
-            // parented in the hand (visible): "shows, swaps hands, never hides".
             SetPrimaryItemVisible(false);
             _PrimaryItemStateChannel.RaiseEvent(false);
             OnIpadStateChanged?.Invoke(_ipadState);
-            HoldPose(null);
-            if (fromHand) fromHand.ApplyDefaultPose();
+            ClaimPrimaryItemPose(null);
         }
 
         // Toggle the item's renderers/canvases (not the GameObject, so any component on

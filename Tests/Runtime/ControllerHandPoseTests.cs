@@ -44,7 +44,7 @@ namespace jeanf.universalplayer.tests
 
         private void AssignPoses()
         {
-            foreach (var slot in new[] { "pointPose", "semiClosedFistPose", "closedFistPose", "fullClosedFistPose" })
+            foreach (var slot in new[] { "pointPose", "semiClosedFistPose", "closedFistPose", "defaultPose" })
                 SetField(_driver, slot, ScriptableObject.CreateInstance<Pose>());
         }
 
@@ -114,12 +114,13 @@ namespace jeanf.universalplayer.tests
             yield return null;
             Assert.That(_driver.StateOf(HandType.Right), Is.EqualTo(ControllerHandPoseDriver.PoseState.ClosedFist));
 
-            _hand.AcquirePoseHold();
+            var zone = new object();
+            _hand.TryClaimPose(zone, HandPoseSource.TriggerZone, null);
             yield return null;
             Assert.That(_driver.StateOf(HandType.Right), Is.EqualTo(ControllerHandPoseDriver.PoseState.Suspended),
-                "While a pose hold is active the driver must not fight it.");
+                "While another source owns the pose the driver must not fight it.");
 
-            _hand.ReleasePoseHold();
+            _hand.ReleasePoseClaim(zone);
             yield return null;
             Assert.That(_driver.StateOf(HandType.Right), Is.EqualTo(ControllerHandPoseDriver.PoseState.ClosedFist),
                 "Releasing the hold must hand the pose back to the controller state.");

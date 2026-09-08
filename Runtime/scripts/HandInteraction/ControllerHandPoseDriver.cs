@@ -98,9 +98,8 @@ namespace jeanf.universalplayer
 
         private void DriveHand(HandState hand)
         {
-            if (hand.Manager.IsPoseHeld || hand.Manager.IsSelecting)
+            if (!hand.Manager.CanApplyPose(HandPoseSource.ControllerDriver) || hand.Manager.IsSelecting)
             {
-                // A zone, the primary item or a grabbed object owns the pose right now.
                 hand.Applied = PoseState.Suspended;
                 return;
             }

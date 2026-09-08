@@ -71,6 +71,7 @@ namespace jeanf.universalplayer
 
             var stable = _wornTruePolls >= _wornStablePolls;
             if (stable && !_prevWornStable) _pendingWornEdge = true; // rising edge only
+            if (!stable) _pendingWornEdge = false; // an armed edge is only valid while the headset stays worn
             _prevWornStable = stable;
         }
 
@@ -120,8 +121,8 @@ namespace jeanf.universalplayer
             {
                 switch (deliberateExit)
                 {
-                    case DesktopInput.KeyboardMouse: _inVr = false; return Decision.To(Scheme.KeyboardMouse);
-                    case DesktopInput.Gamepad:       _inVr = false; return Decision.To(Scheme.Gamepad);
+                    case DesktopInput.KeyboardMouse: ExitVr(); return Decision.To(Scheme.KeyboardMouse);
+                    case DesktopInput.Gamepad:       ExitVr(); return Decision.To(Scheme.Gamepad);
                     default:                         return Decision.To(Scheme.XR); // sticky: nothing deliberate → stay
                 }
             }
@@ -135,6 +136,12 @@ namespace jeanf.universalplayer
         }
 
         /// <summary>Failsafe (e.g. a dying headset battery): force out of VR now. The caller switches the scheme to desktop; a fresh presence edge or Ctrl+Alt+V is required to return.</summary>
-        public void ForceExitVr() => _inVr = false;
+        public void ForceExitVr() => ExitVr();
+
+        private void ExitVr()
+        {
+            _inVr = false;
+            _pendingWornEdge = false;
+        }
     }
 }

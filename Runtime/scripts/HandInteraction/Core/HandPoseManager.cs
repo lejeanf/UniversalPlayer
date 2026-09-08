@@ -1,44 +1,106 @@
-﻿using jeanf.EventSystem;
+using System.Collections.Generic;
+using jeanf.EventSystem;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 namespace jeanf.universalplayer
 {
+    public enum HandPoseSource
+    {
+        ControllerDriver = 0,
+        Pointing = 1,
+        TriggerZone = 2,
+        PrimaryItem = 3,
+        Grab = 4
+    }
+
     public class HandPoseManager : BaseHand
     {
-        // The interactor we react to
-        public UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor targetInteractor = null;
+        public XRBaseInteractor targetInteractor = null;
 
         private bool wasInitialized = false;
 
         public UnityEvent grabAction;
         public UnityEvent ungrabAction;
 
-        // Pose ownership: while anyone holds (a SetPoseOnTrigger zone, the primary
-        // item, ...) or an object is selected, ControllerHandPoseDriver stays out of
-        // the way. Refcounted so overlapping zones compose.
-        private int poseHoldCount;
-        public bool IsPoseHeld => poseHoldCount > 0;
+        private struct PoseClaim
+        {
+            public object Owner;
+            public HandPoseSource Source;
+            public Pose Pose;
+        }
+
+        private readonly List<PoseClaim> poseClaims = new List<PoseClaim>();
+
+        public bool IsPoseHeld => poseClaims.Count > 0;
         public bool IsSelecting => targetInteractor != null && targetInteractor.hasSelection;
-        public void AcquirePoseHold() => poseHoldCount++;
-        public void ReleasePoseHold() => poseHoldCount = Mathf.Max(0, poseHoldCount - 1);
+        public HandPoseSource? ActivePoseSource => poseClaims.Count > 0 ? poseClaims[poseClaims.Count - 1].Source : (HandPoseSource?)null;
+        public bool HasPoseClaim(object owner) => IndexOfClaim(owner) >= 0;
+
+        public bool CanApplyPose(HandPoseSource source) =>
+            poseClaims.Count == 0 || source >= poseClaims[poseClaims.Count - 1].Source;
+
+        public bool TryClaimPose(object owner, HandPoseSource source, Pose pose)
+        {
+            if (!CanApplyPose(source))
+            {
+                if (isDebug) Debug.Log($"{name}: {source} pose '{PoseName(pose)}' refused — {ActivePoseSource} owns this hand.", this);
+                return false;
+            }
+            var existing = IndexOfClaim(owner);
+            if (existing >= 0) poseClaims.RemoveAt(existing);
+            poseClaims.Add(new PoseClaim { Owner = owner, Source = source, Pose = pose });
+            ApplyClaimedPose(pose);
+            return true;
+        }
+
+        public void ReleasePoseClaim(object owner)
+        {
+            var index = IndexOfClaim(owner);
+            if (index < 0) return;
+            var wasTop = index == poseClaims.Count - 1;
+            poseClaims.RemoveAt(index);
+            if (!wasTop) return;
+            if (poseClaims.Count == 0) ApplyDefaultPose();
+            else ApplyClaimedPose(poseClaims[poseClaims.Count - 1].Pose);
+        }
+
+        public void ReleaseHeldObjects()
+        {
+            if (targetInteractor == null || !targetInteractor.hasSelection) return;
+            var manager = targetInteractor.interactionManager;
+            if (manager == null) return;
+            var held = new List<IXRSelectInteractable>(targetInteractor.interactablesSelected);
+            foreach (var interactable in held) manager.SelectExit(targetInteractor, interactable);
+        }
+
+        private void ApplyClaimedPose(Pose pose)
+        {
+            if (pose != null) ApplyPose(pose);
+            else ApplyDefaultPose();
+        }
+
+        private int IndexOfClaim(object owner)
+        {
+            for (var i = 0; i < poseClaims.Count; i++)
+            {
+                if (ReferenceEquals(poseClaims[i].Owner, owner)) return i;
+            }
+            return -1;
+        }
+
+        private static string PoseName(Pose pose) => pose != null ? pose.name : "none";
 
         private void OnEnable()
         {
-           //Debug.Log(this.gameObject.name + " start " + targetInteractor.name);
             Init();
-
         }
-
-        
 
         private void Init()
         {
-            // Subscribe to selected events
-            //getDirectInteractor?.Invoke(handType,ref targetInteractor);
-            // Null-check FIRST: the debug log used to dereference targetInteractor.name
-            // before it, so turning isDebug on for an unwired hand threw a NullReference.
             if (!targetInteractor)
             {
                 if (isDebug) Debug.LogWarning($"{name}: no targetInteractor — grabbing will never pose this hand.", this);
@@ -47,10 +109,8 @@ namespace jeanf.universalplayer
 
             if (isDebug) Debug.Log($"targetInteractor : {targetInteractor.name}");
 
-            //targetInteractor.onSelectEntered.AddListener(TryApplyObjectPose);
-            //targetInteractor.onSelectExited.AddListener(TryApplyDefaultPose);
-            targetInteractor.selectEntered.AddListener(TryApplyObjectPose);
-            targetInteractor.selectExited.AddListener(TryApplyDefaultPose);
+            targetInteractor.selectEntered.AddListener(ClaimGrabPose);
+            targetInteractor.selectExited.AddListener(ReleaseGrabPose);
 
             wasInitialized = true;
         }
@@ -59,38 +119,34 @@ namespace jeanf.universalplayer
         {
             if (!wasInitialized) return;
             if (!targetInteractor) return;
-            targetInteractor.selectEntered.RemoveListener(TryApplyObjectPose);
-            targetInteractor.selectExited.RemoveListener(TryApplyDefaultPose);
+            targetInteractor.selectEntered.RemoveListener(ClaimGrabPose);
+            targetInteractor.selectExited.RemoveListener(ReleaseGrabPose);
         }
 
-        private void TryApplyObjectPose(SelectEnterEventArgs args)
+        private void ClaimGrabPose(SelectEnterEventArgs args)
         {
-            var interactable = args.interactableObject as UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable;
+            var interactable = args.interactableObject as XRBaseInteractable;
             if (interactable == null) return;
 
-            // The grab pose can live on either component: a PoseContainer (legacy) or a
-            // PickableObject/SnapObject's Hand Pose (what the Pose Editor auto-links). Read
-            // whichever is present so grabbing wraps the fingers around the object.
             var pose = ResolveGrabPose(interactable);
             if (pose == null) return;
 
             grabAction.Invoke();
             if (isDebug) Debug.Log($"Pose name : {pose.name}");
-            ApplyPose(pose);
+            TryClaimPose(interactable, HandPoseSource.Grab, pose);
         }
 
-        private void TryApplyDefaultPose(SelectExitEventArgs args)
+        private void ReleaseGrabPose(SelectExitEventArgs args)
         {
-            var interactable = args.interactableObject as UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable;
+            var interactable = args.interactableObject as XRBaseInteractable;
             if (interactable == null) return;
 
-            // Only reopen the hand for objects that actually posed it.
             if (ResolveGrabPose(interactable) == null) return;
             ungrabAction.Invoke();
-            ApplyDefaultPose();
+            ReleasePoseClaim(interactable);
         }
 
-        private static Pose ResolveGrabPose(UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable interactable)
+        private static Pose ResolveGrabPose(XRBaseInteractable interactable)
         {
             if (interactable.TryGetComponent(out PoseContainer poseContainer) && poseContainer.pose != null)
                 return poseContainer.pose;
@@ -99,22 +155,17 @@ namespace jeanf.universalplayer
             return null;
         }
 
-        // Required override of BaseHand.ApplyOffset, but intentionally a NO-OP at runtime:
-        // the held object's placement is handled by PoseGrabInteractable (it seats the object
-        // at the pose's wrist-relative offset via XRI's dynamic attach). Only the editor path
-        // (ApplyPoseForSetup on PreviewHand) uses ApplyOffset to move the preview hand.
         public override void ApplyOffset(Vector3 position, Quaternion rotation) { }
 
         private void OnValidate()
         {
-            // Let's have this done automatically, but not hide the requirement
             if (!targetInteractor)
             {
-                targetInteractor = GetComponentInParent<UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor>();
+                targetInteractor = GetComponentInParent<XRBaseInteractor>();
             }
         }
 
-        public void SetXRDirectInteractor(UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor xrBaseInteractor)
+        public void SetXRDirectInteractor(XRBaseInteractor xrBaseInteractor)
         {
             targetInteractor = xrBaseInteractor;
             Init();

@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 
 namespace jeanf.universalplayer
 {
@@ -212,6 +213,7 @@ namespace jeanf.universalplayer
 
             results.Add(CheckSceneUsesVariant(broadcaster.transform.root.gameObject));
             results.Add(CheckPlayerCamera(broadcaster.transform.root.gameObject));
+            results.Add(CheckPlayerCameraPipelineData(broadcaster.transform.root.gameObject));
             results.Add(CheckSingleGravitySystem(broadcaster.transform.root.gameObject));
             results.Add(CheckPlayerGroundCollision(broadcaster.transform.root.gameObject));
             results.Add(CheckPlayerEventBridge(broadcaster.transform.root.gameObject));
@@ -366,7 +368,7 @@ namespace jeanf.universalplayer
                     "Set it back to Never on your Player variant unless a fully XR-free desktop state matters more than fast re-entry.");
 
             return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
-                "XrModeManager present, camera resolvable, XR display kept warm on desktop.");
+                "XrModeManager present, camera resolvable, XR display kept running on desktop (started/stopped only through the XR loader).");
         }
 
         // PlayerActionManager maps every action of the input asset to an ActionSO under
@@ -740,6 +742,46 @@ namespace jeanf.universalplayer
 
             return new SetupValidator.CheckResult("Scene: player camera", SetupValidator.Severity.Pass,
                 $"Enabled Camera found on '{camera.gameObject.name}'.");
+        }
+
+        private static readonly string[] PipelineCameraDataTypeNames = { "HDAdditionalCameraData", "UniversalAdditionalCameraData" };
+
+        public static SetupValidator.CheckResult CheckPlayerCameraPipelineData(GameObject playerRoot)
+        {
+            var camera = playerRoot.GetComponentsInChildren<Camera>(true).FirstOrDefault(c => c.enabled);
+            if (camera == null)
+                return new SetupValidator.CheckResult("Scene: camera pipeline data", SetupValidator.Severity.Pass,
+                    "No enabled player camera to inspect (see 'Scene: player camera').");
+
+            var dataTypeNames = camera.GetComponents<Component>()
+                .Where(c => c != null && PipelineCameraDataTypeNames.Contains(c.GetType().Name))
+                .Select(c => c.GetType().Name)
+                .ToList();
+            return EvaluateCameraPipelineData(camera.gameObject.name, dataTypeNames,
+                GraphicsSettings.currentRenderPipeline != null);
+        }
+
+        public static SetupValidator.CheckResult EvaluateCameraPipelineData(string cameraName, IReadOnlyList<string> dataTypeNames, bool scriptablePipelineActive)
+        {
+            const string check = "Scene: camera pipeline data";
+            if (dataTypeNames.Count > 1)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Fail,
+                    $"'{cameraName}' carries {dataTypeNames.Count} pipeline camera-data components ({string.Join(", ", dataTypeNames)}) — " +
+                    "the render pipeline and XrModeManager each read the FIRST one, so the stereo/flat switch can land on a component the pipeline ignores " +
+                    "(black headset, stereo eye texture leaking into the desktop view).",
+                    "Keep exactly one: on the scene instance open the Overrides dropdown and remove the added component, or remove it from the Player variant — " +
+                    "never both a variant-level and a scene-level one.");
+
+            if (dataTypeNames.Count == 0 && scriptablePipelineActive)
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
+                    $"'{cameraName}' has no pipeline camera-data component — XrModeManager adds one at runtime on the first desktop switch, " +
+                    "so anti-aliasing / volume mask / clear settings are whatever that default is.",
+                    "Add the pipeline's camera data (HDRP: HDAdditionalCameraData, URP: UniversalAdditionalCameraData) on the Main Camera of your Player VARIANT, once.");
+
+            return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
+                dataTypeNames.Count == 1
+                    ? $"One {dataTypeNames[0]} on '{cameraName}'."
+                    : $"Built-in pipeline: '{cameraName}' needs no pipeline camera data.");
         }
 
         private static SetupValidator.CheckResult CheckPlayerEventBridge(GameObject playerRoot)

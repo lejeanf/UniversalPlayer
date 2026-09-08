@@ -344,6 +344,26 @@ namespace jeanf.universalplayer.tests.editor
         }
 
         [Test]
+        public void CameraPipelineDataCheck_FailsOnDuplicates_WarnsOnNone_PassesOnOne()
+        {
+            var two = ProjectSetupChecks.EvaluateCameraPipelineData("Main Camera",
+                new[] { "HDAdditionalCameraData", "HDAdditionalCameraData" }, scriptablePipelineActive: true);
+            Assert.That(two.Severity, Is.EqualTo(SetupValidator.Severity.Fail),
+                "Two pipeline camera-data components (variant + scene instance) must FAIL — the pipeline and XrModeManager read different ones.");
+            Assert.That(two.Hint, Is.Not.Null.And.Not.Empty);
+
+            var none = ProjectSetupChecks.EvaluateCameraPipelineData("Main Camera", new string[0], scriptablePipelineActive: true);
+            Assert.That(none.Severity, Is.EqualTo(SetupValidator.Severity.Warning),
+                "No camera data on an SRP camera must WARN — the runtime adds a default one.");
+
+            var builtIn = ProjectSetupChecks.EvaluateCameraPipelineData("Main Camera", new string[0], scriptablePipelineActive: false);
+            Assert.That(builtIn.Severity, Is.EqualTo(SetupValidator.Severity.Pass), "The built-in pipeline needs no camera data.");
+
+            var one = ProjectSetupChecks.EvaluateCameraPipelineData("Main Camera", new[] { "UniversalAdditionalCameraData" }, scriptablePipelineActive: true);
+            Assert.That(one.Severity, Is.EqualTo(SetupValidator.Severity.Pass));
+        }
+
+        [Test]
         public void PlayerActionAssetsCheck_FlagsMissingReferencesThenMissingAssets()
         {
             var player = Spawn("Player");

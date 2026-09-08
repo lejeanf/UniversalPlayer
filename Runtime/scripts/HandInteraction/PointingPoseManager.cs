@@ -14,8 +14,6 @@ namespace jeanf.universalplayer
         }
         [SerializeField] private bool _isDebug = false;
     
-        [Validation("Default pose is required — the hand has nothing to return to when pointing ends and stays pointing.")]
-        public Pose defaultPose;
         [Validation("Pointing pose is required — applying it is this component's whole job; nothing happens without it.")]
         public Pose pointingPose;
 
@@ -44,14 +42,15 @@ namespace jeanf.universalplayer
                 handPoseEventChannelSO.OnEventRaised -= SetPose;
         }
 
-        private void SetPose(bool value)
+        private void SetPose(bool pointing)
         {
-            // While an object is held, the grip pose owns the fingers — don't reopen the hand
-            // into the pointing/default pose over the top of it.
-            if (_handPoseManager.IsPoseHeld) return;
-            var poseToSet = value ? pointingPose : defaultPose ;
-            if(_isDebug) Debug.Log($"setting pose: {poseToSet.name}");
-            _handPoseManager.ApplyPose(poseToSet);
+            if (pointing)
+            {
+                var accepted = _handPoseManager.TryClaimPose(this, HandPoseSource.Pointing, pointingPose);
+                if (_isDebug) Debug.Log($"pointing pose {(accepted ? "applied" : "refused")} on {_handPoseManager.name}");
+                return;
+            }
+            _handPoseManager.ReleasePoseClaim(this);
         }
     }
 

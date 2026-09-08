@@ -7,7 +7,6 @@ namespace jeanf.universalplayer
     [RequireComponent(typeof(Collider))]
     public class SetPoseOnTrigger : MonoBehaviour
     {
-        [SerializeField] private Pose defaultPose;
         [Validation("Pose to set is required — applying it is this zone's whole job; a hand entering the trigger does nothing without it.")]
         [SerializeField] private Pose poseToSet;
 
@@ -36,8 +35,7 @@ namespace jeanf.universalplayer
             handContacts[handPoseManager] = contacts + 1;
             if (contacts > 0) return; // already posed by an earlier finger
 
-            handPoseManager.AcquirePoseHold();
-            handPoseManager.ApplyPose(poseToSet);
+            handPoseManager.TryClaimPose(this, HandPoseSource.TriggerZone, poseToSet);
         }
 
         private void OnTriggerExit(Collider other)
@@ -52,10 +50,7 @@ namespace jeanf.universalplayer
             }
             handContacts.Remove(handPoseManager);
 
-            // Back to normal: release the hold first so ControllerHandPoseDriver
-            // resumes immediately (the default pose covers projects without it).
-            handPoseManager.ReleasePoseHold();
-            handPoseManager.ApplyPose(defaultPose);
+            handPoseManager.ReleasePoseClaim(this);
         }
 
         private void OnDisable()
@@ -63,7 +58,7 @@ namespace jeanf.universalplayer
             // A zone destroyed/disabled mid-visit must not leak its holds.
             foreach (var handPoseManager in handContacts.Keys)
             {
-                if (handPoseManager != null) handPoseManager.ReleasePoseHold();
+                if (handPoseManager != null) handPoseManager.ReleasePoseClaim(this);
             }
             handContacts.Clear();
         }

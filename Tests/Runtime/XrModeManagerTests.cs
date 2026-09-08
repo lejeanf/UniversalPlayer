@@ -1,7 +1,9 @@
 using System.Collections;
+using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+using UnityEngine.XR;
 
 namespace jeanf.universalplayer.tests
 {
@@ -15,12 +17,14 @@ namespace jeanf.universalplayer.tests
         private GameObject _managerGo;
         private GameObject _cameraGo;
         private Camera _camera;
+        private XrModeManager _manager;
         private BroadcastControlsStatus.ControlScheme _originalScheme;
 
         [SetUp]
         public void SetUp()
         {
             _originalScheme = BroadcastControlsStatus.controlScheme;
+            XrDisplayLifecycle.ResetRequestHistory();
 
             _cameraGo = new GameObject("XrModeManagerTestCamera");
             _camera = _cameraGo.AddComponent<Camera>();
@@ -29,8 +33,15 @@ namespace jeanf.universalplayer.tests
             // Created inactive so the camera override is assigned before OnEnable runs.
             _managerGo = new GameObject("XrModeManagerTest");
             _managerGo.SetActive(false);
-            var manager = _managerGo.AddComponent<XrModeManager>();
-            manager.playerCameraOverride = _camera;
+            _manager = _managerGo.AddComponent<XrModeManager>();
+            _manager.playerCameraOverride = _camera;
+        }
+
+        private static void SetPrivateField(object target, string fieldName, object value)
+        {
+            var field = target.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(field, Is.Not.Null, $"{target.GetType().Name}.{fieldName} no longer exists — update this test with the rename.");
+            field.SetValue(target, value);
         }
 
         [TearDown]
@@ -100,6 +111,113 @@ namespace jeanf.universalplayer.tests
 
             Assert.That(_managerGo.GetComponentsInChildren<Camera>(true), Is.Empty,
                 "XrModeManager created its session-keeper camera although no XRDisplaySubsystem exists.");
+        }
+
+        [UnityTest]
+        public IEnumerator VrEntry_RequestsOneLoaderStart_AndNeverAgainFromTheReconcile()
+        {
+            BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.KeyboardMouse;
+            SetPrivateField(_manager, "reconcileIntervalSeconds", 0f);
+            _managerGo.SetActive(true);
+            Assert.That(XrDisplayLifecycle.StartRequests, Is.EqualTo(0),
+                "A desktop start must not ask the XR loader to start the display.");
+
+            BroadcastControlsStatus.SendControlScheme?.Invoke(BroadcastControlsStatus.ControlScheme.XR);
+            Assert.That(XrDisplayLifecycle.StartRequests, Is.EqualTo(1),
+                "Entering VR with an idle display must ask the XR loader to start it exactly once.");
+
+            yield return null;
+            yield return null;
+            yield return null;
+            Assert.That(XrDisplayLifecycle.StartRequests, Is.EqualTo(1),
+                "The reconcile loop must never re-request a display start while in VR — the loader finishes the start on its own when the OpenXR session is ready; retrying from outside races it (the 6000.6 black-headset regression).");
+            Assert.That(XrDisplayLifecycle.StopRequests, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void MirrorBlitMode_FollowsTheMode()
+        {
+            BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.KeyboardMouse;
+            _managerGo.SetActive(true);
+            Assert.That(XrDisplayLifecycle.LastRequestedMirrorBlitMode, Is.EqualTo(XRMirrorViewBlitMode.None),
+                "On desktop the engine mirror must be off, or the stereo eye texture leaks into the flat Game view (stretched view + right-eye sliver).");
+
+            BroadcastControlsStatus.SendControlScheme?.Invoke(BroadcastControlsStatus.ControlScheme.XR);
+            Assert.That(XrDisplayLifecycle.LastRequestedMirrorBlitMode, Is.EqualTo(XRMirrorViewBlitMode.Default));
+
+            BroadcastControlsStatus.SendControlScheme?.Invoke(BroadcastControlsStatus.ControlScheme.Gamepad);
+            Assert.That(XrDisplayLifecycle.LastRequestedMirrorBlitMode, Is.EqualTo(XRMirrorViewBlitMode.None));
+        }
+
+        [Test]
+        public void StopPolicy_StopsThroughTheLoaderOnDesktop_StartsThroughTheLoaderOnVr()
+        {
+            BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.KeyboardMouse;
+            SetPrivateField(_manager, "stopXrDisplayOnDesktop", XrModeManager.DisplayStopMode.Always);
+            _managerGo.SetActive(true);
+            Assert.That(XrDisplayLifecycle.StopRequests, Is.EqualTo(1), "Desktop with the stop policy must ask the loader to stop the display.");
+            Assert.That(XrDisplayLifecycle.StartRequests, Is.EqualTo(0));
+
+            BroadcastControlsStatus.SendControlScheme?.Invoke(BroadcastControlsStatus.ControlScheme.XR);
+            Assert.That(XrDisplayLifecycle.StartRequests, Is.EqualTo(1), "VR entry with the stop policy must ask the loader to start the display.");
+
+            BroadcastControlsStatus.SendControlScheme?.Invoke(BroadcastControlsStatus.ControlScheme.KeyboardMouse);
+            Assert.That(XrDisplayLifecycle.StopRequests, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void DesktopEdge_ResetsTheCameraRect()
+        {
+            BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.KeyboardMouse;
+            _managerGo.SetActive(true);
+            BroadcastControlsStatus.SendControlScheme?.Invoke(BroadcastControlsStatus.ControlScheme.XR);
+            _camera.rect = new Rect(0f, 0f, 0.5f, 1f);
+
+            BroadcastControlsStatus.SendControlScheme?.Invoke(BroadcastControlsStatus.ControlScheme.KeyboardMouse);
+            Assert.That(_camera.rect, Is.EqualTo(new Rect(0f, 0f, 1f, 1f)),
+                "Leaving VR must hand the whole window back to the flat camera.");
+        }
+
+        [Test]
+        public void PlayerCamera_IsResolvedInsideTheRig_NeverSceneWide()
+        {
+            BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.KeyboardMouse;
+
+            var decoyRoot = new GameObject("DecoyPlayer");
+            decoyRoot.SetActive(false);
+            var decoyCamera = new GameObject("DecoyCamera").AddComponent<Camera>();
+            decoyCamera.enabled = false;
+            decoyRoot.AddComponent<FPSCameraMovement>().playerCamera = decoyCamera;
+            CameraXrRendering.Set(decoyCamera, true);
+
+            var rig = new GameObject("Rig");
+            rig.SetActive(false);
+            var rigCamera = new GameObject("RigCamera").AddComponent<Camera>();
+            rigCamera.enabled = false;
+            rigCamera.transform.SetParent(rig.transform);
+            var locomotion = new GameObject("Locomotion");
+            locomotion.SetActive(false);
+            locomotion.transform.SetParent(rig.transform);
+            locomotion.AddComponent<FPSCameraMovement>().playerCamera = rigCamera;
+            var xrSettings = new GameObject("XR");
+            xrSettings.transform.SetParent(rig.transform);
+            xrSettings.AddComponent<XrModeManager>();
+            CameraXrRendering.Set(rigCamera, true);
+
+            try
+            {
+                rig.SetActive(true);
+                Assert.That(CameraXrRendering.IsXrEnabled(rigCamera), Is.False,
+                    "XrModeManager under Settings/XR must still find the camera of ITS rig (FPSCameraMovement lives under Settings/Locomotion).");
+                Assert.That(CameraXrRendering.IsXrEnabled(decoyCamera), Is.True,
+                    "A second player's camera elsewhere in the scene must never be touched (the scene-wide FindAnyObjectByType regression).");
+            }
+            finally
+            {
+                Object.DestroyImmediate(rig);
+                Object.DestroyImmediate(decoyRoot);
+                Object.DestroyImmediate(decoyCamera.gameObject);
+            }
         }
     }
 }
