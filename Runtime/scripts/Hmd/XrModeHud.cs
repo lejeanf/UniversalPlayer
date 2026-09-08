@@ -183,9 +183,8 @@ namespace jeanf.universalplayer
               .Append("' displayRunning=").Append(displayRunning)
               .Append(" displayOpaque=").Append(displayOpaque)
               .Append(" sessionFocused=").Append(XrDisplayLifecycle.SessionFocused)
-              .Append(" loaderStartRequests=").Append(XrDisplayLifecycle.StartRequests)
-              .Append(" loaderStopRequests=").Append(XrDisplayLifecycle.StopRequests)
-              .Append(" mirrorBlitMode=").Append(XrDisplayLifecycle.LastRequestedMirrorBlitMode)
+              .Append(" displayStartRequests=").Append(XrDisplayLifecycle.StartRequests)
+              .Append(" displayStopRequests=").Append(XrDisplayLifecycle.StopRequests)
               .Append(" renderScale=").Append(XRSettings.eyeTextureResolutionScale).Append('\n');
             sb.Append("pipeline: ").Append(pipeline != null ? pipeline.GetType().Name : "Built-in").Append('\n');
         }

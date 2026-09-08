@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using jeanf.EventSystem;
 using UnityEngine;
 using UnityEngine.XR;
+using UnityEngine.XR.Management;
 
 namespace jeanf.universalplayer
 {
@@ -29,6 +30,14 @@ namespace jeanf.universalplayer
         [Tooltip("How often (seconds) battery levels are polled.")]
         [SerializeField] private float batteryCheckInterval = 30f;
 
+        [Header("Session start")]
+        [Tooltip("Seconds the OpenXR session may take to become focused after this monitor starts. A longer wait means the headset was asleep when Play started; Quest Link then often leaves the headset black while tracking works.")]
+        [Range(2f, 30f)]
+        [SerializeField] private float lateSessionStartSeconds = 6f;
+        [Tooltip("Seconds after start without any XR loader before 'XR did not initialize' is reported (only when XR initializes on startup).")]
+        [Range(1f, 10f)]
+        [SerializeField] private float initFailureGraceSeconds = 2f;
+
         // Issue messages + HMD connection go through PlayerEvents; the PlayerEventBridge
         // forwards them onto the project's channels.
 
@@ -38,8 +47,50 @@ namespace jeanf.universalplayer
             HmdDisconnected,
             ControllerConnected,
             ControllerDisconnected,
-            LowBattery
+            LowBattery,
+            XrInitFailed,
+            LateSessionStart
         }
+
+        public enum SessionStartVerdict
+        {
+            Pending,
+            Healthy,
+            InitFailed,
+            LateStart,
+            Unwatched
+        }
+
+        public const float SessionStartGiveUpSeconds = 60f;
+        public const float SessionStartCheckInterval = 0.5f;
+
+        public const string RestartLinkHint =
+            "If the headset stays black while tracking works, Quest Link did not restart its video stream: " +
+            "quit and relaunch Quest Link (or disable/enable Link in the Meta app), and put the headset on BEFORE pressing Play.";
+
+        public static string InitFailedMessage() =>
+            "XR did not initialize — the runtime reported no headset (form factor unavailable): the headset was asleep " +
+            "or Quest Link was not running when Play started. Wake the headset, then leave and re-enter Play. " + RestartLinkHint;
+
+        public static string LateStartMessage(float secondsSinceStart) =>
+            $"OpenXR session became focused only {secondsSinceStart:0.#} s after start — the headset was asleep when Play " +
+            "started and woke up later. " + RestartLinkHint;
+
+        public static SessionStartVerdict AssessSessionStart(bool xrInitializesOnStartup, bool loaderActive,
+            bool displayRunning, bool sessionFocused, float secondsSinceStart, float lateThreshold, float initGrace)
+        {
+            if (!loaderActive)
+            {
+                if (xrInitializesOnStartup && secondsSinceStart > initGrace) return SessionStartVerdict.InitFailed;
+                return secondsSinceStart > SessionStartGiveUpSeconds ? SessionStartVerdict.Unwatched : SessionStartVerdict.Pending;
+            }
+            if (!displayRunning || !sessionFocused)
+                return secondsSinceStart > SessionStartGiveUpSeconds ? SessionStartVerdict.Unwatched : SessionStartVerdict.Pending;
+            return secondsSinceStart > lateThreshold ? SessionStartVerdict.LateStart : SessionStartVerdict.Healthy;
+        }
+
+        private float _sessionStartTime;
+        private bool _sessionStartResolved;
 
         /// <summary>Raised for every detected issue or recovery, with a human-readable message.</summary>
         public static event Action<HealthEvent, string> OnHealthEvent;
@@ -53,6 +104,9 @@ namespace jeanf.universalplayer
             InputDevices.deviceConnected += OnDeviceConnected;
             InputDevices.deviceDisconnected += OnDeviceDisconnected;
             InvokeRepeating(nameof(CheckBatteries), batteryCheckInterval, batteryCheckInterval);
+            _sessionStartTime = Time.realtimeSinceStartup;
+            _sessionStartResolved = false;
+            InvokeRepeating(nameof(CheckSessionStart), SessionStartCheckInterval, SessionStartCheckInterval);
         }
 
         private void OnDisable()
@@ -60,6 +114,45 @@ namespace jeanf.universalplayer
             InputDevices.deviceConnected -= OnDeviceConnected;
             InputDevices.deviceDisconnected -= OnDeviceDisconnected;
             CancelInvoke(nameof(CheckBatteries));
+            CancelInvoke(nameof(CheckSessionStart));
+        }
+
+        private void CheckSessionStart()
+        {
+            if (_sessionStartResolved) return;
+            var settings = XRGeneralSettings.Instance;
+            var manager = settings != null ? settings.Manager : null;
+            if (manager == null)
+            {
+                ResolveSessionStart();
+                return;
+            }
+
+            var secondsSinceStart = Time.realtimeSinceStartup - _sessionStartTime;
+            var verdict = AssessSessionStart(settings.InitManagerOnStart, manager.activeLoader != null,
+                XrDisplayLifecycle.IsDisplayRunning, XrDisplayLifecycle.SessionFocused,
+                secondsSinceStart, lateSessionStartSeconds, initFailureGraceSeconds);
+            switch (verdict)
+            {
+                case SessionStartVerdict.Pending:
+                    return;
+                case SessionStartVerdict.InitFailed:
+                    Raise(HealthEvent.XrInitFailed, InitFailedMessage(), isError: true);
+                    break;
+                case SessionStartVerdict.LateStart:
+                    Raise(HealthEvent.LateSessionStart, LateStartMessage(secondsSinceStart), isError: true);
+                    break;
+                case SessionStartVerdict.Healthy:
+                    if (_isDebug) Debug.Log($"{XrStartupDiagnostics.LogPrefix} OpenXR session focused {secondsSinceStart:0.#} s after start.", this);
+                    break;
+            }
+            ResolveSessionStart();
+        }
+
+        private void ResolveSessionStart()
+        {
+            _sessionStartResolved = true;
+            CancelInvoke(nameof(CheckSessionStart));
         }
 
         private void OnDeviceConnected(InputDevice device)

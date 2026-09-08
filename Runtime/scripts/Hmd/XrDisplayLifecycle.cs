@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
-using UnityEngine.XR.Management;
 using UnityEngine.XR.OpenXR;
 
 namespace jeanf.universalplayer
@@ -13,13 +12,11 @@ namespace jeanf.universalplayer
 
         public static int StartRequests { get; private set; }
         public static int StopRequests { get; private set; }
-        public static int LastRequestedMirrorBlitMode { get; private set; } = XRMirrorViewBlitMode.Default;
 
         public static void ResetRequestHistory()
         {
             StartRequests = 0;
             StopRequests = 0;
-            LastRequestedMirrorBlitMode = XRMirrorViewBlitMode.Default;
         }
 
         public static XRDisplaySubsystem FirstDisplay
@@ -51,43 +48,35 @@ namespace jeanf.universalplayer
             }
         }
 
-        public static bool HasActiveLoader => ActiveManager() != null;
-
-        public static bool RequestStart()
+        public static bool StartDisplay()
         {
             StartRequests++;
-            var manager = ActiveManager();
-            if (manager == null) return false;
-            manager.StartSubsystems();
-            DpadLayoutGuard.RepairIfNeeded();
-            return true;
-        }
-
-        public static bool RequestStop()
-        {
-            StopRequests++;
-            var manager = ActiveManager();
-            if (manager == null) return false;
-            manager.StopSubsystems();
-            return true;
-        }
-
-        public static void RequestMirrorBlitMode(int mirrorBlitMode)
-        {
-            LastRequestedMirrorBlitMode = mirrorBlitMode;
             SubsystemManager.GetSubsystems(Displays);
+            var started = false;
             for (int i = 0; i < Displays.Count; i++)
             {
-                if (Displays[i] != null) Displays[i].SetPreferredMirrorBlitMode(mirrorBlitMode);
+                var display = Displays[i];
+                if (display == null || display.running) continue;
+                display.Start();
+                started = true;
             }
+            if (started) DpadLayoutGuard.RepairIfNeeded();
+            return started;
         }
 
-        private static XRManagerSettings ActiveManager()
+        public static bool StopDisplay()
         {
-            var settings = XRGeneralSettings.Instance;
-            var manager = settings != null ? settings.Manager : null;
-            if (manager == null || !manager.isInitializationComplete || manager.activeLoader == null) return null;
-            return manager;
+            StopRequests++;
+            SubsystemManager.GetSubsystems(Displays);
+            var stopped = false;
+            for (int i = 0; i < Displays.Count; i++)
+            {
+                var display = Displays[i];
+                if (display == null || !display.running) continue;
+                display.Stop();
+                stopped = true;
+            }
+            return stopped;
         }
     }
 }

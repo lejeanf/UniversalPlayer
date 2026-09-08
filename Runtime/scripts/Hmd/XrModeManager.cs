@@ -1,7 +1,6 @@
 using jeanf.EventSystem;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.XR;
 #if UNIVERSALPLAYER_HDRP
 using UnityEngine.Rendering.HighDefinition;
 #endif
@@ -30,16 +29,16 @@ namespace jeanf.universalplayer
             Always
         }
 
-        [Tooltip("Never: the XR display keeps running on desktop (fed by the session keeper) so VR re-entry is instant. EditorOnly / Always: the XR loader stops the display on desktop and restarts it on VR entry — fully XR-free desktop, slower re-entry (Link handshake). The display is only ever started or stopped through the XR loader.")]
+        [Tooltip("Never: the XR display keeps running on desktop (fed by the session keeper) so VR re-entry is instant. EditorOnly / Always: the display is stopped on desktop and restarted on VR entry — fully XR-free desktop, slower re-entry (Link handshake).")]
         [SerializeField] private DisplayStopMode stopXrDisplayOnDesktop = DisplayStopMode.Never;
 
-        [Tooltip("On desktop, a hidden black camera keeps rendering to an ALREADY running XR display so the OpenXR session never idles. It never starts the display itself.")]
+        [Tooltip("On desktop, a hidden black camera keeps rendering to the XR display so the OpenXR session never idles, and a present-but-idle display is started so the first VR entry is instant.")]
         [SerializeField] private bool keepXrSessionAlive = true;
 
         [Tooltip("Flat-view vertical FOV restored after VR when no desktop FOV was captured before entering it.")]
         [SerializeField] private float desktopFieldOfView = 60f;
 
-        [Tooltip("Seconds between session keeper reconciles (the XR display can start or stop on its own).")]
+        [Tooltip("Seconds between reconciles of the XR display and the session keeper against the current mode (the display can start on its own after a Link handshake).")]
         [SerializeField] private float reconcileIntervalSeconds = 0.5f;
 
         private bool ShouldManageDisplay =>
@@ -47,7 +46,6 @@ namespace jeanf.universalplayer
             || (stopXrDisplayOnDesktop == DisplayStopMode.EditorOnly && Application.isEditor);
 
         private bool _wantXr;
-        private bool _hasApplied;
         private float _nextReconcile;
         private Camera _resolvedCamera;
         private Camera _sessionKeeper;
@@ -73,6 +71,7 @@ namespace jeanf.universalplayer
             if (!ShouldManageDisplay && !manageCameraXrRendering) return;
             if (Time.unscaledTime < _nextReconcile) return;
             _nextReconcile = Time.unscaledTime + reconcileIntervalSeconds;
+            if (ShouldManageDisplay) SetDisplayRunning(_wantXr);
             ReconcileSessionKeeper();
         }
 
@@ -81,14 +80,12 @@ namespace jeanf.universalplayer
         private void Apply(BroadcastControlsStatus.ControlScheme scheme)
         {
             var wantXr = scheme == BroadcastControlsStatus.ControlScheme.XR;
-            var enteringXr = wantXr && (!_hasApplied || !_wantXr);
-            var leavingXr = !wantXr && (!_hasApplied || _wantXr);
+            if (_isDebug && wantXr && !_wantXr)
+                Debug.Log($"{XrStartupDiagnostics.LogPrefix} XrModeManager: VR entry — display {(XrDisplayLifecycle.IsDisplayRunning ? "running" : "idle")}, session focused={XrDisplayLifecycle.SessionFocused}.");
             _wantXr = wantXr;
-            _hasApplied = true;
 
             ApplyCameraXrRendering();
-            if (enteringXr) EnterXrDisplay();
-            if (leavingXr) LeaveXrDisplay();
+            if (ShouldManageDisplay) SetDisplayRunning(_wantXr);
             ReconcileSessionKeeper();
         }
 
@@ -110,51 +107,49 @@ namespace jeanf.universalplayer
             _lastAppliedXr = _wantXr;
         }
 
-        private void EnterXrDisplay()
+        private void SetDisplayRunning(bool shouldRun)
         {
-            XrDisplayLifecycle.RequestMirrorBlitMode(XRMirrorViewBlitMode.Default);
-            var displayRunning = XrDisplayLifecycle.IsDisplayRunning;
-            if (ShouldManageDisplay || !displayRunning)
+            if (!XrDisplayLifecycle.HasDisplay)
             {
-                var accepted = XrDisplayLifecycle.RequestStart();
-                if (_isDebug)
-                    Debug.Log($"{XrStartupDiagnostics.LogPrefix} XrModeManager: VR entry — display {(displayRunning ? "running" : "idle")}, " +
-                        $"loader start {(accepted ? "requested" : "unavailable (no initialized XR loader)")}, session focused={XrDisplayLifecycle.SessionFocused}.");
+                if (shouldRun && _isDebug)
+                    Debug.LogWarning($"{XrStartupDiagnostics.LogPrefix} XrModeManager: entering XR but no XR display subsystem exists — " +
+                        "is a headset connected and Initialize XR on Startup enabled?", this);
                 return;
             }
-            if (_isDebug)
-                Debug.Log($"{XrStartupDiagnostics.LogPrefix} XrModeManager: VR entry — display already running, session focused={XrDisplayLifecycle.SessionFocused}.");
-        }
 
-        private void LeaveXrDisplay()
-        {
-            XrDisplayLifecycle.RequestMirrorBlitMode(XRMirrorViewBlitMode.None);
-            if (!ShouldManageDisplay) return;
-            var accepted = XrDisplayLifecycle.RequestStop();
-            if (_isDebug)
-                Debug.Log($"{XrStartupDiagnostics.LogPrefix} XrModeManager: desktop — loader stop {(accepted ? "requested" : "unavailable (no initialized XR loader)")}.");
+            if (shouldRun)
+            {
+                if (XrDisplayLifecycle.StartDisplay() && _isDebug)
+                    Debug.Log($"{XrStartupDiagnostics.LogPrefix} XrModeManager: XR display started (VR view).");
+            }
+            else
+            {
+                if (XrDisplayLifecycle.StopDisplay() && _isDebug)
+                    Debug.Log($"{XrStartupDiagnostics.LogPrefix} XrModeManager: XR display stopped (flat desktop view).");
+            }
         }
 
         private void ReconcileSessionKeeper()
         {
-            var display = XrDisplayLifecycle.FirstDisplay;
-            if (display != null)
-                XrDisplayLifecycle.RequestMirrorBlitMode(_wantXr ? XRMirrorViewBlitMode.Default : XRMirrorViewBlitMode.None);
-
             var wantKeeper = keepXrSessionAlive && manageCameraXrRendering && !ShouldManageDisplay && !_wantXr
-                             && display != null && display.running;
+                             && XrDisplayLifecycle.HasDisplay;
+
+            if (wantKeeper && !XrDisplayLifecycle.IsDisplayRunning)
+            {
+                if (XrDisplayLifecycle.StartDisplay() && _isDebug)
+                    Debug.Log($"{XrStartupDiagnostics.LogPrefix} XrModeManager: started the XR display on desktop to warm the session (keeper).");
+            }
 
             if (wantKeeper && _sessionKeeper == null) CreateSessionKeeper();
             if (_sessionKeeper != null && _sessionKeeper.enabled != wantKeeper)
             {
                 _sessionKeeper.enabled = wantKeeper;
-                if (_isDebug) Debug.Log($"{XrStartupDiagnostics.LogPrefix} XrModeManager: session keeper {(wantKeeper ? "on (desktop, display running)" : "off")}.");
+                if (_isDebug) Debug.Log($"{XrStartupDiagnostics.LogPrefix} XrModeManager: session keeper {(wantKeeper ? "on (desktop)" : "off (VR)")}.");
             }
         }
 
         private void CreateSessionKeeper()
         {
-            var playerCamera = ResolveCamera();
             var go = new GameObject("XR Session Keeper (UniversalPlayer)");
             go.transform.SetParent(transform, false);
             _sessionKeeper = go.AddComponent<Camera>();
@@ -162,8 +157,8 @@ namespace jeanf.universalplayer
             _sessionKeeper.clearFlags = CameraClearFlags.SolidColor;
             _sessionKeeper.backgroundColor = Color.black;
             _sessionKeeper.depth = -100f;
-            _sessionKeeper.nearClipPlane = playerCamera != null ? playerCamera.nearClipPlane : 0.05f;
-            _sessionKeeper.farClipPlane = playerCamera != null ? playerCamera.farClipPlane : 1000f;
+            _sessionKeeper.nearClipPlane = 0.01f;
+            _sessionKeeper.farClipPlane = 0.02f;
             _sessionKeeper.allowMSAA = false;
             _sessionKeeper.enabled = false;
 #if UNIVERSALPLAYER_HDRP

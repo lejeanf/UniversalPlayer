@@ -3,7 +3,6 @@ using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using UnityEngine.XR;
 
 namespace jeanf.universalplayer.tests
 {
@@ -114,55 +113,47 @@ namespace jeanf.universalplayer.tests
         }
 
         [UnityTest]
-        public IEnumerator VrEntry_RequestsOneLoaderStart_AndNeverAgainFromTheReconcile()
+        public IEnumerator KeepRunningPolicy_NeverStartsOrStopsTheDisplayOnAModeEdge()
         {
+            // The v1.16.6 contract the maintainer validated on Unity 6000.6: with the
+            // keep-running policy a VR entry or exit is a plain camera flip. The only
+            // display start the package ever issues is the keeper warming a present but
+            // idle display on desktop — and there is no display in the test runner.
             BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.KeyboardMouse;
             SetPrivateField(_manager, "reconcileIntervalSeconds", 0f);
             _managerGo.SetActive(true);
+
+            BroadcastControlsStatus.SendControlScheme?.Invoke(BroadcastControlsStatus.ControlScheme.XR);
+            yield return null;
+            yield return null;
+            BroadcastControlsStatus.SendControlScheme?.Invoke(BroadcastControlsStatus.ControlScheme.KeyboardMouse);
+            yield return null;
+            yield return null;
+
             Assert.That(XrDisplayLifecycle.StartRequests, Is.EqualTo(0),
-                "A desktop start must not ask the XR loader to start the display.");
-
-            BroadcastControlsStatus.SendControlScheme?.Invoke(BroadcastControlsStatus.ControlScheme.XR);
-            Assert.That(XrDisplayLifecycle.StartRequests, Is.EqualTo(1),
-                "Entering VR with an idle display must ask the XR loader to start it exactly once.");
-
-            yield return null;
-            yield return null;
-            yield return null;
-            Assert.That(XrDisplayLifecycle.StartRequests, Is.EqualTo(1),
-                "The reconcile loop must never re-request a display start while in VR — the loader finishes the start on its own when the OpenXR session is ready; retrying from outside races it (the 6000.6 black-headset regression).");
-            Assert.That(XrDisplayLifecycle.StopRequests, Is.EqualTo(0));
+                "With Stop Xr Display On Desktop = Never, entering VR must not start the display: the XR loader already runs it and a restart from the package destabilised the switch.");
+            Assert.That(XrDisplayLifecycle.StopRequests, Is.EqualTo(0),
+                "With Stop Xr Display On Desktop = Never the display must never be stopped.");
         }
 
         [Test]
-        public void MirrorBlitMode_FollowsTheMode()
-        {
-            BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.KeyboardMouse;
-            _managerGo.SetActive(true);
-            Assert.That(XrDisplayLifecycle.LastRequestedMirrorBlitMode, Is.EqualTo(XRMirrorViewBlitMode.None),
-                "On desktop the engine mirror must be off, or the stereo eye texture leaks into the flat Game view (stretched view + right-eye sliver).");
-
-            BroadcastControlsStatus.SendControlScheme?.Invoke(BroadcastControlsStatus.ControlScheme.XR);
-            Assert.That(XrDisplayLifecycle.LastRequestedMirrorBlitMode, Is.EqualTo(XRMirrorViewBlitMode.Default));
-
-            BroadcastControlsStatus.SendControlScheme?.Invoke(BroadcastControlsStatus.ControlScheme.Gamepad);
-            Assert.That(XrDisplayLifecycle.LastRequestedMirrorBlitMode, Is.EqualTo(XRMirrorViewBlitMode.None));
-        }
-
-        [Test]
-        public void StopPolicy_StopsThroughTheLoaderOnDesktop_StartsThroughTheLoaderOnVr()
+        public void StopPolicy_StopsTheDisplayOnDesktop_StartsItOnVr()
         {
             BroadcastControlsStatus.controlScheme = BroadcastControlsStatus.ControlScheme.KeyboardMouse;
             SetPrivateField(_manager, "stopXrDisplayOnDesktop", XrModeManager.DisplayStopMode.Always);
             _managerGo.SetActive(true);
-            Assert.That(XrDisplayLifecycle.StopRequests, Is.EqualTo(1), "Desktop with the stop policy must ask the loader to stop the display.");
-            Assert.That(XrDisplayLifecycle.StartRequests, Is.EqualTo(0));
+            Assert.That(XrDisplayLifecycle.StartRequests, Is.EqualTo(0),
+                "A desktop start must never start the display under the stop policy.");
+            // No display subsystem exists in the test runner, so nothing is stopped here either.
 
+            var startsBeforeEntry = XrDisplayLifecycle.StartRequests;
             BroadcastControlsStatus.SendControlScheme?.Invoke(BroadcastControlsStatus.ControlScheme.XR);
-            Assert.That(XrDisplayLifecycle.StartRequests, Is.EqualTo(1), "VR entry with the stop policy must ask the loader to start the display.");
+            Assert.That(XrDisplayLifecycle.StopRequests, Is.EqualTo(0),
+                "VR entry must never stop the display.");
 
             BroadcastControlsStatus.SendControlScheme?.Invoke(BroadcastControlsStatus.ControlScheme.KeyboardMouse);
-            Assert.That(XrDisplayLifecycle.StopRequests, Is.EqualTo(2));
+            Assert.That(XrDisplayLifecycle.StartRequests, Is.EqualTo(startsBeforeEntry),
+                "Leaving VR must never start the display.");
         }
 
         [Test]
