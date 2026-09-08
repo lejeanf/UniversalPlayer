@@ -223,18 +223,26 @@ namespace jeanf.universalplayer
             primaryItem.localPosition = invRot * (-handInfo.attachPosition) + heldItemPositionOffset;
         }
 
-        private void ReceiveGrabSide(string str)
+        private void ReceiveGrabSide(string grabbingHand) => HandOverPrimaryItemOnGrab(grabbingHand);
+
+        public void HandOverPrimaryItemOnGrab(string grabbingHand)
         {
-            if (!primaryItem) return;
-            if (str == "RightHand")
-            {
-                SetIpadStateForASpecificHand(primaryItemPose.leftHandInfo, _leftHand.transform, _leftHandPoseManager);
-            }
-            else if (str == "LeftHand")
-            {
-                SetIpadStateForASpecificHand(primaryItemPose.rightHandInfo, _rightHand.transform, _rightHandPoseManager);
-            }
+            if (!primaryItem || _ipadState == IpadState.Disabled) return;
+            if (grabbingHand == "RightHand" && _ipadState == IpadState.InRightHand) MovePrimaryItemToFreeHandOrHide(isLeft: true);
+            else if (grabbingHand == "LeftHand" && _ipadState == IpadState.InLeftHand) MovePrimaryItemToFreeHandOrHide(isLeft: false);
         }
+
+        private void MovePrimaryItemToFreeHandOrHide(bool isLeft)
+        {
+            var targetHand = isLeft ? _leftHandPoseManager : _rightHandPoseManager;
+            var fromHand = isLeft ? _rightHandPoseManager : _leftHandPoseManager;
+            if (IsHoldingAnObject(targetHand)) HidePrimaryItem(fromHand);
+            else ShowPrimaryItemInHand(isLeft ? primaryItemPose.leftHandInfo : primaryItemPose.rightHandInfo, isLeft);
+        }
+
+        private static bool IsHoldingAnObject(HandPoseManager hand) =>
+            hand != null && (hand.IsSelecting || hand.ActivePoseSource == HandPoseSource.Grab);
+
         public void SetIpadStateForASpecificHand(string hand)
         {
             if (!primaryItem || _ipadState != IpadState.Disabled) return;

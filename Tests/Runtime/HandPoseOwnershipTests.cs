@@ -24,6 +24,9 @@ namespace jeanf.universalplayer.tests
         private Pose _zonePose;
         private Pose _pointPose;
         private Pose _tabletPose;
+        private Transform _tablet;
+        private Transform _tabletHome;
+        private MeshRenderer _tabletRenderer;
 
         [SetUp]
         public void SetUp()
@@ -90,6 +93,17 @@ namespace jeanf.universalplayer.tests
             Assert.Fail($"Field '{field}' not found on {target.GetType().Name} — update HandPoseOwnershipTests alongside the refactor.");
         }
 
+        private Transform NewHolsteredTablet()
+        {
+            _tabletHome = new GameObject("TabletHome").transform;
+            _tabletHome.SetParent(_root.transform);
+            _tablet = new GameObject("Tablet").transform;
+            _tablet.SetParent(_tabletHome);
+            _tabletRenderer = _tablet.gameObject.AddComponent<MeshRenderer>();
+            _tabletRenderer.enabled = false;
+            return _tablet;
+        }
+
         private GetPrimaryInHandItemWithVRController NewPrimaryItemController()
         {
             var go = new GameObject("PrimaryItemController");
@@ -105,6 +119,7 @@ namespace jeanf.universalplayer.tests
             SetField(controller, "primaryItemPose", _tabletPose);
             SetField(controller, "_PrimaryItemStateChannel", ScriptableObject.CreateInstance<BoolEventChannelSO>());
             SetField(controller, "_primaryItemStateWithUsedHandChannel", ScriptableObject.CreateInstance<StringEventChannelSO>());
+            controller.primaryItem = NewHolsteredTablet();
             go.SetActive(true);
             return controller;
         }
@@ -149,6 +164,64 @@ namespace jeanf.universalplayer.tests
 
             Assert.That(_left.LastAppliedPose, Is.SameAs(_leftDefault));
             Assert.That(_left.IsPoseHeld, Is.False);
+        }
+
+        [Test]
+        public void GrabbingWhileTheItemIsHolstered_LeavesItHolstered()
+        {
+            var controller = NewPrimaryItemController();
+
+            controller.HandOverPrimaryItemOnGrab("RightHand");
+            controller.HandOverPrimaryItemOnGrab("LeftHand");
+
+            Assert.That(_tabletRenderer.enabled, Is.False, "A grab must never draw the tablet on its own (the reported regression).");
+            Assert.That(_tablet.parent, Is.SameAs(_tabletHome));
+            Assert.That(controller.GetActiveHand(), Is.Null);
+            Assert.That(_left.IsPoseHeld, Is.False);
+            Assert.That(_right.IsPoseHeld, Is.False);
+        }
+
+        [Test]
+        public void GrabbingWithTheHandHoldingTheItem_HandsItToTheFreeHand()
+        {
+            var controller = NewPrimaryItemController();
+            controller.SetIpadStateForRightHand(_tabletPose.rightHandInfo);
+
+            controller.HandOverPrimaryItemOnGrab("RightHand");
+
+            Assert.That(_tablet.parent, Is.SameAs(_left.transform));
+            Assert.That(_tabletRenderer.enabled, Is.True);
+            Assert.That(controller.GetActiveHand().action.name, Is.EqualTo("DrawLeft"));
+            Assert.That(_left.ActivePoseSource, Is.EqualTo(HandPoseSource.PrimaryItem));
+            Assert.That(_right.HasPoseClaim(controller), Is.False, "The grabbing hand must give up its tablet pose claim.");
+        }
+
+        [Test]
+        public void GrabbingWithTheHandHoldingTheItem_WhileTheOtherHandIsFull_HolstersIt()
+        {
+            var controller = NewPrimaryItemController();
+            controller.SetIpadStateForRightHand(_tabletPose.rightHandInfo);
+            _left.TryClaimPose(new object(), HandPoseSource.Grab, _grabPose);
+
+            controller.HandOverPrimaryItemOnGrab("RightHand");
+
+            Assert.That(_tabletRenderer.enabled, Is.False);
+            Assert.That(controller.GetActiveHand(), Is.Null);
+            Assert.That(_left.LastAppliedPose, Is.SameAs(_grabPose), "The full hand keeps its object and its grab pose.");
+            Assert.That(_right.HasPoseClaim(controller), Is.False);
+        }
+
+        [Test]
+        public void GrabbingWithTheOtherHand_LeavesTheItemWhereItIs()
+        {
+            var controller = NewPrimaryItemController();
+            controller.SetIpadStateForRightHand(_tabletPose.rightHandInfo);
+
+            controller.HandOverPrimaryItemOnGrab("LeftHand");
+
+            Assert.That(_tablet.parent, Is.SameAs(_right.transform));
+            Assert.That(controller.GetActiveHand().action.name, Is.EqualTo("DrawRight"));
+            Assert.That(_right.ActivePoseSource, Is.EqualTo(HandPoseSource.PrimaryItem));
         }
 
         [Test]
