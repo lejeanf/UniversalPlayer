@@ -4267,7 +4267,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6257423915777697682}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
   m_Name: 
@@ -7471,10 +7471,6 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3616344554909481683, guid: c1800acf6366418a9b5f610249000331, type: 3}
-      propertyPath: m_HapticImpulsePlayer
-      value: 
-      objectReference: {fileID: 5967689310316253315, guid: de9f91a37e546c64197961b0badf093c, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -7784,10 +7780,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1838083765625025125, guid: 27024f5809f4a4347b9cd7f26a1bdf93, type: 3}
-      propertyPath: m_HapticImpulsePlayer
-      value: 
-      objectReference: {fileID: 4238984354899526239, guid: de9f91a37e546c64197961b0badf093c, type: 3}
     - target: {fileID: 1925769544920504264, guid: 27024f5809f4a4347b9cd7f26a1bdf93, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -8286,10 +8278,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Teleport Interactor
       objectReference: {fileID: 0}
-    - target: {fileID: 3616344554909481683, guid: c1800acf6366418a9b5f610249000331, type: 3}
-      propertyPath: m_HapticImpulsePlayer
-      value: 
-      objectReference: {fileID: 4238984354899526239, guid: de9f91a37e546c64197961b0badf093c, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -8371,10 +8359,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 1.54
       objectReference: {fileID: 0}
-    - target: {fileID: 1838083765625025125, guid: 27024f5809f4a4347b9cd7f26a1bdf93, type: 3}
-      propertyPath: m_HapticImpulsePlayer
-      value: 
-      objectReference: {fileID: 5967689310316253315, guid: de9f91a37e546c64197961b0badf093c, type: 3}
     - target: {fileID: 1925769544920504264, guid: 27024f5809f4a4347b9cd7f26a1bdf93, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -8387,10 +8371,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Poke Interactor
       objectReference: {fileID: 0}
-    - target: {fileID: 6102213085606525114, guid: 27024f5809f4a4347b9cd7f26a1bdf93, type: 3}
-      propertyPath: m_CurveInteractionDataProvider
-      value: 
-      objectReference: {fileID: 8877177980677234388, guid: de9f91a37e546c64197961b0badf093c, type: 3}
     - target: {fileID: 8259524632637961923, guid: 27024f5809f4a4347b9cd7f26a1bdf93, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.016718
@@ -8814,10 +8794,6 @@ PrefabInstance:
       propertyPath: m_RootOrder
       value: -2
       objectReference: {fileID: 0}
-    - target: {fileID: 182173401991492719, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d, type: 3}
-      propertyPath: m_IsKinematic
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 254151077142818131, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d, type: 3}
       propertyPath: m_RootOrder
       value: -2
@@ -8909,10 +8885,6 @@ PrefabInstance:
     - target: {fileID: 3181999613361233563, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d, type: 3}
       propertyPath: m_RootOrder
       value: -2
-      objectReference: {fileID: 0}
-    - target: {fileID: 3559755245915770890, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d, type: 3}
-      propertyPath: m_Convex
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4160191547531094512, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d, type: 3}
       propertyPath: m_RootOrder

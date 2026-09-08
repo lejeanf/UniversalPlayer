@@ -94,6 +94,18 @@ namespace jeanf.universalplayer
                 isRuleEnabled: () => PlayerRoot() != null,
                 sceneOnly: true));
 
+            rules.Add(Rule("Scene: teleport listener", () => SceneResult("Scene: teleport listener"),
+                TeleportListenerFixer.WireSceneListeners,
+                fixItAutomatic: true,
+                isRuleEnabled: () => PlayerRoot() != null,
+                sceneOnly: true));
+
+            rules.Add(Rule("Scene: hand pose driver", () => SceneResult("Scene: hand pose driver"),
+                HandPoseDriverFixer.RestoreScenePrefabPoses,
+                fixItAutomatic: true,
+                isRuleEnabled: () => PlayerRoot() != null,
+                sceneOnly: true));
+
             // One rule per named check of RunOpenSceneChecks/RunHandChecks; the Fix
             // button pings the object to repair (these need judgment, never auto-fix).
             foreach (var (name, select) in SceneRuleTargets())
@@ -122,7 +134,7 @@ namespace jeanf.universalplayer
             yield return ("Scene: player ground collision", PlayerRoot);
             yield return ("Scene: player event bridge", First<PlayerEventBridge>);
             yield return ("Scene: NoPeeking", First<NoPeeking>);
-            yield return ("Scene: teleport listener", First<TeleportOnEvent>);
+            yield return ("Scene: cursor palette", First<CursorStateController>);
             yield return ("Scene: XR mode manager", First<XrModeManager>);
             yield return ("Scene: XR health monitor", First<XrHealthMonitor>);
             yield return ("Scene: pickable rigidbodies", First<PickableObject>);
@@ -141,7 +153,6 @@ namespace jeanf.universalplayer
             yield return ("Scene: hand rigs", First<BaseHand>);
             yield return ("Scene: hand poses vs rig", First<BaseHand>);
             yield return ("Scene: hand pose bone names", First<BaseHand>);
-            yield return ("Scene: hand pose driver", First<ControllerHandPoseDriver>);
             yield return ("Scene: finger pointing ray", First<FingerPointingRay>);
             yield return ("Scene: hand colliders", First<BlendableHand>);
             yield return ("Scene: footsteps", First<FootstepAudio>);

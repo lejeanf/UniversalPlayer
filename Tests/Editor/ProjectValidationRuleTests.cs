@@ -81,6 +81,18 @@ namespace jeanf.universalplayer.tests.editor
         }
 
         [Test]
+        public void SceneRulesWithMechanicalFixes_AreAutomatic()
+        {
+            foreach (var name in new[] { "Scene: teleport listener", "Scene: hand pose driver", "Scene: player action assets" })
+            {
+                var rule = Rules().FirstOrDefault(r => r.Message == name);
+                Assert.That(rule, Is.Not.Null, $"No rule '{name}'.");
+                Assert.That(rule.FixItAutomatic, Is.True,
+                    $"Rule '{name}' must be automatic — its fix is mechanical, a ping-only 'Edit' button leaves the user to do it by hand.");
+            }
+        }
+
+        [Test]
         public void EveryPredicate_RunsWithoutThrowing_AndMirrorsSeverityOntoTheRule()
         {
             foreach (var rule in Rules())

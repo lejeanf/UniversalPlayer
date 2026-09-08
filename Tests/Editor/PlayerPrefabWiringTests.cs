@@ -214,13 +214,11 @@ namespace jeanf.universalplayer.tests
             // assigned') while the prefab YAML looked wired. The packaged defaults
             // now point at the bundled Runtime/HandPoses assets; projects still
             // override them with their own art on the Player variant.
-            // (pointPose is deliberately empty = the hand's own default idle pose.)
+            // (The driver has two fist slots: semi-closed for grip touch, closed for hard grip.)
             var driver = RequireComponent<ControllerHandPoseDriver>();
             RequireAssigned(driver, "semiClosedFistPose",
                 "Grip-touch never curls the fingers. Assign a bundled Runtime/HandPoses asset.");
             RequireAssigned(driver, "closedFistPose",
-                "Trigger never closes the fist. Assign a bundled Runtime/HandPoses asset.");
-            RequireAssigned(driver, "fullClosedFistPose",
                 "Hard grip never closes the fist. Assign a bundled Runtime/HandPoses asset.");
         }
 

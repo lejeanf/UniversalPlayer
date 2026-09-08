@@ -28,27 +28,21 @@ namespace jeanf.universalplayer.tests
         private const BindingFlags AllInstance =
             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
 
-        private static IEnumerable<Assembly> PackageAssemblies => AppDomain.CurrentDomain.GetAssemblies()
-            .Where(a =>
-            {
-                var name = a.GetName().Name;
-                return name.StartsWith("jeanf.universalplayer", StringComparison.Ordinal) && !name.Contains("tests");
-            });
+        private static bool IsPackageAssembly(Assembly assembly)
+        {
+            var name = assembly.GetName().Name;
+            return name.StartsWith("jeanf.universalplayer", StringComparison.Ordinal) && !name.Contains("tests");
+        }
 
         private static IEnumerable<(Type type, FieldInfo field, ValidationAttribute attribute)> ValidatedFields()
         {
-            foreach (var assembly in PackageAssemblies)
+            foreach (var field in TypeCache.GetFieldsWithAttribute<ValidationAttribute>())
             {
-                Type[] types;
-                try { types = assembly.GetTypes(); }
-                catch (ReflectionTypeLoadException e) { types = e.Types.Where(t => t != null).ToArray(); }
-
-                foreach (var type in types)
-                foreach (var field in type.GetFields(AllInstance))
-                {
-                    var attribute = field.GetCustomAttribute<ValidationAttribute>(false);
-                    if (attribute != null) yield return (type, field, attribute);
-                }
+                var type = field.DeclaringType;
+                if (type == null || !IsPackageAssembly(type.Assembly)) continue;
+                if ((field.Attributes & FieldAttributes.Static) != 0) continue;
+                var attribute = field.GetCustomAttribute<ValidationAttribute>(false);
+                if (attribute != null) yield return (type, field, attribute);
             }
         }
 
@@ -72,6 +66,9 @@ namespace jeanf.universalplayer.tests
                     // FadeMask.IsValid depends on the ACTIVE render pipeline (the packaged profile is
                     // URP; HDRP projects override it on their variant) — FadeProfileTests cover it.
                     if (component is FadeMask) continue;
+                    // FootstepAudio.IsValid also requires at least one footstep sound; the package ships
+                    // the wiring, the project supplies the sounds (validated by 'Scene: footsteps').
+                    if (component is FootstepAudio) continue;
 
                     issues.Clear();
                     ValidationScanner.GetIssues(component, issues);

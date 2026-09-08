@@ -315,7 +315,7 @@ namespace jeanf.universalplayer
         // 7. The driver is what makes grip/trigger close the fingers. Disabled or with no
         // fist pose assigned, the hands keep their default pose forever: they look alive
         // in the editor and dead in the headset.
-        private static SetupValidator.CheckResult CheckPoseDriver(GameObject playerRoot)
+        public static SetupValidator.CheckResult CheckPoseDriver(GameObject playerRoot)
         {
             var driver = playerRoot.GetComponentInChildren<ControllerHandPoseDriver>(true);
             if (driver == null)
@@ -335,7 +335,7 @@ namespace jeanf.universalplayer
                 severity = SetupValidator.Severity.Warning;
             }
 
-            var fists = new[] { "semiClosedFistPose", "closedFistPose", "fullClosedFistPose" };
+            var fists = new[] { "semiClosedFistPose", "closedFistPose" };
             var assignedFists = fists.Count(slot => so.FindProperty(slot)?.objectReferenceValue != null);
             if (assignedFists == 0)
             {
@@ -344,7 +344,7 @@ namespace jeanf.universalplayer
             }
             else if (assignedFists < fists.Length)
             {
-                problems.Add($"{fists.Length - assignedFists} of 3 fist poses empty — those grip levels degrade to the " +
+                problems.Add($"{fists.Length - assignedFists} of {fists.Length} fist poses empty — those grip levels degrade to the " +
                              "nearest assigned pose (no visible difference between them)");
                 if (severity == SetupValidator.Severity.Pass) severity = SetupValidator.Severity.Warning;
             }
@@ -364,8 +364,9 @@ namespace jeanf.universalplayer
 
             return new SetupValidator.CheckResult("Scene: hand pose driver", severity,
                 $"ControllerHandPoseDriver on '{driver.gameObject.name}': {string.Join("; ", problems)}.",
-                "Author the poses with Tools/Jeanf/UniversalPlayer/Pose Editor and assign them on your Player VARIANT " +
-                "(Point / Semi-Closed / Closed / Full Closed Fist), and keep Grip Touch below Grip Hard.");
+                "The package prefab ships Semi-Closed / Closed / Point poses — the Fix button restores them on empty " +
+                "slots the scene overrides; author your own with Tools/Jeanf/UniversalPlayer/Pose Editor and assign " +
+                "them on your Player VARIANT, and keep Grip Touch below Grip Hard.");
         }
 
         // 8. The ray is resolved with GetComponentInChildren from the ray's own object, so

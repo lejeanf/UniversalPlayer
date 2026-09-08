@@ -126,6 +126,22 @@ namespace jeanf.universalplayer.tests.editor
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
+        private static void SetSerializedBool(Object target, string property, bool value)
+        {
+            var so = new SerializedObject(target);
+            var prop = so.FindProperty(property);
+            Assert.That(prop, Is.Not.Null, $"Serialized property '{property}' not found on {target.GetType().Name} — was it renamed?");
+            prop.boolValue = value;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static Object GetSerialized(Object target, string property) =>
+            new SerializedObject(target).FindProperty(property)?.objectReferenceValue;
+
+        private static bool SceneHasTeleportWiring() =>
+            Object.FindAnyObjectByType<TeleportOnEvent>(FindObjectsInactive.Include) != null
+            || Object.FindAnyObjectByType<SendTeleportTarget>(FindObjectsInactive.Include) != null;
+
         private Seat NewSeat(string name) => Spawn(name).AddComponent<Seat>();
 
         // Run the open-scene checks and return one by name (with a clear failure if it didn't run).
@@ -313,6 +329,7 @@ namespace jeanf.universalplayer.tests.editor
             Assert.That(ProjectSetupChecks.CheckTeleportWiring().Severity, Is.EqualTo(SetupValidator.Severity.Fail),
                 "A listener with no channel and nothing on OnEventRaised must FAIL — every teleport on it is dropped.");
 
+            SetSerialized(listener, "player", listenerGo);
             SetSerialized(listener, "_channel", channelB);
             UnityEventTools.AddPersistentListener(listener.OnEventRaised, listener.Teleport);
             Assert.That(ProjectSetupChecks.CheckTeleportWiring().Severity, Is.EqualTo(SetupValidator.Severity.Warning),
@@ -402,6 +419,181 @@ namespace jeanf.universalplayer.tests.editor
             pickable.AddComponent<Rigidbody>();
             Assert.That(ProjectSetupChecks.CheckPickableRigidbodies().Severity, Is.EqualTo(SetupValidator.Severity.Pass),
                 "With a Rigidbody the pickable check must pass.");
+        }
+
+        [Test]
+        public void TeleportCheck_DistinguishesPlayerTeleportsFromObjectTeleports()
+        {
+            if (SceneHasTeleportWiring())
+                Assert.Ignore("The open scene already contains teleport wiring — this test needs a clean slate.");
+
+            var channel = NewAsset<TeleportEventChannelSO>();
+            var listenerGo = Spawn("ObjectListener");
+            listenerGo.SetActive(false);
+            var listener = listenerGo.AddComponent<TeleportOnEvent>();
+            SetSerialized(listener, "_channel", channel);
+            SetSerializedBool(listener, "teleportsPlayer", false);
+            UnityEventTools.AddPersistentListener(listener.OnEventRaised, listener.Teleport);
+
+            var targetGo = Spawn("Target");
+            targetGo.SetActive(false);
+            var target = targetGo.AddComponent<SendTeleportTarget>();
+            SetSerialized(target, "_teleportChannel", channel);
+            SetSerialized(target, "objectToTeleport", targetGo.transform);
+
+            Assert.That(ProjectSetupChecks.CheckTeleportWiring().Severity, Is.EqualTo(SetupValidator.Severity.Pass),
+                "An object-only listener (Teleports Player off, no Player) handles object teleports on its channel.");
+
+            SetSerializedBool(target, "isTeleportPlayer", true);
+            var playerTargetResult = ProjectSetupChecks.CheckTeleportWiring();
+            Assert.That(playerTargetResult.Severity, Is.EqualTo(SetupValidator.Severity.Warning),
+                "A PLAYER teleport received only by object-only listeners must WARN — the listener ignores it at runtime.");
+            Assert.That(playerTargetResult.Message, Does.Contain("PLAYER teleport"));
+
+            SetSerializedBool(listener, "teleportsPlayer", true);
+            var noPlayerResult = ProjectSetupChecks.CheckTeleportWiring();
+            Assert.That(noPlayerResult.Severity, Is.EqualTo(SetupValidator.Severity.Fail),
+                "A player listener without its Player field must FAIL — it has nothing to move.");
+            Assert.That(noPlayerResult.Message, Does.Contain("Player field is empty"));
+
+            SetSerialized(listener, "player", Spawn("Player"));
+            Assert.That(ProjectSetupChecks.CheckTeleportWiring().Severity, Is.EqualTo(SetupValidator.Severity.Pass),
+                "A player listener with its Player assigned handles both player and object teleports.");
+        }
+
+        [Test]
+        public void TeleportListenerFixer_WiresTeleportAndAssignsTheScenePlayer()
+        {
+            if (SceneHasTeleportWiring())
+                Assert.Ignore("The open scene already contains teleport wiring — this test needs a clean slate.");
+
+            var channel = NewAsset<TeleportEventChannelSO>();
+            var playerRoot = Spawn("Player");
+            playerRoot.AddComponent<BroadcastControlsStatus>();
+            var listenerGo = Spawn("Listener");
+            listenerGo.SetActive(false);
+            var listener = listenerGo.AddComponent<TeleportOnEvent>();
+            SetSerialized(listener, "_channel", channel);
+
+            Assert.That(ProjectSetupChecks.CheckTeleportWiring().Severity, Is.EqualTo(SetupValidator.Severity.Fail),
+                "Precondition: an unwired player listener fails the check.");
+
+            Assert.That(TeleportListenerFixer.Wire(listener, playerRoot), Is.True,
+                "The fixer must report a change on an unwired listener.");
+            Assert.That(ProjectSetupChecks.CheckTeleportWiring().Severity, Is.EqualTo(SetupValidator.Severity.Pass),
+                "After the fix the listener reaches Teleport and has the scene player assigned.");
+            Assert.That(GetSerialized(listener, "player"), Is.EqualTo(playerRoot),
+                "The fixer must assign the scene player root to a player listener.");
+            Assert.That(listener.OnEventRaised.GetPersistentEventCount(), Is.EqualTo(1));
+
+            Assert.That(TeleportListenerFixer.Wire(listener, playerRoot), Is.False,
+                "A second run must change nothing.");
+            Assert.That(listener.OnEventRaised.GetPersistentEventCount(), Is.EqualTo(1),
+                "The fixer must never add a duplicate Teleport call.");
+        }
+
+        [Test]
+        public void TeleportListenerFixer_LeavesObjectOnlyListenersWithoutAPlayer()
+        {
+            if (SceneHasTeleportWiring())
+                Assert.Ignore("The open scene already contains teleport wiring — this test needs a clean slate.");
+
+            var playerRoot = Spawn("Player");
+            var listenerGo = Spawn("ObjectListener");
+            listenerGo.SetActive(false);
+            var listener = listenerGo.AddComponent<TeleportOnEvent>();
+            SetSerialized(listener, "_channel", NewAsset<TeleportEventChannelSO>());
+            SetSerializedBool(listener, "teleportsPlayer", false);
+
+            Assert.That(TeleportListenerFixer.Wire(listener, playerRoot), Is.True);
+            Assert.That(GetSerialized(listener, "player"), Is.Null,
+                "An object-only listener must not receive the player — that field is meaningless for it.");
+            Assert.That(ProjectSetupChecks.CheckTeleportWiring().Severity, Is.EqualTo(SetupValidator.Severity.Pass));
+        }
+
+        [Test]
+        public void PoseDriverCheck_CountsTheTwoFistSlots()
+        {
+            var player = Spawn("Player");
+            player.AddComponent<BroadcastControlsStatus>();
+            var driver = player.AddComponent<ControllerHandPoseDriver>();
+
+            Assert.That(HandSetupChecks.CheckPoseDriver(player).Severity, Is.EqualTo(SetupValidator.Severity.Fail),
+                "A driver with no fist pose must FAIL — the fingers never close.");
+
+            SetSerialized(driver, "closedFistPose", NewAsset<Pose>());
+            var oneSlot = HandSetupChecks.CheckPoseDriver(player);
+            Assert.That(oneSlot.Severity, Is.EqualTo(SetupValidator.Severity.Warning));
+            Assert.That(oneSlot.Message, Does.Contain("1 of 2 fist poses empty"),
+                "The check must count the driver's two real fist slots, not a slot that no longer exists.");
+
+            SetSerialized(driver, "semiClosedFistPose", NewAsset<Pose>());
+            Assert.That(HandSetupChecks.CheckPoseDriver(player).Severity, Is.EqualTo(SetupValidator.Severity.Pass),
+                "Both fist slots assigned must pass — a permanent warning on a correct setup trains people to ignore the validator.");
+        }
+
+        [Test]
+        public void HandPoseDriverFixer_RestoresPrefabPosesOnEmptyOverrides()
+        {
+            const string folder = "Assets/UniversalPlayerFixerTestsTmp";
+            if (AssetDatabase.IsValidFolder(folder)) AssetDatabase.DeleteAsset(folder);
+            AssetDatabase.CreateFolder("Assets", "UniversalPlayerFixerTestsTmp");
+            try
+            {
+                var closed = ScriptableObject.CreateInstance<Pose>();
+                AssetDatabase.CreateAsset(closed, folder + "/Closed.asset");
+                var semi = ScriptableObject.CreateInstance<Pose>();
+                AssetDatabase.CreateAsset(semi, folder + "/Semi.asset");
+
+                var source = Spawn("DriverSource");
+                var sourceDriver = source.AddComponent<ControllerHandPoseDriver>();
+                SetSerialized(sourceDriver, "closedFistPose", closed);
+                SetSerialized(sourceDriver, "semiClosedFistPose", semi);
+                var prefab = PrefabUtility.SaveAsPrefabAsset(source, folder + "/Driver.prefab");
+
+                var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+                _spawned.Add(instance);
+                var driver = instance.GetComponent<ControllerHandPoseDriver>();
+                SetSerialized(driver, "closedFistPose", null);
+                SetSerialized(driver, "semiClosedFistPose", null);
+                Assert.That(GetSerialized(driver, "closedFistPose"), Is.Null, "Precondition: the instance overrides the slot to None.");
+
+                Assert.That(HandPoseDriverFixer.RestorePrefabPoses(driver), Is.EqualTo(2),
+                    "Both empty overrides must be reverted to the prefab poses.");
+                Assert.That(GetSerialized(driver, "closedFistPose"), Is.EqualTo(closed));
+                Assert.That(GetSerialized(driver, "semiClosedFistPose"), Is.EqualTo(semi));
+                Assert.That(HandSetupChecks.CheckPoseDriver(instance).Severity, Is.EqualTo(SetupValidator.Severity.Pass));
+
+                Assert.That(HandPoseDriverFixer.RestorePrefabPoses(driver), Is.EqualTo(0),
+                    "A second run must change nothing.");
+            }
+            finally
+            {
+                AssetDatabase.DeleteAsset(folder);
+            }
+        }
+
+        [Test]
+        public void HandPoseDriverFixer_DoesNothingWhenThePrefabHasNoPoseEither()
+        {
+            const string folder = "Assets/UniversalPlayerFixerTestsTmp";
+            if (AssetDatabase.IsValidFolder(folder)) AssetDatabase.DeleteAsset(folder);
+            AssetDatabase.CreateFolder("Assets", "UniversalPlayerFixerTestsTmp");
+            try
+            {
+                var source = Spawn("DriverSource");
+                source.AddComponent<ControllerHandPoseDriver>();
+                var prefab = PrefabUtility.SaveAsPrefabAsset(source, folder + "/Driver.prefab");
+                var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+                _spawned.Add(instance);
+
+                Assert.That(HandPoseDriverFixer.RestorePrefabPoses(instance.GetComponent<ControllerHandPoseDriver>()), Is.EqualTo(0),
+                    "Nothing to restore when the prefab itself has empty slots — that case needs authored poses (ping only).");
+            }
+            finally
+            {
+                AssetDatabase.DeleteAsset(folder);
+            }
         }
     }
 }

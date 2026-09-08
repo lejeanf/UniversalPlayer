@@ -276,17 +276,29 @@ namespace jeanf.universalplayer
             if (listeners.Length == 0)
                 return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
                     "No TeleportOnEvent in the scene — SendTeleportTarget events go nowhere (nothing teleports).",
-                    "Add a TeleportOnEvent (usually on the Player variant), listening on your TeleportEventChannel, " +
-                    "with OnEventRaised wired to its Teleport method.");
+                    "Add a TeleportOnEvent listening on your TeleportEventChannel, with OnEventRaised wired to its " +
+                    "Teleport method; keep 'Teleports Player' on (Player assigned) for player teleports, off for " +
+                    "object-only listeners.");
 
             var receivedChannels = new HashSet<Object>();
+            var playerChannels = new HashSet<Object>();
             var broken = new List<string>();
             foreach (var listener in listeners)
             {
                 var so = new SerializedObject(listener);
                 var channel = so.FindProperty("_channel")?.objectReferenceValue;
+                var teleportsPlayer = so.FindProperty("teleportsPlayer")?.boolValue ?? true;
+                var player = so.FindProperty("player")?.objectReferenceValue;
+
                 if (channel == null) broken.Add($"'{listener.name}' has no 'Receiving on channel' asset");
-                else receivedChannels.Add(channel);
+                else
+                {
+                    receivedChannels.Add(channel);
+                    if (teleportsPlayer) playerChannels.Add(channel);
+                }
+
+                if (teleportsPlayer && player == null)
+                    broken.Add($"'{listener.name}' teleports the player but its Player field is empty");
 
                 if (!PersistentCallsReach(so.FindProperty("OnEventRaised"), nameof(TeleportOnEvent.Teleport)))
                     broken.Add($"'{listener.name}': OnEventRaised is not wired to TeleportOnEvent.Teleport");
@@ -295,33 +307,48 @@ namespace jeanf.universalplayer
             var unreceived = new List<string>();
             foreach (var target in targets)
             {
-                var channel = new SerializedObject(target).FindProperty("_teleportChannel")?.objectReferenceValue;
+                var so = new SerializedObject(target);
+                var channel = so.FindProperty("_teleportChannel")?.objectReferenceValue;
+                var isPlayerTeleport = so.FindProperty("isTeleportPlayer")?.boolValue ?? false;
                 if (channel == null) unreceived.Add($"'{target.name}' broadcasts on NO channel");
                 else if (!receivedChannels.Contains(channel))
                     unreceived.Add($"'{target.name}' broadcasts on '{channel.name}', which no listener here receives");
+                else if (isPlayerTeleport && !playerChannels.Contains(channel))
+                    unreceived.Add($"'{target.name}' is a PLAYER teleport but every listener on '{channel.name}' is " +
+                                   "object-only ('Teleports Player' off)");
             }
 
             if (broken.Count > 0)
                 return new SetupValidator.CheckResult(check, SetupValidator.Severity.Fail,
                     $"TeleportOnEvent misconfigured: {string.Join("; ", broken)} — every teleport on that listener is dropped.",
-                    "On the TeleportOnEvent (Player variant): set 'Receiving on channel' to the TeleportEventChannel your " +
-                    "targets broadcast on, and add TeleportOnEvent.Teleport to its OnEventRaised (dynamic parameter).");
+                    "On each TeleportOnEvent: set 'Receiving on channel' to the TeleportEventChannel your targets " +
+                    "broadcast on, assign the Player when 'Teleports Player' is on (turn it off for object-only " +
+                    "listeners), and add TeleportOnEvent.Teleport to OnEventRaised (dynamic parameter). The Fix " +
+                    "button wires Teleport and the scene player; the channel is yours to pick.");
 
             if (unreceived.Count > 0)
                 return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
-                    $"SendTeleportTarget(s) nobody in the loaded scenes listens to: {string.Join("; ", unreceived)} — " +
+                    $"SendTeleportTarget(s) nobody in the loaded scenes handles: {string.Join("; ", unreceived)} — " +
                     "those teleports do nothing (the runtime warns 'NO TeleportOnEvent accepted it'). Ignore if the " +
                     "matching listener lives in a scene that is only loaded at runtime.",
                     $"Point those targets at the channel the listener receives ({string.Join(", ", receivedChannels.Select(c => $"'{c.name}'"))}), " +
-                    "or add a TeleportOnEvent for their channel. Still nothing moving? Check the listener's filters.");
+                    "add a TeleportOnEvent for their channel, or turn 'Teleports Player' on for the listener that " +
+                    "must move the player. Still nothing moving? Check the listener's filters.");
 
             return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
-                $"{listeners.Length} TeleportOnEvent(s) wired on {receivedChannels.Count} channel(s); " +
-                $"all {targets.Length} SendTeleportTarget(s) in the loaded scenes are received.");
+                $"{listeners.Length} TeleportOnEvent(s) wired on {receivedChannels.Count} channel(s) " +
+                $"({playerChannels.Count} accepting player teleports); all {targets.Length} SendTeleportTarget(s) " +
+                "in the loaded scenes are handled.");
+        }
+
+        public static GameObject ScenePlayerRoot()
+        {
+            var broadcaster = Object.FindAnyObjectByType<BroadcastControlsStatus>(FindObjectsInactive.Include);
+            return broadcaster != null ? broadcaster.transform.root.gameObject : null;
         }
 
         // True when at least one persistent UnityEvent call targets the named method.
-        private static bool PersistentCallsReach(SerializedProperty unityEvent, string methodName)
+        public static bool PersistentCallsReach(SerializedProperty unityEvent, string methodName)
         {
             var calls = unityEvent?.FindPropertyRelative("m_PersistentCalls.m_Calls");
             if (calls == null) return false;

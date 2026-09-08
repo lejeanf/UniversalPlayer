@@ -186,7 +186,7 @@ MonoBehaviour:
   handAttachMode: 0
   heldLocalPosition: {x: 0, y: 0, z: 0.5}
   heldLocalEuler: {x: 270, y: 90, z: 270}
-  handPose: {fileID: 11400000, guid: b84b038a474ffc84c9e9ff1e6cc22a5a, type: 2}
+  handPose: {fileID: 11400000, guid: e3c922ce8fb389d42a74d35934a7a700, type: 2}
   releaseTarget: 1
   releaseWorldPosition: {x: 0, y: 0, z: 0}
   releaseWorldEuler: {x: 0, y: 0, z: 0}
