@@ -41,14 +41,25 @@ namespace jeanf.universalplayer
         [Tooltip("Seconds between reconciles of the XR display and the session keeper against the current mode (the display can start on its own after a Link handshake).")]
         [SerializeField] private float reconcileIntervalSeconds = 0.5f;
 
+        public enum DesktopFlatView
+        {
+            OffscreenPresenter,
+            CameraDirect
+        }
+
+        [Tooltip("How the flat desktop picture reaches the window while the XR display keeps running. Offscreen Presenter: the player camera renders into a window-sized texture shown through a screen-space overlay (a camera with a target texture is never treated as an XR eye — fixes the stretched picture with a strip of the other eye). Camera Direct: the camera renders straight to the screen (correct only when the engine gives a non-XR camera the window viewport).")]
+        [SerializeField] private DesktopFlatView desktopFlatView = DesktopFlatView.OffscreenPresenter;
+
         private bool ShouldManageDisplay =>
             stopXrDisplayOnDesktop == DisplayStopMode.Always
             || (stopXrDisplayOnDesktop == DisplayStopMode.EditorOnly && Application.isEditor);
 
         private bool _wantXr;
+        private bool _hasApplied;
         private float _nextReconcile;
         private Camera _resolvedCamera;
         private Camera _sessionKeeper;
+        private FlatViewPresenter _presenter;
         private bool _hasAppliedCameraState;
         private bool _lastAppliedXr;
         private float _capturedDesktopFov = -1f;
@@ -64,6 +75,7 @@ namespace jeanf.universalplayer
         {
             BroadcastControlsStatus.SendControlScheme -= OnControlSchemeChanged;
             if (_sessionKeeper != null) _sessionKeeper.enabled = false;
+            if (_presenter != null) _presenter.End();
         }
 
         private void Update()
@@ -73,6 +85,32 @@ namespace jeanf.universalplayer
             _nextReconcile = Time.unscaledTime + reconcileIntervalSeconds;
             if (ShouldManageDisplay) SetDisplayRunning(_wantXr);
             ReconcileSessionKeeper();
+            ReconcileFlatView();
+        }
+
+        private void ReconcileFlatView()
+        {
+            var wantPresenter = desktopFlatView == DesktopFlatView.OffscreenPresenter && manageCameraXrRendering
+                                && !_wantXr && XrDisplayLifecycle.IsDisplayRunning;
+            if (!wantPresenter)
+            {
+                if (_presenter != null && _presenter.IsPresenting)
+                {
+                    _presenter.End();
+                    if (_isDebug) Debug.Log($"{XrStartupDiagnostics.LogPrefix} XrModeManager: flat view presenter off.");
+                }
+                return;
+            }
+
+            var cam = ResolveCamera();
+            if (cam == null) return;
+            if (_presenter == null) _presenter = gameObject.AddComponent<FlatViewPresenter>();
+            if (!_presenter.IsPresenting)
+            {
+                _presenter.Begin(cam);
+                if (_isDebug) Debug.Log($"{XrStartupDiagnostics.LogPrefix} XrModeManager: flat view presenter on ({FlatViewPresenter.WindowSize.x}x{FlatViewPresenter.WindowSize.y}) — the XR display is running.");
+            }
+            else _presenter.ResizeToWindowIfNeeded();
         }
 
         private void OnControlSchemeChanged(BroadcastControlsStatus.ControlScheme scheme) => Apply(scheme);
@@ -80,13 +118,16 @@ namespace jeanf.universalplayer
         private void Apply(BroadcastControlsStatus.ControlScheme scheme)
         {
             var wantXr = scheme == BroadcastControlsStatus.ControlScheme.XR;
-            if (_isDebug && wantXr && !_wantXr)
+            var enteringXr = wantXr && (!_hasApplied || !_wantXr);
+            if (_isDebug && enteringXr)
                 Debug.Log($"{XrStartupDiagnostics.LogPrefix} XrModeManager: VR entry — display {(XrDisplayLifecycle.IsDisplayRunning ? "running" : "idle")}, session focused={XrDisplayLifecycle.SessionFocused}.");
             _wantXr = wantXr;
+            _hasApplied = true;
 
             ApplyCameraXrRendering();
             if (ShouldManageDisplay) SetDisplayRunning(_wantXr);
             ReconcileSessionKeeper();
+            ReconcileFlatView();
         }
 
         private void ApplyCameraXrRendering()

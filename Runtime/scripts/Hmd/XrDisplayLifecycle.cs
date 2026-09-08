@@ -39,6 +39,15 @@ namespace jeanf.universalplayer
             }
         }
 
+        public static int PreferredMirrorBlitMode
+        {
+            get
+            {
+                var display = FirstDisplay;
+                return display != null ? display.GetPreferredMirrorBlitMode() : -1;
+            }
+        }
+
         public static bool SessionFocused
         {
             get
