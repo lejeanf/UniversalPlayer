@@ -1043,6 +1043,7 @@ MonoBehaviour:
   keepXrSessionAlive: 1
   desktopFieldOfView: 60
   reconcileIntervalSeconds: 0.5
+  desktopFlatView: 0
 --- !u!1 &1690929735065042907
 GameObject:
   m_ObjectHideFlags: 0
@@ -2975,6 +2976,7 @@ GameObject:
   - component: {fileID: 6344584817133711814}
   - component: {fileID: 4530535229687505303}
   - component: {fileID: 4237935497616239835}
+  - component: {fileID: 9178218749632192174}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -3053,6 +3055,28 @@ MonoBehaviour:
   m_VerticalAxis: Vertical
   m_SubmitButton: Submit
   m_CancelButton: Cancel
+--- !u!114 &9178218749632192174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4568312785888129817}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19106, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.PanelInputConfiguration
+  m_Settings:
+    m_ProcessWorldSpaceInput: 0
+    m_InteractionLayers:
+      serializedVersion: 2
+      m_Bits: 2147491835
+    m_MaxInteractionDistance: Infinity
+    m_DefaultEventCameraIsMainCamera: 1
+    m_EventCameras: []
+    m_PanelInputRedirection: 0
+    m_AutoCreatePanelComponents: 1
 --- !u!1 &4783494460795793670
 GameObject:
   m_ObjectHideFlags: 0
@@ -3209,7 +3233,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isDebug: 0
-  defaultPose: {fileID: 11400000, guid: 547a2e0e82cf3084786548d39808494f, type: 2}
   pointingPose: {fileID: 11400000, guid: ea306bf6523757048950f570597df0a7, type: 2}
   handPoseEventChannelSO: {fileID: 11400000, guid: 4d2497ed035a70443a2a34543417a09e, type: 2}
 --- !u!114 &4611318557962606574
@@ -5230,7 +5253,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isDebug: 1
-  defaultPose: {fileID: 11400000, guid: 547a2e0e82cf3084786548d39808494f, type: 2}
   pointingPose: {fileID: 11400000, guid: ea306bf6523757048950f570597df0a7, type: 2}
   handPoseEventChannelSO: {fileID: 11400000, guid: f81ac86b022e53543a64380062a12cd1, type: 2}
 --- !u!114 &3541544794934192887
@@ -7198,6 +7220,8 @@ MonoBehaviour:
   _isDebug: 0
   lowBatteryThreshold: 0.2
   batteryCheckInterval: 30
+  lateSessionStartSeconds: 6
+  initFailureGraceSeconds: 2
 --- !u!1 &9009743670351242853
 GameObject:
   m_ObjectHideFlags: 0
@@ -7501,12 +7525,8 @@ PrefabInstance:
     m_TransformParent: {fileID: 2805212139640213861}
     m_Modifications:
     - target: {fileID: 1255647619390271626, guid: 3df3e1220f2164f448701a6de8084f92, type: 3}
-      propertyPath: m_CastOrigin
-      value: 
-      objectReference: {fileID: 1746892242447235244}
-    - target: {fileID: 1255647619390271626, guid: 3df3e1220f2164f448701a6de8084f92, type: 3}
       propertyPath: m_RaycastMask.m_Bits
-      value: 2147483681
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 1722882099693224055, guid: 3df3e1220f2164f448701a6de8084f92, type: 3}
       propertyPath: m_TransformToFollow
@@ -7518,7 +7538,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2442306273320644280, guid: 3df3e1220f2164f448701a6de8084f92, type: 3}
       propertyPath: m_InteractionLayers.m_Bits
-      value: 73
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 2442306273320644280, guid: 3df3e1220f2164f448701a6de8084f92, type: 3}
       propertyPath: m_UIScrollInput.m_InputActionReference
@@ -7531,7 +7551,7 @@ PrefabInstance:
     - target: {fileID: 2442306273320644280, guid: 3df3e1220f2164f448701a6de8084f92, type: 3}
       propertyPath: m_UIPressInput.m_InputActionReferenceValue
       value: 
-      objectReference: {fileID: -703207714648265865, guid: 110d9016d6486d84697b9d7a66a57d45, type: 3}
+      objectReference: {fileID: -4614791170101098914, guid: 110d9016d6486d84697b9d7a66a57d45, type: 3}
     - target: {fileID: 2442306273320644280, guid: 3df3e1220f2164f448701a6de8084f92, type: 3}
       propertyPath: m_ActivateInput.m_InputActionReferenceValue
       value: 
@@ -7543,7 +7563,7 @@ PrefabInstance:
     - target: {fileID: 2442306273320644280, guid: 3df3e1220f2164f448701a6de8084f92, type: 3}
       propertyPath: m_UIPressInput.m_InputActionReferencePerformed
       value: 
-      objectReference: {fileID: -703207714648265865, guid: 110d9016d6486d84697b9d7a66a57d45, type: 3}
+      objectReference: {fileID: -4309220014851016331, guid: 110d9016d6486d84697b9d7a66a57d45, type: 3}
     - target: {fileID: 2442306273320644280, guid: 3df3e1220f2164f448701a6de8084f92, type: 3}
       propertyPath: m_ActivateInput.m_InputActionReferencePerformed
       value: 
@@ -7934,7 +7954,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4808866746549998793, guid: b200f6587d118224eba8467281481800, type: 3}
       propertyPath: m_InteractionLayers.m_Bits
-      value: 73
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 4808866746549998793, guid: b200f6587d118224eba8467281481800, type: 3}
       propertyPath: m_UIScrollInput.m_InputActionReference
@@ -7947,7 +7967,7 @@ PrefabInstance:
     - target: {fileID: 4808866746549998793, guid: b200f6587d118224eba8467281481800, type: 3}
       propertyPath: m_UIPressInput.m_InputActionReferenceValue
       value: 
-      objectReference: {fileID: -703207714648265865, guid: 110d9016d6486d84697b9d7a66a57d45, type: 3}
+      objectReference: {fileID: -6219204918612876752, guid: 110d9016d6486d84697b9d7a66a57d45, type: 3}
     - target: {fileID: 4808866746549998793, guid: b200f6587d118224eba8467281481800, type: 3}
       propertyPath: m_ActivateInput.m_InputActionReferenceValue
       value: 
@@ -7959,7 +7979,7 @@ PrefabInstance:
     - target: {fileID: 4808866746549998793, guid: b200f6587d118224eba8467281481800, type: 3}
       propertyPath: m_UIPressInput.m_InputActionReferencePerformed
       value: 
-      objectReference: {fileID: -703207714648265865, guid: 110d9016d6486d84697b9d7a66a57d45, type: 3}
+      objectReference: {fileID: 6906102971949590311, guid: 110d9016d6486d84697b9d7a66a57d45, type: 3}
     - target: {fileID: 4808866746549998793, guid: b200f6587d118224eba8467281481800, type: 3}
       propertyPath: m_ActivateInput.m_InputActionReferencePerformed
       value: 
@@ -8022,7 +8042,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8229381180640938747, guid: b200f6587d118224eba8467281481800, type: 3}
       propertyPath: m_RaycastMask.m_Bits
-      value: 2147483745
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 8408429868716997126, guid: b200f6587d118224eba8467281481800, type: 3}
       propertyPath: m_TransformToFollow
