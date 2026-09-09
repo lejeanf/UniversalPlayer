@@ -4,6 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
+using UnityEngine.XR.Interaction.Toolkit.UI;
 
 namespace jeanf.universalplayer
 {
@@ -18,14 +19,18 @@ namespace jeanf.universalplayer
     {
         private const string PlayerAsmdefSuffix = "Runtime/scripts/jeanf.universalplayer.asmdef";
 
-        /// <summary>"Assets/UniversalPlayer" (package development) or "Packages/fr.jeanf.universal.player" (consumers).</summary>
+        private const string FixLogPrefix = "[UniversalPlayer.Fix]";
+        private static string s_PackageRoot;
+
         public static string PackageRoot()
         {
+            if (s_PackageRoot != null) return s_PackageRoot;
             foreach (var guid in AssetDatabase.FindAssets("jeanf.universalplayer t:AssemblyDefinitionAsset"))
             {
                 var path = AssetDatabase.GUIDToAssetPath(guid);
                 if (!path.EndsWith(PlayerAsmdefSuffix)) continue;
-                return path.Substring(0, path.Length - PlayerAsmdefSuffix.Length).TrimEnd('/');
+                s_PackageRoot = path.Substring(0, path.Length - PlayerAsmdefSuffix.Length).TrimEnd('/');
+                return s_PackageRoot;
             }
             return null;
         }
@@ -79,12 +84,34 @@ namespace jeanf.universalplayer
 
         internal static List<GameObject> FindPlayerVariants(GameObject playerPrefab, string packageRoot)
         {
-            return AssetDatabase.FindAssets("t:Prefab", new[] { "Assets" })
+            var projectPrefabPaths = AssetDatabase.FindAssets("t:Prefab", new[] { "Assets" })
                 .Select(AssetDatabase.GUIDToAssetPath)
                 .Where(path => !path.StartsWith(packageRoot + "/"))
+                .ToList();
+
+            return PrefabPathsDependingOn(AssetDatabase.GetAssetPath(playerPrefab), projectPrefabPaths)
                 .Select(AssetDatabase.LoadAssetAtPath<GameObject>)
                 .Where(go => go != null && PrefabUtility.GetCorrespondingObjectFromOriginalSource(go) == playerPrefab)
                 .ToList();
+        }
+
+        private static List<string> PrefabPathsDependingOn(string rootPrefabPath, List<string> prefabPaths)
+        {
+            var directDependencies = prefabPaths.ToDictionary(path => path, path => AssetDatabase.GetDependencies(path, false));
+            var dependingOnRoot = new HashSet<string> { rootPrefabPath };
+            bool grew;
+            do
+            {
+                grew = false;
+                foreach (var pair in directDependencies)
+                {
+                    if (dependingOnRoot.Contains(pair.Key) || !pair.Value.Any(dependingOnRoot.Contains)) continue;
+                    dependingOnRoot.Add(pair.Key);
+                    grew = true;
+                }
+            } while (grew);
+
+            return prefabPaths.Where(dependingOnRoot.Contains).ToList();
         }
 
         /// <summary>
@@ -449,9 +476,25 @@ namespace jeanf.universalplayer
                 $"All {total} action(s) of '{asset.name}' have their ActionSO under Resources/Player/Actions.");
         }
 
-        // A PickableObject without a Rigidbody still grabs, but its physics cannot be
-        // suspended while held or restored on release — the runtime warns once per object,
-        // in play mode, with the headset on.
+        public static PickableObject[] PickablesWithoutRigidbody() =>
+            Object.FindObjectsByType<PickableObject>(FindObjectsInactive.Include)
+                .Where(pickable => pickable.GetComponent<Rigidbody>() == null)
+                .ToArray();
+
+        [MenuItem("Tools/Jeanf/UniversalPlayer/Add Missing Pickable Rigidbodies")]
+        public static void AddMissingPickableRigidbodies()
+        {
+            var pickables = PickablesWithoutRigidbody();
+            foreach (var pickable in pickables)
+            {
+                var rigidbody = Undo.AddComponent<Rigidbody>(pickable.gameObject);
+                rigidbody.isKinematic = true;
+                LocalPrefabOverrides.ApplyAddedComponent(rigidbody);
+            }
+            Debug.Log($"{FixLogPrefix} Added a kinematic Rigidbody to {pickables.Length} pickable(s): " +
+                      $"{string.Join(", ", pickables.Select(pickable => pickable.name))}. Untick Is Kinematic on the ones that should fall when released.");
+        }
+
         public static SetupValidator.CheckResult CheckPickableRigidbodies()
         {
             const string check = "Scene: pickable rigidbodies";
@@ -459,15 +502,16 @@ namespace jeanf.universalplayer
             if (pickables.Length == 0)
                 return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass, "No PickableObject in the scene.");
 
-            var missing = pickables.Where(p => p.GetComponent<Rigidbody>() == null).Select(p => $"'{p.name}'").ToArray();
+            var missing = pickables.Where(p => p.GetComponent<Rigidbody>() == null).ToArray();
             if (missing.Length == 0)
                 return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
                     $"All {pickables.Length} pickable(s) have a Rigidbody.");
 
             return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
-                $"PickableObject without a Rigidbody: {string.Join(", ", missing)} — they can be picked up, but their " +
+                $"PickableObject without a Rigidbody: {string.Join(", ", missing.Select(p => $"'{p.name}'"))} — they can be picked up, but their " +
                 "physics cannot be suspended while held or restored on release.",
-                "Add a Rigidbody to each (tick Is Kinematic if the object must not fall when placed).");
+                "Press Fix to add a kinematic Rigidbody to each (untick Is Kinematic on objects that should fall when released).",
+                missing.Select(pickable => (Object)pickable.gameObject).ToArray());
         }
 
         // Scenario-driven seating: scenarios raise a Seat's GameObject on the
@@ -994,28 +1038,47 @@ namespace jeanf.universalplayer
                 $"Player instance comes from '{sourcePath}'.");
         }
 
-        private static SetupValidator.CheckResult CheckWorldSpaceCanvases()
-        {
-            var interactiveCanvases = Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include)
+        private static Canvas[] InteractiveWorldSpaceCanvases() =>
+            Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include)
                 .Where(canvas => canvas.renderMode == RenderMode.WorldSpace && HasInteractiveUi(canvas))
                 .ToArray();
+
+        public static Canvas[] InteractiveWorldSpaceCanvasesWithoutTrackedRaycaster() =>
+            InteractiveWorldSpaceCanvases()
+                .Where(canvas => canvas.GetComponent<TrackedDeviceGraphicRaycaster>() == null)
+                .ToArray();
+
+        [MenuItem("Tools/Jeanf/UniversalPlayer/Add Tracked Device Raycasters")]
+        public static void AddTrackedDeviceGraphicRaycasters()
+        {
+            var canvases = InteractiveWorldSpaceCanvasesWithoutTrackedRaycaster();
+            foreach (var canvas in canvases)
+                LocalPrefabOverrides.ApplyAddedComponent(Undo.AddComponent<TrackedDeviceGraphicRaycaster>(canvas.gameObject));
+            Debug.Log($"{FixLogPrefix} Added a TrackedDeviceGraphicRaycaster to {canvases.Length} canvas(es): " +
+                      $"{string.Join(", ", canvases.Select(canvas => canvas.name))}.");
+        }
+
+        private static SetupValidator.CheckResult CheckWorldSpaceCanvases()
+        {
+            const string check = "Scene: XR-clickable UI";
+            var interactiveCanvases = InteractiveWorldSpaceCanvases();
             if (interactiveCanvases.Length == 0)
-                return new SetupValidator.CheckResult("Scene: XR-clickable UI", SetupValidator.Severity.Pass,
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
                     "No interactive world-space canvases in the scene (display-only ones need no raycaster).");
 
             var notClickable = interactiveCanvases
-                .Where(canvas => canvas.GetComponent("TrackedDeviceGraphicRaycaster") == null)
-                .Select(canvas => canvas.name)
+                .Where(canvas => canvas.GetComponent<TrackedDeviceGraphicRaycaster>() == null)
                 .ToArray();
 
             if (notClickable.Length == 0)
-                return new SetupValidator.CheckResult("Scene: XR-clickable UI", SetupValidator.Severity.Pass,
+                return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
                     $"All {interactiveCanvases.Length} interactive world-space canvas(es) have a TrackedDeviceGraphicRaycaster.");
 
-            return new SetupValidator.CheckResult("Scene: XR-clickable UI", SetupValidator.Severity.Warning,
-                $"Interactive world-space canvas(es) without TrackedDeviceGraphicRaycaster: {string.Join(", ", notClickable)} — " +
+            return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
+                $"Interactive world-space canvas(es) without TrackedDeviceGraphicRaycaster: {string.Join(", ", notClickable.Select(canvas => canvas.name))} — " +
                 "the VR finger ray cannot click them (mouse still can).",
-                "Add a TrackedDeviceGraphicRaycaster component to each canvas meant to be used in VR.");
+                "Press Fix to add a TrackedDeviceGraphicRaycaster to each canvas (the mouse keeps working through the existing GraphicRaycaster).",
+                notClickable.Select(canvas => (Object)canvas.gameObject).ToArray());
         }
 
         // Display-only canvases (tooltips, labels, HUDs) legitimately have no

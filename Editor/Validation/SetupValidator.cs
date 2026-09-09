@@ -31,13 +31,16 @@ namespace jeanf.universalplayer
             public readonly Severity Severity;
             public readonly string Message;
             public readonly string Hint;
+            public readonly UnityEngine.Object[] Targets;
 
-            public CheckResult(string name, Severity severity, string message, string hint = "")
+            public CheckResult(string name, Severity severity, string message, string hint = "",
+                UnityEngine.Object[] targets = null)
             {
                 Name = name;
                 Severity = severity;
                 Message = message;
                 Hint = hint;
+                Targets = targets ?? Array.Empty<UnityEngine.Object>();
             }
         }
 

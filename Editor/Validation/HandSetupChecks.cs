@@ -389,15 +389,57 @@ namespace jeanf.universalplayer
 
             var mask = new SerializedObject(ray).FindProperty("physicsHoverMask");
             if (mask != null && mask.intValue == 0)
+            {
+                var reticleMask = ReticleHoverMask(playerRoot);
                 return new SetupValidator.CheckResult("Scene: finger pointing ray", SetupValidator.Severity.Warning,
                     $"FingerPointingRay on '{ray.gameObject.name}' has Physics Hover Mask = Nothing — the ray only shows " +
                     "on XRI interactables, seats, pickables and tooltips, never on your project's own raycast targets.",
-                    "Set the same layers as your desktop reticle / click handler on the Player VARIANT " +
-                    "(leave it empty only if the project has no custom interactable layer).");
+                    reticleMask != 0
+                        ? "Press Fix to copy the desktop reticle's Physics Hover Mask onto the ray (applied to your Player VARIANT)."
+                        : "Set the same layers as your desktop reticle / click handler on the Player VARIANT " +
+                          "(leave it empty only if the project has no custom interactable layer).",
+                    new Object[] { ray });
+            }
 
             return new SetupValidator.CheckResult("Scene: finger pointing ray", SetupValidator.Severity.Pass,
                 "FingerPointingRay is paired with the pose driver and has its hover layers set.");
         }
+
+        private static int ReticleHoverMask(GameObject playerRoot)
+        {
+            var reticle = playerRoot != null ? playerRoot.GetComponentInChildren<ReticleHoverFeedback>(true) : null;
+            var mask = reticle != null ? new SerializedObject(reticle).FindProperty("physicsHoverMask") : null;
+            return mask?.intValue ?? 0;
+        }
+
+        [MenuItem("Tools/Jeanf/UniversalPlayer/Copy Reticle Hover Mask To Pointing Ray")]
+        public static void CopyReticleHoverMaskToSceneRay() => CopyReticleHoverMaskToPointingRay(ProjectSetupChecks.ScenePlayerRoot());
+
+        public static bool CopyReticleHoverMaskToPointingRay(GameObject playerRoot)
+        {
+            var ray = playerRoot != null ? playerRoot.GetComponentInChildren<FingerPointingRay>(true) : null;
+            var reticleMask = ReticleHoverMask(playerRoot);
+            if (ray == null || reticleMask == 0)
+            {
+                if (ray != null)
+                {
+                    Selection.activeObject = ray;
+                    EditorGUIUtility.PingObject(ray);
+                }
+                Debug.LogWarning($"{FixLogPrefix} No desktop reticle hover mask to copy — set Physics Hover Mask on the " +
+                                 "FingerPointingRay of your Player variant by hand.");
+                return false;
+            }
+
+            var rayObject = new SerializedObject(ray);
+            rayObject.FindProperty("physicsHoverMask").intValue = reticleMask;
+            rayObject.ApplyModifiedProperties();
+            LocalPrefabOverrides.ApplyPropertyOverride(ray, "physicsHoverMask");
+            Debug.Log($"{FixLogPrefix} FingerPointingRay on '{ray.gameObject.name}' now hovers the same layers as the desktop reticle.");
+            return true;
+        }
+
+        private const string FixLogPrefix = "[UniversalPlayer.Fix]";
 
         // 9. A skinned hand's MeshCollider is frozen in bind pose, so BlendableHand swaps it
         // for one box per phalanx at runtime — but only if the rig's bones are named like the

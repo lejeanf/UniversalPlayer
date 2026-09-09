@@ -7,43 +7,59 @@ using UnityEngine;
 
 namespace jeanf.universalplayer
 {
-    /// <summary>
-    /// Registers every Universal Player setup check as a rule of Unity's Project
-    /// Validation window (Project Settings > XR Plug-in Management > Project
-    /// Validation) under the "Universal Player" category. Same checks as
-    /// Tools/Jeanf/UniversalPlayer/ValidateSetup — the console validator stays the source
-    /// of truth; this file only wraps its checks in BuildValidationRules so each
-    /// issue gets a status icon and a Fix/Edit button next to the XR/XRI rules.
-    /// </summary>
     public static class UniversalPlayerProjectValidation
     {
         private const string Category = "Universal Player";
-
-        // Batch checks (assets: FindAssets over every prefab; scene: FindObjectsByType
-        // sweeps) are far too heavy to re-run once per rule per window refresh, so one
-        // batch run is shared by all rules of a refresh through this short-lived cache.
-        private const double CacheSeconds = 1.0;
+        private const string DiffusionProfilesRuleName = "HDRP diffusion profiles";
+        private const double MinimumSecondsBetweenBatchRuns = 2.0;
 
         private static readonly BuildTargetGroup[] TargetGroups =
             { BuildTargetGroup.Standalone, BuildTargetGroup.Android };
+
+        private static bool s_AssetResultsStale = true;
+        private static bool s_SceneResultsStale = true;
+        private static bool s_PlayerRootStale = true;
+        private static double s_AssetRunTime = double.NegativeInfinity;
+        private static double s_SceneRunTime = double.NegativeInfinity;
+        private static Dictionary<string, SetupValidator.CheckResult> s_AssetResults = new Dictionary<string, SetupValidator.CheckResult>();
+        private static Dictionary<string, SetupValidator.CheckResult> s_SceneResults = new Dictionary<string, SetupValidator.CheckResult>();
+        private static GameObject s_PlayerRoot;
+        private static bool s_PlayerRootFound;
 
         [InitializeOnLoadMethod]
         private static void RegisterRules()
         {
             foreach (var group in TargetGroups)
                 BuildValidator.AddRules(group, BuildRules(group));
+
+            EditorApplication.hierarchyChanged += MarkSceneStale;
+            Undo.undoRedoPerformed += MarkSceneStale;
+            ObjectChangeEvents.changesPublished += MarkSceneStaleOnObjectChanges;
+            EditorApplication.projectChanged += MarkProjectStale;
+        }
+
+        private static void MarkSceneStale()
+        {
+            s_SceneResultsStale = true;
+            s_PlayerRootStale = true;
+        }
+
+        private static void MarkSceneStaleOnObjectChanges(ref ObjectChangeEventStream stream) => MarkSceneStale();
+
+        private static void MarkProjectStale()
+        {
+            s_AssetResultsStale = true;
+            MarkSceneStale();
         }
 
         [MenuItem("Tools/Jeanf/UniversalPlayer/Project Validation")]
         private static void OpenProjectValidation() =>
             SettingsService.OpenProjectSettings("Project/XR Plug-in Management/Project Validation");
 
-        /// <summary>All Universal Player rules for one build target tab. Public so tests can inspect them.</summary>
         public static List<BuildValidationRule> BuildRules(BuildTargetGroup group)
         {
             var rules = new List<BuildValidationRule>
             {
-                // --- project configuration ---------------------------------------
                 Rule("Input System", () => SetupValidator.CheckInputSystem(),
                     OpenSettings("Project/Player")),
                 Rule("Render pipeline", () => SetupValidator.CheckRenderPipeline(),
@@ -66,15 +82,14 @@ namespace jeanf.universalplayer
                     () => PlayerSettings.runInBackground = true,
                     fixItAutomatic: true),
 #if UNIVERSALPLAYER_HDRP
-                Rule("HDRP diffusion profiles", DiffusionProfileRegistration.RunCheck,
+                Rule(DiffusionProfilesRuleName, () => AssetResult(DiffusionProfilesRuleName),
                     DiffusionProfileRegistration.RegisterPackageProfiles,
                     fixItAutomatic: true),
 #else
-                Rule("HDRP diffusion profiles", DiffusionProfileRegistration.RunCheck,
+                Rule(DiffusionProfilesRuleName, () => AssetResult(DiffusionProfilesRuleName),
                     OpenSettings("Project/Graphics")),
 #endif
 
-                // --- project assets ----------------------------------------------
                 Rule("Player prefab variant", () => AssetResult("Player prefab variant"),
                     () => Ping(AssetDatabase.LoadAssetAtPath<GameObject>(ProjectSetupChecks.PlayerPrefabPath()))),
                 Rule("Variant overrides", () => AssetResult("Variant overrides"),
@@ -88,47 +103,21 @@ namespace jeanf.universalplayer
                     fixItAutomatic: true),
             };
 
-            // --- open scene ------------------------------------------------------
-            // The one scene rule with a safe automatic fix: generating the missing
-            // ActionSO assets is exactly what the component's own button does.
-            rules.Add(Rule("Scene: player action assets", () => SceneResult("Scene: player action assets"),
-                CreateMissingPlayerActionAssets,
-                fixItAutomatic: true,
-                isRuleEnabled: () => PlayerRoot() != null,
-                sceneOnly: true));
+            rules.Add(SceneRule("Scene: player action assets", CreateMissingPlayerActionAssets));
+            rules.Add(SceneRule("Scene: teleport listener", TeleportListenerFixer.WireSceneListeners));
+            rules.Add(SceneRule("Scene: hand pose driver", HandPoseDriverFixer.RestoreScenePrefabPoses));
+            rules.Add(SceneRule(InputActionAssetChecks.SceneCheck, InputActionAssetChecks.WireSceneInputActionAssets));
+            rules.Add(SceneRule(TrackedControllerChecks.SceneCheck, TrackedControllerChecks.RepairScene));
+            rules.Add(SceneRule("Scene: XR-clickable UI", ProjectSetupChecks.AddTrackedDeviceGraphicRaycasters));
+            rules.Add(SceneRule("Scene: pickable rigidbodies", ProjectSetupChecks.AddMissingPickableRigidbodies));
+            rules.Add(SceneRule("Scene: finger pointing ray", HandSetupChecks.CopyReticleHoverMaskToSceneRay));
 
-            rules.Add(Rule("Scene: teleport listener", () => SceneResult("Scene: teleport listener"),
-                TeleportListenerFixer.WireSceneListeners,
-                fixItAutomatic: true,
-                isRuleEnabled: () => PlayerRoot() != null,
-                sceneOnly: true));
-
-            rules.Add(Rule("Scene: hand pose driver", () => SceneResult("Scene: hand pose driver"),
-                HandPoseDriverFixer.RestoreScenePrefabPoses,
-                fixItAutomatic: true,
-                isRuleEnabled: () => PlayerRoot() != null,
-                sceneOnly: true));
-
-            rules.Add(Rule(InputActionAssetChecks.SceneCheck, () => SceneResult(InputActionAssetChecks.SceneCheck),
-                InputActionAssetChecks.WireSceneInputActionAssets,
-                fixItAutomatic: true,
-                isRuleEnabled: () => PlayerRoot() != null,
-                sceneOnly: true));
-
-            rules.Add(Rule(TrackedControllerChecks.SceneCheck, () => SceneResult(TrackedControllerChecks.SceneCheck),
-                TrackedControllerChecks.RepairScene,
-                fixItAutomatic: true,
-                isRuleEnabled: () => PlayerRoot() != null,
-                sceneOnly: true));
-
-            // One rule per named check of RunOpenSceneChecks/RunHandChecks; the Fix
-            // button pings the object to repair (these need judgment, never auto-fix).
             foreach (var (name, select) in SceneRuleTargets())
             {
                 var checkName = name;
                 var selectTarget = select;
                 rules.Add(Rule(checkName, () => SceneResult(checkName),
-                    () => Ping(selectTarget() ?? PlayerRoot()),
+                    () => SelectSceneResultTargets(checkName, selectTarget),
                     isRuleEnabled: () => PlayerRoot() != null,
                     sceneOnly: true));
             }
@@ -136,7 +125,12 @@ namespace jeanf.universalplayer
             return rules;
         }
 
-        // What the Fix button should select for each scene rule; null falls back to the player root.
+        private static BuildValidationRule SceneRule(string name, Action automaticFix) =>
+            Rule(name, () => SceneResult(name), automaticFix,
+                fixItAutomatic: true,
+                isRuleEnabled: () => PlayerRoot() != null,
+                sceneOnly: true);
+
         private static IEnumerable<(string name, Func<UnityEngine.Object> select)> SceneRuleTargets()
         {
             UnityEngine.Object First<T>() where T : Component =>
@@ -152,7 +146,6 @@ namespace jeanf.universalplayer
             yield return ("Scene: cursor palette", First<CursorStateController>);
             yield return ("Scene: XR mode manager", First<XrModeManager>);
             yield return ("Scene: XR health monitor", First<XrHealthMonitor>);
-            yield return ("Scene: pickable rigidbodies", First<PickableObject>);
             yield return ("Scene: fade profile", First<FadeMask>);
             yield return ("Scene: fade volume vs camera mask", First<FadeMask>);
             yield return ("Scene: camera post-processing (URP)", First<FadeMask>);
@@ -161,26 +154,17 @@ namespace jeanf.universalplayer
             yield return ("Scene: seat ids (scenario targeting)", First<Seat>);
             yield return ("Scene: seat data bridge", First<SeatDataBridge>);
             yield return ("Scene: scenario seating", First<SitController>);
-            yield return ("Scene: XR-clickable UI", First<Canvas>);
             yield return ("Scene: hand visibility", First<HandsDisplayer>);
             yield return ("Scene: hand visibility authority", First<HandsDisplayer>);
             yield return ("Scene: hand pose managers", First<HandPoseManager>);
             yield return ("Scene: hand rigs", First<BaseHand>);
             yield return ("Scene: hand poses vs rig", First<BaseHand>);
             yield return ("Scene: hand pose bone names", First<BaseHand>);
-            yield return ("Scene: finger pointing ray", First<FingerPointingRay>);
             yield return ("Scene: hand colliders", First<BlendableHand>);
             yield return ("Scene: footsteps", First<FootstepAudio>);
             yield return ("Scene: footstep surfaces", First<FootstepAudio>);
         }
 
-        /// <summary>
-        /// Wraps one CheckResult-producing check in a rule. The predicate re-runs the
-        /// check and mirrors its outcome onto the rule (BuildValidationRule instances
-        /// are mutable by design): severity drives the icon, the live message and fix
-        /// hint replace the static ones — so the window shows the same rich, situation-
-        /// specific feedback as the console validator.
-        /// </summary>
         private static BuildValidationRule Rule(string name, Func<SetupValidator.CheckResult> check,
             Action fixIt, bool fixItAutomatic = false, Func<bool> isRuleEnabled = null, bool sceneOnly = false)
         {
@@ -207,9 +191,18 @@ namespace jeanf.universalplayer
 
         private static Action OpenSettings(string path) => () => SettingsService.OpenProjectSettings(path);
 
-        // Same work as the component's "Create Player Actions" button; only generates the
-        // assets that are missing. Falls back to pinging the component when it is not wired
-        // (the check reports what is missing — that part needs a human).
+        private static void SelectSceneResultTargets(string checkName, Func<UnityEngine.Object> fallback)
+        {
+            var targets = SceneResult(checkName).Targets.Where(target => target != null).ToArray();
+            if (targets.Length == 0)
+            {
+                Ping(fallback() ?? PlayerRoot());
+                return;
+            }
+            Selection.objects = targets;
+            EditorGUIUtility.PingObject(targets[0]);
+        }
+
         private static void CreateMissingPlayerActionAssets()
         {
             var root = PlayerRoot();
@@ -236,34 +229,44 @@ namespace jeanf.universalplayer
 
         private static GameObject PlayerRoot()
         {
-            var broadcaster = UnityEngine.Object.FindAnyObjectByType<BroadcastControlsStatus>(FindObjectsInactive.Include);
-            return broadcaster != null ? broadcaster.transform.root.gameObject : null;
+            var cachedRootWasDestroyed = s_PlayerRootFound && s_PlayerRoot == null;
+            if (s_PlayerRootStale || cachedRootWasDestroyed)
+            {
+                var broadcaster = UnityEngine.Object.FindAnyObjectByType<BroadcastControlsStatus>(FindObjectsInactive.Include);
+                s_PlayerRoot = broadcaster != null ? broadcaster.transform.root.gameObject : null;
+                s_PlayerRootFound = s_PlayerRoot != null;
+                s_PlayerRootStale = false;
+            }
+            return s_PlayerRoot;
         }
 
-        // --- shared batch-result caches ------------------------------------------
-
-        private static double s_AssetTime = double.NegativeInfinity;
-        private static Dictionary<string, SetupValidator.CheckResult> s_AssetResults;
+        private static bool BatchIsDue(bool stale, double lastRunTime) =>
+            stale && EditorApplication.timeSinceStartup - lastRunTime >= MinimumSecondsBetweenBatchRuns;
 
         private static SetupValidator.CheckResult AssetResult(string name)
         {
-            if (EditorApplication.timeSinceStartup - s_AssetTime > CacheSeconds)
-            {
-                s_AssetResults = new Dictionary<string, SetupValidator.CheckResult>();
-                var overrideResults = new List<SetupValidator.CheckResult>();
-                foreach (var result in ProjectSetupChecks.RunAssetChecks())
-                {
-                    // per-variant results ("Variant overrides: <name>") fold into ONE rule
-                    if (result.Name.StartsWith("Variant overrides")) overrideResults.Add(result);
-                    else s_AssetResults[result.Name] = result;
-                }
-                s_AssetResults["Variant overrides"] = AggregateOverrides(overrideResults);
-                s_AssetTime = EditorApplication.timeSinceStartup;
-            }
+            if (BatchIsDue(s_AssetResultsStale, s_AssetRunTime)) RunAssetBatch();
 
             return s_AssetResults.TryGetValue(name, out var cached)
                 ? cached
                 : new SetupValidator.CheckResult(name, SetupValidator.Severity.Pass, "Not applicable.");
+        }
+
+        private static void RunAssetBatch()
+        {
+            var results = new Dictionary<string, SetupValidator.CheckResult>();
+            var overrideResults = new List<SetupValidator.CheckResult>();
+            foreach (var result in ProjectSetupChecks.RunAssetChecks())
+            {
+                if (result.Name.StartsWith("Variant overrides")) overrideResults.Add(result);
+                else results[result.Name] = result;
+            }
+            results["Variant overrides"] = AggregateOverrides(overrideResults);
+            results[DiffusionProfilesRuleName] = DiffusionProfileRegistration.RunCheck();
+
+            s_AssetResults = results;
+            s_AssetResultsStale = false;
+            s_AssetRunTime = EditorApplication.timeSinceStartup;
         }
 
         private static SetupValidator.CheckResult AggregateOverrides(List<SetupValidator.CheckResult> results)
@@ -286,26 +289,24 @@ namespace jeanf.universalplayer
                 failed[0].Hint);
         }
 
-        private static double s_SceneTime = double.NegativeInfinity;
-        private static Dictionary<string, SetupValidator.CheckResult> s_SceneResults;
-
         private static SetupValidator.CheckResult SceneResult(string name)
         {
-            if (EditorApplication.timeSinceStartup - s_SceneTime > CacheSeconds)
-            {
-                s_SceneResults = ProjectSetupChecks.RunOpenSceneChecks()
-                    .Concat(HandSetupChecks.RunHandChecks())
-                    .Concat(FootstepSetupChecks.RunFootstepChecks())
-                    .GroupBy(result => result.Name)
-                    .ToDictionary(group => group.Key, group => group.First());
-                s_SceneTime = EditorApplication.timeSinceStartup;
-            }
+            if (BatchIsDue(s_SceneResultsStale, s_SceneRunTime)) RunSceneBatch();
 
-            // A missing entry means the batch skipped it (no player in the scene) —
-            // the rule is disabled in that case, so reporting Pass keeps it quiet.
             return s_SceneResults.TryGetValue(name, out var cached)
                 ? cached
                 : new SetupValidator.CheckResult(name, SetupValidator.Severity.Pass, "Not applicable in the open scene.");
+        }
+
+        private static void RunSceneBatch()
+        {
+            s_SceneResults = ProjectSetupChecks.RunOpenSceneChecks()
+                .Concat(HandSetupChecks.RunHandChecks())
+                .Concat(FootstepSetupChecks.RunFootstepChecks())
+                .GroupBy(result => result.Name)
+                .ToDictionary(group => group.Key, group => group.First());
+            s_SceneResultsStale = false;
+            s_SceneRunTime = EditorApplication.timeSinceStartup;
         }
     }
 }

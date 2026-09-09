@@ -101,7 +101,7 @@ namespace jeanf.universalplayer
 
         private static DiffusionProfileSettings[] FindPackageProfiles()
         {
-            var packageRoot = PackageRoot();
+            var packageRoot = ProjectSetupChecks.PackageRoot();
             return AssetDatabase.FindAssets("t:DiffusionProfileSettings")
                 .Select(AssetDatabase.GUIDToAssetPath)
                 .Where(path => packageRoot == null || path.StartsWith(packageRoot))
@@ -122,19 +122,6 @@ namespace jeanf.universalplayer
         {
             var settings = UnityEngine.Rendering.GraphicsSettings.GetRenderPipelineSettings<HDRPDefaultVolumeProfileSettings>();
             return settings?.volumeProfile;
-        }
-
-        /// <summary>Package root ("Assets/UniversalPlayer" or "Packages/fr.jeanf.universal.player"), located via the runtime asmdef.</summary>
-        private static string PackageRoot()
-        {
-            var guids = AssetDatabase.FindAssets("jeanf.universalplayer t:AssemblyDefinitionAsset");
-            foreach (var guid in guids)
-            {
-                var path = AssetDatabase.GUIDToAssetPath(guid);
-                if (!path.EndsWith("Runtime/scripts/jeanf.universalplayer.asmdef")) continue;
-                return path.Substring(0, path.Length - "Runtime/scripts/jeanf.universalplayer.asmdef".Length).TrimEnd('/');
-            }
-            return null;
         }
 #endif
     }

@@ -84,7 +84,8 @@ namespace jeanf.universalplayer.tests.editor
         public void SceneRulesWithMechanicalFixes_AreAutomatic()
         {
             foreach (var name in new[] { "Scene: teleport listener", "Scene: hand pose driver", "Scene: player action assets",
-                         "Scene: input action wiring", "Scene: tracked controllers" })
+                         "Scene: input action wiring", "Scene: tracked controllers",
+                         "Scene: XR-clickable UI", "Scene: pickable rigidbodies", "Scene: finger pointing ray" })
             {
                 var rule = Rules().FirstOrDefault(r => r.Message == name);
                 Assert.That(rule, Is.Not.Null, $"No rule '{name}'.");
