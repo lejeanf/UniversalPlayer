@@ -54,7 +54,8 @@ namespace jeanf.universalplayer.tests.editor
             foreach (var expected in new[]
                      {
                          "Input System", "Render pipeline", "XR provider", "XR init on startup",
-                         "OpenXR interaction profiles", "Run in background", "HDRP diffusion profiles",
+                         "OpenXR interaction profiles", "OpenXR profile choice", "OpenXR render settings",
+                         "OpenXR package version", "Run in background", "HDRP diffusion profiles",
                          "Player prefab variant", "Variant overrides", "Stale imported samples", "Input actions",
                      })
                 Assert.That(names, Does.Contain(expected),

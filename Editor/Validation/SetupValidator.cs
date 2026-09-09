@@ -17,6 +17,7 @@ namespace jeanf.universalplayer
     /// Universal Player depends on and prints actionable console feedback for every
     /// problem (what broke, likely cause, where to fix it). Covers the recurring VR
     /// issues: provider not enabled, no interaction profiles (controllers undetected),
+    /// a profile/render/package choice the player is not validated with (OpenXrSetupChecks),
     /// Link focus loss, missing render pipeline, wrong input handling — plus the hand
     /// setup (see HandSetupChecks), whose failures otherwise only surface as runtime
     /// warnings with the headset on.
@@ -67,6 +68,7 @@ namespace jeanf.universalplayer
             results.Add(CheckRenderPipeline());
             results.AddRange(CheckXrManagement(buildTargetGroup));
             results.Add(CheckOpenXrInteractionProfiles(buildTargetGroup));
+            results.AddRange(OpenXrSetupChecks.RunOpenXrChecks(buildTargetGroup));
             results.Add(CheckRunInBackground());
             results.Add(DiffusionProfileRegistration.RunCheck());
 
