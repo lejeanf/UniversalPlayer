@@ -242,6 +242,7 @@ Design docs live in `Documentation~/`:
 - `true-first-person-body.md` — the visible body architecture
 - `sitting.md` — Seat + SitController across modes
 - `footsteps.md` — surface-aware footsteps + friction scuffs (FootstepAudio)
+- `editor-validation.md` — the inspector validation contract ([Validation] / RequiredIf / IValidatable) and the tests that guard it
 - `action-animation-binding.md` — SO-based action → animation binding (proposal)
 - `gesture-wheel.md` — controller gesture radial menu (design, upcoming)
 

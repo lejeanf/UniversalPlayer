@@ -55,7 +55,7 @@ namespace jeanf.universalplayer.tests.editor
                      {
                          "Input System", "Render pipeline", "XR provider", "XR init on startup",
                          "OpenXR interaction profiles", "Run in background", "HDRP diffusion profiles",
-                         "Player prefab variant", "Variant overrides", "Stale imported samples",
+                         "Player prefab variant", "Variant overrides", "Stale imported samples", "Input actions",
                      })
                 Assert.That(names, Does.Contain(expected),
                     $"No rule for '{expected}' — that console check has no Project Validation counterpart anymore.");
@@ -83,7 +83,8 @@ namespace jeanf.universalplayer.tests.editor
         [Test]
         public void SceneRulesWithMechanicalFixes_AreAutomatic()
         {
-            foreach (var name in new[] { "Scene: teleport listener", "Scene: hand pose driver", "Scene: player action assets" })
+            foreach (var name in new[] { "Scene: teleport listener", "Scene: hand pose driver", "Scene: player action assets",
+                         "Scene: input action wiring", "Scene: tracked controllers" })
             {
                 var rule = Rules().FirstOrDefault(r => r.Message == name);
                 Assert.That(rule, Is.Not.Null, $"No rule '{name}'.");

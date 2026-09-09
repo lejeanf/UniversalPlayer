@@ -73,6 +73,7 @@ namespace jeanf.universalplayer
             }
 
             results.Add(CheckStaleImportedSamples());
+            results.Add(InputActionAssetChecks.CheckProjectInputActions());
             return results;
         }
 
@@ -240,6 +241,8 @@ namespace jeanf.universalplayer
             results.Add(CheckTeleportWiring());
             results.Add(CheckXrModeManager(broadcaster.transform.root.gameObject));
             results.Add(CheckPlayerActionAssets(broadcaster.transform.root.gameObject));
+            results.Add(InputActionAssetChecks.CheckInputActionWiring(broadcaster.transform.root.gameObject));
+            results.Add(TrackedControllerChecks.Check(broadcaster.transform.root.gameObject));
 
             if (Object.FindAnyObjectByType<XrHealthMonitor>(FindObjectsInactive.Include) == null)
                 results.Add(new SetupValidator.CheckResult("Scene: XR health monitor", SetupValidator.Severity.Warning,

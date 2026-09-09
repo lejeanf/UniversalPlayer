@@ -43,12 +43,27 @@ namespace jeanf.universalplayer
 
         public enum DesktopFlatView
         {
+            Auto,
             OffscreenPresenter,
             CameraDirect
         }
 
-        [Tooltip("How the flat desktop picture reaches the window while the XR display keeps running. Offscreen Presenter: the player camera renders into a window-sized texture shown through a screen-space overlay (a camera with a target texture is never treated as an XR eye — fixes the stretched picture with a strip of the other eye). Camera Direct: the camera renders straight to the screen (correct only when the engine gives a non-XR camera the window viewport).")]
-        [SerializeField] private DesktopFlatView desktopFlatView = DesktopFlatView.OffscreenPresenter;
+        [Tooltip("How the flat desktop picture reaches the window while the XR display keeps running. Auto: Offscreen Presenter under HDRP, Camera Direct elsewhere. Offscreen Presenter: the player camera renders into a window-sized texture shown through a screen-space overlay (a camera with a target texture is never treated as an XR eye — fixes HDRP's stretched picture with a strip of the other eye). Camera Direct: the camera renders straight to the screen (validated under URP).")]
+        [SerializeField] private DesktopFlatView desktopFlatView = DesktopFlatView.Auto;
+
+        private bool UsePresenter
+        {
+            get
+            {
+                if (desktopFlatView == DesktopFlatView.OffscreenPresenter) return true;
+                if (desktopFlatView == DesktopFlatView.CameraDirect) return false;
+#if UNIVERSALPLAYER_HDRP
+                return GraphicsSettings.currentRenderPipeline is HDRenderPipelineAsset;
+#else
+                return false;
+#endif
+            }
+        }
 
         private bool ShouldManageDisplay =>
             stopXrDisplayOnDesktop == DisplayStopMode.Always
@@ -90,7 +105,7 @@ namespace jeanf.universalplayer
 
         private void ReconcileFlatView()
         {
-            var wantPresenter = desktopFlatView == DesktopFlatView.OffscreenPresenter && manageCameraXrRendering
+            var wantPresenter = UsePresenter && manageCameraXrRendering
                                 && !_wantXr && XrDisplayLifecycle.IsDisplayRunning;
             if (!wantPresenter)
             {
