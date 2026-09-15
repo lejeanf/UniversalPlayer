@@ -39,7 +39,11 @@ The message states the consequence, not the type:
   The scanner behind the banner does NOT read DrawIf, so always gate the requirement on the
   same condition: `[DrawIf("isUsingFilter", true, ...)]` + `[Validation("...", RequiredIf = nameof(isUsingFilter))]`
   (`EveryValidationOnADrawIfField_IsGatedWithRequiredIf`). `SendTeleportTarget` and
-  `PointOnCollisionTriggerWhenGrab` are the examples.
+  `PointOnCollisionTriggerWhenGrab` are the examples. When several conditions gate one field
+  (several `[DrawIf]` on it), point `RequiredIf` at a private bool property combining them —
+  `SendTeleportTarget.RequiresObjectToTeleport` (`!isTeleportPlayer && !isTargetSetByScript`)
+  keeps the field drawer and the banner on the same rule, so the warning never shows for a
+  target whose object a script assigns at runtime.
 
 ## Custom editors keep the banner
 

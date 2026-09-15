@@ -25,8 +25,12 @@ namespace jeanf.universalplayer
         
         [Header("Teleportation parameters:")] 
         public bool isTeleportPlayer = false;
+        [Tooltip("Tick when a script assigns ObjectToTeleport at runtime: the field is hidden and its 'not assigned' warning (field + inspector banner) is skipped.")]
         [DrawIf("isTeleportPlayer", false, ComparisonType.Equals, DisablingType.DontDraw)]
-        [Validation("Object To Teleport is required while Is Teleport Player is off — the teleport event carries nothing to move without it.", RequiredIf = "!" + nameof(isTeleportPlayer))]
+        [SerializeField] public bool isTargetSetByScript = false;
+        [DrawIf("isTeleportPlayer", false, ComparisonType.Equals, DisablingType.DontDraw)]
+        [DrawIf("isTargetSetByScript", false, ComparisonType.Equals, DisablingType.DontDraw)]
+        [Validation("Object To Teleport is required while Is Teleport Player is off — the teleport event carries nothing to move without it. Tick 'Is Target Set By Script' if a script assigns it at runtime.", RequiredIf = nameof(RequiresObjectToTeleport))]
         [SerializeField] public Transform objectToTeleport;
         [SerializeField] public bool isUsingFilter = true;
         [DrawIf("isUsingFilter", true, ComparisonType.Equals, DisablingType.DontDraw)]
@@ -34,14 +38,21 @@ namespace jeanf.universalplayer
         public FilterSO _filter;
         [SerializeField] private bool sendEventOnEnable = false;
         
+        /// <summary>
+        /// Gate for the Object To Teleport validation (field drawer AND scanner banner,
+        /// which share this rule): only required while this target moves an object (not
+        /// the player) that no script assigns at runtime.
+        /// </summary>
+        private bool RequiresObjectToTeleport => !isTeleportPlayer && !isTargetSetByScript;
+
         public Transform ObjectToTeleport
         {
             get => objectToTeleport;
             set
             {
-                if(_isDebug) Debug.Log($"ObjectToTeleport name : {value.gameObject.name}");
+                if(_isDebug) Debug.Log($"ObjectToTeleport name : {(value != null ? value.gameObject.name : "<null>")}");
                 objectToTeleport = value;
-            } 
+            }
         }
 
         private void OnEnable()

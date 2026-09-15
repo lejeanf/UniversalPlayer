@@ -54,5 +54,48 @@ namespace jeanf.universalplayer.tests.editor
                 "An object-only listener (Teleports Player off) is still flagged for setup issues — " +
                 "the player requirement must not apply when the listener never moves the player.");
         }
+
+        // --- SendTeleportTarget: Object To Teleport is only required while it moves an
+        // object (not the player) that no script assigns at runtime. ---
+
+        private static bool FlagsObjectToTeleport(SendTeleportTarget target)
+        {
+            var issues = new List<ValidationIssue>();
+            ValidationScanner.GetIssues(target, issues);
+            return issues.Any(i => i.FieldName == "objectToTeleport");
+        }
+
+        [Test]
+        public void ObjectTarget_WithoutObject_IsFlagged()
+        {
+            var target = _go.AddComponent<SendTeleportTarget>();
+            target.isTeleportPlayer = false;
+
+            Assert.That(FlagsObjectToTeleport(target), Is.True,
+                "An object teleport target with no Object To Teleport is no longer flagged — " +
+                "the RequiresObjectToTeleport gate on SendTeleportTarget is broken or the field was renamed.");
+        }
+
+        [Test]
+        public void ObjectTarget_SetByScript_IsNotFlagged()
+        {
+            var target = _go.AddComponent<SendTeleportTarget>();
+            target.isTeleportPlayer = false;
+            target.isTargetSetByScript = true;
+
+            Assert.That(FlagsObjectToTeleport(target), Is.False,
+                "'Is Target Set By Script' must silence the Object To Teleport warning (field + banner) — " +
+                "a script assigns it at runtime, so an empty field in the editor is expected.");
+        }
+
+        [Test]
+        public void PlayerTarget_WithoutObject_IsNotFlagged()
+        {
+            var target = _go.AddComponent<SendTeleportTarget>();
+            target.isTeleportPlayer = true;
+
+            Assert.That(FlagsObjectToTeleport(target), Is.False,
+                "A player teleport target never needs Object To Teleport — the gate must stay off while Is Teleport Player is on.");
+        }
     }
 }
