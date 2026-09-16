@@ -97,6 +97,13 @@ namespace jeanf.universalplayer
 
         private void OnEnable()
         {
+            // InputActionReference points at the asset instance (not PlayerInput's clone).
+            // Explicitly Enable so Look Around is live even if InputActionManager / a
+            // prior LocomotionManager block left the asset action Disabled (common in
+            // standalone after login-field focus). LocomotionManager may still Disable
+            // while a UI field is focused; it re-Enables on unblock.
+            if (mouseXY != null && mouseXY.action != null && !mouseXY.action.enabled)
+                mouseXY.action.Enable();
             mouseXY.action.performed += OnMouseXYPerformed;
             mouseXY.action.canceled += OnMouseXYCanceled;
             PlayerEvents.MouselookStateChanged += SetMouseState;
