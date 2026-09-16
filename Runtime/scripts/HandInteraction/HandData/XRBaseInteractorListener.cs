@@ -1,4 +1,3 @@
-using jeanf.validationTools;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -10,35 +9,33 @@ namespace jeanf.universalplayer
     {
 
     }
-	
+
+    /// <summary>
+    /// Sits on a hand and relays the interactor an XRBaseInteractorSender reported for
+    /// the SAME hand side (<see cref="PlayerEvents.HandInteractorReported"/>) to its
+    /// UnityEvent — the prefab wires HandPoseManager.SetXRDirectInteractor there.
+    /// </summary>
     public class XRBaseInteractorListener : MonoBehaviour
     {
-        [Validation("The XRBaseInteractor event channel is required — the listener never fires OnEventRaised (e.g. HandPoseManager.SetXRDirectInteractor) without it.")]
-        public XRBaseInteractorEventChannelSO _channel = default;
+        [Tooltip("Which hand this listener sits on — only reports tagged with this side are relayed.")]
+        [SerializeField] private HandType hand = HandType.None;
 
         public XRBaseInteractorEvent OnEventRaised;
 
         private void OnEnable()
         {
-            if (_channel != null)
-                _channel.OnEventRaised += Respond;
+            PlayerEvents.HandInteractorReported += Respond;
         }
 
         private void OnDisable()
         {
-            if (_channel != null)
-                _channel.OnEventRaised -= Respond;
+            PlayerEvents.HandInteractorReported -= Respond;
         }
 
-        private void Respond(UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor value)
+        private void Respond(HandType side, UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor value)
         {
+            if (side != hand) return;
             OnEventRaised?.Invoke(value);
-        }
-
-        public XRBaseInteractorListener(XRBaseInteractorEventChannelSO _channel, XRBaseInteractorEvent onEventRaised)
-        {
-            this._channel = _channel;
-            this.OnEventRaised = onEventRaised;
         }
     }
 }

@@ -15,9 +15,12 @@ namespace jeanf.universalplayer
     ///   hides its renderers.
     /// - VR: placement is left to the hand flow (GetPrimaryInHandItemWithVRController)
     ///   when one drives this item; otherwise the camera dock is used there too.
-    /// - Picked up like any object (TakeObject's taken channel, or an
+    /// - Picked up like any object (TakeObject's PlayerEvents.ObjectTaken, or an
     ///   XRGrabInteractable on the same GameObject): the grab PROMOTES the item
     ///   to drawn — grabbing the tablet on a table equals drawing it.
+    ///
+    /// The drawn/holstered state is the shared PlayerEvents.PrimaryItemStateChanged
+    /// (hub slot primaryItemState) — nothing to wire on this component.
     ///
     /// Renderers are toggled instead of the GameObject so the component keeps
     /// listening while hidden.
@@ -26,11 +29,6 @@ namespace jeanf.universalplayer
     {
         private const string LogPrefix = "[UniversalPlayer]";
 
-        [Header("Listening on:")]
-        [Validation("The shared primary item state channel is required (same asset as PrimaryItemController).")]
-        [SerializeField] private BoolEventChannelSO primaryItemStateChannel;
-        [Tooltip("Optional: TakeObject's taken channel — picking this item up then PROMOTES it to drawn.")]
-        [SerializeField] private GameObjectIntBoolEventChannelSO objectTakenChannel;
 
         [Header("Camera dock (used when no VR hand flow drives this item)")]
         [Tooltip("Local position in front of the camera while drawn.")]
@@ -50,8 +48,8 @@ namespace jeanf.universalplayer
 
         private void OnEnable()
         {
-            if (primaryItemStateChannel != null) primaryItemStateChannel.OnEventRaised += OnPrimaryItemState;
-            if (objectTakenChannel != null) objectTakenChannel.OnEventRaised += OnObjectTaken;
+            PlayerEvents.PrimaryItemStateChanged += OnPrimaryItemState;
+            PlayerEvents.ObjectTaken += OnObjectTaken;
 
             var grabInteractable = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
             if (grabInteractable != null) grabInteractable.selectEntered.AddListener(OnGrabbed);
@@ -61,8 +59,8 @@ namespace jeanf.universalplayer
 
         private void OnDisable()
         {
-            if (primaryItemStateChannel != null) primaryItemStateChannel.OnEventRaised -= OnPrimaryItemState;
-            if (objectTakenChannel != null) objectTakenChannel.OnEventRaised -= OnObjectTaken;
+            PlayerEvents.PrimaryItemStateChanged -= OnPrimaryItemState;
+            PlayerEvents.ObjectTaken -= OnObjectTaken;
 
             var grabInteractable = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
             if (grabInteractable != null) grabInteractable.selectEntered.RemoveListener(OnGrabbed);
@@ -74,7 +72,7 @@ namespace jeanf.universalplayer
         private void OnObjectTaken(GameObject taken, int _, bool isTaken)
         {
             if (taken != gameObject || !isTaken) return;
-            if (primaryItemStateChannel != null) primaryItemStateChannel.RaiseEvent(true);
+            PlayerEvents.RaisePrimaryItemState(true);
         }
 
         private void OnGrabbed(UnityEngine.XR.Interaction.Toolkit.SelectEnterEventArgs args)
@@ -84,7 +82,7 @@ namespace jeanf.universalplayer
             if (args.interactableObject is UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable grab
                 && args.manager != null)
                 args.manager.SelectExit(args.interactorObject, grab);
-            if (primaryItemStateChannel != null) primaryItemStateChannel.RaiseEvent(true);
+            PlayerEvents.RaisePrimaryItemState(true);
         }
 
         private void OnPrimaryItemState(bool drawn)

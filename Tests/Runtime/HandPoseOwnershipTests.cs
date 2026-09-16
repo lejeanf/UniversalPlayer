@@ -117,8 +117,6 @@ namespace jeanf.universalplayer.tests
             SetField(controller, "_leftHandPoseManager", _left);
             SetField(controller, "_rightHandPoseManager", _right);
             SetField(controller, "primaryItemPose", _tabletPose);
-            SetField(controller, "_PrimaryItemStateChannel", ScriptableObject.CreateInstance<BoolEventChannelSO>());
-            SetField(controller, "_primaryItemStateWithUsedHandChannel", ScriptableObject.CreateInstance<StringEventChannelSO>());
             controller.primaryItem = NewHolsteredTablet();
             go.SetActive(true);
             return controller;

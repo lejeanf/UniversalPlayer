@@ -70,15 +70,11 @@ namespace jeanf.universalplayer
         [Range(0.01f, 0.5f)]
         [SerializeField] private float sliderMotionDuration;
 
-        //Taken Object status channels
-        [Header("Broadcasting On")]
-        [SerializeField] GameObjectEventChannelSO objectDropped;
-        [SerializeField] GameObjectIntBoolEventChannelSO objectTakenChannel;
+        // Taken/dropped objects are reported over PlayerEvents.ObjectTaken / ObjectDropped
+        // (hub slots objectTaken / objectDropped); the room id arrives over
+        // PlayerEvents.RoomIdChanged (hub slot roomId).
         public static event Action<bool, HandType> OnGrabDeactivateCollider;
         public static event Action<string> OnVrGrabSwapPrimaryItem;
-        [Header("Listening On")]
-        [SerializeField] IntEventChannelSO roomIdChannelSO;
-        [SerializeField] GameObjectEventChannelSO snapEventChannelSO;
 
         [Header("XR")]
         [Validation("Right Near-Far interactor is required — the VR grab callbacks dereference it unguarded on every right-hand select (a null reference throws).")]
@@ -135,11 +131,7 @@ namespace jeanf.universalplayer
                 Debug.LogWarning($"{LogPrefix} TakeObject on '{name}': the Take action is not assigned — nothing can " +
                     "EVER be picked up (no press ever reaches this component). Wire FPS/TakeObject on the Player prefab.", this);
             if(scrollAction) scrollAction.action.performed += _onScrollPerformed;
-            try
-            {
-                roomIdChannelSO.OnEventRaised += AssignRoomId;
-            }
-            catch { }
+            PlayerEvents.RoomIdChanged += AssignRoomId;
             SnapObject.OnSnapMove += SetObjectPosition;
             SnapObject.OnSnap += UpdateSnapStatus;
             SnapObject.OnSnapRotate += SetObjectRotation;
@@ -150,11 +142,7 @@ namespace jeanf.universalplayer
         {
             if (takeAction && _onTakePerformed != null) takeAction.action.performed -= _onTakePerformed;
             if (scrollAction && _onScrollPerformed != null) scrollAction.action.performed -= _onScrollPerformed;
-            try
-            {
-                roomIdChannelSO.OnEventRaised -= AssignRoomId;
-            }
-            catch { }
+            PlayerEvents.RoomIdChanged -= AssignRoomId;
             DisablePositionHandle();
             DisableRotationHandle();
             SnapObject.OnSnapMove -= SetObjectPosition;
@@ -259,7 +247,7 @@ namespace jeanf.universalplayer
 
             objectInHand = pickable;
             AttachHeld(pickable, HandType.None); // desktop: no grabbing hand — the item's own anchor decides
-            objectTakenChannel?.RaiseEvent(hit.transform.gameObject, roomId, true);
+            PlayerEvents.RaiseObjectTaken(hit.transform.gameObject, roomId, true);
 
             // A slotted item STAYS WITH THE PLAYER once picked. Primary is the tablet's
             // slot: equip it through the state every other system already listens to
@@ -492,7 +480,7 @@ namespace jeanf.universalplayer
         private void ReturnToWorld(PickableObject pickable)
         {
             SetPickableVisible(pickable, true); // it may have been holstered (hidden)
-            objectDropped?.RaiseEvent(pickable.gameObject);
+            PlayerEvents.RaiseObjectDropped(pickable.gameObject);
 
             var t = pickable.transform;
             switch (pickable.ReleaseMode)
@@ -585,7 +573,7 @@ namespace jeanf.universalplayer
             if (objectRightHand != null)
             {
                 ResolveAnchors()?.ClearHandPose(HandType.Right, objectRightHand.HandPose);
-                objectDropped?.RaiseEvent(objectRightHand.gameObject);
+                PlayerEvents.RaiseObjectDropped(objectRightHand.gameObject);
             }
 
             objectRightHand = null;
@@ -598,7 +586,7 @@ namespace jeanf.universalplayer
             if (objectLeftHand != null)
             {
                 ResolveAnchors()?.ClearHandPose(HandType.Left, objectLeftHand.HandPose);
-                objectDropped?.RaiseEvent(objectLeftHand.gameObject);
+                PlayerEvents.RaiseObjectDropped(objectLeftHand.gameObject);
             }
 
             objectLeftHand = null;

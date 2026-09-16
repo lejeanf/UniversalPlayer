@@ -11,8 +11,9 @@ namespace jeanf.universalplayer.tests
 {
     /// <summary>
     /// Behavior tests for the event-driven teleport chain:
-    /// SendTeleportTarget.Teleport() → TeleportEventChannelSO → TeleportOnEvent moves
-    /// the player (with optional FadeMask fade and camera reset event).
+    /// SendTeleportTarget.Teleport() → PlayerEvents.TeleportRequested → TeleportOnEvent moves
+    /// the player (with optional FadeMask fade and camera reset event). No channel asset is
+    /// involved any more — the bridge mirrors requests on the hub for the project.
     /// </summary>
     public class TeleportTests
     {
@@ -21,7 +22,6 @@ namespace jeanf.universalplayer.tests
         private GameObject _destinationGo;
         private TeleportOnEvent _teleportOnEvent;
         private SendTeleportTarget _sender;
-        private TeleportEventChannelSO _teleportChannel;
         private int _cameraResetCount;
         private int _playerTeleportedCount;
 
@@ -30,7 +30,6 @@ namespace jeanf.universalplayer.tests
         [UnitySetUp]
         public IEnumerator SetUp()
         {
-            _teleportChannel = ScriptableObject.CreateInstance<TeleportEventChannelSO>();
             _cameraResetCount = 0;
             _playerTeleportedCount = 0;
             PlayerEvents.CameraResetRequested += CountCameraReset;
@@ -46,10 +45,6 @@ namespace jeanf.universalplayer.tests
             SetField(_teleportOnEvent, "player", _player);
             SetField(_teleportOnEvent, "fadeInDuration", 0.05f);
             SetField(_teleportOnEvent, "listOfFilters", new List<FilterSO>());
-            SetFieldOn(typeof(TeleportEventListener), _teleportOnEvent, "_channel", _teleportChannel);
-            if (_teleportOnEvent.OnEventRaised == null)
-                _teleportOnEvent.OnEventRaised = new UnityEvent<TeleportInformation>();
-            _teleportOnEvent.OnEventRaised.AddListener(_teleportOnEvent.Teleport);
             _listenerGo.SetActive(true);
 
             _destinationGo = new GameObject("TeleportDestination");
@@ -57,7 +52,6 @@ namespace jeanf.universalplayer.tests
             _sender = _destinationGo.AddComponent<SendTeleportTarget>();
             _sender.isTeleportPlayer = true;
             _sender.isUsingFilter = false;
-            SetField(_sender, "_teleportChannel", _teleportChannel);
 
             yield return null;
         }
@@ -70,7 +64,6 @@ namespace jeanf.universalplayer.tests
             Object.Destroy(_player);
             Object.Destroy(_listenerGo);
             Object.Destroy(_destinationGo);
-            Object.Destroy(_teleportChannel);
             yield return null;
         }
 
@@ -85,8 +78,7 @@ namespace jeanf.universalplayer.tests
 
             Assert.That(Vector3.Distance(_player.transform.position, Destination), Is.LessThan(0.01f),
                 "SendTeleportTarget.Teleport(false) did not move the player. The chain " +
-                "SendTeleportTarget → TeleportEventChannelSO → TeleportEventListener.OnEventRaised → TeleportOnEvent.Teleport " +
-                "is broken — check the channel asset and the OnEventRaised wiring on the Player prefab.");
+                "SendTeleportTarget → PlayerEvents.TeleportRequested → TeleportOnEvent.Teleport is broken.");
             Assert.That(Quaternion.Angle(_player.transform.rotation, Quaternion.Euler(0f, 90f, 0f)), Is.LessThan(1f),
                 "Player moved but did not take the destination's rotation.");
             Assert.That(_cameraResetCount, Is.EqualTo(1),

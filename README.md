@@ -55,7 +55,7 @@ Make sure the **new Input System** is active: `Edit → Project Settings → Pla
 2. Run **`Tools/Jeanf/UniversalPlayer/ValidateSetup`** — it checks the scene wiring and tells you exactly what to fix if anything is off.
 3. Press Play. Move with WASD, plug in a gamepad and touch a stick, or put on a headset — the player follows you.
 
-To integrate with your project, copy the `PlayerChannels` asset locally (the player offers a project-local copy on request) and subscribe to its events — teleports, map/inventory toggles, interactions — from your own systems. This keeps your wiring safe from package updates.
+To integrate with your project, copy the `PlayerChannels` asset locally (`Tools/Jeanf/UniversalPlayer/Create Local Player Channels`) and subscribe to its channels — teleports, map/inventory toggles, taken/dropped objects, world-button presses — from your own systems. It is the ONE place SO event channels are named: no player component references a channel directly (see `Documentation~/player-channels-hub.md`), so your wiring survives package updates.
 
 ---
 
@@ -204,7 +204,7 @@ wiring — it's a static call. Tune the color and duration on the `CursorStateCo
 > VR hides the reticle, so this is M&K / gamepad feedback. A rejected VR poke/ray should
 > be signalled on the interactable itself (haptics / sound). If you drive rejections from a
 > ScriptableObject "action denied" channel today, call `PlayerEvents.RaiseInvalidAction()`
-> from that channel's listener — a dedicated hub slot arrives with the channel-hub phase 2.
+> from that channel's listener.
 
 ---
 
