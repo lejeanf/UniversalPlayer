@@ -12,7 +12,8 @@ namespace jeanf.universalplayer
     /// teleport the player root to the seat anchor and set the camera height; exiting
     /// restores everything. Differences per mode:
     /// - M&amp;K / gamepad: FPS/Interact raycast finds the Seat, FirstPersonBody plays the
-    ///   sit pose, moving stands you back up;
+    ///   sit pose, Jump stands you back up (Interact never stands);
+    /// - VR: grab the seat OR aim a hand at it and pull the trigger to sit — the root is
     /// - VR: grab the seat OR aim a hand at it and pull the trigger to sit — the root is
     ///   lowered so the user's real head lands at the seat's eye height (glided over
     ///   vrTransitionSeconds; 0 = instant teleport). Standing is the LEFT stick's job:
@@ -96,6 +97,12 @@ namespace jeanf.universalplayer
         /// <summary>True while a sit/stand glide is moving the player (tests and UI wait on this).</summary>
         public bool IsTransitioning => _transitioning;
 
+        /// <summary>True while player sit/stand input is ignored (iPad drawn, etc.). Scenario sit is unaffected.</summary>
+        public bool SitInputSuppressed { get; private set; }
+
+        /// <summary>False while a cinematic lock forbids player-initiated standing. Default true (unlocked). Scenario sit/stand is unaffected.</summary>
+        public bool AllowPlayerExit { get; set; } = true;
+
         /// <summary>Seat id of the currently occupied seat (0 when not seated) — lets seat-side UI
         /// (e.g. a chair's tooltip) know whether THIS seat is the one being sat on.</summary>
         public int CurrentSeatId => IsSeated ? _seat.SeatId : 0;
@@ -150,6 +157,8 @@ namespace jeanf.universalplayer
 
             PlayerEvents.SitRequested += OnSitRequested;
             PlayerEvents.PlayerTeleported += OnPlayerTeleported;
+            PlayerEvents.SitInputSuppressedChanged += OnSitInputSuppressedChanged;
+            PlayerEvents.AllowPlayerExitChanged += OnAllowPlayerExitChanged;
 
             if (playerInput != null && playerInput.actions != null)
             {
@@ -175,6 +184,8 @@ namespace jeanf.universalplayer
             _hoveredSeat = null;
             PlayerEvents.SitRequested -= OnSitRequested;
             PlayerEvents.PlayerTeleported -= OnPlayerTeleported;
+            PlayerEvents.SitInputSuppressedChanged -= OnSitInputSuppressedChanged;
+            PlayerEvents.AllowPlayerExitChanged -= OnAllowPlayerExitChanged;
             if (Instance == this) Instance = null;
         }
 
@@ -190,7 +201,7 @@ namespace jeanf.universalplayer
 
             var seat = _seat;
             IsSeated = false;
-            _currentSource = null;
+            ReleaseCurrentOccupancy();
             RestoreCameraOffsetHeight();
             if (cameraLook != null) cameraLook.OverrideLook(Vector2.zero);
             if (body != null) body.SetSeated(false);
@@ -221,7 +232,7 @@ namespace jeanf.universalplayer
 
             if (IsSeated && ReferenceEquals(_currentSource, source)) return;
             if (IsSeated) Exit(true); // silent swap: release the previous seat instantly
-            SitOn(source, instant);
+            SitOn(source, instant, force: true);
         }
 
         /// <summary>
@@ -237,9 +248,19 @@ namespace jeanf.universalplayer
             SitOn(seat, FadeMask.ScreenFaded);
         }
 
-        private void OnJumpWhileSeated(InputAction.CallbackContext _)
+        private void OnSitInputSuppressedChanged(bool suppressed) => SitInputSuppressed = suppressed;
+
+        private void OnAllowPlayerExitChanged(bool allow) => AllowPlayerExit = allow;
+
+        private bool PlayerExitBlocked => SitInputSuppressed || !AllowPlayerExit;
+
+        private void OnJumpWhileSeated(InputAction.CallbackContext _) => HandleJump();
+
+        /// <summary>Jump (Space / gamepad south) stands the player up. No-op while input-locked or cinematic-locked.</summary>
+        public void HandleJump()
         {
             if (!exitOnJump || !IsSeated || _transitioning) return;
+            if (PlayerExitBlocked) return;
             if (Time.time < seatedSince + exitGraceSeconds) return;
             Exit();
         }
@@ -262,6 +283,7 @@ namespace jeanf.universalplayer
         // pull the trigger" gesture as the FingerPointingRay interactions.
         private void PollVrTriggerToSit()
         {
+            if (SitInputSuppressed) return;
             for (var i = 0; i < 2; i++)
             {
                 var hand = i == 0 ? HandType.Left : HandType.Right;
@@ -320,17 +342,18 @@ namespace jeanf.universalplayer
             return false;
         }
 
-        private void OnInteract(InputAction.CallbackContext _)
+        private void OnInteract(InputAction.CallbackContext _) => HandleInteract();
+
+        /// <summary>
+        /// Desktop Interact: raycast and sit. Never stands — Jump / VR stick do that.
+        /// Skipped while the iPad/UI lock is on or a world-space UI hover owns the click.
+        /// </summary>
+        public void HandleInteract()
         {
             // VR sits through the seat's own interactable, not through this raycast.
             if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR) return;
             if (_transitioning) return;
-
-            if (IsSeated)
-            {
-                Exit();
-                return;
-            }
+            if (SitInputSuppressed) return;
 
             // The press is aimed at world-space UI — the UI owns it. Without this a
             // click on a canvas would also sit on a chair standing behind it.
@@ -352,6 +375,12 @@ namespace jeanf.universalplayer
 
             if (!IsSeated || _transitioning) return;
             var pastGrace = Time.time >= seatedSince + exitGraceSeconds;
+            if (PlayerExitBlocked)
+            {
+                _vrArmed = false;
+                _vrMoveHeldSince = -1f;
+                return;
+            }
 
             if (isXr)
             {
@@ -401,16 +430,31 @@ namespace jeanf.universalplayer
             else SitOn(source);
         }
 
-        public void SitOn(ISeatSource source) => SitOn(source, false);
+        public void SitOn(ISeatSource source) => SitOn(source, false, false);
 
-        public void SitOn(ISeatSource source, bool instant)
+        public void SitOn(ISeatSource source, bool instant) => SitOn(source, instant, false);
+
+        /// <param name="force">Scenario sit: ignore occupancy and sit anyway (silent swap already released the previous seat).</param>
+        public void SitOn(ISeatSource source, bool instant, bool force)
         {
             if (source == null) return;
-            var wasSeated = IsSeated;
+            if (IsSeated)
+            {
+                SitOn(source.GetSeatData(), instant); // no-op while seated
+                return;
+            }
+            if (!force && source.IsOccupied)
+            {
+                PlayerEvents.RaiseInvalidAction();
+                return;
+            }
+
             SitOn(source.GetSeatData(), instant);
-            // Record identity only when this call actually seated the player (not on a
-            // no-op because we were already seated), so scenario re-seat checks stay correct.
-            if (!wasSeated && IsSeated) _currentSource = source;
+            if (IsSeated)
+            {
+                _currentSource = source;
+                source.SetOccupied(true);
+            }
         }
 
         public void SitOn(in SeatData seat, bool instant)
@@ -535,7 +579,7 @@ namespace jeanf.universalplayer
 
             var seat = _seat;
             IsSeated = false;
-            _currentSource = null;
+            ReleaseCurrentOccupancy();
 
             Vector3 targetPosition;
             Quaternion targetRotation;
@@ -608,6 +652,12 @@ namespace jeanf.universalplayer
             controller.enabled = true;
 
             if (isDebug) Debug.Log($"{LogPrefix} stood up from '{seat.Name}'", this);
+        }
+
+        private void ReleaseCurrentOccupancy()
+        {
+            _currentSource?.SetOccupied(false);
+            _currentSource = null;
         }
 
         private void RestoreCameraOffsetHeight()

@@ -75,6 +75,8 @@ namespace jeanf.universalplayer.tests
             Object.Destroy(_player);
             Object.Destroy(_chair);
             Object.Destroy(_floor);
+            PlayerEvents.RaiseSitInputSuppressed(false);
+            PlayerEvents.RaiseAllowPlayerExit(true);
             yield return null;
         }
 
@@ -710,6 +712,116 @@ namespace jeanf.universalplayer.tests
                 "Selecting the seat while seated stood the player up — the interactable must be sit-only.");
             Assert.That(Vector3.Distance(_player.transform.position, seatedPosition), Is.LessThan(0.001f),
                 "A repeated select while seated moved the player.");
+        }
+
+        // ---- Asymmetric input (v1.20.0): Interact sits only; Jump / VR stick stands ----
+
+        [UnityTest]
+        public IEnumerator SeatedInteract_DoesNotStand()
+        {
+            _seat.ToggleSit();
+            yield return WaitForGlide();
+            Assert.That(_sit.IsSeated, Is.True, "Sanity: the player must be seated.");
+
+            _sit.HandleInteract();
+            yield return null;
+
+            Assert.That(_sit.IsSeated, Is.True,
+                "Interact while seated stood the player up — Interact must sit only (Jump / VR stick stand).");
+        }
+
+        [UnityTest]
+        public IEnumerator Jump_WhileSeated_StandsUp()
+        {
+            SetField(_sit, "exitGraceSeconds", 0f);
+            _seat.ToggleSit();
+            yield return WaitForGlide();
+            Assert.That(_sit.IsSeated, Is.True, "Sanity: the player must be seated.");
+
+            _sit.HandleJump();
+            yield return WaitForGlide();
+
+            Assert.That(_sit.IsSeated, Is.False,
+                "Jump while seated did not stand the player up.");
+        }
+
+        [UnityTest]
+        public IEnumerator OccupiedSeat_IsRefused_AndRaisesInvalidAction()
+        {
+            var signaled = false;
+            System.Action onInvalid = () => signaled = true;
+            PlayerEvents.InvalidActionSignaled += onInvalid;
+            try
+            {
+                _seat.SetOccupied(true);
+                _sit.SitOn(_seat);
+                yield return null;
+
+                Assert.That(_sit.IsSeated, Is.False,
+                    "SitOn accepted an occupied seat — player sit must refuse occupancy.");
+                Assert.That(signaled, Is.True,
+                    "Refusing an occupied seat must raise PlayerEvents.RaiseInvalidAction().");
+            }
+            finally
+            {
+                PlayerEvents.InvalidActionSignaled -= onInvalid;
+                _seat.SetOccupied(false);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator OccupiedSeat_ScenarioForceSit_StillSits()
+        {
+            _seat.SetOccupied(true);
+            _sit.SitOn(_seat, true, true); // scenario force, including silent swap onto an occupied seat
+            yield return null;
+
+            Assert.That(_sit.IsSeated, Is.True,
+                "Scenario SitOn(..., force: true) must still seat the player on an occupied chair.");
+            _sit.Exit(true);
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator InputLock_SuppressesJumpExit_ButScenarioExitStillWorks()
+        {
+            SetField(_sit, "exitGraceSeconds", 0f);
+            _seat.ToggleSit();
+            yield return WaitForGlide();
+            Assert.That(_sit.IsSeated, Is.True, "Sanity: the player must be seated.");
+
+            PlayerEvents.RaiseSitInputSuppressed(true);
+            _sit.HandleJump();
+            _sit.HandleInteract();
+            yield return null;
+            Assert.That(_sit.IsSeated, Is.True,
+                "Jump/Interact while SitInputSuppressed stood the player up — the iPad/UI lock must skip player Exit.");
+
+            _sit.Exit(true); // scenario / cinematic stand is not gated
+            yield return null;
+            Assert.That(_sit.IsSeated, Is.False,
+                "Direct Exit() must still stand the player while input is suppressed (scenario sit/stand).");
+            PlayerEvents.RaiseSitInputSuppressed(false);
+        }
+
+        [UnityTest]
+        public IEnumerator AllowPlayerExitFalse_SuppressesJump_UntilUnlocked()
+        {
+            SetField(_sit, "exitGraceSeconds", 0f);
+            _seat.ToggleSit();
+            yield return WaitForGlide();
+
+            PlayerEvents.RaiseAllowPlayerExit(false);
+            _sit.HandleJump();
+            yield return null;
+            Assert.That(_sit.IsSeated, Is.True,
+                "Jump while AllowPlayerExit is false stood the player up — the cinematic lock must skip player Exit.");
+
+            PlayerEvents.RaiseAllowPlayerExit(true);
+            _sit.HandleJump();
+            yield return WaitForGlide();
+            Assert.That(_sit.IsSeated, Is.False,
+                "Jump after unlocking AllowPlayerExit must stand the player up.");
         }
     }
 }

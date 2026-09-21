@@ -93,8 +93,20 @@ namespace jeanf.universalplayer
             TakeObject.OnVrGrabSwapPrimaryItem -= ReceiveGrabSide;
         }
 
-        private void OnDrawLeftHand(InputAction.CallbackContext _) => SetIpadStateForLeftHand(primaryItemPose.leftHandInfo);
-        private void OnDrawRightHand(InputAction.CallbackContext _) => SetIpadStateForRightHand(primaryItemPose.rightHandInfo);
+        private void OnDrawLeftHand(InputAction.CallbackContext _)
+        {
+            // XR draw actions stay enabled in KeyboardMouse. Ignore them unless we
+            // are actually in VR — otherwise the tablet is parented to a hand that
+            // desktop mode has deactivated, and OpenTablet's camera pin never shows.
+            if (BroadcastControlsStatus.controlScheme != BroadcastControlsStatus.ControlScheme.XR) return;
+            SetIpadStateForLeftHand(primaryItemPose.leftHandInfo);
+        }
+
+        private void OnDrawRightHand(InputAction.CallbackContext _)
+        {
+            if (BroadcastControlsStatus.controlScheme != BroadcastControlsStatus.ControlScheme.XR) return;
+            SetIpadStateForRightHand(primaryItemPose.rightHandInfo);
+        }
 
 
 

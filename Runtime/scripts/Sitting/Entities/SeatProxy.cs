@@ -18,6 +18,10 @@ namespace jeanf.universalplayer
         public Entity SeatEntity { get; private set; }
         private SeatData _data;
         private XRSimpleInteractable _interactable;
+        private bool _occupied;
+
+        public bool IsOccupied => _occupied;
+        public void SetOccupied(bool occupied) => _occupied = occupied;
 
         /// <summary>Seats are static, so the pose is captured once at placement.</summary>
         public void Bind(Entity entity, in SeatData data)

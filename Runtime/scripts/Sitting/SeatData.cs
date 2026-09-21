@@ -66,6 +66,10 @@ namespace jeanf.universalplayer
     public interface ISeatSource
     {
         SeatData GetSeatData();
+        /// <summary>True when a player or NPC is using this seat. Player SitOn refuses occupied seats.</summary>
+        bool IsOccupied { get; }
+        /// <summary>Mark this seat occupied (NPC / scenario) or free it. Player sit/stand also claims and releases.</summary>
+        void SetOccupied(bool occupied);
     }
 
     /// <summary>

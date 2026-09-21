@@ -16,22 +16,29 @@ for M&K/gamepad, one UnityEvent for VR.
 3. VR: nothing — the Seat adds an `XRSimpleInteractable` and wires its Select to
    sit by itself at startup (the chair needs a collider, which desktop mode
    needs anyway). The interactable is **sit-only**: grabbing (grip) sits you, and
-   so does **aiming a hand at the chair and pulling the trigger** (the trigger is
-   read at device level and the hand's aim is raycast for a seat, so it works
-   from `interactMaxDistance` away — no XRI hover needed); standing is the LEFT
-   STICK's job (see below). If you prefer your own interactable, add it and wire
-   Select to `ToggleSit` in the inspector — the auto-wiring detects that and
-   stays out of the way.
+  so does **aiming a hand at the chair and pulling the trigger** (the trigger is
+  read at device level and the hand's aim is raycast for a seat, so it works
+  from `interactMaxDistance` away — no XRI hover needed); standing is the LEFT
+  STICK's job (see below). Occupied seats refuse player sit the same way as
+  desktop. If you prefer your own interactable, add it and wire
+  Select to `ToggleSit` in the inspector — the auto-wiring detects that and
+  stays out of the way.
 
 ## Behavior per mode
 
 - **M&K / gamepad**: aim at the chair and press Interact (the existing `FPS/Interact`
   action) → the player teleports onto the anchor, the camera drops to seated eye
   height, locomotion locks, and the body (placeholder mannequin or your rigged
-  Animator via the `IsSeated` parameter) plays the sit pose. Stand up with **Jump**
-  (Space / gamepad south) or Interact again — Interact stays usable for things
-  around the seat, and move input deliberately does nothing while seated
+  Animator via the `IsSeated` parameter) plays the sit pose. **Interact never
+  stands** — it is sit-only, so it stays free for the iPad and world objects
+  around the seat (`SitOn` no-ops while already seated). Stand up with **Jump**
+  (Space / gamepad south). Move input deliberately does nothing while seated
   (`exitOnMoveInput` restores the old eject-on-move behavior if a project wants it).
+  Occupied seats refuse player sit (`PlayerEvents.RaiseInvalidAction()`). While the
+  iPad is drawn (or any other `SitInputSuppressed` lock) Interact / Jump / VR-stick
+  stand are skipped. Optional cinematic lock: `PlayerEvents.RaiseAllowPlayerExit(false)`
+  (default unlocked). Scenario sit (`sitRequest` / `SitPlayerOnEnable`) is not gated
+  and can still force sit/stand, including a silent swap onto an occupied seat.
 - **VR**: sitting lowers the root so the user's *real* head lands at the seat's
   eye height, gliding the root there over `vrTransitionSeconds` (default 0.5 s —
   only the root moves, the HMD stays live; set 0 for the old instant teleport if
@@ -59,6 +66,27 @@ for M&K/gamepad, one UnityEvent for VR.
 `SitController` on the Move object. `Seat.ToggleSit()` complains loudly in the console
 if no SitController is alive in the scene (older variant, missing player). The
 `seatedStateChannel` (Bool) slot is optional for gameplay hooks on your variant.
+
+## Occupancy
+
+A `Seat` can be **occupied** so the player cannot sit there:
+
+- Player `SitOn` claims the seat and `Exit` releases it.
+- Tick **Occupied** on the Seat, call `Seat.SetOccupied(true)`, or drop
+  `OccupySeatOnEnable` on an NPC chair (discussion seats).
+- Player sit on an occupied seat is refused with `PlayerEvents.RaiseInvalidAction()`.
+- Scenario sit (`sitRequest` / `SitPlayerOnEnable`) can still force sit/stand,
+  including a silent swap onto an occupied seat.
+
+## Input lock (iPad) and cinematic lock
+
+Projects forward the same `primaryItemState` channel OpenTablet / Discussion /
+InteractableRaycaster already use into `PlayerEvents.RaiseSitInputSuppressed(drawn)`.
+While true, Interact, Jump, and VR-stick stand are skipped — do **not** disable
+`SitController` (its `OnDisable` clears `Instance`).
+
+Rare scripted conversations that must keep the player seated: `PlayerEvents.RaiseAllowPlayerExit(false)`
+(default true / unlocked). Default discussions do not use this.
 
 ## Sit/stand hint tooltip (project-side)
 

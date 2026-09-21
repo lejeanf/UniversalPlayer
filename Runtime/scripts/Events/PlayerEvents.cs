@@ -75,6 +75,12 @@ namespace jeanf.universalplayer
         public static event Action<int> RoomIdChanged;                       // hub: roomId
         /// <summary>The project's rebind UI asks for an interactive rebind of (action, binding index).</summary>
         public static event Action<InputAction, int> RebindRequested;        // hub: rebindRequested
+        /// <summary>True while sit/stand player input should be ignored (iPad drawn, world UI, …).
+        /// Projects forward <c>primaryItemState</c> into this. Scenario sit/stand is unaffected.</summary>
+        public static event Action<bool> SitInputSuppressedChanged;
+        /// <summary>False while a cinematic lock forbids player-initiated standing (Jump / VR stick / move).
+        /// Default is unlocked (true). Scenario sit/stand is unaffected.</summary>
+        public static event Action<bool> AllowPlayerExitChanged;
 
         // ---- internal: "the teleport HAPPENED" (raised by TeleportOnEvent after the move). Not bridged. ----
         public static event Action<TeleportInformation> PlayerTeleported;
@@ -141,6 +147,8 @@ namespace jeanf.universalplayer
         public static void RaiseLoadingProgress(float progress01) => LoadingProgressChanged?.Invoke(progress01);
         public static void RaiseRoomId(int roomId) => RoomIdChanged?.Invoke(roomId);
         public static void RaiseRebindRequest(InputAction action, int bindingIndex) => RebindRequested?.Invoke(action, bindingIndex);
+        public static void RaiseSitInputSuppressed(bool suppressed) => SitInputSuppressedChanged?.Invoke(suppressed);
+        public static void RaiseAllowPlayerExit(bool allow) => AllowPlayerExitChanged?.Invoke(allow);
 
         public static void RaisePlayerTeleported(TeleportInformation info) => PlayerTeleported?.Invoke(info);
         public static void RaiseObjectTeleported(TeleportInformation info) => ObjectTeleported?.Invoke(info);

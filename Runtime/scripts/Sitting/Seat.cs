@@ -9,8 +9,8 @@ namespace jeanf.universalplayer
     /// Drop this on a chair and the player can sit on it — no other wiring needed.
     ///
     /// M&amp;K / gamepad: the SitController on the Player raycasts on the FPS/Interact
-    /// action; aiming at anything with a Seat in its parents sits you down (and the
-    /// same input, or moving, stands you back up).
+    /// action; aiming at anything with a Seat in its parents sits you down. Interact
+    /// never stands — Jump (Space / gamepad south) does. Occupied seats refuse player sit.
     /// VR: an XRSimpleInteractable is added and wired to <see cref="ToggleSit"/>
     /// automatically at startup (needs a collider on the chair). If you add your own
     /// interactable, wire its Select to ToggleSit — the auto-wiring detects that and
@@ -35,6 +35,10 @@ namespace jeanf.universalplayer
         [Tooltip("Eye height above the sit anchor while seated.")]
         [SerializeField] private float eyeHeightAboveSeat = 0.7f;
 
+        [Header("Occupancy")]
+        [Tooltip("Tick when an NPC (or anything else) is using this chair so the player cannot sit here. Player sit claims this automatically; scenario sit can still force a seat.")]
+        [SerializeField] private bool occupied;
+
         [Header("Scenario targeting (optional)")]
         [Tooltip("Unique id so scenario code (SitPlayerOnEnable) can target this seat without a direct reference — required for seats in OTHER additive scenes or baked into SubScenes. 0 = not targetable. Must be unique across seats (door-system convention).")]
         [SerializeField] private int seatId = 0;
@@ -46,6 +50,12 @@ namespace jeanf.universalplayer
 
         /// <summary>The authored scenario-targeting id (0 = none) — baked into the entity world as-is.</summary>
         public int AuthoredSeatId => seatId;
+
+        /// <summary>True when a player or NPC is using this seat.</summary>
+        public bool IsOccupied => occupied;
+
+        /// <summary>Mark this seat occupied (NPC / scenario) or free it.</summary>
+        public void SetOccupied(bool value) => occupied = value;
 
         /// <summary>Snapshot this seat as plain values for <see cref="SitController"/> (see <see cref="ISeatSource"/>).</summary>
         public SeatData GetSeatData()
