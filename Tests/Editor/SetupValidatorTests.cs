@@ -309,25 +309,35 @@ namespace jeanf.universalplayer.tests.editor
         }
 
         [Test]
-        public void TeleportCheck_RequiresAPlayerListenerWithItsPlayer()
+        public void TeleportCheck_RequiresAWiredListenerOnTheTargetsChannel()
         {
-            if (SceneHasTeleportWiring())
+            if (Object.FindAnyObjectByType<TeleportOnEvent>(FindObjectsInactive.Include) != null
+                || Object.FindAnyObjectByType<SendTeleportTarget>(FindObjectsInactive.Include) != null)
                 Assert.Ignore("The open scene already contains teleport wiring — this test needs a clean slate.");
 
+            var channelA = NewAsset<TeleportEventChannelSO>();
+            var channelB = NewAsset<TeleportEventChannelSO>();
+
             var listenerGo = Spawn("Listener");
-            listenerGo.SetActive(false); // never subscribes to PlayerEvents in edit mode
+            listenerGo.SetActive(false); // never subscribes to the channel in edit mode
             var listener = listenerGo.AddComponent<TeleportOnEvent>();
             var targetGo = Spawn("Target");
             targetGo.SetActive(false);
             var target = targetGo.AddComponent<SendTeleportTarget>();
-            SetSerializedBool(target, "isTeleportPlayer", true);
+            SetSerialized(target, "_teleportChannel", channelA);
 
             Assert.That(ProjectSetupChecks.CheckTeleportWiring().Severity, Is.EqualTo(SetupValidator.Severity.Fail),
-                "A player listener with no Player must FAIL — every player teleport on it is dropped.");
+                "A listener with no channel and nothing on OnEventRaised must FAIL — every teleport on it is dropped.");
 
             SetSerialized(listener, "player", listenerGo);
+            SetSerialized(listener, "_channel", channelB);
+            UnityEventTools.AddPersistentListener(listener.OnEventRaised, listener.Teleport);
+            Assert.That(ProjectSetupChecks.CheckTeleportWiring().Severity, Is.EqualTo(SetupValidator.Severity.Warning),
+                "A target broadcasting on a channel no listener receives must WARN — that teleport does nothing at runtime.");
+
+            SetSerialized(listener, "_channel", channelA);
             Assert.That(ProjectSetupChecks.CheckTeleportWiring().Severity, Is.EqualTo(SetupValidator.Severity.Pass),
-                "A player listener with its Player assigned handles the request — no channel to match any more.");
+                "A listener on the target's channel with Teleport wired must pass.");
         }
 
         [Test]
@@ -386,6 +396,7 @@ namespace jeanf.universalplayer.tests.editor
             asset.AddActionMap("ValidatorTest").AddAction("Probe", InputActionType.Button);
             SetSerialized(manager, "m_InputActionAsset", asset);
             SetSerialized(manager, "_actionContainer", NewAsset<ActionContainerSO>());
+            SetSerialized(manager, "actionRebindedListener", NewAsset<ActionRebindEventChannelSO>());
 
             var result = ProjectSetupChecks.CheckPlayerActionAssets(player);
             Assert.That(result.Severity, Is.EqualTo(SetupValidator.Severity.Warning),
@@ -416,18 +427,22 @@ namespace jeanf.universalplayer.tests.editor
             if (SceneHasTeleportWiring())
                 Assert.Ignore("The open scene already contains teleport wiring — this test needs a clean slate.");
 
+            var channel = NewAsset<TeleportEventChannelSO>();
             var listenerGo = Spawn("ObjectListener");
             listenerGo.SetActive(false);
             var listener = listenerGo.AddComponent<TeleportOnEvent>();
+            SetSerialized(listener, "_channel", channel);
             SetSerializedBool(listener, "teleportsPlayer", false);
+            UnityEventTools.AddPersistentListener(listener.OnEventRaised, listener.Teleport);
 
             var targetGo = Spawn("Target");
             targetGo.SetActive(false);
             var target = targetGo.AddComponent<SendTeleportTarget>();
+            SetSerialized(target, "_teleportChannel", channel);
             SetSerialized(target, "objectToTeleport", targetGo.transform);
 
             Assert.That(ProjectSetupChecks.CheckTeleportWiring().Severity, Is.EqualTo(SetupValidator.Severity.Pass),
-                "An object-only listener (Teleports Player off, no Player) handles object teleports.");
+                "An object-only listener (Teleports Player off, no Player) handles object teleports on its channel.");
 
             SetSerializedBool(target, "isTeleportPlayer", true);
             var playerTargetResult = ProjectSetupChecks.CheckTeleportWiring();
@@ -447,29 +462,34 @@ namespace jeanf.universalplayer.tests.editor
         }
 
         [Test]
-        public void TeleportListenerFixer_AssignsTheScenePlayer()
+        public void TeleportListenerFixer_WiresTeleportAndAssignsTheScenePlayer()
         {
             if (SceneHasTeleportWiring())
                 Assert.Ignore("The open scene already contains teleport wiring — this test needs a clean slate.");
 
+            var channel = NewAsset<TeleportEventChannelSO>();
             var playerRoot = Spawn("Player");
             playerRoot.AddComponent<BroadcastControlsStatus>();
             var listenerGo = Spawn("Listener");
             listenerGo.SetActive(false);
             var listener = listenerGo.AddComponent<TeleportOnEvent>();
+            SetSerialized(listener, "_channel", channel);
 
             Assert.That(ProjectSetupChecks.CheckTeleportWiring().Severity, Is.EqualTo(SetupValidator.Severity.Fail),
-                "Precondition: a player listener without its Player fails the check.");
+                "Precondition: an unwired player listener fails the check.");
 
             Assert.That(TeleportListenerFixer.Wire(listener, playerRoot), Is.True,
-                "The fixer must report a change on a listener missing its Player.");
+                "The fixer must report a change on an unwired listener.");
             Assert.That(ProjectSetupChecks.CheckTeleportWiring().Severity, Is.EqualTo(SetupValidator.Severity.Pass),
-                "After the fix the listener has the scene player assigned — nothing else to wire.");
+                "After the fix the listener reaches Teleport and has the scene player assigned.");
             Assert.That(GetSerialized(listener, "player"), Is.EqualTo(playerRoot),
                 "The fixer must assign the scene player root to a player listener.");
+            Assert.That(listener.OnEventRaised.GetPersistentEventCount(), Is.EqualTo(1));
 
             Assert.That(TeleportListenerFixer.Wire(listener, playerRoot), Is.False,
                 "A second run must change nothing.");
+            Assert.That(listener.OnEventRaised.GetPersistentEventCount(), Is.EqualTo(1),
+                "The fixer must never add a duplicate Teleport call.");
         }
 
         [Test]
@@ -482,10 +502,10 @@ namespace jeanf.universalplayer.tests.editor
             var listenerGo = Spawn("ObjectListener");
             listenerGo.SetActive(false);
             var listener = listenerGo.AddComponent<TeleportOnEvent>();
+            SetSerialized(listener, "_channel", NewAsset<TeleportEventChannelSO>());
             SetSerializedBool(listener, "teleportsPlayer", false);
 
-            Assert.That(TeleportListenerFixer.Wire(listener, playerRoot), Is.False,
-                "An object-only listener needs nothing from the fixer.");
+            Assert.That(TeleportListenerFixer.Wire(listener, playerRoot), Is.True);
             Assert.That(GetSerialized(listener, "player"), Is.Null,
                 "An object-only listener must not receive the player — that field is meaningless for it.");
             Assert.That(ProjectSetupChecks.CheckTeleportWiring().Severity, Is.EqualTo(SetupValidator.Severity.Pass));

@@ -26,8 +26,9 @@ namespace jeanf.universalplayer
         [SerializeField] private LayerMask layerMask;
         [SerializeField] private float maxDistanceCheck = 2f;
 
-        // A matched press is reported over PlayerEvents.ActionPerformed (hub slot
-        // actionMade, payload = the hit transform) — nothing to wire per button.
+        [Header("Broadcasting on:")]
+        [Validation("Action-made channel is required — it is this component's only output; a matched press does nothing without it.")]
+        [SerializeField] private TransformEventChannelSO actionMade;
 
         private InputAction resolvedAction;
 
@@ -85,7 +86,7 @@ namespace jeanf.universalplayer
             if (hit.transform != target && !hit.transform.IsChildOf(target) && !target.IsChildOf(hit.transform)) return;
             
             if (_isDebug) Debug.Log($"it's a match! lets act");
-            PlayerEvents.RaiseActionPerformed(hit.transform);
+            if(actionMade) actionMade.RaiseEvent(hit.transform);
         }
     }
 }

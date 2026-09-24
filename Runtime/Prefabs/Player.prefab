@@ -50,6 +50,8 @@ MonoBehaviour:
   useInputAction: 1
   drawPrimaryItem: {fileID: -879462523816536454, guid: 110d9016d6486d84697b9d7a66a57d45, type: 3}
   playerInput: {fileID: 6693059999648577018}
+  loginFieldIsOpened: {fileID: 11400000, guid: 18a5405adeda6b6469dc7393511504a2, type: 2}
+  _PrimaryItemStateChannel: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6, type: 2}
 --- !u!114 &1445164021152325472
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73,6 +75,11 @@ MonoBehaviour:
   primaryItem: {fileID: 1679510989369336888}
   heldItemPositionOffset: {x: 0, y: 0, z: 0}
   heldItemRotationOffset: {x: 0, y: 0, z: 0}
+  _PrimaryItemStateChannel: {fileID: 11400000, guid: 7958c71ccf936994aa4ea1f6f86a3833, type: 2}
+  _primaryItemStateWithUsedHandChannel: {fileID: 11400000, guid: a75340a736e03214882a9df083e27d09, type: 2}
+  _leftGrab: {fileID: 11400000, guid: 3ee38a5004a83534b954968c729c71c1, type: 2}
+  _rightGrab: {fileID: 11400000, guid: be6ea7ff04e4c4b40aff5a5fb9e1ade6, type: 2}
+  _noGrab: {fileID: 11400000, guid: 21ae158d418b6b3459089b17603970c2, type: 2}
   _poseContainer: {fileID: 0}
   _hands: []
 --- !u!114 &1144241576270380061
@@ -100,6 +107,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   sliderMotionDuration: 0.05
+  objectDropped: {fileID: 11400000, guid: 28a737308a97ad74b9d32f9879cb84d0, type: 2}
+  objectTakenChannel: {fileID: 0}
+  roomIdChannelSO: {fileID: 0}
+  snapEventChannelSO: {fileID: 11400000, guid: 2093de23760d6ef4d88b079ebea99969, type: 2}
   rightInteractor: {fileID: 6736549674571496570}
   leftInteractor: {fileID: 4433284135794640293}
   itemAnchors: {fileID: 0}
@@ -221,6 +232,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isDebug: 0
+  PrimaryItemState: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6, type: 2}
   palette: {fileID: 11400000, guid: 5b9e2d4c7a1f4e8b9c2d3e4f5a6b7c82, type: 2}
   tabletCursorScale: 0.5
   cursorScaleLerpSeconds: 0.12
@@ -273,6 +285,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainMenu: {fileID: 3605809052086067705}
   openMainMenuAction: {fileID: 848959866287916309, guid: 110d9016d6486d84697b9d7a66a57d45, type: 3}
+  mainMenuStateChannel: {fileID: 11400000, guid: ff0093fdb7d83c9449485ee73150fa72, type: 2}
+  GeneralPauseEventChannel: {fileID: 11400000, guid: 33d13d03d679efd42bde17573556eca8, type: 2}
 --- !u!1 &1913895001
 GameObject:
   m_ObjectHideFlags: 0
@@ -332,6 +346,7 @@ MonoBehaviour:
   lastHandVisibility: 1
   canUpdate: 0
   shiftTypeHandAction: {fileID: -6974777946573060807, guid: 110d9016d6486d84697b9d7a66a57d45, type: 3}
+  gloveStateChannel: {fileID: 11400000, guid: 44afa38efccaafb40b05699ac6bd3740, type: 2}
 --- !u!114 &5959858377094773320
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -347,7 +362,14 @@ MonoBehaviour:
   _isDebug: 0
   grabCount: 0
   handsInDetectionzone: 0
+  _LeftHandState: {fileID: 11400000, guid: cf08fc0c61fce0d408103dcf2c99df5e, type: 2}
+  _RightHandState: {fileID: 11400000, guid: e2b569a0c3f568248bad34b4660c194e, type: 2}
+  _HandDetectedEvent: {fileID: 11400000, guid: 7d72df7a4798948489919c5af73e5a9d, type: 2}
+  _HandDisapearedEvent: {fileID: 11400000, guid: 98e04aef3dde8cc4db29dfcfde64318c, type: 2}
+  grabCountChannelSO: {fileID: 11400000, guid: b2cdb0e34277d0c429452b36a1bf74c2, type: 2}
   setPointingPoseOnOppositeHandGrab: 1
+  leftHandIsPointingChannelSO: {fileID: 11400000, guid: 4d2497ed035a70443a2a34543417a09e, type: 2}
+  rightHandIsPointingChannelSO: {fileID: 11400000, guid: f81ac86b022e53543a64380062a12cd1, type: 2}
   leftHandGrabState: 0
   rightHandGrabState: 0
 --- !u!1 &111797996808385590
@@ -1237,6 +1259,53 @@ Transform:
   - {fileID: 407147894}
   m_Father: {fileID: 2850605911437429060}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2200294092701895874
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3927126973281062436}
+  - component: {fileID: 2281943750679968935}
+  m_Layer: 2
+  m_Name: LoadingInformation
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3927126973281062436
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2200294092701895874}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6219682447209812045}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2281943750679968935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2200294092701895874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 870d6a39371c636478cc8124cdbf4bcc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isDebug: 0
+  loadingStatusChannel: {fileID: 11400000, guid: 01b3e76448211f34eaf1311534feccaa, type: 2}
+  loadingProgressChannel: {fileID: 11400000, guid: a646722a3745a364b9adb77ea97ec123, type: 2}
 --- !u!1 &2234156891092801961
 GameObject:
   m_ObjectHideFlags: 0
@@ -1281,7 +1350,51 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb53c906254c47ba81f1ccc045fe4158, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  channels: {fileID: 11400000, guid: 105ed253c2154d94ac57cfeeb02f8a31, type: 2}
+  channels: {fileID: 11400000, guid: 59ecff29efd000e4f808f068430a8104, type: 2}
+--- !u!1 &2235197686268113189
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7724431333155221316}
+  - component: {fileID: 891806810656328775}
+  m_Layer: 2
+  m_Name: PlayerInputEventManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7724431333155221316
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2235197686268113189}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2437955983869489437}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &891806810656328775
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2235197686268113189}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80ae9bca6617e104096d39288abffe29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2258425262222752749
 GameObject:
   m_ObjectHideFlags: 0
@@ -2345,6 +2458,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputActionAsset: {fileID: -944628639613478452, guid: 110d9016d6486d84697b9d7a66a57d45, type: 3}
+  rebindedActionSenderSO: {fileID: 11400000, guid: 6a5f2ae95d02ea1458fca4946f54c37b, type: 2}
+  actionRebindListenerSO: {fileID: 11400000, guid: 7aa852caccf3d7c45a6cf6d510c76159, type: 2}
+  uiActivationEventChannelSO: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6, type: 2}
 --- !u!1 &3605809052086067705
 GameObject:
   m_ObjectHideFlags: 0
@@ -2676,6 +2792,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: jeanf.universalplayer::jeanf.universalplayer.ScreenspaceHud
   _isDebug: 0
+  loadingStatusChannel: {fileID: 11400000, guid: 01b3e76448211f34eaf1311534feccaa, type: 2}
+  loadingProgressChannel: {fileID: 11400000, guid: a646722a3745a364b9adb77ea97ec123, type: 2}
   loadingBackgroundColor: {r: 1, g: 1, b: 1, a: 1}
   informationColor: {r: 1, g: 1, b: 1, a: 1}
   progressFallbackColor: {r: 1, g: 0.72, b: 0, a: 1}
@@ -2846,6 +2964,7 @@ MonoBehaviour:
   mouseLook: {fileID: 965419840}
   controller: {fileID: 1445164021152325472}
   _mainMenuController: {fileID: 1768687717}
+  actionRebindedListener: {fileID: 11400000, guid: 6a5f2ae95d02ea1458fca4946f54c37b, type: 2}
 --- !u!1 &4568312785888129817
 GameObject:
   m_ObjectHideFlags: 0
@@ -3046,6 +3165,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   handType: 1
+  controlSchemeChangeEvent: {fileID: 11400000, guid: 969e13ba914f5bb44811da904de9d4bc, type: 2}
 --- !u!114 &5348442847224309706
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3072,10 +3192,34 @@ MonoBehaviour:
   targetInteractor: {fileID: 4433284135794640293}
   grabAction:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1416462915762069096}
+        m_TargetAssemblyTypeName: BoolEventSender, jeanf.eventsystem
+        m_MethodName: SendBool
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
   ungrabAction:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1416462915762069096}
+        m_TargetAssemblyTypeName: BoolEventSender, jeanf.eventsystem
+        m_MethodName: SendBool
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &6641729160629453413
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3090,6 +3234,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isDebug: 0
   pointingPose: {fileID: 11400000, guid: ea306bf6523757048950f570597df0a7, type: 2}
+  handPoseEventChannelSO: {fileID: 11400000, guid: 4d2497ed035a70443a2a34543417a09e, type: 2}
 --- !u!114 &4611318557962606574
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3102,7 +3247,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0f14d7517a90aa4f9db8fe768093ec6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hand: 1
+  _channel: {fileID: 11400000, guid: 0066aba6691a7734a94b1e9c74e7d8e2, type: 2}
   OnEventRaised:
     m_PersistentCalls:
       m_Calls:
@@ -3602,6 +3747,7 @@ Transform:
   m_Children:
   - {fileID: 3154994471166405376}
   - {fileID: 5099210629095940249}
+  - {fileID: 7724431333155221316}
   - {fileID: 6902072457672355189}
   - {fileID: 4457342228019473233}
   m_Father: {fileID: 2850605911437429060}
@@ -3802,6 +3948,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isDebug: 0
   inputActionAsset: {fileID: -944628639613478452, guid: 110d9016d6486d84697b9d7a66a57d45, type: 3}
+  isInputFieldFocused: {fileID: 11400000, guid: 18a5405adeda6b6469dc7393511504a2, type: 2}
+  isLoadingScene: {fileID: 11400000, guid: 71f4580ec0467024daf6ed1c69b4c82e, type: 2}
 --- !u!1 &5642126693106005822
 GameObject:
   m_ObjectHideFlags: 0
@@ -5037,6 +5185,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   handType: 2
+  controlSchemeChangeEvent: {fileID: 11400000, guid: 969e13ba914f5bb44811da904de9d4bc, type: 2}
 --- !u!114 &1148101027494425303
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5063,10 +5212,34 @@ MonoBehaviour:
   targetInteractor: {fileID: 6736549674571496570}
   grabAction:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4757259213196560153}
+        m_TargetAssemblyTypeName: BoolEventSender, jeanf.eventsystem
+        m_MethodName: SendBool
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
   ungrabAction:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4757259213196560153}
+        m_TargetAssemblyTypeName: BoolEventSender, jeanf.eventsystem
+        m_MethodName: SendBool
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &5788503079062668546
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5081,6 +5254,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isDebug: 1
   pointingPose: {fileID: 11400000, guid: ea306bf6523757048950f570597df0a7, type: 2}
+  handPoseEventChannelSO: {fileID: 11400000, guid: f81ac86b022e53543a64380062a12cd1, type: 2}
 --- !u!114 &3541544794934192887
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5093,7 +5267,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0f14d7517a90aa4f9db8fe768093ec6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hand: 2
+  _channel: {fileID: 11400000, guid: e65f25bfe0f34264a8dff83dfac263ff, type: 2}
   OnEventRaised:
     m_PersistentCalls:
       m_Calls:
@@ -5637,6 +5811,7 @@ MonoBehaviour:
   rightHandHapticImpulse: {fileID: 99115431391698741}
   amplitude: 0.5
   duration: 0.2
+  hapticFeedbackOnSpecificHandSO: {fileID: 11400000, guid: d3e22cdb3c9760a44b85404ff348f6ee, type: 2}
 --- !u!1 &8197118584543841434
 GameObject:
   m_ObjectHideFlags: 0
@@ -5667,6 +5842,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7600811836266613298}
+  - {fileID: 3927126973281062436}
   m_Father: {fileID: 2850605911437429060}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8205020274304406987
@@ -6293,6 +6469,7 @@ MonoBehaviour:
   _inputActionList: []
   m_InputActionAsset: {fileID: -944628639613478452, guid: 110d9016d6486d84697b9d7a66a57d45, type: 3}
   _actionContainer: {fileID: 11400000, guid: b5b1fec7d21b69145a675d01177823e2, type: 2}
+  actionRebindedListener: {fileID: 11400000, guid: 6a5f2ae95d02ea1458fca4946f54c37b, type: 2}
 --- !u!114 &6693059999648577018
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7505,6 +7682,9 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 4804964734930210078, guid: 3df3e1220f2164f448701a6de8084f92, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 1180925709886859153}
+    - targetCorrespondingSourceObject: {fileID: 4804964734930210078, guid: 3df3e1220f2164f448701a6de8084f92, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 5060638530895297547}
   m_SourcePrefab: {fileID: 100100000, guid: 3df3e1220f2164f448701a6de8084f92, type: 3}
 --- !u!114 &4433284135794640293 stripped
@@ -7528,6 +7708,21 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 4804964734930210078, guid: 3df3e1220f2164f448701a6de8084f92, type: 3}
   m_PrefabInstance: {fileID: 2045444516329433885}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1180925709886859153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6830915019503134211}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0630d9bff40b94f41a6fac55a3b75713, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _isDebug: 0
+  voidMessageChannel: {fileID: 11400000, guid: 3ee38a5004a83534b954968c729c71c1, type: 2}
+  sendEventOnAwake: 1
 --- !u!114 &5060638530895297547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7540,7 +7735,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15c1b1212fd6f0d4f868badd8cf63b41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hand: 1
+  XRBaseInteractorMessageChannel: {fileID: 11400000, guid: 0066aba6691a7734a94b1e9c74e7d8e2, type: 2}
 --- !u!1001 &2070483719164986559
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7859,6 +8054,9 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 2447424620550846319, guid: b200f6587d118224eba8467281481800, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 8732103533625236349}
+    - targetCorrespondingSourceObject: {fileID: 2447424620550846319, guid: b200f6587d118224eba8467281481800, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 4539088467906145369}
   m_SourcePrefab: {fileID: 100100000, guid: b200f6587d118224eba8467281481800, type: 3}
 --- !u!4 &3685365972941138446 stripped
@@ -7871,6 +8069,21 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2447424620550846319, guid: b200f6587d118224eba8467281481800, type: 3}
   m_PrefabInstance: {fileID: 2288267244521023667}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8732103533625236349
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4483176571853348828}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0630d9bff40b94f41a6fac55a3b75713, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _isDebug: 0
+  voidMessageChannel: {fileID: 11400000, guid: be6ea7ff04e4c4b40aff5a5fb9e1ade6, type: 2}
+  sendEventOnAwake: 1
 --- !u!114 &4539088467906145369
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7883,7 +8096,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15c1b1212fd6f0d4f868badd8cf63b41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hand: 2
+  XRBaseInteractorMessageChannel: {fileID: 11400000, guid: e65f25bfe0f34264a8dff83dfac263ff, type: 2}
 --- !u!114 &6736549674571496570 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4808866746549998793, guid: b200f6587d118224eba8467281481800, type: 3}
@@ -8568,6 +8781,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 67e27b139a2a06b4985217621d4235d1, type: 3}
+--- !u!114 &1416462915762069096 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5394782743452376494, guid: 67e27b139a2a06b4985217621d4235d1, type: 3}
+  m_PrefabInstance: {fileID: 6446436497093673926}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97089b669d0079a4aa9e4695271e9dc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &5970661526352903204 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 840584133552570338, guid: 67e27b139a2a06b4985217621d4235d1, type: 3}
@@ -8812,6 +9036,17 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 5668158829214812005, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d, type: 3}
   m_PrefabInstance: {fileID: 6578859500331112020}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &4757259213196560153 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1822238038340243789, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d, type: 3}
+  m_PrefabInstance: {fileID: 6578859500331112020}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97089b669d0079a4aa9e4695271e9dc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &6667413892787335774 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 561723206917383178, guid: ad149eec0eebcd246b1c2ea3bfa7ed2d, type: 3}

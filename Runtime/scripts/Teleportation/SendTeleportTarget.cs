@@ -1,9 +1,9 @@
-using System;
 using jeanf.EventSystem;
 using jeanf.validationTools;
 using UnityEngine;
 using UnityEngine.Events;
 #if UNITY_EDITOR
+using System;
 using UnityEditor;
 #endif
 using jeanf.propertyDrawer;
@@ -19,9 +19,9 @@ namespace jeanf.universalplayer
         }
         [SerializeField] private bool _isDebug = false;
         
-        // Teleport requests go out over PlayerEvents.TeleportRequested: TeleportOnEvent
-        // performs them, and the bridge reports them on the hub's playerTeleport /
-        // objectTeleport channels for the project — nothing to wire per target.
+        [Header("Broadcasting on:")] 
+        [Validation("Teleport channel is required — Teleport() raises on it unguarded (a null reference throws) and no teleport is ever sent.")]
+        [SerializeField] private TeleportEventChannelSO _teleportChannel;
         
         [Header("Teleportation parameters:")] 
         public bool isTeleportPlayer = false;
@@ -44,18 +44,6 @@ namespace jeanf.universalplayer
         /// the player) that no script assigns at runtime.
         /// </summary>
         private bool RequiresObjectToTeleport => !isTeleportPlayer && !isTargetSetByScript;
-
-        /// <summary>
-        /// Raised on every teleport this component sends, just BEFORE the event goes out - so a
-        /// listener reading the subject's transform still sees where it stood. Bookkeeping hook:
-        /// SceneManagement's scenario journal uses it to note the original pose of the props a
-        /// scenario moves, and to put them back when the scenario unloads.
-        /// <para>
-        /// Fires whether or not a TeleportOnEvent ends up accepting the teleport (filters can drop
-        /// it), so treat it as "a teleport was requested", not "something moved".
-        /// </para>
-        /// </summary>
-        public static event Action<TeleportInformation> TeleportRequested;
 
         public Transform ObjectToTeleport
         {
@@ -81,8 +69,7 @@ namespace jeanf.universalplayer
                                    $"isTeleportPlayer : {teleportInformation.objectIsPlayer}, " +
                                    $"_filter : {teleportInformation.filter.filters[0]}, " +
                                    $"isUsingFilter : {teleportInformation.isUsingFilter}");
-            TeleportRequested?.Invoke(teleportInformation);
-            PlayerEvents.RaiseTeleportRequested(teleportInformation);
+            _teleportChannel.RaiseEvent(teleportInformation);
             WarnIfNothingHandledIt();
         }
         
@@ -96,13 +83,12 @@ namespace jeanf.universalplayer
                                    $"_filter : {teleportInformation.filter.filters[0]}, " +
                                    $"isUsingFilter : {teleportInformation.isUsingFilter}, " +
                                    $"shouldFade : {teleportInformation.shouldFade}");
-            TeleportRequested?.Invoke(teleportInformation);
-            PlayerEvents.RaiseTeleportRequested(teleportInformation);
+            _teleportChannel.RaiseEvent(teleportInformation);
             WarnIfNothingHandledIt();
         }
 
         /// <summary>
-        /// TeleportOnEvent listeners run synchronously inside the event, so if none of
+        /// TeleportOnEvent listeners run synchronously inside RaiseEvent, so if none of
         /// them accepted this teleport by now, it went nowhere — say so instead of
         /// letting the button do nothing silently.
         /// </summary>
@@ -110,9 +96,10 @@ namespace jeanf.universalplayer
         {
             if (TeleportOnEvent.LastHandledFrame == Time.frameCount) return;
             Debug.LogWarning($"[UniversalPlayer.XR] Teleport requested via '{name}' but NO TeleportOnEvent accepted it — nothing moved. Checklist: " +
-                "(1) an ENABLED TeleportOnEvent exists in the scene (usually on the Player variant) with its Player assigned; " +
-                "(2) 'Teleports Player' is on for player teleports; " +
-                $"(3) filters: this target {(isUsingFilter ? $"uses filter '{(_filter != null ? _filter.name : "<none>")}' which must be in the listener's filter list" : "uses no filter")}. " +
+                "(1) a TeleportOnEvent exists in the scene (usually on the Player variant); " +
+                "(2) its 'Receiving on channel' asset is the SAME TeleportEventChannel this target broadcasts on; " +
+                "(3) its OnEventRaised UnityEvent is wired to TeleportOnEvent.Teleport; " +
+                $"(4) filters: this target {(isUsingFilter ? $"uses filter '{(_filter != null ? _filter.name : "<none>")}' which must be in the listener's filter list" : "uses no filter")}. " +
                 "(Ignore if a custom listener handles teleports in this project.)", this);
         }
 

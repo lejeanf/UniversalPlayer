@@ -1,14 +1,10 @@
 using UnityEditor;
+using UnityEditor.Events;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace jeanf.universalplayer
 {
-    /// <summary>
-    /// Teleport requests travel over PlayerEvents, so the only thing a TeleportOnEvent
-    /// can be missing is its Player (when it teleports the player). This assigns the
-    /// scene player root to every such listener.
-    /// </summary>
     public static class TeleportListenerFixer
     {
         [MenuItem("Tools/Jeanf/UniversalPlayer/Wire Teleport Listeners")]
@@ -25,20 +21,31 @@ namespace jeanf.universalplayer
                 Selection.activeObject = listeners[0];
                 EditorGUIUtility.PingObject(listeners[0]);
             }
-            Debug.Log($"[UniversalPlayer.Fix] {wired} of {listeners.Length} TeleportOnEvent listener(s) needed their Player assigned.");
+            Debug.Log($"[UniversalPlayer.Fix] {wired} of {listeners.Length} TeleportOnEvent listener(s) needed wiring.");
         }
 
         public static bool Wire(TeleportOnEvent listener, GameObject playerRoot)
         {
+            var changed = false;
             var serialized = new SerializedObject(listener);
+            if (!ProjectSetupChecks.PersistentCallsReach(serialized.FindProperty("OnEventRaised"), nameof(TeleportOnEvent.Teleport)))
+            {
+                UnityEventTools.AddPersistentListener(listener.OnEventRaised, listener.Teleport);
+                serialized.Update();
+                changed = true;
+            }
+
             var teleportsPlayer = serialized.FindProperty("teleportsPlayer");
             var player = serialized.FindProperty("player");
-            if (teleportsPlayer == null || !teleportsPlayer.boolValue || player == null
-                || player.objectReferenceValue != null || playerRoot == null)
-                return false;
+            if (teleportsPlayer != null && teleportsPlayer.boolValue && player != null
+                && player.objectReferenceValue == null && playerRoot != null)
+            {
+                player.objectReferenceValue = playerRoot;
+                serialized.ApplyModifiedProperties();
+                changed = true;
+            }
 
-            player.objectReferenceValue = playerRoot;
-            serialized.ApplyModifiedProperties();
+            if (!changed) return false;
             EditorUtility.SetDirty(listener);
             if (listener.gameObject.scene.IsValid()) EditorSceneManager.MarkSceneDirty(listener.gameObject.scene);
             return true;

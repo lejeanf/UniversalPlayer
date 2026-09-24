@@ -67,12 +67,17 @@ namespace jeanf.universalplayer
         private static readonly int _gloveValue = Shader.PropertyToID("_Switch_Gloves");
         [SerializeField] private readonly int _genderValue = Shader.PropertyToID("_Switch_Woman");
 
-        // Gloves on/off arrive over PlayerEvents (hub slot gloveState).
+        [Header("Listening on:")]
+        [SerializeField] private BoolEventChannelSO gloveStateChannel;
+
         private void OnEnable()
         {
             BlendableHand.AddHand += AddHand;
             BlendableHand.RemoveHand += RemoveHand;
-            PlayerEvents.GloveStateChanged += SetGloveState;
+            if (gloveStateChannel != null)
+            {
+                gloveStateChannel.OnEventRaised += SetGloveState;
+            }
         }
 
         private void OnDisable() => Unsubscribe();
@@ -84,7 +89,10 @@ namespace jeanf.universalplayer
             _hands.TrimExcess();
             BlendableHand.AddHand -= AddHand;
             BlendableHand.RemoveHand -= RemoveHand;
-            PlayerEvents.GloveStateChanged -= SetGloveState;
+            if (gloveStateChannel != null)
+            {
+                gloveStateChannel.OnEventRaised -= SetGloveState;
+            }
         }
 
         private void Update()

@@ -6,13 +6,7 @@ using UnityEngine;
 
 namespace jeanf.universalplayer
 {
-    /// <summary>
-    /// Performs teleports. Requests arrive over <see cref="PlayerEvents.TeleportRequested"/>
-    /// — raised by SendTeleportTarget directly and by the bridge for the hub's
-    /// playerTeleport / objectTeleport channels — so a listener needs NO channel asset
-    /// and no UnityEvent wiring. After the move it raises PlayerTeleported / ObjectTeleported.
-    /// </summary>
-    public class TeleportOnEvent : MonoBehaviour, IDebugBehaviour
+    public class TeleportOnEvent : TeleportEventListener, IDebugBehaviour
     {
         public bool isDebug
         {
@@ -30,12 +24,10 @@ namespace jeanf.universalplayer
         [Header("Fade Settings")]
         [SerializeField] private float fadeInDuration = 0.2f;
 
-        private Coroutine _teleportCoroutine;
+        [Header("Broadcasting on:")]
+        // Camera reset after a player teleport goes through PlayerEvents (bridge forwards it).
 
-        private void OnEnable()
-        {
-            PlayerEvents.TeleportRequested += Teleport;
-        }
+        private Coroutine _teleportCoroutine;
 
         private void OnDestroy()
         {
@@ -44,7 +36,6 @@ namespace jeanf.universalplayer
 
         private void OnDisable()
         {
-            PlayerEvents.TeleportRequested -= Teleport;
             CleanupCoroutine();
         }
 
@@ -57,13 +48,11 @@ namespace jeanf.universalplayer
             }
         }
 
-        /// <summary>Frame index of the last teleport any TeleportOnEvent accepted — lets SendTeleportTarget warn when a teleport request found no taker.</summary>
+        /// <summary>Frame index of the last teleport any TeleportOnEvent accepted — lets SendTeleportTarget warn when a teleport event found no taker.</summary>
         public static int LastHandledFrame { get; private set; } = -1;
 
         public void Teleport(TeleportInformation teleportInformation)
         {
-            if (teleportInformation == null) return;
-
             if (teleportInformation.objectIsPlayer && !teleportsPlayer)
             {
                 if (_isDebug) Debug.Log($"[{gameObject.name}] ignoring player teleport — this listener is object-only (Teleports Player is off).");
@@ -72,7 +61,7 @@ namespace jeanf.universalplayer
 
             if (teleportInformation.isUsingFilter)
             {
-                if (listOfFilters == null || !listOfFilters.Contains(teleportInformation.filter))
+                if (!listOfFilters.Contains(teleportInformation.filter))
                     return;
                 if (_isDebug)
                     Debug.Log(
@@ -129,15 +118,11 @@ namespace jeanf.universalplayer
 
             if (teleportInformation.objectIsPlayer)
             {
-                // Authoritative "the player DID move" signal. A seated player who gets
+                // Authoritative "the player DID move" signal (the bridge also forwards the
+                // project channel, but only when one is wired). A seated player who gets
                 // teleported is standing by definition — SitController releases the seat on this.
                 PlayerEvents.RaisePlayerTeleported(teleportInformation);
                 PlayerEvents.RaiseCameraReset();
-            }
-            else
-            {
-                // Ground-level tracking (PlayerMovement) follows moved objects.
-                PlayerEvents.RaiseObjectTeleported(teleportInformation);
             }
 
             if (teleportInformation.shouldFade)
@@ -146,9 +131,9 @@ namespace jeanf.universalplayer
                 FadeMask.SetStateClear();
                 if (_isDebug) Debug.Log("TeleportOnEvent: Fading to clear...");
             }
-
+            
             if (_isDebug) Debug.Log($"[{teleportInformation.targetDestination.gameObject.name}] teleported {teleportSubject.gameObject.name} to {teleportInformation.targetDestination.transform.position} with rotation: {teleportInformation.targetDestination.transform.rotation.eulerAngles}");
-
+            
             _teleportCoroutine = null;
         }
     }

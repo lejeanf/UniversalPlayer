@@ -12,6 +12,9 @@ namespace jeanf.universalplayer
             set => _isDebug = value;
         }
         [SerializeField] private bool _isDebug = false;
+        [Header("Listening on:")]
+        [Validation("Primary-item state channel is required — the cursor frees for the tablet from it (and it is subscribed unguarded at startup).")]
+        [SerializeField] private BoolEventChannelSO PrimaryItemState;
 
         public enum CursorState
         {
@@ -130,7 +133,7 @@ namespace jeanf.universalplayer
 
         private void OnEnable()
         {
-            PlayerEvents.PrimaryItemStateChanged += SetCursorAccordingToPrimaryItemState;
+            PrimaryItemState.OnEventRaised += SetCursorAccordingToPrimaryItemState;
             PlayerEvents.MenuStateChanged += SetCursorAccordingToMainMenuState;
             PlayerEvents.ScreenFadeChanged += OnScreenFadeChanged;
             PlayerEvents.InvalidActionSignaled += FlashInvalidAction;
@@ -142,7 +145,7 @@ namespace jeanf.universalplayer
 
         private void Unsubscribe()
         {
-            PlayerEvents.PrimaryItemStateChanged -= SetCursorAccordingToPrimaryItemState;
+            PrimaryItemState.OnEventRaised -= SetCursorAccordingToPrimaryItemState;
             PlayerEvents.MenuStateChanged -= SetCursorAccordingToMainMenuState;
             PlayerEvents.ScreenFadeChanged -= OnScreenFadeChanged;
             PlayerEvents.InvalidActionSignaled -= FlashInvalidAction;

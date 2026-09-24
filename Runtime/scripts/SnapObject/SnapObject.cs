@@ -30,8 +30,8 @@ namespace jeanf.universalplayer
         public static event Action<Transform, Quaternion> OnSnapRotate;
         public static event Action<bool> OnSnap;
         [SerializeField] Quaternion snapOffsetRotation;
-        // Snap begin/end are reported over PlayerEvents.SnapBegun / SnapEnded (hub slots
-        // snapBegun / snapEnded, payload = this object) — nothing to wire per object.
+        [SerializeField] VoidEventChannelSO snapBegun;
+        [SerializeField] VoidEventChannelSO snapEnded;
 
         //On assigne
         private void OnTriggerEnter(Collider other)
@@ -39,7 +39,11 @@ namespace jeanf.universalplayer
             if (other.gameObject.GetComponent<SnapZone>())
             {
                 attachedSnapZone = other.gameObject.GetComponent<SnapZone>();
-                PlayerEvents.RaiseSnapBegun(gameObject);
+                try
+                {
+                    snapBegun.RaiseEvent();
+                }
+                catch { }
                 foreach (GameObject snapPoint in attachedSnapZone.SnapPoints)
                 {
                     snapPoints.Add(snapPoint);
@@ -65,7 +69,7 @@ namespace jeanf.universalplayer
                 attachedSnapZone = null;
                 nearestSnapPoint = null;
                 OnSnap.Invoke(false);
-                PlayerEvents.RaiseSnapEnded(gameObject); 
+                snapEnded.RaiseEvent(); 
             }
         }
 

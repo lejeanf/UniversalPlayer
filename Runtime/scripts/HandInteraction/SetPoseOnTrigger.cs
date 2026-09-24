@@ -53,27 +53,8 @@ namespace jeanf.universalplayer
             handPoseManager.ReleasePoseClaim(this);
         }
 
-        // The hand holding the primary item cannot take the zone's pose (its fingers
-        // are on the tablet): follow the VR flow's state — no per-zone listener to wire.
-        private void OnEnable()
-        {
-            GetPrimaryInHandItemWithVRController.OnIpadStateChanged += OnPrimaryItemHandChanged;
-        }
-
-        private void OnPrimaryItemHandChanged(IpadState state)
-        {
-            switch (state)
-            {
-                case IpadState.InLeftHand: LeftHandIsGrabbing(); break;
-                case IpadState.InRightHand: RightHandIsGrabbing(); break;
-                default: NoHandIsGrabbing(); break;
-            }
-        }
-
         private void OnDisable()
         {
-            GetPrimaryInHandItemWithVRController.OnIpadStateChanged -= OnPrimaryItemHandChanged;
-
             // A zone destroyed/disabled mid-visit must not leak its holds.
             foreach (var handPoseManager in handContacts.Keys)
             {

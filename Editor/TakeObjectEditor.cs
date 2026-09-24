@@ -67,6 +67,14 @@ namespace jeanf.universalplayer.editor
                 DrawPickableLayerAudit(mask, layerMaskProperty, maxDistance);
             }
 
+            if (serializedObject.FindProperty("objectTakenChannel").objectReferenceValue == null)
+            {
+                EditorGUILayout.HelpBox(
+                    "Object Taken Channel is empty. Pickup still works, but nothing is broadcast when an object is " +
+                    "taken — a PrimaryItemBehaviour on the item will NOT be promoted to 'drawn' by the grab. " +
+                    "(An item whose Carry Slot is Primary is still equipped directly, so the tablet works either way.)",
+                    MessageType.Info);
+            }
 
             if (!blocked)
             {

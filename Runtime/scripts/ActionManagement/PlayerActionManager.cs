@@ -31,6 +31,8 @@ namespace jeanf.universalplayer
         [SerializeField] private InputActionAsset m_InputActionAsset;
         [Validation("A reference to ActionContainerSO is required.")]
         [SerializeField] private ActionContainerSO _actionContainer;
+        [Validation("A reference to ActionRebindEventChannelSO is required.")]
+        [SerializeField] private ActionRebindEventChannelSO actionRebindedListener;
 
         private readonly Dictionary<InputAction, Action<InputAction.CallbackContext>> _actionHandlers =
             new Dictionary<InputAction, Action<InputAction.CallbackContext>>();
@@ -57,6 +59,12 @@ namespace jeanf.universalplayer
                 validityCheck = false;
             }
 
+            if(actionRebindedListener == null)
+            {
+                invalidObjects.Add(actionRebindedListener);
+                errorMessages.Add("No ActionRebindEventChannelSO set");
+                validityCheck = false;
+            }
 
             if (m_InputActionAsset == null)
             {
@@ -87,12 +95,12 @@ namespace jeanf.universalplayer
                     capturedAction.performed -= existing;
                 }
                 Action<InputAction.CallbackContext> handler =
-                    ctx => ForwardToChannel(capturedAction, ctx);
+                    ctx => ForwardActionToSO(_actionContainer._actions[capturedAction], ctx);
                 _actionHandlers[capturedAction] = handler;
                 capturedAction.Enable();
                 capturedAction.performed += handler;
             }
-            PlayerEvents.ActionRebound += RebindInput;
+            actionRebindedListener.OnEventRaised += RebindInput;
         }
 
         private void OnDisable() => Unsubscribe();
@@ -111,7 +119,7 @@ namespace jeanf.universalplayer
             _actionContainer._actions.TrimExcess();
             _inputActionList.Clear();
             _inputActionList.TrimExcess();
-            PlayerEvents.ActionRebound -= RebindInput;
+            actionRebindedListener.OnEventRaised -= RebindInput;
         }
 
         #if UNITY_EDITOR
@@ -186,12 +194,51 @@ namespace jeanf.universalplayer
             }
         }
 
-        // An ActionSO (Resources/Player/Actions) may name a channel to raise on every
-        // press. The bridge does the raising — no channel type is touched here.
-        private void ForwardToChannel(InputAction action, InputAction.CallbackContext ctx)
+        private Action ForwardActionToSO(ActionSO action, InputAction.CallbackContext ctx)
         {
-            if (!_actionContainer._actions.TryGetValue(action, out var actionSO) || actionSO == null) return;
-            PlayerEventBridge.ForwardInputAction(actionSO.eventChannel, ctx);
+            Action functionToCall = null;
+            if (action.eventChannel == null) return null;
+            var actionType = action.eventChannel.GetType().ToString(); 
+            switch (actionType)
+            {
+                case "IntEventChannelSO":
+                    IntEventChannelSO intEventChannelSO = (IntEventChannelSO)action.eventChannel;
+                    functionToCall = delegate { intEventChannelSO.RaiseEvent(ctx.ReadValue<int>()); };
+                    break;
+                case "VoidEventChannelSO":
+                    VoidEventChannelSO voidEventChannelSO = (VoidEventChannelSO)action.eventChannel;
+                    functionToCall = delegate { voidEventChannelSO.RaiseEvent(); };
+                    break;
+                case "BoolEventChannelSO":
+                    BoolEventChannelSO boolEventChannelSO = (BoolEventChannelSO)action.eventChannel;
+                    functionToCall = delegate { boolEventChannelSO.RaiseEvent(ctx.ReadValue<bool>()); };
+                    break;
+                case "FloatEventChannelSO":
+                    FloatEventChannelSO floatEventChannelSO = (FloatEventChannelSO)action.eventChannel;
+                    functionToCall = delegate { floatEventChannelSO.RaiseEvent(ctx.ReadValue<float>()); };
+                    break;
+                case "Vector2EventChannelSO":
+                    Vector3EventChannelSO vector2EventChannelSO = (Vector3EventChannelSO)action.eventChannel;
+                    functionToCall = delegate { vector2EventChannelSO.RaiseEvent(ctx.ReadValue<Vector2>()); };
+                    break;
+                case "Vector3EventChannelSO":
+                    Vector3EventChannelSO vector3EventChannelSO = (Vector3EventChannelSO)action.eventChannel;
+                    functionToCall = delegate { vector3EventChannelSO.RaiseEvent(ctx.ReadValue<Vector3>()); };
+                    break;
+                case "QuaternionEventChannelSO":
+                    QuaternionEventChannelSO quaternionEventChannelSO = (QuaternionEventChannelSO)action.eventChannel;
+                    functionToCall = delegate { quaternionEventChannelSO.RaiseEvent(ctx.ReadValue<Quaternion>()); };
+                    break;
+                //case "XRBaseInteractorEventChannelSO":
+                //    XRBaseInteractorEventChannelSO xRBaseInteractorEventChannelSO = (XRBaseInteractorEventChannelSO)action.eventChannel;
+                //    XRBaseInteractor xrBaseInteractor = xRBaseInteractorEventChannelSO.OnEventRaised(ctx.ReadValue<XRBaseInteractor>());
+                //    functionToCall = delegate { xRBaseInteractorEventChannelSO.RaiseEvent(xrBaseInteractor); };
+                //    break;
+                default:
+                    Debug.Log("Null");
+                    break;
+                }
+            return functionToCall;
         }
     }
 }

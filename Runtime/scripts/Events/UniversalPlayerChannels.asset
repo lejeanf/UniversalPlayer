@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f45af42f40648ef8985b65da3dd3316, type: 3}
   m_Name: UniversalPlayerChannels
   m_EditorClassIdentifier: 
-  controlSchemeChanged: {fileID: 11400000, guid: 969e13ba914f5bb44811da904de9d4bc, type: 2}
+  controlSchemeChanged: {fileID: 11400000, guid: 969e13ba914f5bb44811da904de9d4bc,
+    type: 2}
   hmdState: {fileID: 11400000, guid: 386d301c089a7c545adcdce484194ba9, type: 2}
   hmdConnection: {fileID: 11400000, guid: 150441088aec8d9478e70cfafabeee79, type: 2}
   xrIssueMessage: {fileID: 11400000, guid: 45daf96a59ebf8946960c6dc1b97236c, type: 2}
@@ -29,23 +30,3 @@ MonoBehaviour:
   playerTeleport: {fileID: 11400000, guid: a03c9fca588e41848abdc740acc54aeb, type: 2}
   objectTeleport: {fileID: 11400000, guid: f1fbc67042305a742b23d28f13a98bec, type: 2}
   cameraReset: {fileID: 11400000, guid: 869cdbdb9de48ea42aa65f9a90dbc1d4, type: 2}
-  sitRequest: {fileID: 11400000, guid: be4935bf60e25a74c95305ae9466c428, type: 2}
-  primaryItemStateVr: {fileID: 11400000, guid: 7958c71ccf936994aa4ea1f6f86a3833, type: 2}
-  objectTaken: {fileID: 11400000, guid: 72d88929f4b380c6a030c3f08e9814b0, type: 2}
-  objectDropped: {fileID: 11400000, guid: 28a737308a97ad74b9d32f9879cb84d0, type: 2}
-  actionRebound: {fileID: 11400000, guid: 6a5f2ae95d02ea1458fca4946f54c37b, type: 2}
-  grabCount: {fileID: 11400000, guid: b2cdb0e34277d0c429452b36a1bf74c2, type: 2}
-  leftHandIsPointing: {fileID: 11400000, guid: 4d2497ed035a70443a2a34543417a09e, type: 2}
-  rightHandIsPointing: {fileID: 11400000, guid: f81ac86b022e53543a64380062a12cd1, type: 2}
-  actionMade: {fileID: 11400000, guid: cdf2e6a56501f71202bd413ac6e73607, type: 2}
-  snapBegun: {fileID: 11400000, guid: 5666405f271a5d65e5381002508e8fe9, type: 2}
-  snapEnded: {fileID: 11400000, guid: 3cbeed5a7fc33b151a962f1504d6050f, type: 2}
-  inputFieldFocused: {fileID: 11400000, guid: 18a5405adeda6b6469dc7393511504a2, type: 2}
-  gloveState: {fileID: 11400000, guid: 44afa38efccaafb40b05699ac6bd3740, type: 2}
-  primaryItemDrawWithHand: {fileID: 11400000, guid: a75340a736e03214882a9df083e27d09, type: 2}
-  hapticFeedback: {fileID: 11400000, guid: d3e22cdb3c9760a44b85404ff348f6ee, type: 2}
-  loadingStatus: {fileID: 11400000, guid: 01b3e76448211f34eaf1311534feccaa, type: 2}
-  loadingProgress: {fileID: 11400000, guid: a646722a3745a364b9adb77ea97ec123, type: 2}
-  roomId: {fileID: 11400000, guid: ec07abd035ac233720d0fa9888092315, type: 2}
-  rebindRequested: {fileID: 11400000, guid: 7aa852caccf3d7c45a6cf6d510c76159, type: 2}
-  primaryItemState: {fileID: 11400000, guid: cce8767598dd925439339bf8bd4498e6, type: 2}

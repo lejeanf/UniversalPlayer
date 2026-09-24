@@ -145,6 +145,22 @@ MonoBehaviour:
   _isDebug: 0
   defaultPose: {fileID: 11400000, guid: 547a2e0e82cf3084786548d39808494f, type: 2}
   pointingPose: {fileID: 11400000, guid: ea306bf6523757048950f570597df0a7, type: 2}
+  handPoseEventChannelSO: {fileID: 11400000, guid: 4d2497ed035a70443a2a34543417a09e,
+    type: 2}
+--- !u!114 &5394782743452376494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 63484136123966808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97089b669d0079a4aa9e4695271e9dc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _isDebug: 0
+  boolMessageChannel: {fileID: 11400000, guid: cf08fc0c61fce0d408103dcf2c99df5e, type: 2}
 --- !u!114 &6161415323995238451
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -157,7 +173,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0f14d7517a90aa4f9db8fe768093ec6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hand: 1
+  _channel: {fileID: 11400000, guid: 0066aba6691a7734a94b1e9c74e7d8e2, type: 2}
   OnEventRaised:
     m_PersistentCalls:
       m_Calls:
@@ -197,10 +213,34 @@ MonoBehaviour:
   targetInteractor: {fileID: 0}
   grabAction:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5394782743452376494}
+        m_TargetAssemblyTypeName: BoolEventSender, jeanf.eventsystem
+        m_MethodName: SendBool
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
   ungrabAction:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5394782743452376494}
+        m_TargetAssemblyTypeName: BoolEventSender, jeanf.eventsystem
+        m_MethodName: SendBool
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!4 &3978499416533880670 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3667908875288706546, guid: c90da81e463fe0e44a3fcb2435c686a0,

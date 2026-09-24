@@ -1,14 +1,12 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using jeanf.EventSystem;
 using jeanf.validationTools;
 
-namespace jeanf.universalplayer
+namespace jeanf.universalplayer 
 {
-    /// <summary>
-    /// Applies a completed rebind (<see cref="PlayerEvents.ActionRebound"/>) to the
-    /// components that hold their own copy of an action reference.
-    /// </summary>
     public class PlayerInputInterface : MonoBehaviour, IValidatable
     {
 
@@ -18,12 +16,18 @@ namespace jeanf.universalplayer
 
         [Validation("A reference to InputActionAsset is required.")]
         [SerializeField] private InputActionAsset inputActionAsset;
+        //[Validation("A reference to ContinuousMoveProvider is required.")]
+        //[SerializeField] private ActionBasedContinuousMoveProvider continuousMoveProvider;
         [Validation("A reference to mouseLook is required.")]
         [SerializeField] private FPSCameraMovement mouseLook;
+        //[Validation("A reference to ActionBasedSnapTurnProvider is required.")]
+        //[SerializeField] private ActionBasedSnapTurnProvider snapTurnProvider;
         [Validation("A reference to GetPrimaryInHandItemWithVRController is required.")]
         [SerializeField] private GetPrimaryInHandItemWithVRController controller;
         [Validation("A reference to MainMenuController is required.")]
         [SerializeField] private MainMenuController _mainMenuController;
+        [Validation("A reference to ActionRebind event channel SO is required.")]
+        [SerializeField] private ActionRebindEventChannelSO actionRebindedListener;
 
 
         #if UNITY_EDITOR
@@ -42,12 +46,26 @@ namespace jeanf.universalplayer
                 validityCheck = false;
             }
 
+            //if (continuousMoveProvider == null)
+            //{
+            //    invalidObjects.Add(continuousMoveProvider);
+            //    errorMessages.Add("No continuousMoveProvider set");
+            //    validityCheck = false;
+            //}
+
             if (mouseLook == null)
             {
                 invalidObjects.Add(mouseLook);
                 errorMessages.Add("No mouseLook set");
                 validityCheck = false;
             }
+
+            //if (snapTurnProvider == null)
+            //{
+            //    invalidObjects.Add(snapTurnProvider);
+            //    errorMessages.Add("No snapTurnProvider set");
+            //    validityCheck = false;
+            //}
 
             if (controller == null)
             {
@@ -62,6 +80,13 @@ namespace jeanf.universalplayer
                 errorMessages.Add("No MainMenuController set");
                 validityCheck = false;
             }
+            if (actionRebindedListener == null)
+            {
+                invalidObjects.Add(actionRebindedListener);
+                errorMessages.Add("No Action Rebind SO set");
+                validityCheck = false;
+            }
+
 
             IsValid = validityCheck;
             if (!IsValid) return;
@@ -76,7 +101,7 @@ namespace jeanf.universalplayer
 
         private void OnEnable()
         {
-            PlayerEvents.ActionRebound += ChangeActionBindingOnDeltaScript;
+            actionRebindedListener.OnEventRaised += ChangeActionBindingOnDeltaScript;
         }
 
         private void OnDisable() => Unsubscribe();
@@ -86,7 +111,8 @@ namespace jeanf.universalplayer
 
         private void Unsubscribe()
         {
-            PlayerEvents.ActionRebound -= ChangeActionBindingOnDeltaScript;
+            actionRebindedListener.OnEventRaised -= ChangeActionBindingOnDeltaScript;
+
         }
 
         private void ChangeActionBindingOnDeltaScript(InputAction action, int bindingIndex)
@@ -95,6 +121,12 @@ namespace jeanf.universalplayer
 
             switch (actionToRebind)
             {
+                //case "Move":
+                //    continuousMoveProvider.leftHandMoveAction.action.ChangeBinding(action.bindings[bindingIndex]);
+                //    break;
+                //case "Snap Turn":
+                //    snapTurnProvider.rightHandSnapTurnAction.action.ChangeBinding(action.bindings[bindingIndex]);
+                //    break;
                 case "Look Around":
                     mouseLook.mouseXYInputAction.action.ChangeBinding(action.bindings[bindingIndex]);
                     break;

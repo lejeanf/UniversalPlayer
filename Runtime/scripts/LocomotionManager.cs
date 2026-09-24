@@ -1,14 +1,13 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using jeanf.EventSystem;
-using jeanf.universalplayer;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using UnityEngine.XR.Interaction.Toolkit;
 using jeanf.validationTools;
 
-/// <summary>
-/// Blocks the FPS action map while a text field has focus or a scene is loading.
-/// Both signals arrive over PlayerEvents (hub slots inputFieldFocused / sceneIsLoading).
-/// </summary>
 public class LocomotionManager : MonoBehaviour, IDebugBehaviour, IValidatable
 {
     private const string LogPrefix = "[UniversalPlayer]";
@@ -31,13 +30,51 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour, IValidatable
 
     [Validation("A reference to InputActionAsset is required.")]
     [SerializeField] private InputActionAsset inputActionAsset;
+    [Validation("A reference to bool event channel SO (from UI opening) is required.")]
+    [Header("Listening on:")]
+    [SerializeField] private BoolEventChannelSO isInputFieldFocused;
+    [Validation("A reference to bool event channel SO (from scene loading) is required — subscribed unguarded on enable (a null reference throws).")]
+    [SerializeField] private BoolEventChannelSO isLoadingScene;
 
 
     #if UNITY_EDITOR
     private void OnValidate()
     {
-        IsValid = inputActionAsset != null;
-        if (!IsValid && Application.isPlaying) Debug.LogError("Error: No InputActionAsset set ", this.gameObject);
+        var invalidObjects = new List<object>();
+        var errorMessages = new List<string>();
+        var validityCheck = true;
+
+        invalidObjects.Clear();
+
+        if (inputActionAsset == null)
+        {
+            invalidObjects.Add(inputActionAsset);
+            errorMessages.Add("No InputActionAsset set");
+            validityCheck = false;
+        }
+
+        if (isInputFieldFocused == null)
+        {
+            invalidObjects.Add(isInputFieldFocused);
+            errorMessages.Add("No Bool Event Channel set");
+            validityCheck = false;
+        }
+
+        if (isLoadingScene == null)
+        {
+            invalidObjects.Add(isLoadingScene);
+            errorMessages.Add("No Bool Event Channel set");
+            validityCheck = false;
+        }
+
+        IsValid = validityCheck;
+        if (!IsValid) return;
+
+        if (IsValid && !Application.isPlaying) return;
+        for (int i = 0; i < invalidObjects.Count; i++)
+        {
+            Debug.LogError($"Error: {errorMessages[i]} ", this.gameObject);
+        }
     }
     #endif
     // The two block sources are tracked separately: input stays blocked while
@@ -45,11 +82,17 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour, IValidatable
     // under a focused input field, and vice versa).
     private bool _uiFocusBlock;
     private bool _loadingBlock;
+    private UnityAction<bool> _onUiFocusChanged;
+    private UnityAction<bool> _onLoadingChanged;
 
     private void OnEnable()
     {
-        PlayerEvents.InputFieldFocusChanged += OnUiFocusChanged;
-        PlayerEvents.SceneLoadingChanged += OnLoadingChanged;
+        // Stored once so unsubscribing removes the REAL handlers (a `-= lambda`
+        // removes a fresh instance and silently leaks the subscription).
+        _onUiFocusChanged = state => { _uiFocusBlock = state; ApplyInputBlock(); };
+        _onLoadingChanged = state => { _loadingBlock = state; ApplyInputBlock(); };
+        isInputFieldFocused.OnEventRaised += _onUiFocusChanged;
+        isLoadingScene.OnEventRaised += _onLoadingChanged;
     }
 
     private void OnDisable() => Unsubscribe();
@@ -57,12 +100,9 @@ public class LocomotionManager : MonoBehaviour, IDebugBehaviour, IValidatable
 
     private void Unsubscribe()
     {
-        PlayerEvents.InputFieldFocusChanged -= OnUiFocusChanged;
-        PlayerEvents.SceneLoadingChanged -= OnLoadingChanged;
+        if (_onUiFocusChanged != null) isInputFieldFocused.OnEventRaised -= _onUiFocusChanged;
+        if (_onLoadingChanged != null) isLoadingScene.OnEventRaised -= _onLoadingChanged;
     }
-
-    private void OnUiFocusChanged(bool state) { _uiFocusBlock = state; ApplyInputBlock(); }
-    private void OnLoadingChanged(bool state) { _loadingBlock = state; ApplyInputBlock(); }
 
     private void ApplyInputBlock()
     {

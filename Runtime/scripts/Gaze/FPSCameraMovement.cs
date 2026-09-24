@@ -64,6 +64,11 @@ namespace jeanf.universalplayer
         [SerializeField] private PrimaryItemController primaryItemController;
         private Vector2 _rotation = Vector2.zero;
         private Vector2 _smoothedRotation = Vector2.zero;
+        /*
+        [Header("Broadcasting on:")]
+        [SerializeField] private BoolEventChannelSO _canLookStateChannel;
+        //[SerializeField] private VoidEventChannelSO _invertPrimaryItemStateChannel;
+        */
 
         // Channel wiring lives on the PlayerEventBridge; this component listens on the
         // internal PlayerEvents delegate surface only.
@@ -293,12 +298,14 @@ namespace jeanf.universalplayer
         {
             if((_isDebug)) Debug.Log($"CanLook: {state}");
             _canLook = state;
+            //_canLookStateChannel.RaiseEvent(!state);
         }
 
 
         public void InvertMouseLookState()
         {
             _canLook = !_canLook;
+            //_invertPrimaryItemStateChannel.RaiseEvent();
         }
 
         #if UNITY_EDITOR

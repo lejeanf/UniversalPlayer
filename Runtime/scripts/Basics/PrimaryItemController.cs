@@ -1,21 +1,23 @@
+using jeanf.EventSystem;
 using jeanf.validationTools;
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 namespace jeanf.universalplayer
 {
-    /// <summary>
-    /// Owns the drawn/holstered state of the primary item (tablet) on desktop. The
-    /// state is SHARED over <see cref="PlayerEvents.PrimaryItemStateChanged"/> (hub
-    /// slot primaryItemState, bidirectional): the draw binding raises it, and any
-    /// other raise (a grab, the VR flow, a project channel) is applied as an override.
-    /// </summary>
     public class PrimaryItemController : MonoBehaviour
     {
         [SerializeField] private bool useInputAction = true;
         [Validation("The DrawPrimaryItem action is required — pressing 1/dpad-up does nothing without it.")]
         [SerializeField] private InputActionReference drawPrimaryItem;
         [SerializeField] public PlayerInput playerInput;
+        [Header("Listening On")]
+        [Validation("Login-field-open channel is required — the draw action is enabled/disabled from it, and it is subscribed unguarded at startup (a null reference throws).")]
+        [SerializeField] private BoolEventChannelSO loginFieldIsOpened;
+
+        [Header("Broadcasting on:")]
+        [Validation("The primary item state channel is required — nothing hears the draw/holster presses without it.")]
+        [SerializeField] private BoolEventChannelSO _PrimaryItemStateChannel;
         public static event Action<XRHandsInteractionManager.LastUsedHand, bool> TriggerLastUsedHand;
         private bool primaryItemState = false;
         public bool PrimaryItemState { get { return primaryItemState; } }
@@ -23,10 +25,8 @@ namespace jeanf.universalplayer
         private void OnEnable()
         {
             if (useInputAction) drawPrimaryItem.action.performed += OnDrawPerformed;
-            PlayerEvents.PrimaryItemStateChanged += StateOverride;
-            // A focused text field (tablet login) disables the draw binding — typing a
-            // '1' must not holster the tablet (hub slot: inputFieldFocused).
-            PlayerEvents.InputFieldFocusChanged += SetDrawPrimaryItemActionState;
+            _PrimaryItemStateChannel.OnEventRaised += StateOverride;
+            loginFieldIsOpened.OnEventRaised += SetDrawPrimaryItemActionState;
         }
 
         private void OnDestroy() => Unsubscribe();
@@ -37,8 +37,8 @@ namespace jeanf.universalplayer
             // Named handlers: `-= lambda` removes a fresh instance and silently
             // leaks the subscription.
             if (useInputAction) drawPrimaryItem.action.performed -= OnDrawPerformed;
-            PlayerEvents.PrimaryItemStateChanged -= StateOverride;
-            PlayerEvents.InputFieldFocusChanged -= SetDrawPrimaryItemActionState;
+            _PrimaryItemStateChannel.OnEventRaised -= StateOverride;
+            loginFieldIsOpened.OnEventRaised -= SetDrawPrimaryItemActionState;
         }
 
         private void OnDrawPerformed(InputAction.CallbackContext _) => InvertState();
@@ -79,9 +79,7 @@ namespace jeanf.universalplayer
         private void SetPrimaryItemState(bool state)
         {
             primaryItemState = state;
-            // Shared state first (every listener incl. StateOverride below sees it),
-            // then this controller's own change notification.
-            PlayerEvents.RaisePrimaryItemState(state);
+            _PrimaryItemStateChannel.RaiseEvent(state);
             PrimaryItemStateChanged?.Invoke(state);
         }
 
@@ -89,7 +87,7 @@ namespace jeanf.universalplayer
         {
             if (BroadcastControlsStatus.controlScheme == BroadcastControlsStatus.ControlScheme.XR)
             {
-                TriggerLastUsedHand?.Invoke(XRHandsInteractionManager.hand, state);
+                TriggerLastUsedHand.Invoke(XRHandsInteractionManager.hand, state);
             }
             if (primaryItemState == state) return;
             primaryItemState = state;

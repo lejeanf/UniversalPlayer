@@ -1,4 +1,3 @@
-using System.Linq;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
@@ -159,24 +158,16 @@ namespace jeanf.universalplayer.tests
                 "Without the PlayerChannelsSO, EVERY boundary event is silent (teleports in, movement/seated/XR reports out).");
 
             var channels = (PlayerChannelsSO)new SerializedObject(bridge).FindProperty("channels").objectReferenceValue;
-            // The package prefab must ship with the PACKAGED asset: a reference to a
-            // project-level copy (Assets/PlayerChannels.asset in the dev project) resolves
-            // to nothing in every consumer and silences the whole boundary.
-            var channelsPath = AssetDatabase.GetAssetPath(channels);
-            Assert.That(channelsPath, Does.StartWith(PackagePaths.Root + "/"),
-                $"PlayerEventBridge on Player.prefab points at '{channelsPath}', outside the package — consumers get a " +
-                "missing reference. Re-assign Runtime/scripts/Events/UniversalPlayerChannels.asset (a project-local copy " +
-                "belongs on the project's Player VARIANT, never on the base prefab).");
-
             var so = new SerializedObject(channels);
-            // The packaged default owns one asset per slot (Runtime/Channels/): EVERY slot is
-            // filled, so a fresh consumer hears every signal without wiring anything.
-            var expected = typeof(PlayerChannelsSO).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public)
-                .Where(field => typeof(jeanf.EventSystem.DescriptionBaseSO).IsAssignableFrom(field.FieldType))
-                .Select(field => field.Name)
-                .ToList();
-            Assert.That(expected, Is.Not.Empty, "PlayerChannelsSO has no channel slot — update this test alongside the refactor.");
-            foreach (var slot in expected)
+            // fallRecoveryMessage and pause are legitimately optional; everything else
+            // reproduces wiring the prefab had before the bridge existed.
+            foreach (var slot in new[]
+                     {
+                         "controlSchemeChanged", "hmdState", "hmdConnection", "xrIssueMessage",
+                         "playerIsMoving", "seatedState", "mouselookState", "sceneIsLoading",
+                         "playerTeleport", "objectTeleport", "cameraReset",
+                         "toggleMap", "toggleInventory", "mainMenuState",
+                     })
             {
                 var property = so.FindProperty(slot);
                 Assert.That(property, Is.Not.Null,

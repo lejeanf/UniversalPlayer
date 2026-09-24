@@ -287,9 +287,9 @@ namespace jeanf.universalplayer
             var listeners = FindObjectsByType<TeleportOnEvent>(FindObjectsInactive.Exclude);
             if (listeners.Length == 0)
             {
-                EditorGUILayout.HelpBox("No TeleportOnEvent in the scene — teleport requests go nowhere. " +
-                    "Add one (usually on the Player variant) with its Player assigned; requests arrive over " +
-                    "PlayerEvents, nothing else to wire.", MessageType.Error);
+                EditorGUILayout.HelpBox("No TeleportOnEvent in the scene — teleport events go nowhere. " +
+                    "Add one (usually on the Player variant), listening on the same TeleportEventChannel, " +
+                    "with OnEventRaised wired to its Teleport method.", MessageType.Error);
             }
 
             _teleportWithFade = EditorGUILayout.ToggleLeft("Fade to black during teleport", _teleportWithFade);
@@ -315,16 +315,14 @@ namespace jeanf.universalplayer
         {
             if (listeners.Length == 0) return null; // already reported once above
 
-            // Every listener hears every request (PlayerEvents); only the player/object
-            // split and the filters can still reject it.
+            var targetChannel = new SerializedObject(target).FindProperty("_teleportChannel")?.objectReferenceValue;
+            if (targetChannel == null)
+                return $"'{target.name}' has no TeleportEventChannel assigned — the Teleport button raises nothing.";
+
             var channelMatches = listeners.Where(listener =>
-            {
-                var so = new SerializedObject(listener);
-                var teleportsPlayer = so.FindProperty("teleportsPlayer")?.boolValue ?? true;
-                return !target.isTeleportPlayer || teleportsPlayer && so.FindProperty("player")?.objectReferenceValue != null;
-            }).ToArray();
+                new SerializedObject(listener).FindProperty("_channel")?.objectReferenceValue == targetChannel).ToArray();
             if (channelMatches.Length == 0)
-                return $"No TeleportOnEvent can move the player for '{target.name}' — a listener needs 'Teleports Player' on and its Player assigned.";
+                return $"No TeleportOnEvent listens on '{targetChannel.name}' (the channel '{target.name}' broadcasts on) — check the channel assets on both sides.";
 
             if (target.isUsingFilter)
             {

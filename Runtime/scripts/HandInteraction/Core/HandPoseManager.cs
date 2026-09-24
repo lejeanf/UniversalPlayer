@@ -132,7 +132,6 @@ namespace jeanf.universalplayer
             if (pose == null) return;
 
             grabAction.Invoke();
-            PlayerEvents.RaiseHandGrabState(handType, true);
             if (isDebug) Debug.Log($"Pose name : {pose.name}");
             TryClaimPose(interactable, HandPoseSource.Grab, pose);
         }
@@ -144,7 +143,6 @@ namespace jeanf.universalplayer
 
             if (ResolveGrabPose(interactable) == null) return;
             ungrabAction.Invoke();
-            PlayerEvents.RaiseHandGrabState(handType, false);
             ReleasePoseClaim(interactable);
         }
 
