@@ -56,6 +56,14 @@ namespace jeanf.universalplayer
         public static event Action<float> PlayerLanded;
         /// <summary>Crossed the crouch midpoint: true = now crouched, false = stood back up.</summary>
         public static event Action<bool> CrouchStateChanged;
+        
+        /// <summary>True while sit/stand player input should be ignored (iPad drawn, world UI, …).
+        /// Projects forward <c>primaryItemState</c> into this. Scenario sit/stand is unaffected.</summary>
+        public static event Action<bool> SitInputSuppressedChanged;
+        /// <summary>False while a cinematic lock forbids player-initiated standing (Jump / VR stick / move).
+        /// Default is unlocked (true). Scenario sit/stand is unaffected.</summary>
+        public static event Action<bool> AllowPlayerExitChanged;
+
 
         public static void RaiseHmdState(bool mounted) => HmdStateChanged?.Invoke(mounted);
         public static void RaiseHmdConnection(bool connected) => HmdConnectionChanged?.Invoke(connected);
@@ -81,5 +89,9 @@ namespace jeanf.universalplayer
         public static void RaisePlayerJumped() => PlayerJumped?.Invoke();
         public static void RaisePlayerLanded(float impactSpeed) => PlayerLanded?.Invoke(impactSpeed);
         public static void RaiseCrouchState(bool crouched) => CrouchStateChanged?.Invoke(crouched);
+
+        public static void RaiseSitInputSuppressed(bool suppressed) => SitInputSuppressedChanged?.Invoke(suppressed);
+        public static void RaiseAllowPlayerExit(bool allow) => AllowPlayerExitChanged?.Invoke(allow);
+
     }
 }
