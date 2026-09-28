@@ -38,8 +38,8 @@ The message states the consequence, not the type:
   whichever drawer Unity picks applies both (hide / grey per DrawIf, orange per Validation).
   The scanner behind the banner does NOT read DrawIf, so always gate the requirement on the
   same condition: `[DrawIf("isUsingFilter", true, ...)]` + `[Validation("...", RequiredIf = nameof(isUsingFilter))]`
-  (`EveryValidationOnADrawIfField_IsGatedWithRequiredIf`). `SendTeleportTarget` and
-  `PointOnCollisionTriggerWhenGrab` are the examples. When several conditions gate one field
+  (`EveryValidationOnADrawIfField_IsGatedWithRequiredIf`). `SendTeleportTarget` is the
+  example. When several conditions gate one field
   (several `[DrawIf]` on it), point `RequiredIf` at a private bool property combining them —
   `SendTeleportTarget.RequiresObjectToTeleport` (`!isTeleportPlayer && !isTargetSetByScript`)
   keeps the field drawer and the banner on the same rule, so the warning never shows for a
@@ -54,5 +54,6 @@ The field tint, hierarchy dot and console log need nothing from the editor.
 ## Deliberately unmarked
 
 - `PlayerChannelsSO` channels — the bridge null-guards every one; projects only wire what they use.
+  No other component has a channel field at all (`PlayerChannelsIsolationTests`).
 - Vendored XRI sample scripts under `Runtime/xrToolkit/` (sample scenes only).
 - Layer masks, UnityEvents, primitives — express those with `IValidatable` or `ValidateSetup`.

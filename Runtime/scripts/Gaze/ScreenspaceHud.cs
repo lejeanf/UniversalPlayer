@@ -39,13 +39,8 @@ namespace jeanf.universalplayer
         private const string InformationName = "Information";
         private const string ProgressName = "Progress";
 
-        [Header("Listening on:")]
-        [Tooltip("Loading status text (SceneManagement's LoadingInformation broadcasts it). Empty string = not loading.")]
-        [Validation("The loading status channel is required — without it the HUD never hears a scene load and the loading bar/status line silently never appear.")]
-        [SerializeField] private StringEventChannelSO loadingStatusChannel;
-        [Tooltip("Loading progress 0..1 (real progress, measured by the loaders).")]
-        [Validation("The loading progress channel is required — without it the loading bar stays at 0% for the whole load (progress is never received).")]
-        [SerializeField] private FloatEventChannelSO loadingProgressChannel;
+        // Loading status/progress arrive over PlayerEvents (hub slots loadingStatus /
+        // loadingProgress — SceneManagement's LoadingInformation broadcasts on them).
 
         [Header("Loading bar")]
         [Tooltip("Bar background while loading. White by design — the progress fill uses the cursor's colour on top of it.")]
@@ -80,8 +75,8 @@ namespace jeanf.universalplayer
             _warnAt = Time.unscaledTime + 2f;
             _warned = false;
 
-            if (loadingStatusChannel != null) loadingStatusChannel.OnEventRaised += OnLoadingStatus;
-            if (loadingProgressChannel != null) loadingProgressChannel.OnEventRaised += OnLoadingProgress;
+            PlayerEvents.LoadingStatusChanged += OnLoadingStatus;
+            PlayerEvents.LoadingProgressChanged += OnLoadingProgress;
 
             // May be too early: UIDocument builds its visual tree in ITS OnEnable, and the
             // order between components is not guaranteed. Update() retries until it is up.
@@ -96,8 +91,8 @@ namespace jeanf.universalplayer
 
         private void OnDisable()
         {
-            if (loadingStatusChannel != null) loadingStatusChannel.OnEventRaised -= OnLoadingStatus;
-            if (loadingProgressChannel != null) loadingProgressChannel.OnEventRaised -= OnLoadingProgress;
+            PlayerEvents.LoadingStatusChanged -= OnLoadingStatus;
+            PlayerEvents.LoadingProgressChanged -= OnLoadingProgress;
             if (Active == this) Active = null;
         }
 
@@ -266,8 +261,9 @@ namespace jeanf.universalplayer
             _lastStatus = status ?? string.Empty;
             var loading = !string.IsNullOrEmpty(_lastStatus);
             if (_isDebug) Debug.Log($"{LogPrefix} ScreenspaceHud status: '{_lastStatus}' " +
-                $"(loading: {loading}, elements resolved: {IsReady}). Silence here = the channel is not " +
-                "firing; assign the SAME StringEventChannelSO on LoadingInformation's 'Broadcasting on'.", this);
+                $"(loading: {loading}, elements resolved: {IsReady}). Silence here = nothing raises the hub's " +
+                "loadingStatus channel; LoadingInformation's 'Broadcasting on' must be the SAME asset as the " +
+                "PlayerChannels loadingStatus slot.", this);
             if (_information != null)
             {
                 _information.text = _lastStatus;

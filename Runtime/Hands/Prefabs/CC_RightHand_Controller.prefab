@@ -126,20 +126,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 3149082473931260808}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1822238038340243789
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 900848479362301616}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 97089b669d0079a4aa9e4695271e9dc6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _isDebug: 0
-  boolMessageChannel: {fileID: 11400000, guid: e2b569a0c3f568248bad34b4660c194e, type: 2}
 --- !u!114 &5222744362947772699
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -152,7 +138,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0f14d7517a90aa4f9db8fe768093ec6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _channel: {fileID: 11400000, guid: e65f25bfe0f34264a8dff83dfac263ff, type: 2}
+  hand: 2
   OnEventRaised:
     m_PersistentCalls:
       m_Calls:
@@ -192,34 +178,10 @@ MonoBehaviour:
   targetInteractor: {fileID: 0}
   grabAction:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1822238038340243789}
-        m_TargetAssemblyTypeName: BoolEventSender, jeanf.eventsystem
-        m_MethodName: SendBool
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
+      m_Calls: []
   ungrabAction:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1822238038340243789}
-        m_TargetAssemblyTypeName: BoolEventSender, jeanf.eventsystem
-        m_MethodName: SendBool
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &6381204017710718244
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -235,8 +197,6 @@ MonoBehaviour:
   _isDebug: 0
   defaultPose: {fileID: 11400000, guid: 547a2e0e82cf3084786548d39808494f, type: 2}
   pointingPose: {fileID: 11400000, guid: ea306bf6523757048950f570597df0a7, type: 2}
-  handPoseEventChannelSO: {fileID: 11400000, guid: f81ac86b022e53543a64380062a12cd1,
-    type: 2}
 --- !u!4 &3181999613361233563 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 548157232542866707, guid: 93de43dcd9466e64cb862b298189c16d,

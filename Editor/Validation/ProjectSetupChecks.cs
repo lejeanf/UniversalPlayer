@@ -293,10 +293,11 @@ namespace jeanf.universalplayer
         }
 
         // The runtime only says "NO TeleportOnEvent accepted it" in play mode, AFTER the
-        // teleport already failed. Every fact it lists is visible at edit time: a listener
-        // exists, it receives on the SAME channel the scene's targets broadcast on, and its
-        // OnEventRaised actually reaches Teleport. (Filters can still reject a matching
-        // event — that part needs the runtime.) Public so the editor tests can drive it.
+        // teleport already failed. Requests travel over PlayerEvents.TeleportRequested (no
+        // channel asset to match any more), so what is left to verify at edit time: a
+        // listener exists, a player listener has its Player, and player teleport targets
+        // have a player listener to land on. (Filters can still reject a matching request —
+        // that part needs the runtime.) Public so the editor tests can drive it.
         public static SetupValidator.CheckResult CheckTeleportWiring()
         {
             const string check = "Scene: teleport listener";
@@ -305,91 +306,54 @@ namespace jeanf.universalplayer
 
             if (listeners.Length == 0)
                 return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
-                    "No TeleportOnEvent in the scene — SendTeleportTarget events go nowhere (nothing teleports).",
-                    "Add a TeleportOnEvent listening on your TeleportEventChannel, with OnEventRaised wired to its " +
-                    "Teleport method; keep 'Teleports Player' on (Player assigned) for player teleports, off for " +
-                    "object-only listeners.");
+                    "No TeleportOnEvent in the scene — SendTeleportTarget requests go nowhere (nothing teleports).",
+                    "Add a TeleportOnEvent (usually on the Player variant); keep 'Teleports Player' on (Player assigned) " +
+                    "for player teleports, off for object-only listeners. It needs no channel: requests arrive over PlayerEvents.");
 
-            var receivedChannels = new HashSet<Object>();
-            var playerChannels = new HashSet<Object>();
             var broken = new List<string>();
+            var playerListeners = 0;
             foreach (var listener in listeners)
             {
                 var so = new SerializedObject(listener);
-                var channel = so.FindProperty("_channel")?.objectReferenceValue;
                 var teleportsPlayer = so.FindProperty("teleportsPlayer")?.boolValue ?? true;
                 var player = so.FindProperty("player")?.objectReferenceValue;
-
-                if (channel == null) broken.Add($"'{listener.name}' has no 'Receiving on channel' asset");
-                else
-                {
-                    receivedChannels.Add(channel);
-                    if (teleportsPlayer) playerChannels.Add(channel);
-                }
-
-                if (teleportsPlayer && player == null)
-                    broken.Add($"'{listener.name}' teleports the player but its Player field is empty");
-
-                if (!PersistentCallsReach(so.FindProperty("OnEventRaised"), nameof(TeleportOnEvent.Teleport)))
-                    broken.Add($"'{listener.name}': OnEventRaised is not wired to TeleportOnEvent.Teleport");
-            }
-
-            var unreceived = new List<string>();
-            foreach (var target in targets)
-            {
-                var so = new SerializedObject(target);
-                var channel = so.FindProperty("_teleportChannel")?.objectReferenceValue;
-                var isPlayerTeleport = so.FindProperty("isTeleportPlayer")?.boolValue ?? false;
-                if (channel == null) unreceived.Add($"'{target.name}' broadcasts on NO channel");
-                else if (!receivedChannels.Contains(channel))
-                    unreceived.Add($"'{target.name}' broadcasts on '{channel.name}', which no listener here receives");
-                else if (isPlayerTeleport && !playerChannels.Contains(channel))
-                    unreceived.Add($"'{target.name}' is a PLAYER teleport but every listener on '{channel.name}' is " +
-                                   "object-only ('Teleports Player' off)");
+                if (!teleportsPlayer) continue;
+                if (player == null) broken.Add($"'{listener.name}' teleports the player but its Player field is empty");
+                else playerListeners++;
             }
 
             if (broken.Count > 0)
                 return new SetupValidator.CheckResult(check, SetupValidator.Severity.Fail,
-                    $"TeleportOnEvent misconfigured: {string.Join("; ", broken)} — every teleport on that listener is dropped.",
-                    "On each TeleportOnEvent: set 'Receiving on channel' to the TeleportEventChannel your targets " +
-                    "broadcast on, assign the Player when 'Teleports Player' is on (turn it off for object-only " +
-                    "listeners), and add TeleportOnEvent.Teleport to OnEventRaised (dynamic parameter). The Fix " +
-                    "button wires Teleport and the scene player; the channel is yours to pick.");
+                    $"TeleportOnEvent misconfigured: {string.Join("; ", broken)} — every player teleport on that listener is dropped.",
+                    "Assign the Player on each TeleportOnEvent whose 'Teleports Player' is on (turn it off for object-only " +
+                    "listeners). The Fix button assigns the scene player.");
 
-            if (unreceived.Count > 0)
+            var unhandled = new List<string>();
+            foreach (var target in targets)
+            {
+                var so = new SerializedObject(target);
+                var isPlayerTeleport = so.FindProperty("isTeleportPlayer")?.boolValue ?? false;
+                if (isPlayerTeleport && playerListeners == 0)
+                    unhandled.Add($"'{target.name}' is a PLAYER teleport but every listener here is object-only ('Teleports Player' off)");
+            }
+
+            if (unhandled.Count > 0)
                 return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
-                    $"SendTeleportTarget(s) nobody in the loaded scenes handles: {string.Join("; ", unreceived)} — " +
+                    $"SendTeleportTarget(s) nobody in the loaded scenes handles: {string.Join("; ", unhandled)} — " +
                     "those teleports do nothing (the runtime warns 'NO TeleportOnEvent accepted it'). Ignore if the " +
-                    "matching listener lives in a scene that is only loaded at runtime.",
-                    $"Point those targets at the channel the listener receives ({string.Join(", ", receivedChannels.Select(c => $"'{c.name}'"))}), " +
-                    "add a TeleportOnEvent for their channel, or turn 'Teleports Player' on for the listener that " +
-                    "must move the player. Still nothing moving? Check the listener's filters.");
+                    "player listener lives in a scene that is only loaded at runtime.",
+                    "Turn 'Teleports Player' on (and assign the Player) for the listener that must move the player. " +
+                    "Still nothing moving? Check the listener's filters.");
 
             return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
-                $"{listeners.Length} TeleportOnEvent(s) wired on {receivedChannels.Count} channel(s) " +
-                $"({playerChannels.Count} accepting player teleports); all {targets.Length} SendTeleportTarget(s) " +
-                "in the loaded scenes are handled.");
+                $"{listeners.Length} TeleportOnEvent(s) ({playerListeners} accepting player teleports); all " +
+                $"{targets.Length} SendTeleportTarget(s) in the loaded scenes have a taker.");
         }
 
         public static GameObject ScenePlayerRoot()
         {
             var broadcaster = Object.FindAnyObjectByType<BroadcastControlsStatus>(FindObjectsInactive.Include);
             return broadcaster != null ? broadcaster.transform.root.gameObject : null;
-        }
-
-        // True when at least one persistent UnityEvent call targets the named method.
-        public static bool PersistentCallsReach(SerializedProperty unityEvent, string methodName)
-        {
-            var calls = unityEvent?.FindPropertyRelative("m_PersistentCalls.m_Calls");
-            if (calls == null) return false;
-            for (var i = 0; i < calls.arraySize; i++)
-            {
-                var call = calls.GetArrayElementAtIndex(i);
-                if (call.FindPropertyRelative("m_Target")?.objectReferenceValue != null
-                    && call.FindPropertyRelative("m_MethodName")?.stringValue == methodName)
-                    return true;
-            }
-            return false;
         }
 
         // XrModeManager (v1.16.0) owns the desktop<->VR rendering switch: flat view after
@@ -444,7 +408,6 @@ namespace jeanf.universalplayer
             var so = new SerializedObject(manager);
             var missingRefs = new List<string>();
             if (so.FindProperty("_actionContainer")?.objectReferenceValue == null) missingRefs.Add("ActionContainerSO");
-            if (so.FindProperty("actionRebindedListener")?.objectReferenceValue == null) missingRefs.Add("ActionRebindEventChannelSO");
             var asset = so.FindProperty("m_InputActionAsset")?.objectReferenceValue as InputActionAsset;
             if (asset == null) missingRefs.Add("InputActionAsset");
             if (missingRefs.Count > 0)
@@ -539,7 +502,7 @@ namespace jeanf.universalplayer
                 return new SetupValidator.CheckResult(check, SetupValidator.Severity.Warning,
                     $"The 'sitRequest' slot on '{channelsAsset.name}' is empty — scripted sit requests (scenario loads that " +
                     "seat the player under the black fade) go nowhere. (Ignore if this project never seats the player by script.)",
-                    "Assign a GameObjectEventChannelSO (the package ships SitEventChannelSO in Runtime/scripts/Sitting/) on the " +
+                    "Assign a GameObjectEventChannelSO (the package ships SitRequest in Runtime/Channels/) on the " +
                     "PlayerChannels asset's sitRequest slot AND raise it from the scenario logic (Seat GameObject = sit, null = stand).");
 
             return new SetupValidator.CheckResult(check, SetupValidator.Severity.Pass,
@@ -858,6 +821,20 @@ namespace jeanf.universalplayer
                     : $"Built-in pipeline: '{cameraName}' needs no pipeline camera data.");
         }
 
+        /// <summary>
+        /// Hub slots the player itself depends on (their absence silences a signal the
+        /// packaged player raises or reacts to in every project). Every other slot is a
+        /// feature a project may legitimately not use — haptics by channel, rooms, snap /
+        /// world-button reports, the rebind UI, gloves, map/inventory, pause, fall toast...
+        /// PlayerPrefabWiringTests keep the packaged default asset filled for this set.
+        /// </summary>
+        public static readonly HashSet<string> RequiredChannelSlots = new HashSet<string>
+        {
+            "controlSchemeChanged", "hmdState", "hmdConnection", "xrIssueMessage", "playerIsMoving", "seatedState",
+            "sceneIsLoading", "sitRequest", "inputFieldFocused", "loadingStatus", "loadingProgress",
+            "cameraReset", "mainMenuState", "mouselookState", "primaryItemState", "playerTeleport", "objectTeleport",
+        };
+
         private static SetupValidator.CheckResult CheckPlayerEventBridge(GameObject playerRoot)
         {
             var bridge = playerRoot.GetComponentInChildren<PlayerEventBridge>(true);
@@ -886,15 +863,15 @@ namespace jeanf.universalplayer
                     "Run Tools/Jeanf/UniversalPlayer/Create Local Player Channels (duplicates it into Assets/ and assigns " +
                     "it to the bridge), then apply the override to your Player variant.");
 
-            // Optional slots: features a project may legitimately not use (no fall-recovery
-            // toast, no pause flow, no map/inventory UI).
-            var optional = new[] { "fallRecoveryMessage", "pause", "toggleMap", "toggleInventory" };
             var empty = new List<string>();
+            var emptyOptional = new List<string>();
             var iterator = new SerializedObject(channels).GetIterator();
             for (var enterChildren = true; iterator.NextVisible(enterChildren); enterChildren = false)
             {
                 if (iterator.propertyType != SerializedPropertyType.ObjectReference || iterator.name == "m_Script") continue;
-                if (iterator.objectReferenceValue == null && !optional.Contains(iterator.name)) empty.Add(iterator.name);
+                if (iterator.objectReferenceValue != null) continue;
+                if (RequiredChannelSlots.Contains(iterator.name)) empty.Add(iterator.name);
+                else emptyOptional.Add(iterator.name);
             }
 
             if (empty.Count > 0)
@@ -904,7 +881,9 @@ namespace jeanf.universalplayer
                     "Point each slot at the project's channel asset (the packaged UniversalPlayerChannels shows the defaults).");
 
             return new SetupValidator.CheckResult("Scene: player event bridge", SetupValidator.Severity.Pass,
-                $"Bridge present, '{channels.name}' fully wired.");
+                emptyOptional.Count == 0
+                    ? $"Bridge present, '{channels.name}' fully wired."
+                    : $"Bridge present, '{channels.name}' wired (optional slots left empty: {string.Join(", ", emptyOptional)}).");
         }
 
         private static SetupValidator.CheckResult CheckCursorPalette(GameObject playerRoot)

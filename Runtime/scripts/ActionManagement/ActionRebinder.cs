@@ -1,14 +1,17 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using jeanf.EventSystem;
 using jeanf.validationTools;
 
 namespace jeanf.universalplayer
 {
+    /// <summary>
+    /// Interactive rebinding. The project's rebind UI asks over
+    /// <see cref="PlayerEvents.RebindRequested"/> (hub slot rebindRequested); the result
+    /// goes out on <see cref="PlayerEvents.ActionRebound"/> (hub slot actionRebound) —
+    /// PlayerInputInterface / PlayerActionManager apply it, the project UI refreshes its labels.
+    /// </summary>
     public class ActionRebinder : MonoBehaviour, IValidatable
     {
-
         #region Debug tools
         public bool IsValid { get; private set; }
         #endregion
@@ -18,15 +21,6 @@ namespace jeanf.universalplayer
         private InputActionRebindingExtensions.RebindingOperation rebindingOperation;
         private const string RebindsKey = "rebinds";
 
-        #region EventChannels
-        [Validation("A reference to an ActionRebindEventChannelSO is required.")]
-        [SerializeField] private ActionRebindEventChannelSO rebindedActionSenderSO;
-        [Validation("A reference to an ActionRebindEventChannelSO is required.")]
-        [SerializeField] private ActionRebindEventChannelSO actionRebindListenerSO;
-        [Validation("A reference to BoolEventChannelSO is required.")]
-        [SerializeField] private BoolEventChannelSO uiActivationEventChannelSO;
-        #endregion
-
         private void Start()
         {
             string rebinds = PlayerPrefs.GetString(RebindsKey, string.Empty);
@@ -34,58 +28,17 @@ namespace jeanf.universalplayer
             inputActionAsset.LoadBindingOverridesFromJson(rebinds);
         }
 
-
         #if UNITY_EDITOR
         private void OnValidate()
         {
-            var invalidObjects = new List<object>();
-            var errorMessages = new List<string>();
-            var validityCheck = true;
-
-            invalidObjects.Clear();
-
-            if (inputActionAsset == null)
-            {
-                invalidObjects.Add(inputActionAsset);
-                errorMessages.Add("No InputActionAsset set");
-                validityCheck = false;
-            }
-
-            if (rebindedActionSenderSO == null)
-            {
-                invalidObjects.Add(rebindedActionSenderSO);
-                errorMessages.Add("No ActionRebindEventChannelSO set");
-                validityCheck = false;
-            }
-
-            if (actionRebindListenerSO == null)
-            {
-                invalidObjects.Add(actionRebindListenerSO);
-                errorMessages.Add("No ActionRebindEventChannelSO set");
-                validityCheck = false;
-            }
-
-            if (uiActivationEventChannelSO == null)
-            {
-                invalidObjects.Add(uiActivationEventChannelSO);
-                errorMessages.Add("No BoolEventChannelSO set");
-                validityCheck = false;
-            }
-
-            IsValid = validityCheck;
-            if (!IsValid) return;
-
-            if (IsValid && !Application.isPlaying) return;
-            for (int i = 0; i < invalidObjects.Count; i++)
-            {
-                Debug.LogError($"Error: {errorMessages[i]} ", this.gameObject);
-            }
+            IsValid = inputActionAsset != null;
+            if (!IsValid && Application.isPlaying) Debug.LogError("Error: No InputActionAsset set ", this.gameObject);
         }
         #endif
 
         private void OnEnable()
         {
-            actionRebindListenerSO.OnEventRaised += StartRebinding;
+            PlayerEvents.RebindRequested += StartRebinding;
         }
 
         private void OnDisable() => Unsubscribe();
@@ -94,12 +47,15 @@ namespace jeanf.universalplayer
 
         private void Unsubscribe()
         {
-            actionRebindListenerSO.OnEventRaised -= StartRebinding;
+            PlayerEvents.RebindRequested -= StartRebinding;
         }
 
         private void StartRebinding(InputAction action, int bindingIndex)
         {
-            uiActivationEventChannelSO.RaiseEvent(true);
+            // While the UI waits for a key the cursor must be free. The packaged prefab
+            // wired this "UI active" signal to the primary item state, so the same state
+            // is raised here (drawn = free cursor, holstered = locked again).
+            PlayerEvents.RaisePrimaryItemState(true);
             rebindingOperation = action.PerformInteractiveRebinding(bindingIndex)
                 .WithControlsExcluding("Mouse")
                 .OnMatchWaitForAnother(0.1f)
@@ -107,23 +63,18 @@ namespace jeanf.universalplayer
                 .Start();
         }
 
-
         private void RebindComplete(InputAction action, int index)
         {
             rebindingOperation.Dispose();
-            rebindedActionSenderSO.RaiseEvent(action, index);
-            uiActivationEventChannelSO.RaiseEvent(false);
+            PlayerEvents.RaiseActionRebound(action, index);
+            PlayerEvents.RaisePrimaryItemState(false);
             SaveBindings();
-
         }
 
         private void SaveBindings()
         {
             string rebinds = inputActionAsset.SaveBindingOverridesAsJson();
-            PlayerPrefs.SetString("rebinds", rebinds);
+            PlayerPrefs.SetString(RebindsKey, rebinds);
         }
-
-
     }
 }
-

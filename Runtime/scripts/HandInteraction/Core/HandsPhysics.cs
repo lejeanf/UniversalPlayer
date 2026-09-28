@@ -24,9 +24,6 @@ namespace jeanf.universalplayer
         GameObject pokeInteractor;
         [SerializeField] HandType handType;
 
-        [Validation("The control-scheme change channel is required — subscribed unguarded at startup (a null reference throws); the physics hands never follow XR on/off without it.")]
-        [SerializeField] VoidEventChannelSO controlSchemeChangeEvent;
-
         void Start()
         {
             rb = GetComponent<Rigidbody>();
@@ -42,7 +39,7 @@ namespace jeanf.universalplayer
         {
             TakeObject.OnGrabDeactivateCollider += HandleColliders;
             GetPrimaryInHandItemWithVRController.OnIpadStateChanged += HandleCollidersForSpecificHand;
-            controlSchemeChangeEvent.OnEventRaised += CheckXRStatus;
+            BroadcastControlsStatus.SendControlScheme += OnControlSchemeChanged;
             PrimaryItemController.TriggerLastUsedHand += HandleColliders;
         }
 
@@ -54,9 +51,11 @@ namespace jeanf.universalplayer
         {
             TakeObject.OnGrabDeactivateCollider -= HandleColliders;
             GetPrimaryInHandItemWithVRController.OnIpadStateChanged -= HandleCollidersForSpecificHand;
-            controlSchemeChangeEvent.OnEventRaised -= CheckXRStatus;
+            BroadcastControlsStatus.SendControlScheme -= OnControlSchemeChanged;
             PrimaryItemController.TriggerLastUsedHand -= HandleColliders;
         }
+
+        private void OnControlSchemeChanged(BroadcastControlsStatus.ControlScheme _) => CheckXRStatus();
         private void Update()
         {
             float distance = Vector3.Distance(transform.position, target.position);
